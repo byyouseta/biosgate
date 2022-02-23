@@ -22,170 +22,175 @@
                             @endphp
                         @else
                             @php
-                                $tanggal = \Carbon\Carbon::now()->locale('id')->format('Y-m-d');
+                                $tanggal = \Carbon\Carbon::now()
+                                    ->locale('id')
+                                    ->format('Y-m-d');
                             @endphp
                         @endif
                         <div class="card-body">
-                                <form action="/layanan/bor/lihat" method="GET">
-                                    <div class="form-group row">
+                            <form action="/layanan/bor/lihat" method="GET">
+                                <div class="form-group row">
 
-                                        <div class="col-sm-1 col-form-label">
-                                            <label>Tanggal</label>
-                                        </div>
-                                        <div class="col-sm-4 col-form-label">
-                                            <div class="input-group date" id="tanggal" data-target-input="nearest">
-                                                <input type="text" class="form-control datetimepicker-input" data-target="#tanggal" data-toggle="datetimepicker" name="tanggal" value="{{ $tanggal }}"/>
-                                                <div class="input-group-append" data-target="#tanggal" data-toggle="datetimepicker">
-                                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                                </div>
+                                    <div class="col-sm-1 col-form-label">
+                                        <label>Tanggal</label>
+                                    </div>
+                                    <div class="col-sm-2 col-form-label">
+                                        <div class="input-group date" id="tanggal" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
+                                                value="{{ $tanggal }}" />
+                                            <div class="input-group-append" data-target="#tanggal"
+                                                data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
                                         </div>
-
-                                        <div class="col-sm-1 col-form-label">
-                                            <button type="Submit" class="btn btn-primary btn-block">Lihat</button>
-                                        </div>
-
-                                        <div class="col-sm-2 col-form-label">
-                                            <a href="/layanan/bor/client" class="btn btn-success">Jalankan Client</a>
-                                        </div>
                                     </div>
-                                </form>
+
+                                    <div class="col-sm-1 col-form-label">
+                                        <button type="Submit" class="btn btn-primary btn-block">Lihat</button>
+                                    </div>
+
+                                    <div class="col-sm-2 col-form-label">
+                                        <a href="/layanan/bor/client" class="btn btn-success">Jalankan Client</a>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Data Visite Pasien <= Jam 10:00  hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">Jumlah</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <td>{{ $visitpagi->tgl_transaksi }}</td>
-                                        <td>{{ $visitpagi->jumlah }}</td>
-                                    </tbody>
-                                </table>
+                            <div class="card_title">Data Visite Pasien <= Jam 10:00 hari ini</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="overflow-x:auto;">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="align-middle">Tanggal Transaksi</th>
+                                                <th class="align-middle">Jumlah</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <td>{{ $visitpagi->tgl_transaksi }}</td>
+                                            <td>{{ $visitpagi->jumlah }}</td>
+                                        </tbody>
+                                    </table>
 
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">Data Visite Pasien > 10:00 s.d. 12:00 hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">Jumlah</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $visitsiang1->tgl_transaksi }}</td>
-                                            <td>{{ $visitsiang1->jumlah }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card_title">Data Visite Pasien > 10:00 s.d. 12:00 hari ini</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="overflow-x:auto;">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="align-middle">Tanggal Transaksi</th>
+                                                <th class="align-middle">Jumlah</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{{ $visitsiang1->tgl_transaksi }}</td>
+                                                <td>{{ $visitsiang1->jumlah }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
 
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">Data Visite Pasien > 12:00  hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">Jumlah</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $visitsiang2->tgl_transaksi }}</td>
-                                            <td>{{ $visitsiang2->jumlah }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                    <div class="col-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card_title">Data Visite Pasien > 12:00 hari ini</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="overflow-x:auto;">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="align-middle">Tanggal Transaksi</th>
+                                                <th class="align-middle">Jumlah</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{{ $visitsiang2->tgl_transaksi }}</td>
+                                                <td>{{ $visitsiang2->jumlah }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
 
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">DPJP Tidak Visite hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">jumlah</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card_title">DPJP Tidak Visite hari ini</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="overflow-x:auto;">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="align-middle">Tanggal Transaksi</th>
+                                                <th class="align-middle">jumlah</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                                             <tr>
                                                 <td>{{ $tidakvisit->tgl_transaksi }}</td>
                                                 <td>{{ $tidakvisit->jumlah }}</td>
                                             </tr>
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
 
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">Kegiatan Visite Pasien Pertama hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">jumlah</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card_title">Kegiatan Visite Pasien Pertama hari ini</div>
+                            </div>
+                            <div class="card-body">
+                                <div style="overflow-x:auto;">
+                                    <table class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th class="align-middle">Tanggal Transaksi</th>
+                                                <th class="align-middle">jumlah</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
                                             <tr>
                                                 <td>{{ $pertama->tgl_transaksi }}</td>
                                                 <td>{{ $pertama->jumlah }}</td>
                                             </tr>
-                                    </tbody>
-                                </table>
+                                        </tbody>
+                                    </table>
 
+                                </div>
                             </div>
                         </div>
                     </div>
+                    <!-- /.col -->
                 </div>
-                <!-- /.col -->
+                <!-- /.row -->
             </div>
-            <!-- /.row -->
-        </div>
-        <!-- /.container-fluid -->
+            <!-- /.container-fluid -->
     </section>
 @endsection
 @section('plugin')

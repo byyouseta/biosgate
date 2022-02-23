@@ -86,10 +86,10 @@
                 </ul>
             </li>
             <li class="nav-item">
-                <a href="/profile" class="nav-link">
-                    <i class="nav-icon fas fa-user"></i>
+                <a href="/setting" class="nav-link">
+                    <i class="nav-icon fas fa-cog"></i>
                     <p>
-                        Profil
+                        Setting
                         {{-- <span class="right badge badge-danger">New</span> --}}
                     </p>
                 </a>

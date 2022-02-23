@@ -51,7 +51,7 @@ class KesehatanController extends Controller
         return view('layanan_kesehatan', compact('inap', 'operasi', 'radiologi', 'rajal', 'rajalpoli', 'bpjs', 'nonbpjs', 'labsample', 'labparameter'));
     }
 
-    public function ranap($tanggal)
+    public static function ranap($tanggal)
     {
         // $tanggal = Carbon::now()->format('Y-m-d');
 
@@ -109,7 +109,7 @@ class KesehatanController extends Controller
         return $inap;
     }
 
-    public function labsample($tanggal)
+    public static function labsample($tanggal)
     {
         $data = DB::connection('mysqlkhanza')->table('permintaan_lab')
             ->select('permintaan_lab.no_rawat', 'permintaan_lab.no_order', 'permintaan_lab.tgl_sampel')
@@ -128,7 +128,7 @@ class KesehatanController extends Controller
         return $lab;
     }
 
-    public function labparameter($tanggal)
+    public static function labparameter($tanggal)
     {
         $data = DB::connection('mysqlkhanza')->table('jns_perawatan_lab')
             ->select('jns_perawatan_lab.nm_perawatan')
@@ -183,7 +183,7 @@ class KesehatanController extends Controller
         return $lab;
     }
 
-    public function operasi($tanggal)
+    public static function operasi($tanggal)
     {
         $data = DB::connection('mysqlkhanza')->table('operasi')
             ->select('operasi.no_rawat', 'operasi.tgl_operasi', 'operasi.jenis_anasthesi')
@@ -203,7 +203,7 @@ class KesehatanController extends Controller
         return $operasi;
     }
 
-    public function radiologi($tanggal)
+    public static function radiologi($tanggal)
     {
         $data = DB::connection('mysqlkhanza')->table('periksa_radiologi')
             ->select('periksa_radiologi.no_rawat', 'periksa_radiologi.tgl_periksa', 'periksa_radiologi.status')
@@ -223,7 +223,7 @@ class KesehatanController extends Controller
         return $radiologi;
     }
 
-    public function rajal($tanggal)
+    public static function rajal($tanggal)
     {
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             // ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'operasi.no_rawat')
@@ -242,7 +242,7 @@ class KesehatanController extends Controller
         return $rajal;
     }
 
-    public function rajalpoli($tanggal)
+    public static function rajalpoli($tanggal)
     {
         $data = DB::connection('mysqlkhanza')->table('poliklinik')
             ->select('poliklinik.kd_poli', 'poliklinik.nm_poli', 'poliklinik.status')
@@ -279,7 +279,7 @@ class KesehatanController extends Controller
         return $rajalpoli;
     }
 
-    public function bpjs($tanggal)
+    public static function bpjs($tanggal)
     {
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             // ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'operasi.no_rawat')
@@ -298,7 +298,7 @@ class KesehatanController extends Controller
         return $bpjs;
     }
 
-    public function nonbpjs($tanggal)
+    public static function nonbpjs($tanggal)
     {
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             // ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'operasi.no_rawat')

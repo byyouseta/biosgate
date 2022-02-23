@@ -15,10 +15,46 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-
+                    @if (Request::get('tanggal'))
+                        @php
+                            $tanggal = Request::get('tanggal');
+                        @endphp
+                    @else
+                        @php
+                            $tanggal = \Carbon\Carbon::now()
+                                ->locale('id')
+                                ->format('Y-m-d');
+                        @endphp
+                    @endif
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Saldo awal per hari ini</div>
+                            {{-- <div class="card_title">Saldo awal per hari ini</div> --}}
+                            {{-- <div class="card-body"> --}}
+                            <form action="/saldo/lihat" method="GET">
+                                <div class="form-group row">
+                                    <div class="col-sm-1 col-form-label">
+                                        <label>Tanggal</label>
+                                    </div>
+                                    <div class="col-sm-2 col-form-label">
+                                        <div class="input-group date" id="tanggal" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
+                                                value="{{ $tanggal }}" />
+                                            <div class="input-group-append" data-target="#tanggal"
+                                                data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1 col-form-label">
+                                        <button type="Submit" class="btn btn-primary btn-block">Lihat</button>
+                                    </div>
+                                    <div class="col-sm-2 col-form-label">
+                                        <a href="/saldo/client" target="_blank" class="btn btn-success">Jalankan Client</a>
+                                    </div>
+                                </div>
+                            </form>
+                            {{-- </div> --}}
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -102,7 +138,7 @@
         });
         //Date picker
         $('#tanggal').datetimepicker({
-            format: 'DD-MM-YYYY'
+            format: 'YYYY-MM-DD'
         });
     </script>
 @endsection

@@ -22,34 +22,40 @@
                             @endphp
                         @else
                             @php
-                                $tanggal = \Carbon\Carbon::now()->locale('id')->format('Y-m-d');
+                                $tanggal = \Carbon\Carbon::now()
+                                    ->locale('id')
+                                    ->format('Y-m-d');
                             @endphp
                         @endif
                         <div class="card-body">
-                                <form action="/layanan/kesehatan/lihat" method="GET">
-                                    <div class="form-group row">
+                            <form action="/layanan/kesehatan/lihat" method="GET">
+                                <div class="form-group row">
 
-                                        <div class="col-sm-1 col-form-label">
-                                            <label>Tanggal</label>
-                                        </div>
-                                        <div class="col-sm-4 col-form-label">
-                                            <div class="input-group date" id="tanggal" data-target-input="nearest">
-                                                <input type="text" class="form-control datetimepicker-input" data-target="#tanggal" data-toggle="datetimepicker" name="tanggal" value="{{ $tanggal }}"/>
-                                                <div class="input-group-append" data-target="#tanggal" data-toggle="datetimepicker">
-                                                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
-                                                </div>
+                                    <div class="col-sm-1 col-form-label">
+                                        <label>Tanggal</label>
+                                    </div>
+                                    <div class="col-sm-2 col-form-label">
+                                        <div class="input-group date" id="tanggal" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
+                                                value="{{ $tanggal }}" />
+                                            <div class="input-group-append" data-target="#tanggal"
+                                                data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
                                         </div>
-
-                                        <div class="col-sm-1 col-form-label">
-                                            <button type="Submit" class="btn btn-primary btn-block">Lihat</button>
-                                        </div>
-
-                                        <div class="col-sm-2 col-form-label">
-                                            <a href="/layanan/kesehatan/client" class="btn btn-success">Jalankan Client</a>
-                                        </div>
                                     </div>
-                                </form>
+
+                                    <div class="col-sm-1 col-form-label">
+                                        <button type="Submit" class="btn btn-primary btn-block">Lihat</button>
+                                    </div>
+
+                                    <div class="col-sm-2 col-form-label">
+                                        <a href="/layanan/kesehatan/client" class="btn btn-success" target="_blank">Jalankan
+                                            Client</a>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -164,10 +170,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                            <tr>
-                                                <td>{{ $operasi->tgl_transaksi }}</td>
-                                                <td>{{ $operasi->jumlah }}</td>
-                                            </tr>
+                                        <tr>
+                                            <td>{{ $operasi->tgl_transaksi }}</td>
+                                            <td>{{ $operasi->jumlah }}</td>
+                                        </tr>
                                     </tbody>
                                 </table>
 
@@ -190,10 +196,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                            <tr>
-                                                <td>{{ $radiologi->tgl_transaksi }}</td>
-                                                <td>{{ $radiologi->jumlah }}</td>
-                                            </tr>
+                                        <tr>
+                                            <td>{{ $radiologi->tgl_transaksi }}</td>
+                                            <td>{{ $radiologi->jumlah }}</td>
+                                        </tr>
                                     </tbody>
                                 </table>
 
@@ -216,10 +222,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                            <tr>
-                                                <td>{{ $rajal->tgl_transaksi }}</td>
-                                                <td>{{ $rajal->jumlah }}</td>
-                                            </tr>
+                                        <tr>
+                                            <td>{{ $rajal->tgl_transaksi }}</td>
+                                            <td>{{ $rajal->jumlah }}</td>
+                                        </tr>
                                     </tbody>
                                 </table>
 
@@ -276,10 +282,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                            <tr>
-                                                <td>{{ $bpjs->tgl_transaksi }}</td>
-                                                <td>{{ $bpjs->jumlah }}</td>
-                                            </tr>
+                                        <tr>
+                                            <td>{{ $bpjs->tgl_transaksi }}</td>
+                                            <td>{{ $bpjs->jumlah }}</td>
+                                        </tr>
                                     </tbody>
                                 </table>
 
