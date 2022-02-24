@@ -42,3 +42,7 @@ Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
 Route::post('/setting/update', 'SettingController@update')->name('setting.update');
 Route::get('/setting/delete/{id}', 'SettingController@delete')->name('setting.delete');
+
+Route::get('/schedule', 'ScheduleController@index')->name('schedule.index');
+Route::post('/schedule/store', 'ScheduleController@store')->name('schedule.store');
+Route::get('/schedule/delete/{id}', 'ScheduleController@delete')->name('schedule.delete');

@@ -15,13 +15,14 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    @if (Request::get('tanggal'))
+                    @if (Request::get('tgl_awal'))
                         @php
-                            $tanggal = Request::get('tanggal');
+                            $tgl_awal = Request::get('tgl_awal');
+                            $tgl_akhir = Request::get('tgl_akhir');
                         @endphp
                     @else
                         @php
-                            $tanggal = \Carbon\Carbon::now()
+                            $tgl_awal = $tgl_akhir = \Carbon\Carbon::now()
                                 ->locale('id')
                                 ->format('Y-m-d');
                         @endphp
@@ -32,15 +33,29 @@
                             {{-- <div class="card-body"> --}}
                             <form action="/saldo/lihat" method="GET">
                                 <div class="form-group row">
-                                    <div class="col-sm-1 col-form-label">
+                                    <div class="col-sm-1 col-form-label text-center text-middle">
                                         <label>Tanggal</label>
                                     </div>
                                     <div class="col-sm-2 col-form-label">
                                         <div class="input-group date" id="tanggal" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
-                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
-                                                value="{{ $tanggal }}" />
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="tgl_awal"
+                                                value="{{ $tgl_awal }}" />
                                             <div class="input-group-append" data-target="#tanggal"
+                                                data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1 col-form-label text-center text-middle">
+                                        <label>Sampai</label>
+                                    </div>
+                                    <div class="col-sm-2 col-form-label">
+                                        <div class="input-group date" id="tanggal2" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                data-target="#tanggal2" data-toggle="datetimepicker" name="tgl_akhir"
+                                                value="{{ $tgl_akhir }}" />
+                                            <div class="input-group-append" data-target="#tanggal2"
                                                 data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
@@ -138,6 +153,9 @@
         });
         //Date picker
         $('#tanggal').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+        $('#tanggal2').datetimepicker({
             format: 'YYYY-MM-DD'
         });
     </script>

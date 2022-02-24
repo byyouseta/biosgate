@@ -36,23 +36,31 @@
                     </li>
                 </ul> --}}
             </li>
-
-
-
             <li class="nav-item">
-                <a href="/saldo" class="nav-link">
-                    <i class="nav-icon fas fa-balance-scale"></i>
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-exchange-alt"></i>
                     <p>
-                        Saldo Awal
-                        {{-- <span class="right badge badge-danger">New</span> --}}
+                        BIOS G2
+                        <i class="right fas fa-angle-left"></i>
                     </p>
                 </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="/saldo" class="nav-link">
+                            <i class="nav-icon fas fa-heartbeat"></i>
+                            <p>
+                                Kesehatan
+                                {{-- <span class="right badge badge-danger">New</span> --}}
+                            </p>
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
                     <i class="nav-icon fas fa-exchange-alt"></i>
                     <p>
-                        Data Transaksi
+                        BIOS facelift
                         <i class="right fas fa-angle-left"></i>
                     </p>
                 </a>
@@ -86,13 +94,33 @@
                 </ul>
             </li>
             <li class="nav-item">
-                <a href="/setting" class="nav-link">
+                <a href="#" class="nav-link">
                     <i class="nav-icon fas fa-cog"></i>
                     <p>
                         Setting
-                        {{-- <span class="right badge badge-danger">New</span> --}}
+                        <i class="right fas fa-angle-left"></i>
                     </p>
                 </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="/setting" class="nav-link">
+                            <i class="nav-icon fas fa-rocket"></i>
+                            <p>
+                                API Setting
+                                {{-- <span class="right badge badge-danger">New</span> --}}
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/schedule" class="nav-link">
+                            <i class="nav-icon far fa-calendar-check"></i>
+                            <p>
+                                Schedule Update
+                                {{-- <span class="right badge badge-danger">New</span> --}}
+                            </p>
+                        </a>
+                    </li>
+                </ul>
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link" onclick="event.preventDefault();

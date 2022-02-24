@@ -22,7 +22,7 @@
                                     <i class="fa fa-plus-circle"></i> Tambah</a>
                                 </button>
                             @else
-                                <div class="card_title">Setting API BIOS</div>
+                                <div class="card_title">Schedule Update</div>
                             @endif
                         </div>
                         <div class="card-body">
@@ -30,27 +30,20 @@
                                 <table class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
-                                            <th class="align-middle">Base URL</th>
-                                            <th class="align-middle">Kode Satker</th>
-                                            <th class="align-middle">Key</th>
+                                            <th class="align-middle">Waktu Mulai</th>
+                                            <th class="align-middle">Waktu selesai</th>
                                             <th class="align-middle">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @forelse ($data as $setting)
+                                        @forelse ($data as $waktu)
                                             <tr>
-                                                <td>{{ $setting->base_url }}</td>
-                                                <td>{{ $setting->satker }}</td>
-                                                <td>{{ $setting->key }}</td>
+                                                <td>{{ $waktu->waktu_mulai }}</td>
+                                                <td>{{ $waktu->waktu_selesai }}</td>
                                                 <td>
                                                     <div class="col text-center">
                                                         <div class="btn-group">
-                                                            <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                                data-placement="bottom" title="Edit"
-                                                                data-target="#modal-edit">
-                                                                <i class="fas fa-pen"></i>
-                                                            </button>
-                                                            <a href="/setting/delete/{{ Crypt::encrypt($setting->id) }}"
+                                                            <a href="/schedule/delete/{{ Crypt::encrypt($waktu->id) }}"
                                                                 class="btn btn-danger btn-sm delete-confirm"
                                                                 data-toggle="tooltip" data-placement="bottom"
                                                                 title="Delete">
@@ -62,7 +55,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="4">Data Kosong</td>
+                                                <td colspan="3">Data Kosong</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -82,10 +75,10 @@
     <div class="modal fade" id="modal-default">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form method="POST" action="/setting/store">
+                <form method="POST" action="/schedule/store">
                     @csrf
                     <div class="modal-header">
-                        <h4 class="modal-title">Setting Api BIOS</h4>
+                        <h4 class="modal-title">Tambah Schedule Update</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -95,29 +88,36 @@
                             <!-- text input -->
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label>Base URL</label>
-                                    <input type="text" class="form-control" name="base_url" required>
-                                    @if ($errors->has('base_url'))
+                                    <label>Waktu Mulai</label>
+                                    <div class="input-group date" id="timepicker" data-target-input="nearest">
+                                        <input type="text" class="form-control datetimepicker-input"
+                                            data-target="#timepicker" name="waktu_mulai" required />
+                                        <div class="input-group-append" data-target="#timepicker"
+                                            data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="far fa-clock"></i></div>
+                                        </div>
+                                    </div>
+
+                                    @if ($errors->has('waktu_mulai'))
                                         <div class="text-danger">
-                                            {{ $errors->first('base_url') }}
+                                            {{ $errors->first('waktu_mulai') }}
                                         </div>
                                     @endif
                                 </div>
                                 <div class="form-group">
-                                    <label>Kode Satker</label>
-                                    <input type="text" name="kode_satker" class="form-control" required />
-                                    @if ($errors->has('kode_satker'))
-                                        <div class="text-danger">
-                                            {{ $errors->first('kode_satker') }}
+                                    <label>Waktu Selesai</label>
+                                    <div class="input-group date" id="timepicker2" data-target-input="nearest">
+                                        <input type="text" class="form-control datetimepicker-input"
+                                            data-target="#timepicker2" name="waktu_selesai" required />
+                                        <div class="input-group-append" data-target="#timepicker2"
+                                            data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="far fa-clock"></i></div>
                                         </div>
-                                    @endif
-                                </div>
-                                <div class="form-group">
-                                    <label>Satker Key</label>
-                                    <input type="text" name="key" class="form-control" required />
-                                    @if ($errors->has('key'))
+                                    </div>
+
+                                    @if ($errors->has('waktu_selesai'))
                                         <div class="text-danger">
-                                            {{ $errors->first('key') }}
+                                            {{ $errors->first('waktu_selesai') }}
                                         </div>
                                     @endif
                                 </div>
@@ -134,69 +134,6 @@
         </div>
         <!-- /.modal-dialog -->
     </div>
-    {{-- Modal Edit --}}
-    @if ($data->count() > 0)
-        <div class="modal fade" id="modal-edit">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <form method="POST" action="/setting/update">
-                        @csrf
-                        <div class="modal-header">
-                            <h4 class="modal-title">Setting Api BIOS</h4>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <div class="row">
-                                <!-- text input -->
-                                <div class="col-12">
-                                    @foreach ($data as $edit)
-                                        <div class="form-group">
-                                            <label>Base URL</label>
-                                            <input type="text" class="form-control" name="base_url"
-                                                value="{{ $edit->base_url }}" required>
-                                            @if ($errors->has('base_url'))
-                                                <div class="text-danger">
-                                                    {{ $errors->first('base_url') }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Kode Satker</label>
-                                            <input type="text" name="kode_satker" class="form-control"
-                                                value="{{ $edit->satker }}" required />
-                                            @if ($errors->has('kode_satker'))
-                                                <div class="text-danger">
-                                                    {{ $errors->first('kode_satker') }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Satker Key</label>
-                                            <input type="text" name="key" class="form-control"
-                                                value="{{ $edit->key }}" required />
-                                            @if ($errors->has('key'))
-                                                <div class="text-danger">
-                                                    {{ $errors->first('key') }}
-                                                </div>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Tutup</button>
-                            <button type="Submit" class="btn btn-primary">Simpan</button>
-                        </div>
-                    </form>
-                </div>
-                <!-- /.modal-content -->
-            </div>
-            <!-- /.modal-dialog -->
-        </div>
-    @endif
 
     <!-- /.modal -->
 @endsection
@@ -244,6 +181,15 @@
         //Date picker
         $('#tanggal').datetimepicker({
             format: 'YYYY-MM-DD'
+        });
+        //Timepicker
+        $('#timepicker').datetimepicker({
+            use24hours: true,
+            format: 'HH:mm'
+        });
+        $('#timepicker2').datetimepicker({
+            use24hours: true,
+            format: 'HH:mm'
         });
     </script>
 @endsection

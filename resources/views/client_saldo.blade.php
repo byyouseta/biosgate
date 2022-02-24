@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('head')
-    <meta http-equiv="refresh" content="60" />
+    <meta http-equiv="refresh" content="600" />
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
@@ -32,9 +32,9 @@
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{{ $data->status }}</td>
-                                            <td>{{ $data->message }}</td>
-                                            <td>{{ $tanggal_update }}</td>
+                                            <td>@if(!empty($data->status)){{ $data->status }}@endif</td>
+                                            <td>@if(!empty($data->message)){{ $data->message }}@endif</td>
+                                            <td>@if(!empty($tanggal_update)){{ $tanggal_update }}@endif</td>
                                         </tr>
                                     </tbody>
                                 </table>

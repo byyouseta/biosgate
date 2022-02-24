@@ -17,7 +17,7 @@ class SettingController extends Controller
     public function index()
     {
         session()->put('ibu', 'Setting');
-        session()->destroy('anak');
+        session()->forget('anak');
 
         $data = Setting::all();
 
