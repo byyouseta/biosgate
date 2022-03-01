@@ -47,8 +47,8 @@ class SDMController extends Controller
         $data = DB::connection('mysqlsimadam')->table('riwayat_data_utama')
             ->join('tabel_status_pegawai', 'tabel_status_pegawai.kd_status', '=', 'riwayat_data_utama.kd_status_pegawai')
             // ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
-            ->select('riwayat_data_utama.nip', 'riwayat_data_utama.nama', 'riwayat_data_utama.bios_profesi', 'tabel_status_pegawai.nama_status')
-            ->where('riwayat_data_utama.bios_profesi', '=', $profesi)
+            ->select('riwayat_data_utama.nip', 'riwayat_data_utama.nama', 'riwayat_data_utama.nama_profesi', 'tabel_status_pegawai.nama_status')
+            ->where('riwayat_data_utama.nama_profesi', '=', $profesi)
             ->orderBy('tabel_status_pegawai.nama_status', 'asc')
             ->get();
 

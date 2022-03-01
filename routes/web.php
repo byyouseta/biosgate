@@ -12,7 +12,8 @@
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    // return view('home');
+    return redirect('/home');
 });
 
 Auth::routes([
@@ -35,6 +36,7 @@ Route::get('/layanan/bor', 'BorController@index')->name('bor.index');
 Route::get('/layanan/bor/lihat', 'BorController@cari')->name('bor.cari');
 
 Route::get('/layanan/visit', 'VisitController@index')->name('visit.index');
+Route::get('/layanan/visit/lihat', 'VisitController@cari')->name('visit.cari');
 
 Route::get('/layanan/sdm', 'SDMController@index')->name('sdm.index');
 
@@ -46,3 +48,22 @@ Route::get('/setting/delete/{id}', 'SettingController@delete')->name('setting.de
 Route::get('/schedule', 'ScheduleController@index')->name('schedule.index');
 Route::post('/schedule/store', 'ScheduleController@store')->name('schedule.store');
 Route::get('/schedule/delete/{id}', 'ScheduleController@delete')->name('schedule.delete');
+
+Route::get('/master/user', 'UserController@index')->name('user.index');
+Route::post('/master/user/store', 'UserController@store')->name('user.store');
+Route::get('/master/user/edit/{id}', 'UserController@edit')->name('user.edit');
+Route::post('/master/user/update/{id}', 'UserController@update')->name('user.update');
+Route::get('/master/user/delete/{id}', 'UserController@delete')->name('user.delete');
+
+Route::get('/permission', 'PermissionController@index')->name('permission.index');
+Route::post('/permission/store', 'PermissionController@store')->name('permission.store');
+Route::get('/permission/edit/{id}', 'PermissionController@edit')->name('permission.edit');
+Route::post('/permission/update/{id}', 'PermissionController@update')->name('permission.update');
+Route::get('/permission/delete/{id}', 'PermissionController@delete')->name('permission.delete');
+
+Route::resource('roles', 'RoleController');
+
+
+Route::get('/profil', 'UserController@profile')->name('user.profile');
+Route::post('/profil/update', 'UserController@profileupdate')->name('user.profileupdate');
+Route::post('/profil/password', 'UserController@password')->name('user.password');

@@ -28,7 +28,7 @@
                             @endphp
                         @endif
                         <div class="card-body">
-                            <form action="/layanan/bor/lihat" method="GET">
+                            <form action="/layanan/visit/lihat" method="GET">
                                 <div class="form-group row">
 
                                     <div class="col-sm-1 col-form-label">

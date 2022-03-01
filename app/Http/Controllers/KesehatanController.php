@@ -18,16 +18,18 @@ class KesehatanController extends Controller
         session()->put('ibu', 'Data Transaksi');
         session()->put('anak', 'Layanan Kesehatan');
 
+        $tanggal = Carbon::now()->format('Y-m-d');
+
         //data Inap Tanggal sesuai tanggal
-        $inap = KesehatanController::ranap('2022-01-03');
-        $operasi = KesehatanController::operasi('2022-01-03');
-        $radiologi = KesehatanController::radiologi('2022-01-03');
-        $rajal = KesehatanController::rajal('2022-01-03');
-        $rajalpoli = KesehatanController::rajalpoli('2022-01-03');
-        $bpjs = KesehatanController::bpjs('2022-01-03');
-        $nonbpjs = KesehatanController::nonbpjs('2022-01-03');
-        $labsample = KesehatanController::labsample('2022-01-03');
-        $labparameter = KesehatanController::labparameter('2022-01-03');
+        $inap = KesehatanController::ranap($tanggal);
+        $operasi = KesehatanController::operasi($tanggal);
+        $radiologi = KesehatanController::radiologi($tanggal);
+        $rajal = KesehatanController::rajal($tanggal);
+        $rajalpoli = KesehatanController::rajalpoli($tanggal);
+        $bpjs = KesehatanController::bpjs($tanggal);
+        $nonbpjs = KesehatanController::nonbpjs($tanggal);
+        $labsample = KesehatanController::labsample($tanggal);
+        $labparameter = KesehatanController::labparameter($tanggal);
         // dd($operasi);
 
         return view('layanan_kesehatan', compact('inap', 'operasi', 'radiologi', 'rajal', 'rajalpoli', 'bpjs', 'nonbpjs', 'labsample', 'labparameter'));
@@ -59,8 +61,9 @@ class KesehatanController extends Controller
             ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
             ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
             ->select('kamar_inap.no_rawat', 'kamar_inap.tgl_masuk', 'kamar_inap.tgl_keluar', 'kamar.kelas')
-            ->whereDate('kamar_inap.tgl_keluar', '>=', $tanggal) //Nanti Tanggal dibikin dinamis sesuai tanggal hari ini
             ->whereDate('kamar_inap.tgl_masuk', '<=', $tanggal)
+            ->whereDate('kamar_inap.tgl_keluar', '>=', $tanggal)
+            ->orWhereDate('kamar_inap.tgl_keluar', '=', '0000-00-00')
             ->get();
 
         // dd($data);

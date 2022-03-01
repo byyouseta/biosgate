@@ -16,12 +16,10 @@ class SaldoAwalController extends Controller
 
     public function index()
     {
-        session()->put('ibu', 'Saldo Awal');
+        session()->put('ibu', 'WS Kesehatan');
         session()->forget('anak');
 
         $tgl_keluar = Carbon::now()->format('Y-m-d');
-
-
 
         $data = DB::connection('mysqlkhanza')->table('kamar_inap')
             ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')

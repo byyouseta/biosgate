@@ -123,6 +123,49 @@
                 </ul>
             </li>
             <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-database"></i>
+                    <p>
+                        Master Data
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="/master/user" class="nav-link">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>
+                                User
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/roles" class="nav-link">
+                            <i class="nav-icon fas fa-user-cog"></i>
+                            <p>
+                                Role Group
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/permission" class="nav-link">
+                            <i class="nav-icon far fa-folder-open"></i>
+                            <p>
+                                List Akses
+                            </p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="/profil" class="nav-link">
+                    <i class="nav-icon fas fa-user"></i>
+                    <p>
+                        Profil
+                    </p>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="#" class="nav-link" onclick="event.preventDefault();
                 document.getElementById('logout-form').submit();">
                     <span style="color: Tomato;">

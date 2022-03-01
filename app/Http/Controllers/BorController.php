@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,11 +18,13 @@ class BorController extends Controller
         session()->put('ibu', 'Data Transaksi');
         session()->put('anak', 'Data Statistik');
 
+        $tanggal = Carbon::now()->format('Y-m-d');
+
         //data Inap Tanggal sesuai tanggal
-        $bor = BorController::bor('2022-01-03');
-        $alos = BorController::alos('2022-01-03');
-        $toi = BorController::toi('2022-01-03');
-        $bto = BorController::bto('2022-01-03');
+        $bor = BorController::bor($tanggal);
+        $alos = BorController::alos($tanggal);
+        $toi = BorController::toi($tanggal);
+        $bto = BorController::bto($tanggal);
 
         // dd($alos);
 

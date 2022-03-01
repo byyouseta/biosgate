@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,12 +18,33 @@ class VisitController extends Controller
         session()->put('ibu', 'Data Transaksi');
         session()->put('anak', 'Data IKT');
 
+        $tanggal = Carbon::now()->format('Y-m-d');
+
         //data Inap Tanggal sesuai tanggal
-        $visitpagi = VisitController::visit('2022-01-03', '00:00:00', '10:00:00');
-        $visitsiang1 = VisitController::visit('2022-01-03', '10:00:01', '12:00:00');
-        $visitsiang2 = VisitController::visit('2022-01-03', '12:00:01', '16:00:00');
-        $tidakvisit = VisitController::tidakvisit('2022-01-03');
-        $pertama = VisitController::pertama('2022-01-03');
+        $visitpagi = VisitController::visit($tanggal, '00:00:00', '10:00:00');
+        $visitsiang1 = VisitController::visit($tanggal, '10:00:01', '12:00:00');
+        $visitsiang2 = VisitController::visit($tanggal, '12:00:01', '16:00:00');
+        $tidakvisit = VisitController::tidakvisit($tanggal);
+        $pertama = VisitController::pertama($tanggal);
+
+        // dd($visitpagi, $visitsiang1, $visitsiang2);
+
+        return view('layanan_ikt', compact('visitpagi', 'visitsiang1', 'visitsiang2', 'tidakvisit', 'pertama'));
+    }
+
+    public function cari(Request $request)
+    {
+        session()->put('ibu', 'Data Transaksi');
+        session()->put('anak', 'Data IKT');
+
+        $tanggal = $request->get('tanggal');
+
+        //data Inap Tanggal sesuai tanggal
+        $visitpagi = VisitController::visit($tanggal, '00:00:00', '10:00:00');
+        $visitsiang1 = VisitController::visit($tanggal, '10:00:01', '12:00:00');
+        $visitsiang2 = VisitController::visit($tanggal, '12:00:01', '16:00:00');
+        $tidakvisit = VisitController::tidakvisit($tanggal);
+        $pertama = VisitController::pertama($tanggal);
 
         // dd($visitpagi, $visitsiang1, $visitsiang2);
 
