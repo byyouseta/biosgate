@@ -79,11 +79,13 @@ class VisitController extends Controller
     public function tidakvisit($tanggal)
     {
         $data = DB::connection('mysqlkhanza')->table('kamar_inap')
-            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
+            // ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
+            ->join('dpjp_ranap', 'dpjp_ranap.no_rawat', '=', 'kamar_inap.no_rawat')
             ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
-            ->select('kamar_inap.no_rawat', 'kamar_inap.tgl_masuk', 'kamar_inap.tgl_keluar', 'kamar.kelas', 'reg_periksa.kd_dokter')
-            ->whereDate('kamar_inap.tgl_keluar', '>=', $tanggal)
+            ->select('kamar_inap.no_rawat', 'kamar_inap.tgl_masuk', 'kamar_inap.tgl_keluar', 'kamar.kelas', 'dpjp_ranap.kd_dokter')
             ->whereDate('kamar_inap.tgl_masuk', '<=', $tanggal)
+            ->whereDate('kamar_inap.tgl_keluar', '>=', $tanggal)
+            ->orWhereDate('kamar_inap.tgl_keluar', '=', '0000-00-00')
             ->get();
 
         // dd($data);
