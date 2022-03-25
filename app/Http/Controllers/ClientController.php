@@ -16,7 +16,7 @@ class ClientController extends Controller
 {
     public function token()
     {
-        $setting = Setting::find(1);
+        $setting = Setting::where('nama', 'bios')->first();
 
         session()->put('base_url', $setting->base_url);
 
@@ -203,6 +203,6 @@ class ClientController extends Controller
             }
         }
 
-        dd($data);
+        // dd($data);
     }
 }

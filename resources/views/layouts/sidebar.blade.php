@@ -95,6 +95,46 @@
             </li>
             <li class="nav-item">
                 <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-hospital-alt"></i>
+                    <p>
+                        RS Online
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-heartbeat"></i>
+                            <p>
+                                Data Referensi
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/rsonline/geografi" class="nav-link">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>Geografi</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/rsonline/statuspasien" class="nav-link">
+                                    <i class="fas fa-user-injured nav-icon"></i>
+                                    <p>Status Pasien</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/rsonline/vaksin" class="nav-link">
+                                    <i class="fas fa-syringe nav-icon"></i>
+                                    <p>Status Vaksin</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="#" class="nav-link">
                     <i class="nav-icon fas fa-cog"></i>
                     <p>
                         Setting

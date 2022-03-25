@@ -40,9 +40,16 @@ Route::get('/layanan/visit/lihat', 'VisitController@cari')->name('visit.cari');
 
 Route::get('/layanan/sdm', 'SDMController@index')->name('sdm.index');
 
+//RSonline
+Route::get('/rsonline/geografi', 'RsClientController@geografi')->name('rsclient.geografi');
+Route::get('/rsonline/vaksin', 'RsClientController@vaksin')->name('rsclient.vaksin');
+Route::get('/rsonline/statuspasien', 'RsClientController@status')->name('rsclient.status');
+
+
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
-Route::post('/setting/update', 'SettingController@update')->name('setting.update');
+Route::get('/setting/edit/{id}', 'SettingController@edit')->name('setting.edit');
+Route::post('/setting/update/{id}', 'SettingController@update')->name('setting.update');
 Route::get('/setting/delete/{id}', 'SettingController@delete')->name('setting.delete');
 
 Route::get('/schedule', 'ScheduleController@index')->name('schedule.index');

@@ -27,7 +27,8 @@ class SettingController extends Controller
     public function store(Request $request)
     {
         $lokal = new Setting();
-        $lokal->id = 1;
+        // $lokal->id = 1;
+        $lokal->nama = $request->nama;
         $lokal->base_url = $request->base_url;
         $lokal->satker = $request->kode_satker;
         $lokal->key = $request->key;
@@ -38,9 +39,19 @@ class SettingController extends Controller
         return redirect('/setting');
     }
 
-    public function update(Request $request)
+    public function edit($id)
     {
-        $lokal = Setting::find(1);
+        $id = Crypt::decrypt($id);
+
+        $data = Setting::find($id);
+
+        return view('setting_edit', compact('data'));
+    }
+
+    public function update($id, Request $request)
+    {
+        $lokal = Setting::find($id);
+        $lokal->nama = $request->nama;
         $lokal->base_url = $request->base_url;
         $lokal->satker = $request->kode_satker;
         $lokal->key = $request->key;

@@ -17,19 +17,16 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            @if ($data->count() == 0)
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
-                                    <i class="fa fa-plus-circle"></i> Tambah</a>
-                                </button>
-                            @else
-                                <div class="card_title">Setting API BIOS</div>
-                            @endif
+                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
+                                <i class="fa fa-plus-circle"></i> Tambah</a>
+                            </button>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
                                 <table class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
+                                            <th class="align-middle">Nama APP</th>
                                             <th class="align-middle">Base URL</th>
                                             <th class="align-middle">Kode Satker</th>
                                             <th class="align-middle">Key</th>
@@ -39,23 +36,24 @@
                                     <tbody>
                                         @forelse ($data as $setting)
                                             <tr>
+                                                <td>{{ $setting->nama }}</td>
                                                 <td>{{ $setting->base_url }}</td>
                                                 <td>{{ $setting->satker }}</td>
                                                 <td>{{ $setting->key }}</td>
                                                 <td>
                                                     <div class="col text-center">
                                                         <div class="btn-group">
-                                                            <button class="btn btn-warning btn-sm" data-toggle="modal"
-                                                                data-placement="bottom" title="Edit"
-                                                                data-target="#modal-edit">
+                                                            <a href="/setting/edit/{{ Crypt::encrypt($setting->id) }}"
+                                                                class="btn btn-warning btn-sm" data-toggle="tooltip"
+                                                                data-placement="bottom" title="Edit">
                                                                 <i class="fas fa-pen"></i>
-                                                            </button>
-                                                            <a href="/setting/delete/{{ Crypt::encrypt($setting->id) }}"
+                                                            </a>
+                                                            {{-- <a href="/setting/delete/{{ Crypt::encrypt($setting->id) }}"
                                                                 class="btn btn-danger btn-sm delete-confirm"
                                                                 data-toggle="tooltip" data-placement="bottom"
                                                                 title="Delete">
                                                                 <i class="fas fa-ban"></i>
-                                                            </a>
+                                                            </a> --}}
                                                         </div>
                                                     </div>
                                                 </td>
@@ -94,6 +92,15 @@
                         <div class="row">
                             <!-- text input -->
                             <div class="col-12">
+                                <div class="form-group">
+                                    <label>Nama APP</label>
+                                    <input type="text" class="form-control" name="nama" required>
+                                    @if ($errors->has('nama'))
+                                        <div class="text-danger">
+                                            {{ $errors->first('nama') }}
+                                        </div>
+                                    @endif
+                                </div>
                                 <div class="form-group">
                                     <label>Base URL</label>
                                     <input type="text" class="form-control" name="base_url" required>
