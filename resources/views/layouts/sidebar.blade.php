@@ -49,11 +49,48 @@
                         <a href="/saldo" class="nav-link">
                             <i class="nav-icon fas fa-heartbeat"></i>
                             <p>
-                                Kesehatan
+                                Layanan Kesehatan
                                 {{-- <span class="right badge badge-danger">New</span> --}}
                             </p>
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-dollar-sign"></i>
+                            <p>
+                                Layanan Keuangan
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/penerimaan" class="nav-link">
+                                    <i class="nav-icon fas fa-arrow-circle-down"></i>
+                                    <p>
+                                        Data Penerimaan
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/pengeluaran" class="nav-link">
+                                    <i class="nav-icon fas fa-arrow-circle-up"></i>
+                                    <p>
+                                        Data Pengeluaran
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/saldokeuangan" class="nav-link">
+                                    <i class="nav-icon fas fa-wallet"></i>
+                                    <p>
+                                        Data Saldo
+                                    </p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
                 </ul>
             </li>
             <li class="nav-item">
@@ -160,6 +197,7 @@
                             </p>
                         </a>
                     </li>
+
                 </ul>
             </li>
             <li class="nav-item">
@@ -176,6 +214,15 @@
                             <i class="nav-icon fas fa-users"></i>
                             <p>
                                 User
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/master/bank" class="nav-link">
+                            <i class="nav-icon fas fa-money-check-alt"></i>
+                            <p>
+                                Data Bank BIOS
+                                {{-- <span class="right badge badge-danger">New</span> --}}
                             </p>
                         </a>
                     </li>

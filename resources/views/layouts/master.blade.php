@@ -20,11 +20,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="{{ asset('template/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
     <!-- Toastr -->
     <link rel="stylesheet" href="{{ asset('template/plugins/toastr/toastr.min.css') }}">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('template/dist/css/adminlte.min.css') }}">
+
     @hasSection('head')
         @yield('head')
     @endif
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{ asset('template/dist/css/adminlte.min.css') }}">
 </head>
 
 <body class="hold-transition sidebar-mini">
