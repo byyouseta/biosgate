@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Bank;
 use App\SaldoKeuangan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -23,59 +24,65 @@ class SaldoKeuanganController extends Controller
         $tanggal = Carbon::now()->format('Y-m-d');
 
         $data = SaldoKeuangan::where('tgl_transaksi', $tanggal)->get();
+        $bank = Bank::all();
+        $rekening = SaldoKeuanganController::KdRek();
 
-        // dd($akun->data);
-        return view('keuangan.saldo', compact('data'));
+        // dd($rekening);
+        return view('keuangan.saldo', compact('data', 'bank', 'rekening'));
     }
 
     public function store(Request $request)
     {
         $this->validate($request, [
-            'kd_akun' => 'required',
-            'jumlah' => 'required',
+            'bank' => 'required',
+            'saldo' => 'required',
+            'kd_rek' => 'required',
         ]);
 
         $tanggal = Carbon::now()->format('Y-m-d');
 
-        $data = new Pengeluaran();
-        $data->kd_akun = $request->kd_akun;
-        $data->jumlah = $request->jumlah;
+        $data = new SaldoKeuangan();
+        $data->bank_id = $request->bank;
+        $data->saldo = $request->saldo;
+        $data->kd_rek = $request->kd_rek;
         $data->tgl_transaksi = $tanggal;
         $data->status = false;
         // $user->akses = $request->akses;
         $data->save();
 
-        Session::flash('sukses', 'Data Berhasil diperbaharui!');
+        Session::flash('sukses', 'Data Berhasil disimpan!');
 
-        return redirect('/pengeluaran');
+        return redirect('/saldokeuangan');
     }
 
     public function edit($id)
     {
         $id = Crypt::decrypt($id);
 
-        $data = Pengeluaran::find($id);
-        $akun = PemasukanController::RefAkun();
+        $data = SaldoKeuangan::find($id);
+        $bank = Bank::all();
+        $rekening = SaldoKeuanganController::KdRek();
 
-        return view('keuangan.pengeluaran_edit', compact('data', 'akun'));
+        return view('keuangan.saldo_edit', compact('data', 'bank', 'rekening'));
     }
 
     public function update($id, Request $request)
     {
-        $data = Pengeluaran::find($id);
-        $data->kd_akun = $request->kd_akun;
-        $data->jumlah = $request->jumlah;
+        $data = SaldoKeuangan::find($id);
+        $data->bank_id = $request->bank;
+        $data->saldo = $request->saldo;
+        $data->kd_rek = $request->kd_rek;
         $data->save();
 
         Session::flash('sukses', 'Data Berhasil diperbaharui!');
 
-        return redirect('/pengeluaran');
+        return redirect('/saldokeuangan');
     }
 
     public function delete($id)
     {
         $id = Crypt::decrypt($id);
-        $delete = Pengeluaran::find($id);
+        $delete = SaldoKeuangan::find($id);
         $delete->delete();
 
         Session::flash('sukses', 'Data Berhasil dihapus!');
@@ -87,12 +94,25 @@ class SaldoKeuanganController extends Controller
     {
         $tanggal = $request->get('tanggal');
 
-        $data = Pengeluaran::where('tgl_transaksi', $tanggal)->get();
+        $data = SaldoKeuangan::where('tgl_transaksi', $tanggal)->get();
 
-        // ClientController::token();
+        $bank = Bank::all();
+        $rekening = SaldoKeuanganController::KdRek();
 
-        $akun = PemasukanController::RefAkun();
+        return view('keuangan.saldo', compact('data', 'bank', 'rekening'));
+    }
 
-        return view('keuangan.pemasukan', compact('data', 'akun'));
+    public static function KdRek()
+    {
+        ClientController::token();
+
+        //Ambil Data Ref Akun
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $response = $client->request('GET', 'ws/ref/rekening');
+        $rekening = json_decode($response->getBody());
+        $rekening = $rekening->data;
+
+        // dd($rekening);
+        return $rekening;
     }
 }

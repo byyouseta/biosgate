@@ -15,11 +15,10 @@ class CreateSaldoKeuangansTable extends Migration
     {
         Schema::create('saldo_keuangans', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('kd_bank', 5)->nullable();
-            $table->string('norek', 30)->nullable();
-            $table->bigInteger('saldo')->nullable();
-            $table->string('kd_rek', 3)->nullable();
-            $table->date('tgl_transaksi')->nullable();
+            $table->integer('bank_id');
+            $table->bigInteger('saldo');
+            $table->string('kd_rek', 3);
+            $table->date('tgl_transaksi');
             $table->boolean('status');
             $table->timestamps();
         });

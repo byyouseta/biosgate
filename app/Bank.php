@@ -12,4 +12,9 @@ class Bank extends Model
     protected $fillable = [
         'kd_bank', 'nama', 'norek'
     ];
+
+    public function SaldoKeuangan()
+    {
+        return $this->hasMany('App\SaldoKeuangan');
+    }
 }

@@ -31,7 +31,7 @@
                             @endphp
                         @endif
                         <div class="card-body">
-                            <form action="/penerimaan/lihat" method="GET">
+                            <form action="/saldokeuangan/lihat" method="GET">
                                 <div class="form-group row">
 
                                     <div class="col-sm-1 col-form-label">
@@ -54,7 +54,7 @@
                                     </div>
 
                                     <div class="col-sm-2 col-form-label">
-                                        <a href="/penerimaan/client" class="btn btn-success">Jalankan Client</a>
+                                        <a href="/saldokeuangan/client" class="btn btn-success">Jalankan Client</a>
                                     </div>
                                 </div>
                             </form>
@@ -73,8 +73,11 @@
                                 <table class="table table-bordered table-hover" id="example">
                                     <thead>
                                         <tr>
-                                            <th class="align-middle">Kode Akun</th>
-                                            <th class="align-middle">Jumlah</th>
+                                            <th class="align-middle">Kode Bank</th>
+                                            <th class="align-middle">Nama Bank</th>
+                                            <th class="align-middle">No Rekening</th>
+                                            <th class="align-middle">Saldo</th>
+                                            <th class="align-middle">Kode Rekening</th>
                                             <th class="align-middle">Tanggal Transaksi</th>
                                             <th class="align-middle">Status</th>
                                             <th class="align-middle">Aksi</th>
@@ -82,8 +85,11 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($data as $data)
-                                            <td>{{ $data->kd_akun }}</td>
-                                            <td>{{ $data->jumlah }}</td>
+                                            <td>{{ $data->bank->kd_bank }}</td>
+                                            <td>{{ $data->bank->nama }}</td>
+                                            <td>{{ $data->bank->norek }}</td>
+                                            <td>{{ $data->saldo }}</td>
+                                            <td>{{ $data->kd_rek }}</td>
                                             <td>{{ $data->tgl_transaksi }}</td>
                                             <td>
                                                 @if ($data->status == 1)
@@ -95,12 +101,12 @@
                                             <td>
                                                 <div class="col text-center">
                                                     <div class="btn-group">
-                                                        <a href="/penerimaan/edit/{{ Crypt::encrypt($data->id) }}"
+                                                        <a href="/saldokeuangan/edit/{{ Crypt::encrypt($data->id) }}"
                                                             class="btn btn-warning btn-sm @if ($data->status == 1) disabled @endif"
                                                             data-toggle="tooltip" data-placement="bottom" title="Edit">
                                                             <i class="fas fa-pen"></i>
                                                         </a>
-                                                        <a href="/penerimaan/delete/{{ Crypt::encrypt($data->id) }}"
+                                                        <a href="/saldokeuangan/delete/{{ Crypt::encrypt($data->id) }}"
                                                             class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif"
                                                             data-toggle="tooltip" data-placement="bottom" title="Delete">
                                                             <i class="fas fa-ban"></i>
@@ -125,7 +131,7 @@
     <div class="modal fade" id="modal-default">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form method="POST" action="/penerimaan/store">
+                <form method="POST" action="/saldokeuangan/store">
                     @csrf
                     <div class="modal-header">
                         <h4 class="modal-title">Tambah Data Penerimaan</h4>
@@ -138,13 +144,16 @@
                             <!-- text input -->
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <label>Kode Akun</label>
-                                    <select name="kd_akun" class="form-control select2">
-
+                                    <label>Bank</label>
+                                    <select name="bank" class="form-control select2">
+                                        @foreach ($bank as $bank)
+                                            <option value="{{ $bank->id }}">
+                                                {{ $bank->nama }} - {{ $bank->norek }}</option>
+                                        @endforeach
                                     </select>
-                                    @if ($errors->has('kd_akun'))
+                                    @if ($errors->has('bank'))
                                         <div class="text-danger">
-                                            {{ $errors->first('kd_akun') }}
+                                            {{ $errors->first('bank') }}
                                         </div>
                                     @endif
                                 </div>
@@ -154,15 +163,28 @@
                                         <div class="input-group-prepend">
                                             <span class="input-group-text">Rp</span>
                                         </div>
-                                        <input type="number" class="form-control" name="jumlah" required>
+                                        <input type="number" class="form-control" name="saldo" required>
                                     </div>
-                                    @if ($errors->has('jumlah'))
+                                    @if ($errors->has('saldo'))
                                         <div class="text-danger">
-                                            {{ $errors->first('jumlah') }}
+                                            {{ $errors->first('saldo') }}
                                         </div>
                                     @endif
                                 </div>
-
+                                <div class="form-group">
+                                    <label>Kode Rekening</label>
+                                    <select name="kd_rek" class="form-control select2">
+                                        @foreach ($rekening as $rekening)
+                                            <option value="{{ $rekening->kode }}">
+                                                {{ $rekening->uraian }}</option>
+                                        @endforeach
+                                    </select>
+                                    @if ($errors->has('kd_rek'))
+                                        <div class="text-danger">
+                                            {{ $errors->first('kd_rek') }}
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
                     </div>
