@@ -15,8 +15,9 @@ class BorController extends Controller
 
     public function index()
     {
-        session()->put('ibu', 'Data Transaksi');
+        session()->put('ibu', 'BIOS facelift');
         session()->put('anak', 'Data Statistik');
+        session()->forget('cucu');
 
         $tanggal = Carbon::now()->format('Y-m-d');
 

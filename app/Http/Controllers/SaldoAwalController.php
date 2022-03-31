@@ -16,8 +16,9 @@ class SaldoAwalController extends Controller
 
     public function index()
     {
-        session()->put('ibu', 'WS Kesehatan');
-        session()->forget('anak');
+        session()->put('ibu', 'BIOS G2');
+        session()->put('anak', 'Layanan Kesehatan');
+        session()->forget('cucu');
 
         $tgl_keluar = Carbon::now()->format('Y-m-d');
 

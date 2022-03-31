@@ -33,8 +33,9 @@ class RsClientController extends Controller
 
     public function geografi()
     {
-        session()->put('ibu', 'RS Online/Data Referensi');
-        session()->put('anak', 'Geografi');
+        session()->put('ibu', 'RS Online');
+        session()->put('anak', 'Data Referensi');
+        session()->put('cucu', 'Geografi');
 
         $datakewarganegaraan = RsClientController::kewarganegaraan();
         $dataprovinsi = RsClientController::provinsi();
@@ -49,8 +50,9 @@ class RsClientController extends Controller
 
     public function vaksin()
     {
-        session()->put('ibu', 'RS Online/Data Referensi');
-        session()->put('anak', 'Status Vaksin');
+        session()->put('ibu', 'RS Online');
+        session()->put('anak', 'Data Referensi');
+        session()->put('cucu', 'Status Vaksin');
 
         $datadosisvaksin = RsClientController::dosisvaksin();
         $datajenisvaksin = RsClientController::jenisvaksin();
@@ -60,8 +62,9 @@ class RsClientController extends Controller
 
     public function status()
     {
-        session()->put('ibu', 'RS Online/Data Referensi');
-        session()->put('anak', 'Status Pasien');
+        session()->put('ibu', 'RS Online');
+        session()->put('anak', 'Data Referensi');
+        session()->put('cucu', 'Status Pasien');
 
         $dataasal = RsClientController::asalpasien();
         $datajenis = RsClientController::jenispasien();

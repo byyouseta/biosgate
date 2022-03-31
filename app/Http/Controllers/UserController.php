@@ -15,8 +15,9 @@ class UserController extends Controller
 {
     public function index()
     {
-        session()->put('ibu', 'Master');
-        session()->put('anak', 'Users');
+        session()->put('ibu', 'Master Data');
+        session()->put('anak', 'User');
+        session()->forget('cucu');
 
         $data = User::all();
         // $data2 = Unit::all();

@@ -35,6 +35,7 @@ Route::get('/penerimaan/edit/{id}', 'PemasukanController@edit')->name('pemasukan
 Route::post('/penerimaan/update/{id}', 'PemasukanController@update')->name('pemasukan.update');
 Route::get('/penerimaan/delete/{id}', 'PemasukanController@delete')->name('pemasukan.delete');
 Route::get('/penerimaan/lihat', 'PemasukanController@cari')->name('pemasukan.cari');
+Route::get('/penerimaan/client', 'PemasukanController@client')->name('pemasukan.client');
 
 Route::get('/pengeluaran', 'PengeluaranController@index')->name('pengeluaran.index');
 Route::post('/pengeluaran/store', 'PengeluaranController@store')->name('pengeluaran.store');
@@ -42,6 +43,7 @@ Route::get('/pengeluaran/edit/{id}', 'PengeluaranController@edit')->name('pengel
 Route::post('/pengeluaran/update/{id}', 'PengeluaranController@update')->name('pengeluaran.update');
 Route::get('/pengeluaran/delete/{id}', 'PengeluaranController@delete')->name('pengeluaran.delete');
 Route::get('/pengeluaran/lihat', 'PengeluaranController@cari')->name('pengeluaran.cari');
+Route::get('/pengeluaran/client', 'PengeluaranController@client')->name('pengeluaran.client');
 
 Route::get('/saldokeuangan', 'SaldoKeuanganController@index')->name('saldokeuangan.index');
 Route::post('/saldokeuangan/store', 'SaldoKeuanganController@store')->name('saldokeuangan.store');
@@ -49,6 +51,8 @@ Route::get('/saldokeuangan/edit/{id}', 'SaldoKeuanganController@edit')->name('sa
 Route::post('/saldokeuangan/update/{id}', 'SaldoKeuanganController@update')->name('saldokeuangan.update');
 Route::get('/saldokeuangan/delete/{id}', 'SaldoKeuanganController@delete')->name('saldokeuangan.delete');
 Route::get('/saldokeuangan/lihat', 'SaldoKeuanganController@cari')->name('saldokeuangan.cari');
+Route::get('/saldokeuangan/client', 'SaldoKeuanganController@client')->name('saldokeuangan.client');
+
 
 Route::get('/pengeluaran', 'PengeluaranController@index')->name('pengeluaran.index');
 

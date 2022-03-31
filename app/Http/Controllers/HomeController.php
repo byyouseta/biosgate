@@ -26,7 +26,8 @@ class HomeController extends Controller
     public function index()
     {
         session()->put('ibu', 'Daskboard');
-        // session()->put('anak', 'Detail Indikator');
+        session()->forget('anak');
+        session()->forget('cucu');
 
         $data = AkunBayar::all();
 

@@ -16,8 +16,9 @@ class ScheduleController extends Controller
 
     public function index()
     {
-        session()->put('ibu', 'Schedule Update');
-        session()->forget('anak');
+        session()->put('ibu', 'Setting');
+        session()->put('anak', 'Schedule Update');
+        session()->forget('cucu');
 
         $data = ScheduleUpdate::all();
 

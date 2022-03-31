@@ -16,8 +16,9 @@ class BankController extends Controller
 
     public function index()
     {
-        session()->put('ibu', 'Master');
-        session()->put('anak', 'Bank');
+        session()->put('ibu', 'Master Data');
+        session()->put('anak', 'Data Bank BIOS');
+        session()->forget('cucu');
 
         $data = Bank::all();
         $bank = BankController::RefBank();

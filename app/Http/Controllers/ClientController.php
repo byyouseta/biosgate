@@ -50,7 +50,7 @@ class ClientController extends Controller
         $data = $tanggal_update = null;
         $cek_saldo = SaldoAwal::where('nama', '=', 'Kesehatan')->count();
 
-        // dd($cek_saldo, $tanggal, $jam);
+        // Jika Saldo Awal tidak ada maka
         if ($cek_saldo == 0) {
             $tanggal_saldo = Carbon::now()->subDays(2)->format('Y-m-d');
             $saldo = SaldoAwalController::saldoAwalKesehatan($tanggal_saldo);
@@ -104,7 +104,7 @@ class ClientController extends Controller
             ]);
 
             $dataterkirim = json_decode($response->getBody());
-        } else {
+        } else { //Saldo Awal sudah ada
             $tanggal_saldo = Carbon::now()->subDays(1)->format('Y-m-d');
             $saldo = SaldoAwalController::saldoKesehatan($tanggal_saldo);
 

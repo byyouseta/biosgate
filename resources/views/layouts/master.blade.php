@@ -57,7 +57,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     <div class="row mb-2">
                         <div class="col-sm-6">
                             <h1 class="m-0">
-                                @if (!empty(session('anak')))
+                                @if (!empty(session('cucu')))
+                                    {{ session('cucu') }}
+                                @elseif(!empty(session('anak')))
                                     {{ session('anak') }}
                                 @else
                                     {{ session('ibu') }}
@@ -70,7 +72,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
                                 @if (!empty(session('anak')))
                                     <li class="breadcrumb-item active">{{ session('anak') }}</li>
                                 @endif
-
+                                @if (!empty(session('cucu')))
+                                    <li class="breadcrumb-item active">{{ session('cucu') }}</li>
+                                @endif
                             </ol>
                         </div><!-- /.col -->
                     </div><!-- /.row -->

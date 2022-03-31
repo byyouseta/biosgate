@@ -12,8 +12,9 @@ class RoleController extends Controller
 {
     public function index(Request $request)
     {
-        session()->put('ibu', 'Managemen Akses');
-        session()->put('anak', 'Grup Akses');
+        session()->put('ibu', 'Master Data');
+        session()->put('anak', 'Role Group');
+        session()->forget('cucu');
 
         $roles = Role::orderBy('id', 'DESC')->paginate(5);
         return view('roles.index', compact('roles'))

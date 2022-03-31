@@ -15,13 +15,12 @@ class SDMController extends Controller
 
     public function index()
     {
-        session()->put('ibu', 'Data Transaksi');
+        session()->put('ibu', 'BIOS facelift');
         session()->put('anak', 'Data SDM');
+        session()->forget('cucu');
 
         //data Pegawai
-        // $spesialis = SDMController::spesialis();
-        // $drg = SDMController::drgigi();
-        // $umum = SDMController::umum();
+
         $spesialis = SDMController::profesi('DOKTER-SPESIALIS');
         $drg = SDMController::profesi('DOKTER-GIGI');
         $umum = SDMController::profesi('DOKTER-UMUM');

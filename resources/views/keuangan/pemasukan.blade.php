@@ -41,7 +41,7 @@
                                         <div class="input-group date" id="tanggal" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
                                                 data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
-                                                value="{{ $tanggal }}" />
+                                                value="{{ $tanggal }}" autocomplete="off" />
                                             <div class="input-group-append" data-target="#tanggal"
                                                 data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -54,7 +54,8 @@
                                     </div>
 
                                     <div class="col-sm-2 col-form-label">
-                                        <a href="/penerimaan/client" class="btn btn-success">Jalankan Client</a>
+                                        <a href="/penerimaan/client" class="btn btn-success" target="_blank">Jalankan
+                                            Client</a>
                                     </div>
                                 </div>
                             </form>
@@ -82,32 +83,35 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($data as $data)
-                                            <td>{{ $data->kd_akun }}</td>
-                                            <td>{{ $data->jumlah }}</td>
-                                            <td>{{ $data->tgl_transaksi }}</td>
-                                            <td>
-                                                @if ($data->status == 1)
-                                                    <span class="right badge badge-success">Sudah Terkirim</span>
-                                                @else
-                                                    <span class="right badge badge-danger">Belum Terkirim</span>
-                                                @endif
-                                            </td>
-                                            <td>
-                                                <div class="col text-center">
-                                                    <div class="btn-group">
-                                                        <a href="/penerimaan/edit/{{ Crypt::encrypt($data->id) }}"
-                                                            class="btn btn-warning btn-sm @if ($data->status == 1) disabled @endif"
-                                                            data-toggle="tooltip" data-placement="bottom" title="Edit">
-                                                            <i class="fas fa-pen"></i>
-                                                        </a>
-                                                        <a href="/penerimaan/delete/{{ Crypt::encrypt($data->id) }}"
-                                                            class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif"
-                                                            data-toggle="tooltip" data-placement="bottom" title="Delete">
-                                                            <i class="fas fa-ban"></i>
-                                                        </a>
+                                            <tr>
+                                                <td>{{ $data->kd_akun }}</td>
+                                                <td>{{ number_format($data->jumlah, 2, ',', '.') }}</td>
+                                                <td>{{ $data->tgl_transaksi }}</td>
+                                                <td>
+                                                    @if ($data->status == 1)
+                                                        <span class="right badge badge-success">Sudah Terkirim</span>
+                                                    @else
+                                                        <span class="right badge badge-danger">Belum Terkirim</span>
+                                                    @endif
+                                                </td>
+                                                <td>
+                                                    <div class="col text-center">
+                                                        <div class="btn-group">
+                                                            <a href="/penerimaan/edit/{{ Crypt::encrypt($data->id) }}"
+                                                                class="btn btn-warning btn-sm @if ($data->status == 1) disabled @endif"
+                                                                data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                                                <i class="fas fa-pen"></i>
+                                                            </a>
+                                                            <a href="/penerimaan/delete/{{ Crypt::encrypt($data->id) }}"
+                                                                class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif"
+                                                                data-toggle="tooltip" data-placement="bottom"
+                                                                title="Delete">
+                                                                <i class="fas fa-ban"></i>
+                                                            </a>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
+                                                </td>
+                                            </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
@@ -226,7 +230,7 @@
         });
         //Date picker
         $('#tanggal').datetimepicker({
-            format: 'YYYY-MM-DD'
+            format: 'YYYY-MM'
         });
     </script>
 @endsection

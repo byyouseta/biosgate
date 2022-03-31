@@ -12,8 +12,9 @@ class PermissionController extends Controller
 {
     public function index()
     {
-        session()->put('ibu', 'Managemen Akses');
+        session()->put('ibu', 'Master Data');
         session()->put('anak', 'List Akses');
+        session()->forget('cucu');
 
         $data = Permission::all();
 

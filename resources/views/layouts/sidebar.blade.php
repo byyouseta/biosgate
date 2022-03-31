@@ -15,7 +15,7 @@
             <!-- Add icons to the links using the .nav-icon class
    with font-awesome or any other icon font library -->
             <li class="nav-item">
-                <a href="/home" class="nav-link">
+                <a href="/home" class="nav-link @if (@session('ibu') == 'Daskboard') active @endif">
                     <i class="nav-icon fas fa-tachometer-alt"></i>
                     <p>
                         Dashboard
@@ -36,9 +36,9 @@
                     </li>
                 </ul> --}}
             </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="nav-icon fas fa-exchange-alt"></i>
+            <li class="nav-item @if (@session('ibu') == 'BIOS G2') menu-open @endif">
+                <a href="#" class="nav-link @if (@session('ibu') == 'BIOS G2') active @endif">
+                    <i class="nav-icon fas fa-exchange-alt "></i>
                     <p>
                         BIOS G2
                         <i class="right fas fa-angle-left"></i>
@@ -46,7 +46,7 @@
                 </a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
-                        <a href="/saldo" class="nav-link">
+                        <a href="/saldo" class="nav-link @if (@session('anak') == 'Layanan Kesehatan') active @endif">
                             <i class="nav-icon fas fa-heartbeat"></i>
                             <p>
                                 Layanan Kesehatan
@@ -55,8 +55,8 @@
                         </a>
                     </li>
 
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item @if (@session('anak') == 'Layanan Keuangan') menu-open @endif">
+                        <a href="#" class="nav-link @if (@session('anak') == 'Layanan Keuangan') active @endif">
                             <i class="nav-icon fas fa-dollar-sign"></i>
                             <p>
                                 Layanan Keuangan
@@ -65,7 +65,7 @@
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <a href="/penerimaan" class="nav-link">
+                                <a href="/penerimaan" class="nav-link @if (@session('cucu') == 'Data Penerimaan') active @endif">
                                     <i class="nav-icon fas fa-arrow-circle-down"></i>
                                     <p>
                                         Data Penerimaan
@@ -73,7 +73,7 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="/pengeluaran" class="nav-link">
+                                <a href="/pengeluaran" class="nav-link @if (@session('cucu') == 'Data Pengeluaran') active @endif">
                                     <i class="nav-icon fas fa-arrow-circle-up"></i>
                                     <p>
                                         Data Pengeluaran
@@ -81,7 +81,8 @@
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="/saldokeuangan" class="nav-link">
+                                <a href="/saldokeuangan"
+                                    class="nav-link @if (@session('cucu') == 'Data Saldo') active @endif">
                                     <i class="nav-icon fas fa-wallet"></i>
                                     <p>
                                         Data Saldo
@@ -93,8 +94,8 @@
 
                 </ul>
             </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
+            <li class="nav-item @if (@session('ibu') == 'BIOS facelift') menu-open @endif">
+                <a href="#" class="nav-link @if (@session('ibu') == 'BIOS facelift') active @endif">
                     <i class="nav-icon fas fa-exchange-alt"></i>
                     <p>
                         BIOS facelift
@@ -103,26 +104,26 @@
                 </a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
-                        <a href="/layanan/kesehatan" class="nav-link">
+                        <a href="/layanan/kesehatan" class="nav-link @if (@session('anak') == 'Data Layanan Kesehatan') active @endif">
                             <i class="nav-icon fas fa-hospital"></i>
                             <p>Data Layanan Kesehatan</p>
                         </a>
                     </li>
                     {{-- @can('approval-list') --}}
                     <li class="nav-item">
-                        <a href="/layanan/bor" class="nav-link">
+                        <a href="/layanan/bor" class="nav-link @if (@session('anak') == 'Data Statistik') active @endif">
                             <i class="nav-icon far fa-chart-bar"></i>
                             <p>Data Statistik</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/layanan/sdm" class="nav-link">
+                        <a href="/layanan/sdm" class="nav-link @if (@session('anak') == 'Data SDM') active @endif">
                             <i class="nav-icon fas fa-hospital-user"></i>
                             <p>Data SDM</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/layanan/visit" class="nav-link">
+                        <a href="/layanan/visit" class="nav-link @if (@session('anak') == 'Data Visit/IKT') active @endif">
                             <i class="nav-icon fas fa-procedures"></i>
                             <p>Data Visit/IKT</p>
                         </a>
@@ -130,8 +131,8 @@
                     {{-- @endcan --}}
                 </ul>
             </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
+            <li class="nav-item @if (@session('ibu') == 'RS Online') menu-open @endif">
+                <a href="#" class="nav-link  @if (@session('ibu') == 'RS Online') active @endif">
                     <i class="nav-icon fas fa-hospital-alt"></i>
                     <p>
                         RS Online
@@ -139,8 +140,8 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
+                    <li class="nav-item @if (@session('anak') == 'Data Referensi') menu-open @endif">
+                        <a href="#" class="nav-link @if (@session('anak') == 'Data Referensi') active @endif">
                             <i class="nav-icon fas fa-heartbeat"></i>
                             <p>
                                 Data Referensi
@@ -148,20 +149,23 @@
                             </p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="/rsonline/geografi" class="nav-link">
+                            <li class="nav-item @if (@session('cucu') == 'Geografi') active @endif">
+                                <a href="/rsonline/geografi"
+                                    class="nav-link @if (@session('cucu') == 'Geografi') active @endif">
                                     <i class="far fa-dot-circle nav-icon"></i>
                                     <p>Geografi</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="/rsonline/statuspasien" class="nav-link">
+                                <a href="/rsonline/statuspasien"
+                                    class="nav-link @if (@session('cucu') == 'Status Pasien') active @endif">
                                     <i class="fas fa-user-injured nav-icon"></i>
                                     <p>Status Pasien</p>
                                 </a>
                             </li>
                             <li class="nav-item">
-                                <a href="/rsonline/vaksin" class="nav-link">
+                                <a href="/rsonline/vaksin"
+                                    class="nav-link @if (@session('cucu') == 'Status Vaksin') active @endif">
                                     <i class="fas fa-syringe nav-icon"></i>
                                     <p>Status Vaksin</p>
                                 </a>
@@ -170,8 +174,8 @@
                     </li>
                 </ul>
             </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
+            <li class="nav-item @if (@session('ibu') == 'Setting') menu-open @endif">
+                <a href="#" class="nav-link @if (@session('ibu') == 'Setting') active @endif">
                     <i class="nav-icon fas fa-cog"></i>
                     <p>
                         Setting
@@ -180,7 +184,7 @@
                 </a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
-                        <a href="/setting" class="nav-link">
+                        <a href="/setting" class="nav-link @if (@session('anak') == 'API Setting') active @endif">
                             <i class="nav-icon fas fa-rocket"></i>
                             <p>
                                 API Setting
@@ -189,7 +193,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/schedule" class="nav-link">
+                        <a href="/schedule" class="nav-link @if (@session('anak') == 'Schedule Update') active @endif">
                             <i class="nav-icon far fa-calendar-check"></i>
                             <p>
                                 Schedule Update
@@ -200,8 +204,8 @@
 
                 </ul>
             </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link">
+            <li class="nav-item @if (@session('ibu') == 'Master Data') menu-open @endif">
+                <a href="#" class="nav-link @if (@session('ibu') == 'Master Data') active @endif">
                     <i class="nav-icon fas fa-database"></i>
                     <p>
                         Master Data
@@ -210,7 +214,7 @@
                 </a>
                 <ul class="nav nav-treeview">
                     <li class="nav-item">
-                        <a href="/master/user" class="nav-link">
+                        <a href="/master/user" class="nav-link @if (@session('anak') == 'User') active @endif">
                             <i class="nav-icon fas fa-users"></i>
                             <p>
                                 User
@@ -218,7 +222,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/master/bank" class="nav-link">
+                        <a href="/master/bank" class="nav-link @if (@session('anak') == 'Data Bank BIOS') active @endif">
                             <i class="nav-icon fas fa-money-check-alt"></i>
                             <p>
                                 Data Bank BIOS
@@ -227,7 +231,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/roles" class="nav-link">
+                        <a href="/roles" class="nav-link @if (@session('anak') == 'Role Group') active @endif">
                             <i class="nav-icon fas fa-user-cog"></i>
                             <p>
                                 Role Group
@@ -235,7 +239,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="/permission" class="nav-link">
+                        <a href="/permission" class="nav-link @if (@session('anak') == 'List Akses') active @endif">
                             <i class="nav-icon far fa-folder-open"></i>
                             <p>
                                 List Akses
@@ -245,7 +249,7 @@
                 </ul>
             </li>
             <li class="nav-item">
-                <a href="/profil" class="nav-link">
+                <a href="/profil" class="nav-link @if (@session('ibu') == 'Profil') active @endif">
                     <i class="nav-icon fas fa-user"></i>
                     <p>
                         Profil

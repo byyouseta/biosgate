@@ -41,7 +41,7 @@
                                         <div class="input-group date" id="tanggal" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
                                                 data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
-                                                value="{{ $tanggal }}" />
+                                                value="{{ $tanggal }}" autocomplete="off" />
                                             <div class="input-group-append" data-target="#tanggal"
                                                 data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -54,7 +54,8 @@
                                     </div>
 
                                     <div class="col-sm-2 col-form-label">
-                                        <a href="/pengeluaran/client" class="btn btn-success">Jalankan Client</a>
+                                        <a href="/pengeluaran/client" class="btn btn-success" target="_blank">Jalankan
+                                            Client</a>
                                     </div>
                                 </div>
                             </form>
@@ -83,7 +84,7 @@
                                     <tbody>
                                         @foreach ($data as $data)
                                             <td>{{ $data->kd_akun }}</td>
-                                            <td>{{ $data->jumlah }}</td>
+                                            <td>{{ number_format($data->jumlah, 2, ',', '.') }}</td>
                                             <td>{{ $data->tgl_transaksi }}</td>
                                             <td>
                                                 @if ($data->status == 1)
@@ -226,7 +227,7 @@
         });
         //Date picker
         $('#tanggal').datetimepicker({
-            format: 'YYYY-MM-DD'
+            format: 'YYYY-MM'
         });
     </script>
 @endsection

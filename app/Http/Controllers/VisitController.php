@@ -15,8 +15,9 @@ class VisitController extends Controller
 
     public function index()
     {
-        session()->put('ibu', 'Data Transaksi');
-        session()->put('anak', 'Data IKT');
+        session()->put('ibu', 'BIOS facelift');
+        session()->put('anak', 'Data Visit/IKT');
+        session()->forget('cucu');
 
         $tanggal = Carbon::now()->format('Y-m-d');
 

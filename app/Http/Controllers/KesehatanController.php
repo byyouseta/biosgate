@@ -15,8 +15,9 @@ class KesehatanController extends Controller
 
     public function index()
     {
-        session()->put('ibu', 'Data Transaksi');
-        session()->put('anak', 'Layanan Kesehatan');
+        session()->put('ibu', 'BIOS facelift');
+        session()->put('anak', 'Data Layanan Kesehatan');
+        session()->forget('cucu');
 
         $tanggal = Carbon::now()->format('Y-m-d');
 

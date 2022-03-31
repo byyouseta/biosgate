@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Pemasukan;
+use App\ScheduleUpdate;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -17,12 +18,17 @@ class PemasukanController extends Controller
 
     public function index()
     {
-        session()->put('ibu', 'Layanan Keuangan');
-        session()->put('anak', 'Data Penerimaan');
+        session()->put('ibu', 'BIOS G2');
+        session()->put('anak', 'Layanan Keuangan');
+        session()->put('cucu', 'Data Penerimaan');
 
         $tanggal = Carbon::now()->format('Y-m-d');
+        $tahun = Carbon::now()->format('Y');
+        $bulan = Carbon::now()->format('m');
 
-        $data = Pemasukan::where('tgl_transaksi', $tanggal)->get();
+        $data = Pemasukan::whereYear('tgl_transaksi', $tahun)
+            ->whereMonth('tgl_transaksi', $bulan)
+            ->get();
 
         // ClientController::token();
 
@@ -90,8 +96,16 @@ class PemasukanController extends Controller
     {
         $tanggal = $request->get('tanggal');
 
-        $data = Pemasukan::where('tgl_transaksi', $tanggal)->get();
+        // dd($tanggal);
 
+        // $str = $request->nama;
+        $split = explode("-", $tanggal);
+
+        $data = Pemasukan::whereYear('tgl_transaksi', $split[0])
+            ->whereMonth('tgl_transaksi', $split[1])
+            ->get();
+
+        // dd($data);
         // ClientController::token();
 
         $akun = PemasukanController::RefAkun();
@@ -110,5 +124,92 @@ class PemasukanController extends Controller
         $akun = $akun->data;
 
         return $akun;
+    }
+
+    public function client()
+    {
+        session()->put('ibu', 'BIOS G2');
+        session()->put('anak', 'Layanan Keuangan');
+        session()->put('cucu', 'Client Penerimaan');
+
+        ClientController::token();
+        $now = Carbon::now();
+        $jam = Carbon::now()->format('H:i:s');
+        // dd($now);
+        $data_pemasukan = Pemasukan::where('status', '=', 'false')
+            ->whereDate('tgl_transaksi', '<', $now)
+            ->get();
+
+        // dd($data_pemasukan);
+        if ($data_pemasukan->count() > 0) {
+            // dd($data);
+            $schedule = ScheduleUpdate::all();
+            foreach ($schedule as $jadwal) {
+                if (($jam >= $jadwal->waktu_mulai) and ($jam <= $jadwal->waktu_selesai)) {
+                    foreach ($data_pemasukan as $data) {
+
+                        $tgl_transaksi = Carbon::parse($data->tgl_transaksi)->format('Y/m/d');
+                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                        $response = $client->request('POST', 'ws/penerimaan/prod', [
+                            'headers' => [
+                                'token' => session('token'),
+                            ],
+                            'form_params' => [
+                                'kd_akun' => $data->kd_akun,
+                                'jumlah' => $data->jumlah,
+                                'tgl_transaksi' => $tgl_transaksi,
+                            ]
+                        ]);
+
+                        $datajson = json_decode($response->getBody());
+
+                        // dd($data);
+
+                        if ($datajson->status != 'MSG20003') {
+                            Session::flash('error', $datajson->message);
+
+                            return view('keuangan.client_pemasukan');
+                        } else {
+                            Session::flash('sukses', "$datajson->status, $datajson->message");
+
+                            $update = Pemasukan::find($data->id);
+                            $update->status = true;
+                            $update->save();
+                        }
+                    }
+                }
+            }
+        }
+        $tgl_mulai = new Carbon('first day of this month');
+        $tgl_selesai = new Carbon('last day of this month');
+
+        // dd($tgl_mulai, $tgl_selesai);
+        // $tanggal = Carbon::now()->format('Y-m-d');
+
+        $data = Pemasukan::whereDate('tgl_transaksi', '>=', $tgl_mulai)
+            ->whereDate('tgl_transaksi', '<=', $tgl_selesai)
+            ->get();
+
+        // dd($data);
+
+        return view('keuangan.client_pemasukan', compact('data'));
+    }
+
+    //Ambil Rekap
+    public static function RekapPemasukan($tanggal)
+    {
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $response = $client->request('POST', 'get/data/penerimaan', [
+            'headers' => [
+                'token' => session('token'),
+            ],
+            'form_params' => [
+                'tgl_transaksi' => Carbon::parse($tanggal)->format('Y/m/d'),
+            ]
+        ]);
+
+        $dataterkirim = json_decode($response->getBody());
+
+        return $dataterkirim;
     }
 }
