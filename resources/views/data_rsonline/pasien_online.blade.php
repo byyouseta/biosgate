@@ -1,7 +1,6 @@
 @extends('layouts.master')
 
 @section('head')
-    <meta http-equiv="refresh" content="600" />
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
@@ -15,79 +14,60 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-6">
+
+                <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Data Penerimaan</div>
+                            <div class="card_title">Data Pasien Covid</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
+                                <table class="table table-bordered table-hover" id="example2">
                                     <thead>
                                         <tr>
-                                            <th class="align-middle">Kode Akun</th>
-                                            <th class="align-middle">Jumlah</th>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">Status</th>
+                                            <th class="align-middle">No RM</th>
+                                            <th class="align-middle">No Rawat</th>
+                                            <th class="align-middle">Nama Pasien</th>
+                                            <th class="align-middle">Pekerjaan</th>
+                                            <th class="align-middle">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @if (!empty($data))
-                                            @foreach ($data as $data)
+                                        @foreach ($data as $data)
+                                            @if (\App\PelaporanCovid::cekLapor($data->no_rawat) == 0)
                                                 <tr>
-                                                    <td>{{ $data->kd_akun }}</td>
-                                                    <td class="text-right">
-                                                        {{ number_format($data->jumlah, 2, '.', ',') }}</td>
-                                                    <td>{{ $data->tgl_transaksi }}</td>
+                                                    <td>{{ $data->no_rkm_medis }}</td>
+                                                    <td>{{ $data->no_rawat }}</td>
+                                                    <td>{{ $data->nm_pasien }}</td>
+                                                    <td>{{ $data->pekerjaan }}</td>
                                                     <td>
-                                                        @if ($data->status == 1)
-                                                            <span class="right badge badge-success">Sudah Terkirim</span>
-                                                        @else
-                                                            <span class="right badge badge-danger">Belum Terkirim</span>
-                                                        @endif
+                                                        <div class="col text-center">
+                                                            <div class="btn-group">
+                                                                <a href="/rsonline/pasienbaru/add/{{ Crypt::encrypt($data->no_rawat) }}"
+                                                                    class="btn btn-success btn-sm" data-toggle="tooltip"
+                                                                    data-placement="bottom" title="Edit">
+                                                                    <i class="fas fa-plus-square"></i>
+                                                                </a>
+                                                                {{-- <a href="/saldokeuangan/delete/{{ Crypt::encrypt($data->no_rawat) }}"
+                                                                class="btn btn-danger btn-sm delete-confirm "
+                                                                data-toggle="tooltip" data-placement="bottom"
+                                                                title="Delete">
+                                                                <i class="fas fa-ban"></i>
+                                                            </a> --}}
+                                                            </div>
+                                                        </div>
                                                     </td>
                                                 </tr>
-                                            @endforeach
-                                        @endif
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">Summary data terkirim kemarin</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Kode Akun</th>
-                                            <th class="align-middle">Nama Akun</th>
-                                            <th class="align-middle">Jumlah</th>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">Tanggal Update</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($cekdata as $data)
-                                            <tr>
-                                                <td>{{ $data->kd_akun }}</td>
-                                                <td>{{ $data->nm_akun }}</td>
-                                                <td>{{ $data->jumlah }}</td>
-                                                <td>{{ $data->tgl_transaksi }}</td>
-                                                <td>{{ $data->tgl_update }}</td>
-                                            </tr>
+                                            @endif
                                         @endforeach
                                     </tbody>
                                 </table>
+
                             </div>
                         </div>
                     </div>
                 </div>
+
                 <!-- /.col -->
             </div>
             <!-- /.row -->
@@ -114,14 +94,14 @@
     <script>
         $(function() {
             $('#example2').DataTable({
-                "paging": false,
+                "paging": true,
                 "lengthChange": false,
-                "searching": false,
-                "ordering": false,
-                "info": false,
+                "searching": true,
+                "ordering": true,
+                "info": true,
                 "autoWidth": false,
                 "responsive": false,
-                "scrollY": "300px",
+                "scrollY": "400px",
                 "scrollX": false,
             });
             $('#example').DataTable({

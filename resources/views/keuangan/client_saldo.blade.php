@@ -15,7 +15,7 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-6">
+                <div class="col-12">
                     <div class="card">
                         <div class="card-header">
                             <div class="card_title">Data Saldo</div>
@@ -58,23 +58,39 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6">
+                <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Summary data terkirim</div>
+                            <div class="card_title">Summary data terkirim kemarin</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
                                 <table class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
-                                            <th class="align-middle">Kode Akun</th>
-                                            <th class="align-middle">Jumlah</th>
+                                            <th class="align-middle">Kode Bank</th>
+                                            <th class="align-middle">Nama Bank</th>
+                                            <th class="align-middle">No Rekening</th>
+                                            <th class="align-middle">Kode Rekening</th>
+                                            <th class="align-middle">Nama Rekening</th>
+                                            <th class="align-middle">Saldo</th>
                                             <th class="align-middle">Tanggal Transaksi</th>
+                                            <th class="align-middle">Tanggal Update</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-
+                                        @foreach ($cekdata as $data)
+                                            <tr>
+                                                <td>{{ $data->kd_bank }}</td>
+                                                <td>{{ $data->nm_bank }}</td>
+                                                <td>{{ $data->norek }}</td>
+                                                <td>{{ $data->kd_rek }}</td>
+                                                <td>{{ $data->nm_rek }}</td>
+                                                <td>{{ $data->saldo }}</td>
+                                                <td>{{ $data->tgl_transaksi }}</td>
+                                                <td>{{ $data->tgl_update }}</td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>

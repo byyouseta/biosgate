@@ -58,7 +58,7 @@
                 <div class="col-6">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Summary data terkirim</div>
+                            <div class="card_title">Summary data terkirim kemarin</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -66,12 +66,22 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Kode Akun</th>
+                                            <th class="align-middle">Nama Akun</th>
                                             <th class="align-middle">Jumlah</th>
                                             <th class="align-middle">Tanggal Transaksi</th>
+                                            <th class="align-middle">Tanggal Update</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-
+                                        @foreach ($cekdata as $data)
+                                            <tr>
+                                                <td>{{ $data->kd_akun }}</td>
+                                                <td>{{ $data->nm_akun }}</td>
+                                                <td>{{ $data->jumlah }}</td>
+                                                <td>{{ $data->tgl_transaksi }}</td>
+                                                <td>{{ $data->tgl_update }}</td>
+                                            </tr>
+                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>

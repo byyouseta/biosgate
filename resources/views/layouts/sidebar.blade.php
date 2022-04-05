@@ -140,6 +140,40 @@
                     </p>
                 </a>
                 <ul class="nav nav-treeview">
+                    <li class="nav-item @if (@session('anak') == 'Data Pasien') menu-open @endif">
+                        <a href="#" class="nav-link @if (@session('anak') == 'Data Pasien') active @endif">
+                            <i class="nav-icon fas fa-hospital-user"></i>
+                            <p>
+                                Data Pasien
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/rsonline/pasienbaru"
+                                    class="nav-link @if (@session('cucu') == 'Pasien Baru') active @endif">
+                                    <i class="far fa-dot-circle nav-icon"></i>
+                                    <p>Pasien Baru</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/rsonline/pasienterlapor"
+                                    class="nav-link @if (@session('cucu') == 'Pasien Terlapor') active @endif">
+                                    <i class="fas fa-user-injured nav-icon"></i>
+                                    <p>Pasien Terlapor</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/rsonline/pasienpulang"
+                                    class="nav-link @if (@session('cucu') == 'Pasien Pulang') active @endif">
+                                    <i class="nav-icon fas fa-walking"></i>
+                                    <p>Pasien Pulang</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <ul class="nav nav-treeview">
                     <li class="nav-item @if (@session('anak') == 'Data Referensi') menu-open @endif">
                         <a href="#" class="nav-link @if (@session('anak') == 'Data Referensi') active @endif">
                             <i class="nav-icon fas fa-heartbeat"></i>

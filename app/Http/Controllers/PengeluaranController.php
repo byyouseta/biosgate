@@ -165,15 +165,27 @@ class PengeluaranController extends Controller
         $tgl_mulai = new Carbon('first day of this month');
         $tgl_selesai = new Carbon('last day of this month');
 
-        // dd($tgl_mulai, $tgl_selesai);
-        // $tanggal = Carbon::now()->format('Y-m-d');
-
         $data = Pengeluaran::whereDate('tgl_transaksi', '>=', $tgl_mulai)
             ->whereDate('tgl_transaksi', '<=', $tgl_selesai)
             ->get();
 
-        // dd($data);
+        $kemarin = Carbon::now()->yesterday()->format('Y/m/d');
+        // $kemarin = "2022/03/25";
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $response = $client->request('POST', 'get/data/pengeluaran', [
+            'headers' => [
+                'token' => session('token'),
+            ],
+            'form_params' => [
+                'tgl_transaksi' => $kemarin,
+            ]
+        ]);
 
-        return view('keuangan.client_pengeluaran', compact('data'));
+        $datajson = json_decode($response->getBody());
+        $cekdata = $datajson->data;
+
+        // dd($cekdata);
+
+        return view('keuangan.client_pengeluaran', compact('data', 'cekdata'));
     }
 }

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class RsClientController extends Controller
 {
-    public function tokenrs()
+    public static function tokenrs()
     {
         $setting = Setting::where('nama', 'rsonline')->first();
         // dd($setting);
@@ -105,7 +105,7 @@ class RsClientController extends Controller
         ));
     }
 
-    public function kewarganegaraan()
+    public static function kewarganegaraan()
     {
         RsClientController::tokenrs();
 
@@ -245,7 +245,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function asalpasien()
+    public static function asalpasien()
     {
         RsClientController::tokenrs();
 
@@ -265,7 +265,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function jenispasien()
+    public static function jenispasien()
     {
         RsClientController::tokenrs();
 
@@ -285,7 +285,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function kelompokgejala()
+    public static function kelompokgejala()
     {
         RsClientController::tokenrs();
 
@@ -305,7 +305,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function pekerjaan()
+    public static function pekerjaan()
     {
         RsClientController::tokenrs();
 
@@ -325,7 +325,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function statuspasien()
+    public static function statuspasien()
     {
         RsClientController::tokenrs();
 
@@ -405,7 +405,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function statusrawat()
+    public static function statusrawat()
     {
         RsClientController::tokenrs();
 
@@ -505,7 +505,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function alatoksigen()
+    public static function alatoksigen()
     {
         RsClientController::tokenrs();
 
@@ -545,7 +545,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function variancovid()
+    public static function variancovid()
     {
         RsClientController::tokenrs();
 

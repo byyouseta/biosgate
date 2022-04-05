@@ -135,7 +135,7 @@ class PemasukanController extends Controller
         ClientController::token();
         $now = Carbon::now();
         $jam = Carbon::now()->format('H:i:s');
-        // dd($now);
+
         $data_pemasukan = Pemasukan::where('status', '=', 'false')
             ->whereDate('tgl_transaksi', '<', $now)
             ->get();
@@ -190,9 +190,22 @@ class PemasukanController extends Controller
             ->whereDate('tgl_transaksi', '<=', $tgl_selesai)
             ->get();
 
-        // dd($data);
+        $kemarin = Carbon::now()->yesterday()->format('Y/m/d');
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $response = $client->request('POST', 'get/data/penerimaan', [
+            'headers' => [
+                'token' => session('token'),
+            ],
+            'form_params' => [
+                'tgl_transaksi' => $kemarin,
+            ]
+        ]);
 
-        return view('keuangan.client_pemasukan', compact('data'));
+        $datajson = json_decode($response->getBody());
+        $cekdata = $datajson->data;
+        // dd($datajson->data);
+
+        return view('keuangan.client_pemasukan', compact('data', 'cekdata'));
     }
 
     //Ambil Rekap
