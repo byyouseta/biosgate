@@ -19,7 +19,7 @@ class CreatePelaporanCovidsTable extends Migration
             $table->string('noRawat', 20);
             $table->string('kewarganegaraan', 4);
             $table->string('nik', 20);
-            $table->string('noPassport', 20);
+            $table->string('noPassport', 20)->nullable();
             $table->smallInteger('asalPasien');
             $table->string('noRm', 8);
             $table->string('namaPasien', 100);
@@ -28,10 +28,11 @@ class CreatePelaporanCovidsTable extends Migration
             $table->string('email', 100)->nullable();
             $table->string('nohp', 20);
             $table->string('jk', 1);
-            $table->string('provinsi', 12);
-            $table->string('kabKota', 12);
-            $table->string('kecamatan', 12);
+            $table->string('provinsi', 3);
+            $table->string('kabKota', 5);
+            $table->string('kecamatan', 7);
             $table->date('tgl_masuk');
+            $table->smallInteger('pekerjaan');
             $table->smallInteger('jenis_pasien');
             $table->smallInteger('varian_covid');
             $table->smallInteger('status_pasien');

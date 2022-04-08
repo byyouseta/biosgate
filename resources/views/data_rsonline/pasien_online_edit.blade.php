@@ -14,7 +14,7 @@
     <section class="content">
         <div class="container-fluid">
 
-            <form role="form" action="/rsonline/pasienterlapor/update/{{ $data->lapId }}" method="post">
+            <form role="form" action="/rsonline/pasienterlapor/updatelap/{{ $data->lapId }}" method="post">
                 {{ csrf_field() }}
                 <div class="card">
                     <div class="card-header">
@@ -31,7 +31,7 @@
                                     <select name="kewarganegaraan" class="form-control select2" required>
                                         @foreach ($kewarganegaraan as $negara)
                                             <option value="{{ $negara->id }}"
-                                                @if ($negara->nicename == 'Indonesia') selected @endif>{{ $negara->nicename }}
+                                                @if ($negara->nicename == $data->kewarganegaraan) selected @endif>{{ $negara->nicename }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -45,7 +45,7 @@
                                     <label>NIK</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="nik"
-                                            value="{{ old('nik', $data->no_ktp) }}" required>
+                                            value="{{ old('nik', $data->nik) }}" required>
                                     </div>
                                     @if ($errors->has('nik'))
                                         <div class="text-danger">
@@ -57,7 +57,8 @@
                                     <label>No Passport</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="noPassport"
-                                            placeholder="Kosongkan jika tidak ada" value="{{ old('noPassport') }}">
+                                            placeholder="Kosongkan jika tidak ada"
+                                            value="{{ old('noPassport', $data->noPassport) }}">
                                     </div>
                                     @if ($errors->has('noPassport'))
                                         <div class="text-danger">
@@ -71,7 +72,8 @@
                                     <select name="asal" class="form-control" required>
                                         @foreach ($dataasal as $asal)
                                             <option value="{{ $asal->id }}"
-                                                {{ $asal->id == old('asal') ? 'selected' : '' }}>{{ $asal->nama }}
+                                                {{ $asal->id == old('asal', $data->asalPasien) ? 'selected' : '' }}>
+                                                {{ $asal->nama }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -85,9 +87,9 @@
                                     <label>No RM / No Rawat</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="noRM"
-                                            value="{{ old('noRm', $data->no_rkm_medis) }}" required>
+                                            value="{{ old('noRm', $data->noRm) }}" required>
                                         <input type="text" class="form-control" name="noRawat"
-                                            value="{{ old('noRawat', $data->no_rawat) }}" readonly>
+                                            value="{{ old('noRawat', $data->noRawat) }}" readonly>
                                     </div>
                                     @if ($errors->has('noRM'))
                                         <div class="text-danger">
@@ -99,7 +101,7 @@
                                     <label>Nama Lengkap Pasien</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="namaPasien"
-                                            value="{{ old('namaPasien', $data->nm_pasien) }}" required>
+                                            value="{{ old('namaPasien', $data->namaPasien) }}" required>
                                     </div>
                                     @if ($errors->has('namaPasien'))
                                         <div class="text-danger">
@@ -111,7 +113,7 @@
                                     <label>Nama Inisial Pasien</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="inisial"
-                                            value="{{ old('inisial', $inisial) }}" required>
+                                            value="{{ old('inisial', $data->inisial) }}" required>
                                     </div>
                                     @if ($errors->has('inisial'))
                                         <div class="text-danger">
@@ -153,7 +155,7 @@
                                     <label>No Telepon</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="nohp"
-                                            value="{{ old('nohp', $data->no_tlp) }}" required>
+                                            value="{{ old('nohp', $data->nohp) }}" required>
                                     </div>
                                     @if ($errors->has('nohp'))
                                         <div class="text-danger">
@@ -189,7 +191,7 @@
                                     <label>Provinsi</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="provinsi"
-                                            value="{{ old('provinsi', $data->kd_prop) }}" required>
+                                            value="{{ old('provinsi', $data->provinsi) }}" required>
                                     </div>
                                     @if ($errors->has('provinsi'))
                                         <div class="text-danger">
@@ -201,7 +203,7 @@
                                     <label>Kabupaten/ Kota</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="kabKota"
-                                            value="{{ old('kabKota', $data->kd_kab) }}" required>
+                                            value="{{ old('kabKota', $data->kabKota) }}" required>
                                     </div>
                                     @if ($errors->has('kabKota'))
                                         <div class="text-danger">
@@ -213,7 +215,7 @@
                                     <label>Kecamatan</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="kecamatan"
-                                            value="{{ old('kecamatan', $data->kd_kec) }}" required>
+                                            value="{{ old('kecamatan', $data->kecamatan) }}" required>
                                     </div>
                                     @if ($errors->has('kecamatan'))
                                         <div class="text-danger">
@@ -232,7 +234,7 @@
                                     <select name="pekerjaan" class="form-control" required>
                                         @foreach ($datapekerjaan as $pekerjaan)
                                             <option value="{{ $pekerjaan->id }}"
-                                                @if (old('pekerjaan', $pekerjaan->nama) == $data->pekerjaan) selected @endif>{{ $pekerjaan->nama }}
+                                                @if (old('pekerjaan', $pekerjaan->id) == $data->pekerjaan) selected @endif>{{ $pekerjaan->nama }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -268,7 +270,7 @@
                                     <select class="form-control" name="jenis_pasien">
                                         @foreach ($datajenis as $jenis)
                                             <option value="{{ $jenis->id }}"
-                                                @if ($jenis->nama == 'Rawat Inap') selected @endif>{{ $jenis->nama }}
+                                                @if ($jenis->id == $data->jenis_pasien) selected @endif>{{ $jenis->nama }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -283,7 +285,7 @@
                                     <select class="form-control" name="varian_covid">
                                         @foreach ($datavarian as $varian)
                                             <option value="{{ $varian->id }}"
-                                                {{ old('varian_covid') == $varian->id ? 'selected' : '' }}>
+                                                {{ old('varian_covid', $data->varian_covid) == $varian->id ? 'selected' : '' }}>
                                                 {{ $varian->nama }}
                                             </option>
                                         @endforeach
@@ -300,7 +302,7 @@
                                     <select class="form-control" name="status_pasien">
                                         @foreach ($statuspasien as $statuspasien)
                                             <option value="{{ $statuspasien->id }}"
-                                                {{ old('status_pasien') == $statuspasien->id ? 'selected' : '' }}>
+                                                {{ old('status_pasien', $data->status_pasien) == $statuspasien->id ? 'selected' : '' }}>
                                                 {{ $statuspasien->nama }}
                                             </option>
                                         @endforeach
@@ -322,7 +324,7 @@
                                         <div class="custom-control custom-radio">
                                             <input class="custom-control-input" type="radio" name="status_coinsiden"
                                                 value="1" id="statusCoinsiden1" required
-                                                {{ old('status_coinsiden') == '1' ? 'checked' : '' }}>
+                                                {{ old('status_coinsiden', $data->status_coinsiden) == '1' ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="statusCoinsiden1">Ya</label>
                                         </div>
                                     </div>
@@ -330,7 +332,7 @@
                                         <div class="custom-control custom-radio">
                                             <input class="custom-control-input" type="radio" name="status_coinsiden"
                                                 value="0" id="statusCoinsiden2" required
-                                                {{ old('status_coinsiden') == '0' ? 'checked' : '' }}>
+                                                {{ old('status_coinsiden', $data->status_coinsiden) == '0' ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="statusCoinsiden2">Tidak</label>
                                         </div>
                                     </div>
@@ -345,7 +347,7 @@
                                     <select class="form-control" name="status_rawat" required>
                                         @foreach ($statusrawat as $statusrawat)
                                             <option value="{{ $statusrawat->id }}"
-                                                {{ old('status_rawat') == $statusrawat->id ? 'selected' : '' }}>
+                                                {{ old('status_rawat', $data->status_rawat) == $statusrawat->id ? 'selected' : '' }}>
                                                 {{ $statusrawat->nama }}
                                             </option>
                                         @endforeach
@@ -363,7 +365,7 @@
                                         <option value="">Tidak Pakai</option>
                                         @foreach ($alatoksigen as $alatoksigen)
                                             <option value="{{ $alatoksigen->id }}"
-                                                {{ old('alat_oksigen') == $alatoksigen->id ? 'selected' : '' }}>
+                                                {{ old('alat_oksigen', $data->alat_oksigen) == $alatoksigen->id ? 'selected' : '' }}>
                                                 {{ $alatoksigen->nama }}
                                             </option>
                                         @endforeach
@@ -382,14 +384,16 @@
                                     <div class="col-sm-6 col-form-label">
                                         <div class="custom-control custom-radio">
                                             <input class="custom-control-input" type="radio" name="penyintas" value="1"
-                                                id="penyintas1" required {{ old('penyintas') == '1' ? 'checked' : '' }}>
+                                                id="penyintas1" required
+                                                {{ old('penyintas', $data->penyintas) == '1' ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="penyintas1">Ya</label>
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-form-label">
                                         <div class="custom-control custom-radio">
                                             <input class="custom-control-input" type="radio" name="penyintas" value="0"
-                                                id="penyintas2" required {{ old('penyintas') == '0' ? 'checked' : '' }}>
+                                                id="penyintas2" required
+                                                {{ old('penyintas', $data->penyintas) == '0' ? 'checked' : '' }}>
                                             <label class="custom-control-label" for="penyintas2">Tidak</label>
                                         </div>
                                     </div>
@@ -405,7 +409,8 @@
                                     <div class="input-group date" id="tgl_gejala" data-target-input="nearest">
                                         <input type="text" class="form-control datetimepicker-input"
                                             data-target="#tgl_gejala" data-toggle="datetimepicker" name="tgl_gejala"
-                                            value="{{ old('tgl_gejala') }}" autocomplete="off" required />
+                                            value="{{ old('tgl_gejala', $data->tgl_gejala) }}" autocomplete="off"
+                                            required />
                                         <div class="input-group-append" data-target="#tgl_gejala"
                                             data-toggle="datetimepicker">
                                             <div class="input-group-text"><i class="fa fa-calendar"></i></div>
@@ -423,7 +428,7 @@
                                     <select class="form-control" name="kelompok_gejala" required>
                                         @foreach ($datakelompok as $kelompokgejala)
                                             <option value="{{ $kelompokgejala->id }}"
-                                                {{ old('kelompok_gejala') == $kelompokgejala->id ? 'selected' : '' }}>
+                                                {{ old('kelompok_gejala', $data->kelompok_gejala) == $kelompokgejala->id ? 'selected' : '' }}>
                                                 {{ $kelompokgejala->nama }}
                                             </option>
                                         @endforeach
@@ -458,7 +463,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="demam" value="1"
                                                             id="demam1" required
-                                                            {{ old('demam') == '1' ? 'checked' : '' }}>
+                                                            {{ old('demam', $data->demam) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="demam1">Ya</label>
                                                     </div>
                                                 </div>
@@ -466,7 +471,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="demam" value="0"
                                                             id="demam2" required
-                                                            {{ old('demam') == '0' ? 'checked' : '' }}>
+                                                            {{ old('demam', $data->demam) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="demam2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -479,7 +484,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="batuk" value="1"
                                                             id="batuk1" required
-                                                            {{ old('batuk') == '1' ? 'checked' : '' }}>
+                                                            {{ old('batuk', $data->batuk) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="batuk1">Ya</label>
                                                     </div>
                                                 </div>
@@ -487,7 +492,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="batuk" value="0"
                                                             id="batuk2" required
-                                                            {{ old('batuk') == '0' ? 'checked' : '' }}>
+                                                            {{ old('batuk', $data->batuk) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="batuk2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -500,7 +505,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="pilek" value="1"
                                                             id="pilek1" required
-                                                            {{ old('pilek') == '1' ? 'checked' : '' }}>
+                                                            {{ old('pilek', $data->pilek) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="pilek1">Ya</label>
                                                     </div>
                                                 </div>
@@ -508,7 +513,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="pilek" value="0"
                                                             id="pilek2" required
-                                                            {{ old('pilek') == '0' ? 'checked' : '' }}>
+                                                            {{ old('pilek', $data->pilek) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="pilek2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -521,7 +526,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" id="tenggorokan1"
                                                             name="sakit_tenggorokan" value="1" required
-                                                            {{ old('sakit_tenggorokan') == '1' ? 'checked' : '' }}>
+                                                            {{ old('sakit_tenggorokan', $data->sakit_tenggorokan) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="tenggorokan1">Ya</label>
                                                     </div>
                                                 </div>
@@ -529,7 +534,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" id="tenggorokan2"
                                                             name="sakit_tenggorokan" value="0" required
-                                                            {{ old('sakit_tenggorokan') == '0' ? 'checked' : '' }}>
+                                                            {{ old('sakit_tenggorokan', $data->sakit_tenggorokan) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="tenggorokan2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -542,7 +547,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="sesak_napas"
                                                             id="sesak1" value="1" required
-                                                            {{ old('sesak_napas') == '1' ? 'checked' : '' }}>
+                                                            {{ old('sesak_napas', $data->sesak_napas) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="sesak1">Ya</label>
                                                     </div>
                                                 </div>
@@ -550,7 +555,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="sesak_napas"
                                                             id="sesak2" value="0" required
-                                                            {{ old('sesak_napas') == '0' ? 'checked' : '' }}>
+                                                            {{ old('sesak_napas', $data->sesak_napas) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="sesak2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -563,7 +568,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="lemas" value="1"
                                                             id="lemas1" required
-                                                            {{ old('lemas') == '1' ? 'checked' : '' }}>
+                                                            {{ old('lemas', $data->lemas) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="lemas1">Ya</label>
                                                     </div>
                                                 </div>
@@ -571,7 +576,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="lemas" value="0"
                                                             id="lemas2" required
-                                                            {{ old('lemas') == '0' ? 'checked' : '' }}>
+                                                            {{ old('lemas', $data->lemas) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="lemas2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -584,7 +589,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="nyeri_otot"
                                                             id="nyeri1" value="1" required
-                                                            {{ old('nyeri_otot') == '1' ? 'checked' : '' }}>
+                                                            {{ old('nyeri_otot', $data->nyeri_otot) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="nyeri1">Ya</label>
                                                     </div>
                                                 </div>
@@ -592,7 +597,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="nyeri_otot"
                                                             id="nyeri2" value="0" required
-                                                            {{ old('nyeri_otot') == '0' ? 'checked' : '' }}>
+                                                            {{ old('nyeri_otot', $data->nyeri_otot) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="nyeri2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -607,7 +612,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="mual_muntah"
                                                             id="mual1" value="1" required
-                                                            {{ old('mual_muntah') == '1' ? 'checked' : '' }}>
+                                                            {{ old('mual_muntah', $data->mual_muntah) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="mual1">Ya</label>
                                                     </div>
                                                 </div>
@@ -615,7 +620,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="mual_muntah"
                                                             id="mual2" value="0" required
-                                                            {{ old('mual_muntah') == '0' ? 'checked' : '' }}>
+                                                            {{ old('mual_muntah', $data->mual_muntah) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="mual2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -628,7 +633,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="diare" value="1"
                                                             id="diare1" required
-                                                            {{ old('diare') == '1' ? 'checked' : '' }}>
+                                                            {{ old('diare', $data->diare) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="diare1">Ya</label>
                                                     </div>
                                                 </div>
@@ -636,7 +641,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="diare" value="0"
                                                             id="diare2" required
-                                                            {{ old('diare') == '0' ? 'checked' : '' }}>
+                                                            {{ old('diare', $data->diare) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="diare2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -649,7 +654,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="anosmia"
                                                             id="anosmia1" value="1" required
-                                                            {{ old('anosmia') == '1' ? 'checked' : '' }}>
+                                                            {{ old('anosmia', $data->anosmia) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="anosmia1">Ya</label>
                                                     </div>
                                                 </div>
@@ -657,7 +662,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="anosmia"
                                                             id="anosmia2" value="0" required
-                                                            {{ old('anosmia') == '0' ? 'checked' : '' }}>
+                                                            {{ old('anosmia', $data->anosmia) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="anosmia2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -670,7 +675,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="napas_cepat"
                                                             id="napas1" value="1" required
-                                                            {{ old('napas_cepat') == '1' ? 'checked' : '' }}>
+                                                            {{ old('napas_cepat', $data->napas_cepat) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="napas1">Ya</label>
                                                     </div>
                                                 </div>
@@ -678,7 +683,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="napas_cepat"
                                                             id="napas2" value="0" required
-                                                            {{ old('napas_cepat') == '0' ? 'checked' : '' }}>
+                                                            {{ old('napas_cepat', $data->napas_cepat) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="napas2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -691,7 +696,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="frek_napas"
                                                             id="frek1" value="1" required
-                                                            {{ old('frek_napas') == '1' ? 'checked' : '' }}>
+                                                            {{ old('frek_napas', $data->frek_napas) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="frek1">Ya</label>
                                                     </div>
                                                 </div>
@@ -699,7 +704,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="frek_napas"
                                                             id="frek2" value="0" required
-                                                            {{ old('frek_napas') == '0' ? 'checked' : '' }}>
+                                                            {{ old('frek_napas', $data->frek_napas) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="frek2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -712,7 +717,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" id="distres1"
                                                             name="distres_pernapasan" value="1" required
-                                                            {{ old('distres_pernapasan') == '1' ? 'checked' : '' }}>
+                                                            {{ old('distres_pernapasan', $data->distres_pernapasan) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="distres1">Ya</label>
                                                     </div>
                                                 </div>
@@ -720,7 +725,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" id="distres2"
                                                             name="distres_pernapasan" value="0" required
-                                                            {{ old('distres_pernapasan') == '0' ? 'checked' : '' }}>
+                                                            {{ old('distres_pernapasan', $data->distres_pernapasan) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="distres2">Tidak</label>
                                                     </div>
                                                 </div>
@@ -733,7 +738,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="lainnya"
                                                             id="lain1" value="1" required
-                                                            {{ old('lainnya') == '1' ? 'checked' : '' }}>
+                                                            {{ old('lainnya', $data->lainnya) == '1' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="lain1">Ya</label>
                                                     </div>
                                                 </div>
@@ -741,7 +746,7 @@
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="radio" name="lainnya"
                                                             id="lain2" value="0" required
-                                                            {{ old('lainnya') == '0' ? 'checked' : '' }}>
+                                                            {{ old('lainnya', $data->lainnya) == '0' ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="lain2">Tidak</label>
                                                     </div>
                                                 </div>

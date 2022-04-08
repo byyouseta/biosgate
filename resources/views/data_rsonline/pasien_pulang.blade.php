@@ -18,7 +18,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Data Pasien Covid</div>
+                            <div class="card_title">Data Pasien Keluar</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -44,7 +44,7 @@
                                                 <td>
                                                     <div class="col text-center">
                                                         <div class="btn-group">
-                                                            <a href="/rsonline/pasienterlapor/editlap/{{ Crypt::encrypt($data->lapId) }}"
+                                                            {{-- <a href="/rsonline/pasienterlapor/editlap/{{ Crypt::encrypt($data->lapId) }}"
                                                                 class="btn btn-warning" data-toggle="tooltip"
                                                                 data-placement="bottom" title="Edit">
                                                                 <i class="fas fa-pen-square"></i>
@@ -58,7 +58,7 @@
                                                                 class="btn bg-teal color-palette" data-toggle="tooltip"
                                                                 data-placement="bottom" title="Laporan Status Keluar">
                                                                 <i class="fas fa-walking"></i>
-                                                            </a>
+                                                            </a> --}}
                                                         </div>
                                                     </div>
                                                 </td>

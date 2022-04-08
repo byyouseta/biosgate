@@ -9,6 +9,7 @@
     <!-- Tempusdominus|Datetime Bootstrap 4 -->
     <link rel="stylesheet"
         href="{{ asset('template/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 @endsection
 @section('content')
     <section class="content">
@@ -188,8 +189,24 @@
                                 <div class="form-group">
                                     <label>Provinsi</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="provinsi"
-                                            value="{{ old('provinsi', $data->kd_prop) }}" required>
+                                        <select class="form-control" name="provinsi" id="provinsi" required>
+                                            <option>Pilih Provinsi</option>
+                                            @foreach ($provinsi as $prov)
+                                                <option value="{{ $prov->id }}">
+                                                    {{ $prov->nama }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        @php
+                                            if (!empty(\App\Provinsi::NamaProvinsi($data->kd_prop))) {
+                                                $nama = \App\Provinsi::NamaProvinsi($data->kd_prop);
+                                                $keterangan = $nama->nama;
+                                            } else {
+                                                $keterangan = 'Unknow';
+                                            }
+                                        @endphp
+                                        <input type="text" class="form-control col-4"
+                                            value="{{ $data->kd_prop }} -{{ $keterangan }}" readonly>
                                     </div>
                                     @if ($errors->has('provinsi'))
                                         <div class="text-danger">
@@ -200,8 +217,19 @@
                                 <div class="form-group">
                                     <label>Kabupaten/ Kota</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="kabKota"
-                                            value="{{ old('kabKota', $data->kd_kab) }}" required>
+                                        <select class="form-control" name="kabKota" id="kabKota" required>
+                                            <option>Pilih Kab/Kota</option>
+                                        </select>
+                                        @php
+                                            if (!empty(\App\KabKota::NamaKabKota($data->kd_kab))) {
+                                                $nama = \App\KabKota::NamaKabKota($data->kd_kab);
+                                                $keterangan = $nama->nama;
+                                            } else {
+                                                $keterangan = 'Unknow';
+                                            }
+                                        @endphp
+                                        <input type="text" class="form-control col-4"
+                                            value="{{ $data->kd_kab }} - {{ $keterangan }}" readonly>
                                     </div>
                                     @if ($errors->has('kabKota'))
                                         <div class="text-danger">
@@ -212,9 +240,21 @@
                                 <div class="form-group">
                                     <label>Kecamatan</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" name="kecamatan"
-                                            value="{{ old('kecamatan', $data->kd_kec) }}" required>
+                                        <select class="form-control" name="kecamatan" id="kecamatan" required>
+                                            <option>Pilih Kecamatan</option>
+                                        </select>
+                                        @php
+                                            if (!empty(\App\Kecamatan::NamaKec($data->kd_kec))) {
+                                                $namakec = \App\Kecamatan::NamaKec($data->kd_kec);
+                                                $keterangan = $namakec->nama;
+                                            } else {
+                                                $keterangan = 'Unknow';
+                                            }
+                                        @endphp
+                                        <input type="text" class="form-control col-4"
+                                            value="{{ $data->kd_kec }} - {{ $keterangan }}" readonly>
                                     </div>
+
                                     @if ($errors->has('kecamatan'))
                                         <div class="text-danger">
                                             {{ $errors->first('kecamatan') }}
@@ -782,6 +822,37 @@
         //Date picker
         $('#tanggal,#tgl_masuk,#tgl_gejala').datetimepicker({
             format: 'YYYY-MM-DD'
+        });
+
+        $(function() {
+            $('#provinsi').on('change', function() {
+                axios.post('{{ route('getKabKota') }}', {
+                        id: $(this).val()
+                    })
+                    .then(function(response) {
+                        $('#kabKota').empty();
+                        $('#kabKota').append(new Option("Pilih Kab/Kota"))
+
+                        $.each(response.data, function(id, nama) {
+                            $('#kabKota').append(new Option(nama, id))
+                        })
+                    });
+            });
+        });
+        $(function() {
+            $('#kabKota').on('change', function() {
+                axios.post('{{ route('getKecamatan') }}', {
+                        id: $(this).val()
+                    })
+                    .then(function(response) {
+                        $('#kecamatan').empty();
+                        $('#kecamatan').append(new Option("Pilih Kecamatan"))
+
+                        $.each(response.data, function(id, nama) {
+                            $('#kecamatan').append(new Option(nama, id))
+                        })
+                    });
+            });
         });
     </script>
 @endsection

@@ -125,7 +125,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function provinsi()
+    public static function provinsi()
     {
         RsClientController::tokenrs();
 
@@ -145,7 +145,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function kabkota()
+    public static function kabkota()
     {
         RsClientController::tokenrs();
 
@@ -165,7 +165,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function kecamatan()
+    public static function kecamatan()
     {
         RsClientController::tokenrs();
 
@@ -185,7 +185,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function kelurahan()
+    public static function kelurahan()
     {
         RsClientController::tokenrs();
 
@@ -205,7 +205,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function dosisvaksin()
+    public static function dosisvaksin()
     {
         RsClientController::tokenrs();
 
@@ -225,7 +225,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function jenisvaksin()
+    public static function jenisvaksin()
     {
         RsClientController::tokenrs();
 
@@ -345,7 +345,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function statuspasiensaatmeninggal()
+    public static function statuspasiensaatmeninggal()
     {
         RsClientController::tokenrs();
 
@@ -365,7 +365,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function komorbid()
+    public static function komorbid()
     {
         RsClientController::tokenrs();
 
@@ -385,7 +385,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function komorbidcoinsiden()
+    public static function komorbidcoinsiden()
     {
         RsClientController::tokenrs();
 
@@ -425,7 +425,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function terapi()
+    public static function terapi()
     {
         RsClientController::tokenrs();
 
@@ -445,7 +445,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function statuskeluar()
+    public static function statuskeluar()
     {
         RsClientController::tokenrs();
 
@@ -465,7 +465,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function penyebabkematian()
+    public static function penyebabkematian()
     {
         RsClientController::tokenrs();
 
@@ -485,7 +485,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function penyebabkematianlangsung()
+    public static function penyebabkematianlangsung()
     {
         RsClientController::tokenrs();
 
@@ -525,7 +525,7 @@ class RsClientController extends Controller
         return $data;
     }
 
-    public function jenispemeriksaanlab()
+    public static function jenispemeriksaanlab()
     {
         RsClientController::tokenrs();
 

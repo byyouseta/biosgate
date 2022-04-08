@@ -165,9 +165,9 @@
                             </li>
                             <li class="nav-item">
                                 <a href="/rsonline/pasienpulang"
-                                    class="nav-link @if (@session('cucu') == 'Pasien Pulang') active @endif">
+                                    class="nav-link @if (@session('cucu') == 'Pasien Keluar') active @endif">
                                     <i class="nav-icon fas fa-walking"></i>
-                                    <p>Pasien Pulang</p>
+                                    <p>Pasien Keluar</p>
                                 </a>
                             </li>
                         </ul>
@@ -277,6 +277,14 @@
                             <i class="nav-icon far fa-folder-open"></i>
                             <p>
                                 List Akses
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/master/dummygeo" class="nav-link @if (@session('anak') == 'Dummy Geografi') active @endif">
+                            <i class="nav-icon fas fa-globe-asia"></i>
+                            <p>
+                                Dummy Geografi
                             </p>
                         </a>
                     </li>

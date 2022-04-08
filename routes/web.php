@@ -78,8 +78,32 @@ Route::post('/rsonline/pasienbaru/store', 'PasienOnlineController@store')->name(
 
 Route::get('/rsonline/pasienterlapor', 'PasienOnlineController@terlapor')->name('pasienonline.terlapor');
 Route::get('/rsonline/pasienterlapor/editlap/{id}', 'PasienOnlineController@editlap')->name('pasienonline.editlap');
+Route::post('/rsonline/pasienterlapor/updatelap/{id}', 'PasienOnlineController@updatelap')->name('pasienonline.updatelap');
+Route::get('/rsonline/pasienterlapor/laptambahan/{id}', 'PasienOnlineController@lapTambahan')->name('pasienonline.lapTambahan');
+//Laporan Komorbid
+Route::post('/rsonline/pasienterlapor/komorbid/{id}', 'PasienOnlineController@komorbidupdate')->name('pasienonline.komorbidupdate');
+Route::get('/rsonline/pasienterlapor/editkomorbid/{id}', 'PasienOnlineController@komorbidedit')->name('pasienonline.komorbidedit');
+Route::post('/rsonline/pasienterlapor/patchkomorbid/{id}', 'PasienOnlineController@komorbidpatch')->name('pasienonline.komorbidpatch');
+//Laporan Terapi
+Route::post('/rsonline/pasienterlapor/terapi/{id}', 'PasienOnlineController@terapiupdate')->name('pasienonline.terapiupdate');
+Route::get('/rsonline/pasienterlapor/editterapi/{id}', 'PasienOnlineController@terapiedit')->name('pasienonline.terapiedit');
+Route::post('/rsonline/pasienterlapor/patchterapi/{id}', 'PasienOnlineController@terapipatch')->name('pasienonline.terapipatch');
 
+//Laporan Vaksinasi
+Route::post('/rsonline/pasienterlapor/vaksinasi/{id}', 'PasienOnlineController@vaksinasiupdate')->name('pasienonline.vaksinasiupdate');
+Route::get('/rsonline/pasienterlapor/editvaksinasi/{id}', 'PasienOnlineController@vaksinedit')->name('pasienonline.vaksinedit');
+Route::post('/rsonline/pasienterlapor/patchvaksin/{id}', 'PasienOnlineController@vaksinpatch')->name('pasienonline.vaksinpatch');
 
+Route::post('/rsonline/pasienterlapor/lab/{id}', 'PasienOnlineController@labupdate')->name('pasienonline.labupdate');
+
+//Laporan Pulang
+Route::get('/rsonline/pasienpulang', 'PasienOnlineController@keluar')->name('pasienonline.keluar');
+Route::get('/rsonline/pasienterlapor/pulang/{id}', 'PasienOnlineController@pulang')->name('pasienonline.pulang');
+Route::post('/rsonline/pasienterlapor/pulang/{id}', 'PasienOnlineController@pulangupdate')->name('pasienonline.pulangupdate');
+
+//axios
+Route::post('/getKabKota', 'PasienOnlineController@getKabKota')->name('getKabKota');
+Route::post('/getKecamatan', 'PasienOnlineController@getKecamatan')->name('getKecamatan');
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
@@ -102,6 +126,12 @@ Route::post('/master/bank/store', 'BankController@store')->name('bank.store');
 Route::get('/master/bank/edit/{id}', 'BankController@edit')->name('bank.edit');
 Route::post('/master/bank/update/{id}', 'BankController@update')->name('bank.update');
 Route::get('/master/bank/delete/{id}', 'BankController@delete')->name('bank.delete');
+
+Route::get('/master/dummygeo', 'DummyController@index')->name('dummy.index');
+Route::get('/master/dummygeo/provinsi', 'DummyController@provinsi')->name('dummy.provinsi');
+Route::get('/master/dummygeo/kabkota', 'DummyController@kabkota')->name('dummy.kabkota');
+Route::post('/master/dummygeo/kecamatan', 'DummyController@kecamatan')->name('dummy.kecamatan');
+
 
 Route::get('/permission', 'PermissionController@index')->name('permission.index');
 Route::post('/permission/store', 'PermissionController@store')->name('permission.store');
