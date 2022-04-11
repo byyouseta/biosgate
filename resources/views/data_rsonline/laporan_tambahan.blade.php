@@ -59,13 +59,100 @@
                     </div>
                 </div>
             </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="card-title">Diagnosa Pasien</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-6">
+                            <table class="table table-bordered">
+                                <thead class="text-center">
+                                    <tr>
+                                        <th colspan="5">Data SIMRS</th>
+                                    </tr>
+                                    <tr>
+                                        <th>Kode ICD</th>
+                                        <th class="align-middle">Nama Penyakit</th>
+                                        <th class="align-middle">Prioritas</th>
+                                        <th class="align-middle">Level Diagnosa</th>
+                                        <th class="align-middle">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($diagnosa as $diagnosa)
+                                        <form method="POST"
+                                            action="/rsonline/pasienterlapor/diagnosa/{{ $pasien->lapId }}">
+                                            @csrf
+                                            <tr>
+                                                <td>{{ $diagnosa->kd_penyakit }}
+                                                    <input type="hidden" name="kd_diagnosa"
+                                                        value="{{ $diagnosa->kd_penyakit }}" />
+                                                </td>
+                                                <td>{{ $diagnosa->nm_penyakit }}
+                                                    <input type="hidden" name="nama_diagnosa"
+                                                        value="{{ $diagnosa->nm_penyakit }}" />
+                                                </td>
+                                                <td>
+                                                    {{ $diagnosa->prioritas }}
+                                                </td>
+                                                <td>
+                                                    <select class="form-control form-control-sm" name="levelDiagnosa"
+                                                        required>
+                                                        <option value="1">Primary Diagnosa</option>
+                                                        <option value="2">Secondary Diagnosa</option>
+                                                    </select>
+                                                </td>
+                                                <td><button type="submit"
+                                                        class="btn btn-sm btn-success {{ \App\DiagnosaLap::DiagnosaCek($diagnosa->kd_penyakit)->count() > 0 ? 'disabled' : '' }}"
+                                                        data-toggle="tooltip" data-placement="bottom"
+                                                        title="Tambah Laporan"><i class="fa fa-plus-circle"></i></button>
+                                                </td>
+                                            </tr>
+                                        </form>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="col-6">
+                            <table class="table table-bordered">
+                                <thead class="text-center">
+                                    <tr>
+                                        <th colspan="4">Data Terlapor</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="align-middle">Id Lap</th>
+                                        <th class="align-middle">Diagnosa Level</th>
+                                        <th class="align-middle">Kode ICD</th>
+                                        <th class="align-middle">Nama Penyakit</th>
+                                        {{-- <th>Aksi</th> --}}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($pasien->diagnosalap as $lapdiagnosa)
+                                        <tr>
+                                            <td>{{ $lapdiagnosa->lapDiagnosaId }}</td>
+                                            <td>{{ $lapdiagnosa->diagnosaLevelId }}</td>
+                                            <td>{{ $lapdiagnosa->diagnosaId }}</td>
+                                            <td>{{ $lapdiagnosa->namaDiagnosa }}</td>
+                                            {{-- <td>Aksi</td> --}}
+                                        </tr>
+                                    @endforeach
+                                    <tr>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="row">
                 <div class="col-7">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Laporan Komorbid</h3>
                             <div class="float-right">
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-komorbid"
+                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-komorbid"
                                     type="button">
                                     <i class="fa fa-plus-circle"></i> Tambah</a>
                                 </button>
@@ -107,7 +194,7 @@
                         <div class="card-header">
                             <h3 class="card-title">Laporan Vaksinasi</h3>
                             <div class="float-right">
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-vaksinasi"
+                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-vaksinasi"
                                     type="button">
                                     <i class="fa fa-plus-circle"></i> Tambah</a>
                                 </button>
@@ -150,7 +237,7 @@
                         <div class="card-header">
                             <h3 class="card-title">Laporan Terapi</h3>
                             <div class="float-right">
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-terapi"
+                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-terapi"
                                     type="button">
                                     <i class="fa fa-plus-circle"></i> Tambah</a>
                                 </button>
@@ -195,7 +282,7 @@
                         <div class="card-header">
                             <h3 class="card-title">Laporan Pemeriksaan Lab</h3>
                             <div class="float-right">
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-pemeriksaan"
+                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-pemeriksaan"
                                     type="button">
                                     <i class="fa fa-plus-circle"></i> Tambah</a>
                                 </button>
@@ -268,7 +355,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Tutup</button>
-                        <button type="Submit" class="btn btn-primary">Simpan</button>
+                        <button type="Submit" class="btn btn-success">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -328,7 +415,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Tutup</button>
-                        <button type="Submit" class="btn btn-primary">Simpan</button>
+                        <button type="Submit" class="btn btn-success">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -377,7 +464,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Tutup</button>
-                        <button type="Submit" class="btn btn-primary">Simpan</button>
+                        <button type="Submit" class="btn btn-success">Simpan</button>
                     </div>
                 </form>
             </div>
@@ -459,7 +546,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default float-left" data-dismiss="modal">Tutup</button>
-                        <button type="Submit" class="btn btn-primary">Simpan</button>
+                        <button type="Submit" class="btn btn-success">Simpan</button>
                     </div>
                 </form>
             </div>

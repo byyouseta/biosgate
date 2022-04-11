@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DiagnosaLap;
 use App\KabKota;
 use App\Kecamatan;
 use App\KomorbidLap;
@@ -488,13 +489,14 @@ class PasienOnlineController extends Controller
         // $data = KomorbidLap::where('lapId', $id)->first();
         $pasien = PelaporanCovid::where('lapId', $id)->first();
 
+        $diagnosa = PasienOnlineController::getDiagnosa($pasien->noRawat);
         $komorbid = RsClientController::komorbid();
         $terapi = RsClientController::terapi();
         $dosisvaksin = RsClientController::dosisvaksin();
         $jenisvaksin = RsClientController::jenisvaksin();
         $lab = RsClientController::jenispemeriksaanlab();
 
-        // dd($data);
+        // dd($diagnosa);
 
         return view('data_rsonline.laporan_tambahan', compact(
             'komorbid',
@@ -502,8 +504,64 @@ class PasienOnlineController extends Controller
             'terapi',
             'dosisvaksin',
             'jenisvaksin',
-            'lab'
+            'lab',
+            'diagnosa'
         ));
+    }
+
+    public function diagnosaUpdate($id, Request $request)
+    {
+        RsClientController::tokenrs();
+        $access_token = session('tokenrs');
+
+        // $cek = KomorbidLap::where('lapId', $id)->first();
+        // $split = explode('-', $request->diagnosa);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('POST', "laporancovid19versi3diagnosa", [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ],
+                'json' => [
+                    'laporanCovid19Versi3Id' => $id,
+                    'diagnosaLevelId' => $request->levelDiagnosa,
+                    'diagnosaId' => $request->kd_diagnosa,
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect("/rsonline/pasienterlapor/laptambahan/$id")->withInput();
+        }
+
+        $data = json_decode($response->getBody());
+
+        if ($data->message == 'data inserted successfully') {
+            $baru = new DiagnosaLap();
+            $baru->lapId = $id;
+            $baru->lapDiagnosaId = $data->data->id;
+            $baru->diagnosaLevelId = $request->levelDiagnosa;
+            $baru->diagnosaId = $request->kd_diagnosa;
+            $baru->namaDiagnosa = $request->nama_diagnosa;
+            $baru->save();
+
+            Session::flash('sukses', $data->message);
+
+            $id = Crypt::encrypt($id);
+
+            return redirect("/rsonline/pasienterlapor/laptambahan/$id");
+        } else {
+            Session::flash('error', $data->message);
+
+            return redirect()->back()->withInput();
+        }
     }
 
     public function komorbidUpdate($id, Request $request)
@@ -511,7 +569,7 @@ class PasienOnlineController extends Controller
         RsClientController::tokenrs();
         $access_token = session('tokenrs');
 
-        $cek = KomorbidLap::where('lapId', $id)->first();
+        // $cek = KomorbidLap::where('lapId', $id)->first();
         $split = explode('-', $request->komorbid);
 
         $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
@@ -537,7 +595,7 @@ class PasienOnlineController extends Controller
 
             Session::flash('sukses', $data->message);
 
-            $id = Crypt::encrypt($cek->lapId);
+            $id = Crypt::encrypt($id);
 
             return redirect("/rsonline/pasienterlapor/laptambahan/$id");
         } else {
@@ -605,7 +663,7 @@ class PasienOnlineController extends Controller
         RsClientController::tokenrs();
         $access_token = session('tokenrs');
 
-        $cek = TerapiLap::where('lapId', $id)->first();
+        // $cek = TerapiLap::where('lapId', $id)->first();
         $split = explode('-', $request->terapi);
 
         $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
@@ -993,5 +1051,28 @@ class PasienOnlineController extends Controller
             ->pluck('nama', 'id');
 
         return response()->json($Kecamatan);
+    }
+
+    public function getDiagnosa($id)
+    {
+
+        $data = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'diagnosa_pasien.no_rawat')
+            ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            ->select(
+                // 'kamar_inap.tgl_masuk',
+                // 'kamar_inap.tgl_keluar',
+                // 'kamar_inap.diagnosa_awal',
+                // 'kamar_inap.diagnosa_akhir',
+                // 'kamar_inap.stts_pulang',
+                'kamar_inap.no_rawat',
+                'diagnosa_pasien.kd_penyakit',
+                'diagnosa_pasien.prioritas',
+                'penyakit.nm_penyakit'
+            )
+            ->where('kamar_inap.no_rawat', $id)
+            ->get();
+
+        return $data;
     }
 }

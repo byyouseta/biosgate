@@ -95,6 +95,7 @@ Route::get('/rsonline/pasienterlapor/editvaksinasi/{id}', 'PasienOnlineControlle
 Route::post('/rsonline/pasienterlapor/patchvaksin/{id}', 'PasienOnlineController@vaksinpatch')->name('pasienonline.vaksinpatch');
 
 Route::post('/rsonline/pasienterlapor/lab/{id}', 'PasienOnlineController@labupdate')->name('pasienonline.labupdate');
+Route::post('/rsonline/pasienterlapor/diagnosa/{id}', 'PasienOnlineController@diagnosaupdate')->name('pasienonline.diagnosaupdate');
 
 //Laporan Pulang
 Route::get('/rsonline/pasienpulang', 'PasienOnlineController@keluar')->name('pasienonline.keluar');

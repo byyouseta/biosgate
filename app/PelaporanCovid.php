@@ -41,6 +41,11 @@ class PelaporanCovid extends Model
         return $this->hasMany('App\PemeriksaanLab', 'lapId', 'lapId');
     }
 
+    public function DiagnosaLap()
+    {
+        return $this->hasMany('App\Diagnosalap', 'lapId', 'lapId');
+    }
+
     public function Pulang()
     {
         return $this->hasMany('App\Pulang', 'lapId', 'lapId');
