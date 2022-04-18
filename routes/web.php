@@ -73,7 +73,11 @@ Route::get('/rsonline/vaksin', 'RsClientController@vaksin')->name('rsclient.vaks
 Route::get('/rsonline/statuspasien', 'RsClientController@status')->name('rsclient.status');
 
 Route::get('/rsonline/pasienbaru', 'PasienOnlineController@index')->name('pasienonline.index');
+
+Route::get('/rsonline/pasienrajal', 'PasienOnlineController@rajal')->name('pasienonline.rajal');
+
 Route::get('/rsonline/pasienbaru/add/{id}', 'PasienOnlineController@add')->name('pasienonline.add');
+Route::get('/rsonline/pasienbaru/addrajal/{id}', 'PasienOnlineController@addrajal')->name('pasienonline.addrajal');
 Route::post('/rsonline/pasienbaru/store', 'PasienOnlineController@store')->name('pasienonline.store');
 
 Route::get('/rsonline/pasienterlapor', 'PasienOnlineController@terlapor')->name('pasienonline.terlapor');
@@ -85,6 +89,7 @@ Route::post('/rsonline/pasienterlapor/komorbid/{id}', 'PasienOnlineController@ko
 Route::get('/rsonline/pasienterlapor/editkomorbid/{id}', 'PasienOnlineController@komorbidedit')->name('pasienonline.komorbidedit');
 Route::post('/rsonline/pasienterlapor/patchkomorbid/{id}', 'PasienOnlineController@komorbidpatch')->name('pasienonline.komorbidpatch');
 //Laporan Terapi
+Route::get('/rsonline/pasienterlapor/lapterapi/{id}', 'PasienOnlineController@lapTerapi')->name('pasienonline.lapTerapi');
 Route::post('/rsonline/pasienterlapor/terapi/{id}', 'PasienOnlineController@terapiupdate')->name('pasienonline.terapiupdate');
 Route::get('/rsonline/pasienterlapor/editterapi/{id}', 'PasienOnlineController@terapiedit')->name('pasienonline.terapiedit');
 Route::post('/rsonline/pasienterlapor/patchterapi/{id}', 'PasienOnlineController@terapipatch')->name('pasienonline.terapipatch');

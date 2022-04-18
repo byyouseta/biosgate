@@ -51,8 +51,8 @@
                                                 <div class="col text-center">
                                                     <div class="btn-group">
                                                         <a href="/master/user/edit/{{ Crypt::encrypt($data->id) }}"
-                                                            class="btn btn-warning btn-sm " data-toggle="tooltip"
-                                                            data-placement="bottom" title="Edit">
+                                                            class="btn btn-warning btn-sm @cannot('user-edit') disabled @endcannot"
+                                                            data-toggle="tooltip" data-placement="bottom" title="Edit">
                                                             <i class="fas fa-pencil-alt"></i>
                                                         </a>
                                                         <a href="/master/user/delete/{{ Crypt::encrypt($data->id) }}"

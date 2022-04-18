@@ -112,7 +112,7 @@
                                     <label>Nama Inisial Pasien</label>
                                     <div class="input-group">
                                         <input type="text" class="form-control" name="inisial"
-                                            value="{{ old('inisial', $inisial) }}" required>
+                                            value="{{ old('inisial', $inisial . $data->no_rkm_medis) }}" required>
                                     </div>
                                     @if ($errors->has('inisial'))
                                         <div class="text-danger">
@@ -189,7 +189,7 @@
                                 <div class="form-group">
                                     <label>Provinsi</label>
                                     <div class="input-group">
-                                        <select class="form-control" name="provinsi" id="provinsi" required>
+                                        <select class="form-control select2" name="provinsi" id="provinsi" required>
                                             <option>Pilih Provinsi</option>
                                             @foreach ($provinsi as $prov)
                                                 <option value="{{ $prov->id }}">
@@ -217,7 +217,7 @@
                                 <div class="form-group">
                                     <label>Kabupaten/ Kota</label>
                                     <div class="input-group">
-                                        <select class="form-control" name="kabKota" id="kabKota" required>
+                                        <select class="form-control select2" name="kabKota" id="kabKota" required>
                                             <option>Pilih Kab/Kota</option>
                                         </select>
                                         @php
@@ -240,7 +240,7 @@
                                 <div class="form-group">
                                     <label>Kecamatan</label>
                                     <div class="input-group">
-                                        <select class="form-control" name="kecamatan" id="kecamatan" required>
+                                        <select class="form-control select2" name="kecamatan" id="kecamatan" required>
                                             <option>Pilih Kecamatan</option>
                                         </select>
                                         @php
@@ -302,13 +302,25 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Jenis Pasien</label>
-                                    {{-- <div class="input-group">
-                                        <input type="text" class="form-control" name="jenis_pasien" value="" required>
-                                    </div> --}}
+                                    @if ($data->status_lanjut == 'Ralan')
+                                        @if ($data->kd_poli == 'IGDK')
+                                            @php
+                                                $status_lanjut = 'IGD';
+                                            @endphp
+                                        @else
+                                            @php
+                                                $status_lanjut = 'Rawat Jalan';
+                                            @endphp
+                                        @endif
+                                    @else
+                                        @php
+                                            $status_lanjut = 'Rawat Inap';
+                                        @endphp
+                                    @endif
                                     <select class="form-control" name="jenis_pasien">
                                         @foreach ($datajenis as $jenis)
                                             <option value="{{ $jenis->id }}"
-                                                @if ($jenis->nama == 'Rawat Inap') selected @endif>{{ $jenis->nama }}
+                                                @if ($jenis->nama == $status_lanjut) selected @endif>{{ $jenis->nama }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -797,7 +809,7 @@
 
                     <!-- /.box-body -->
                     <div class="card-footer">
-                        <a href="/rsonline/pasienbaru" class="btn btn-default">Kembali</a>
+                        <a href="{{ URL::previous() }}" class="btn btn-default">Kembali</a>
                         <button type="submit" class="btn btn-primary">Tambahkan</button>
                     </div>
 

@@ -31,7 +31,7 @@
                                     <select name="kewarganegaraan" class="form-control select2" required>
                                         @foreach ($kewarganegaraan as $negara)
                                             <option value="{{ $negara->id }}"
-                                                @if ($negara->nicename == $data->kewarganegaraan) selected @endif>{{ $negara->nicename }}
+                                                @if ($negara->id == $data->kewarganegaraan) selected @endif>{{ $negara->nicename }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -762,8 +762,8 @@
 
                     <!-- /.box-body -->
                     <div class="card-footer">
-                        <a href="/rsonline/pasienbaru" class="btn btn-default">Kembali</a>
-                        <button type="submit" class="btn btn-primary">Tambahkan</button>
+                        <a href="/rsonline/pasienterlapor" class="btn btn-default">Kembali</a>
+                        <button type="submit" class="btn btn-primary">Update</button>
                     </div>
 
                 </div>

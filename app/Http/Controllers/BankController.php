@@ -12,6 +12,11 @@ class BankController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+
+        $this->middleware('permission:bank-list|bank-create|bank-edit|bank-delete', ['only' => ['index']]);
+        $this->middleware('permission:bank-create', ['only' => ['store']]);
+        $this->middleware('permission:bank-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:bank-delete', ['only' => ['delete']]);
     }
 
     public function index()

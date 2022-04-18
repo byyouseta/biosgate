@@ -54,7 +54,9 @@
                                     </div>
 
                                     <div class="col-sm-2 col-form-label">
-                                        <a href="/penerimaan/client" class="btn btn-success" target="_blank">Jalankan
+                                        <a href="/penerimaan/client"
+                                            class="btn btn-success @cannot('bios-pemasukan-client') disabled @endcannot"
+                                            target="_blank">Jalankan
                                             Client</a>
                                     </div>
                                 </div>
@@ -65,7 +67,9 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
+
+                            <button class="btn btn-primary btn-sm @cannot('bios-pemasukan-create') disabled @endcannot"
+                                data-toggle="modal" data-target="#modal-default">
                                 <i class="fa fa-plus-circle"></i> Tambah</a>
                             </button>
                         </div>
@@ -98,12 +102,12 @@
                                                     <div class="col text-center">
                                                         <div class="btn-group">
                                                             <a href="/penerimaan/edit/{{ Crypt::encrypt($data->id) }}"
-                                                                class="btn btn-warning btn-sm @if ($data->status == 1) disabled @endif"
+                                                                class="btn btn-warning btn-sm @if ($data->status == 1) disabled @endif @cannot('bios-pemasukan-edit') disabled @endcannot"
                                                                 data-toggle="tooltip" data-placement="bottom" title="Edit">
                                                                 <i class="fas fa-pen"></i>
                                                             </a>
                                                             <a href="/penerimaan/delete/{{ Crypt::encrypt($data->id) }}"
-                                                                class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif"
+                                                                class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif @cannot('bios-pemasukan-delete') disabled @endcannot"
                                                                 data-toggle="tooltip" data-placement="bottom"
                                                                 title="Delete">
                                                                 <i class="fas fa-ban"></i>

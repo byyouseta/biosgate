@@ -24,7 +24,7 @@
                         <h4 class="card-title">Identitas Pasien</h4>
                     </div>
                     <div class="float-right">
-                        <a href="/rsonline/pasienterlapor" class="btn btn-secondary btn-sm">Kembali</a>
+                        <a href="{{ URL::previous() }}" class="btn btn-secondary btn-sm">Kembali</a>
                     </div>
                 </div>
                 <div class="card-body">
@@ -81,35 +81,42 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($diagnosa as $diagnosa)
-                                        <form method="POST"
-                                            action="/rsonline/pasienterlapor/diagnosa/{{ $pasien->lapId }}">
-                                            @csrf
-                                            <tr>
-                                                <td>{{ $diagnosa->kd_penyakit }}
-                                                    <input type="hidden" name="kd_diagnosa"
-                                                        value="{{ $diagnosa->kd_penyakit }}" />
-                                                </td>
-                                                <td>{{ $diagnosa->nm_penyakit }}
-                                                    <input type="hidden" name="nama_diagnosa"
-                                                        value="{{ $diagnosa->nm_penyakit }}" />
-                                                </td>
-                                                <td>
-                                                    {{ $diagnosa->prioritas }}
-                                                </td>
-                                                <td>
-                                                    <select class="form-control form-control-sm" name="levelDiagnosa"
-                                                        required>
-                                                        <option value="1">Primary Diagnosa</option>
-                                                        <option value="2">Secondary Diagnosa</option>
-                                                    </select>
-                                                </td>
-                                                <td><button type="submit"
-                                                        class="btn btn-sm btn-success {{ \App\DiagnosaLap::DiagnosaCek($diagnosa->kd_penyakit)->count() > 0 ? 'disabled' : '' }}"
-                                                        data-toggle="tooltip" data-placement="bottom"
-                                                        title="Tambah Laporan"><i class="fa fa-plus-circle"></i></button>
-                                                </td>
-                                            </tr>
-                                        </form>
+                                        @can('diagnosa-create')
+                                            @if (\App\DiagnosaLap::DiagnosaCek($diagnosa->kd_penyakit, $pasien->lapId)->count() == 0)
+                                                <form method="POST"
+                                                    action="/rsonline/pasienterlapor/diagnosa/{{ $pasien->lapId }}">
+                                            @endif
+                                        @endcan
+                                        @csrf
+                                        <tr>
+                                            <td>{{ $diagnosa->kd_penyakit }}
+                                                <input type="hidden" name="kd_diagnosa"
+                                                    value="{{ $diagnosa->kd_penyakit }}" />
+                                            </td>
+                                            <td>{{ $diagnosa->nm_penyakit }}
+                                                <input type="hidden" name="nama_diagnosa"
+                                                    value="{{ $diagnosa->nm_penyakit }}" />
+                                            </td>
+                                            <td>
+                                                {{ $diagnosa->prioritas }}
+                                            </td>
+                                            <td>
+                                                <select class="form-control form-control-sm" name="levelDiagnosa" required>
+                                                    <option value="1">Primary Diagnosa</option>
+                                                    <option value="2">Secondary Diagnosa</option>
+                                                </select>
+                                            </td>
+                                            <td><button type="submit"
+                                                    class="btn btn-sm btn-success {{ \App\DiagnosaLap::DiagnosaCek($diagnosa->kd_penyakit, $pasien->lapId)->count() > 0 ? 'disabled' : '' }} @cannot('diagnosa-create') disabled @endcannot"
+                                                    data-toggle="tooltip" data-placement="bottom" title="Tambah Laporan"><i
+                                                        class="fa fa-plus-circle"></i></button>
+                                            </td>
+                                        </tr>
+                                        @can('diagnosa-create')
+                                            @if (\App\DiagnosaLap::DiagnosaCek($diagnosa->kd_penyakit, $pasien->lapId)->count() == 0)
+                                                </form>
+                                            @endif
+                                        @endcan
                                     @endforeach
                                 </tbody>
                             </table>
@@ -129,7 +136,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($pasien->diagnosalap as $lapdiagnosa)
+                                    @foreach ($pasien->DiagnosaLap as $lapdiagnosa)
                                         <tr>
                                             <td>{{ $lapdiagnosa->lapDiagnosaId }}</td>
                                             <td>{{ $lapdiagnosa->diagnosaLevelId }}</td>
@@ -151,12 +158,15 @@
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Laporan Komorbid</h3>
-                            <div class="float-right">
-                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-komorbid"
-                                    type="button">
-                                    <i class="fa fa-plus-circle"></i> Tambah</a>
-                                </button>
-                            </div>
+                            @can('komorbid-create')
+                                <div class="float-right">
+                                    <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-komorbid"
+                                        type="button">
+                                        <i class="fa fa-plus-circle"></i> Tambah</a>
+                                    </button>
+                                </div>
+                            @endcan
+
                         </div>
                         <!-- /.box-header -->
                         <div class="card-body">
@@ -173,8 +183,8 @@
                                         <tr>
                                             <td>
                                                 <a href="/rsonline/pasienterlapor/editkomorbid/{{ Crypt::encrypt($data->lapKomorbidId) }}"
-                                                    class="btn btn-warning btn-sm" data-toggle="tooltip"
-                                                    data-placement="bottom" title="Edit">
+                                                    class="btn btn-warning btn-sm @cannot('komorbid-edit') disabled @endcannot"
+                                                    data-toggle="tooltip" data-placement="bottom" title="Edit">
                                                     {{ $data->lapKomorbidId }}<i class="fas fa-pencil-alt"></i>
                                                 </a>
                                             </td>
@@ -193,12 +203,14 @@
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Laporan Vaksinasi</h3>
-                            <div class="float-right">
-                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-vaksinasi"
-                                    type="button">
-                                    <i class="fa fa-plus-circle"></i> Tambah</a>
-                                </button>
-                            </div>
+                            @can('vaksin-create')
+                                <div class="float-right">
+                                    <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-vaksinasi"
+                                        type="button">
+                                        <i class="fa fa-plus-circle"></i> Tambah</a>
+                                    </button>
+                                </div>
+                            @endcan
                         </div>
                         <!-- /.box-header -->
                         <div class="card-body">
@@ -215,8 +227,8 @@
                                         <tr>
                                             <td class="text-center">
                                                 <a href="/rsonline/pasienterlapor/editvaksinasi/{{ Crypt::encrypt($data->lapVaksinId) }}"
-                                                    class="btn btn-warning btn-sm" data-toggle="tooltip"
-                                                    data-placement="bottom" title="Edit">
+                                                    class="btn btn-warning btn-sm @cannot('vaksin-edit') disabled @endcannot"
+                                                    data-toggle="tooltip" data-placement="bottom" title="Edit">
                                                     {{ $data->lapVaksinId }}
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
@@ -232,16 +244,18 @@
                         <!-- /.box-body -->
                     </div>
                 </div>
-                <div class="col-6">
+                {{-- <div class="col-6">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Laporan Terapi</h3>
-                            <div class="float-right">
-                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-terapi"
-                                    type="button">
-                                    <i class="fa fa-plus-circle"></i> Tambah</a>
-                                </button>
-                            </div>
+                            @can('terapi-create')
+                                <div class="float-right">
+                                    <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-terapi"
+                                        type="button">
+                                        <i class="fa fa-plus-circle"></i> Tambah</a>
+                                    </button>
+                                </div>
+                            @endcan
                         </div>
                         <!-- /.box-header -->
                         <div class="card-body">
@@ -259,8 +273,8 @@
                                         <tr>
                                             <td class="text-center">
                                                 <a href="/rsonline/pasienterlapor/editterapi/{{ Crypt::encrypt($data->lapTerapiId) }}"
-                                                    class="btn btn-warning btn-sm" data-toggle="tooltip"
-                                                    data-placement="bottom" title="Edit">
+                                                    class="btn btn-warning btn-sm @cannot('terapi-edit') disabled @endcannot"
+                                                    data-toggle="tooltip" data-placement="bottom" title="Edit">
                                                     {{ $data->lapTerapiId }}
                                                     <i class="fas fa-pencil-alt"></i>
                                                 </a>
@@ -276,17 +290,19 @@
                         </div>
                         <!-- /.box-body -->
                     </div>
-                </div>
+                </div> --}}
                 <div class="col-6">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Laporan Pemeriksaan Lab</h3>
-                            <div class="float-right">
-                                <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-pemeriksaan"
-                                    type="button">
-                                    <i class="fa fa-plus-circle"></i> Tambah</a>
-                                </button>
-                            </div>
+                            @can('pemeriksaanlab-create')
+                                <div class="float-right">
+                                    <button class="btn btn-success btn-sm" data-toggle="modal" data-target="#modal-pemeriksaan"
+                                        type="button">
+                                        <i class="fa fa-plus-circle"></i> Tambah</a>
+                                    </button>
+                                </div>
+                            @endcan
                         </div>
                         <!-- /.box-header -->
                         <div class="card-body">
@@ -424,7 +440,7 @@
         <!-- /.modal-dialog -->
     </div>
     {{-- Modal terapi --}}
-    <div class="modal fade" id="modal-terapi">
+    {{-- <div class="modal fade" id="modal-terapi">
         <div class="modal-dialog">
             <div class="modal-content">
                 <form role="form" action="/rsonline/pasienterlapor/terapi/{{ $pasien->lapId }}" method="post">
@@ -471,7 +487,7 @@
             <!-- /.modal-content -->
         </div>
         <!-- /.modal-dialog -->
-    </div>
+    </div> --}}
     {{-- Pemeriksaan Lab --}}
     <div class="modal fade" id="modal-pemeriksaan">
         <div class="modal-dialog">

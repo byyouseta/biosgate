@@ -28,7 +28,7 @@
                                             <th class="align-middle">No RM</th>
                                             <th class="align-middle">No Rawat</th>
                                             <th class="align-middle">Nama Pasien</th>
-                                            <th class="align-middle">Pekerjaan</th>
+                                            <th class="align-middle">Kamar</th>
                                             <th class="align-middle">Aksi</th>
                                         </tr>
                                     </thead>
@@ -39,13 +39,14 @@
                                                     <td>{{ $data->no_rkm_medis }}</td>
                                                     <td>{{ $data->no_rawat }}</td>
                                                     <td>{{ $data->nm_pasien }}</td>
-                                                    <td>{{ $data->pekerjaan }}</td>
+                                                    <td>{{ $data->kd_kamar }} {{ $data->nm_bangsal }}</td>
                                                     <td>
                                                         <div class="col text-center">
                                                             <div class="btn-group">
                                                                 <a href="/rsonline/pasienbaru/add/{{ Crypt::encrypt($data->no_rawat) }}"
-                                                                    class="btn btn-success btn-sm" data-toggle="tooltip"
-                                                                    data-placement="bottom" title="Edit">
+                                                                    class="btn btn-success btn-sm @cannot('pasienbaru-create') disabled @endcannot"
+                                                                    data-toggle="tooltip" data-placement="bottom"
+                                                                    title="Tambah">
                                                                     <i class="fas fa-plus-square"></i>
                                                                 </a>
                                                                 {{-- <a href="/saldokeuangan/delete/{{ Crypt::encrypt($data->no_rawat) }}"

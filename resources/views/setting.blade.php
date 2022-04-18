@@ -17,9 +17,12 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
-                                <i class="fa fa-plus-circle"></i> Tambah</a>
-                            </button>
+                            @can('setting-create')
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
+                                    <i class="fa fa-plus-circle"></i> Tambah</a>
+                                </button>
+                            @endcan
+
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -41,21 +44,23 @@
                                                 <td>{{ $setting->satker }}</td>
                                                 <td>{{ $setting->key }}</td>
                                                 <td>
-                                                    <div class="col text-center">
-                                                        <div class="btn-group">
-                                                            <a href="/setting/edit/{{ Crypt::encrypt($setting->id) }}"
-                                                                class="btn btn-warning btn-sm" data-toggle="tooltip"
-                                                                data-placement="bottom" title="Edit">
-                                                                <i class="fas fa-pen"></i>
-                                                            </a>
-                                                            {{-- <a href="/setting/delete/{{ Crypt::encrypt($setting->id) }}"
+                                                    @can('setting-update')
+                                                        <div class="col text-center">
+                                                            <div class="btn-group">
+                                                                <a href="/setting/edit/{{ Crypt::encrypt($setting->id) }}"
+                                                                    class="btn btn-warning btn-sm" data-toggle="tooltip"
+                                                                    data-placement="bottom" title="Edit">
+                                                                    <i class="fas fa-pen"></i>
+                                                                </a>
+                                                                {{-- <a href="/setting/delete/{{ Crypt::encrypt($setting->id) }}"
                                                                 class="btn btn-danger btn-sm delete-confirm"
                                                                 data-toggle="tooltip" data-placement="bottom"
                                                                 title="Delete">
                                                                 <i class="fas fa-ban"></i>
                                                             </a> --}}
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    @endcan
                                                 </td>
                                             </tr>
                                         @empty

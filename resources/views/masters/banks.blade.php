@@ -18,7 +18,7 @@
                     <div class="card">
                         <div class="card-header">
                             {{-- <h3 class="card-title">{{ session('anak') }}</h3> --}}
-                            @can('user-create')
+                            @can('bank-create')
                                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
                                     <i class="fa fa-plus-circle"></i> Tambah</a>
                                 </button>
@@ -45,12 +45,12 @@
                                                 <div class="col text-center">
                                                     <div class="btn-group">
                                                         <a href="/master/bank/edit/{{ Crypt::encrypt($data->id) }}"
-                                                            class="btn btn-warning btn-sm " data-toggle="tooltip"
-                                                            data-placement="bottom" title="Edit">
+                                                            class="btn btn-warning btn-sm @cannot('bank-edit') disabled @endcannot"
+                                                            data-toggle="tooltip" data-placement="bottom" title="Edit">
                                                             <i class="fas fa-pencil-alt"></i>
                                                         </a>
                                                         <a href="/master/bank/delete/{{ Crypt::encrypt($data->id) }}"
-                                                            class="btn btn-danger btn-sm delete-confirm @cannot('user-delete') disabled @endcannot"
+                                                            class="btn btn-danger btn-sm delete-confirm @cannot('bank-delete') disabled @endcannot"
                                                             data-toggle="tooltip" data-placement="bottom" title="Delete">
                                                             <i class="fas fa-ban"></i>
                                                         </a>

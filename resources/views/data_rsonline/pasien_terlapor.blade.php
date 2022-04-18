@@ -26,9 +26,9 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">No RM</th>
-                                            <th class="align-middle">No Rawat</th>
+                                            <th class="align-middle">Jenis Pasien</th>
                                             <th class="align-middle">Nama Pasien</th>
-                                            <th class="align-middle">Tanggal Lahir</th>
+                                            <th class="align-middle">Status Rawat</th>
                                             <th class="align-middle">ID Lapor</th>
                                             <th class="align-middle">Aksi</th>
                                         </tr>
@@ -37,26 +37,42 @@
                                         @foreach ($data as $data)
                                             <tr>
                                                 <td>{{ $data->noRm }}</td>
-                                                <td>{{ $data->noRawat }}</td>
+                                                <td>
+                                                    @if ($data->jenis_pasien == 1)
+                                                        Rawat Jalan
+                                                    @elseif ($data->jenis_pasien == 2)
+                                                        IGD
+                                                    @elseif ($data->jenis_pasien == 3)
+                                                        Rawat Inap
+                                                    @endif
+                                                </td>
                                                 <td>{{ $data->namaPasien }}</td>
-                                                <td>{{ $data->tgl_lahir }}</td>
+                                                <td>
+                                                    @foreach ($statusrawat as $rawat)
+                                                        @if ($rawat->id == $data->status_rawat)
+                                                            {{ $rawat->nama }}
+                                                        @endif
+                                                    @endforeach
+                                                </td>
                                                 <td>{{ $data->lapId }}</td>
                                                 <td>
                                                     <div class="col text-center">
                                                         <div class="btn-group">
                                                             <a href="/rsonline/pasienterlapor/editlap/{{ Crypt::encrypt($data->lapId) }}"
-                                                                class="btn btn-warning" data-toggle="tooltip"
-                                                                data-placement="bottom" title="Edit">
+                                                                class="btn btn-warning @cannot('pasienbaru-edit') disabled @endcannot"
+                                                                data-toggle="tooltip" data-placement="bottom" title="Edit">
                                                                 <i class="fas fa-pen-square"></i>
                                                             </a>
                                                             <a href="/rsonline/pasienterlapor/laptambahan/{{ Crypt::encrypt($data->lapId) }}"
-                                                                class="btn bg-maroon color-palette" data-toggle="tooltip"
-                                                                data-placement="bottom" title="Laporan Tambahan">
+                                                                class="btn bg-maroon color-palette @cannot('laptambahan-list') disabled @endcannot"
+                                                                data-toggle="tooltip" data-placement="bottom"
+                                                                title="Laporan Tambahan">
                                                                 <i class="fas fa-file-medical-alt"></i>
                                                             </a>
                                                             <a href="/rsonline/pasienterlapor/pulang/{{ Crypt::encrypt($data->lapId) }}"
-                                                                class="btn bg-teal color-palette" data-toggle="tooltip"
-                                                                data-placement="bottom" title="Laporan Status Keluar">
+                                                                class="btn bg-teal color-palette @cannot('pasienkeluar-create') disabled @endcannot"
+                                                                data-toggle="tooltip" data-placement="bottom"
+                                                                title="Laporan Status Keluar">
                                                                 <i class="fas fa-walking"></i>
                                                             </a>
                                                         </div>

@@ -10,6 +10,16 @@ use Illuminate\Support\Facades\Crypt;
 
 class PermissionController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+
+        $this->middleware('permission:permission-list|permission-create|permission-edit|permission-delete', ['only' => ['index']]);
+        $this->middleware('permission:permission-create', ['only' => ['store']]);
+        $this->middleware('permission:permission-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:permission-delete', ['only' => ['delete']]);
+    }
+
     public function index()
     {
         session()->put('ibu', 'Master Data');

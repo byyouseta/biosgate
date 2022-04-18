@@ -18,7 +18,7 @@
                     <div class="card">
                         <div class="card-header">
                             {{-- <h3 class="card-title">{{ session('anak') }}</h3> --}}
-                            @can('user-create')
+                            @can('geografi-update')
                                 <a href="/master/dummygeo/provinsi" class="btn btn-primary btn-sm">
                                     Sync Data Provinsi
                                 </a>

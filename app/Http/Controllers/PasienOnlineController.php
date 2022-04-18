@@ -24,20 +24,36 @@ use function GuzzleHttp\Promise\all;
 
 class PasienOnlineController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+
+        $this->middleware('permission:pasienbaru-list|pasienbaru-create|pasienbaru-edit', ['only' => ['index']]);
+        $this->middleware('permission:pasienbaru-create', ['only' => ['add', 'store']]);
+        $this->middleware('permission:pasienbaru-edit', ['only' => ['editlap', 'updatelap']]);
+        $this->middleware('permission:pasienterlapor-list', ['only' => ['terlapor']]);
+        $this->middleware('permission:laptambahan-list', ['only' => ['laptambahan']]);
+        $this->middleware('permission:pasienrajal-list', ['only' => ['rajal']]);
+        $this->middleware('permission:pasienrajal-create', ['only' => ['addrajal', 'store']]);
+        $this->middleware('permission:pasienkeluar-list', ['only' => ['keluar']]);
+    }
+
     public function index()
     {
         session()->put('ibu', 'RS Online');
         session()->put('anak', 'Data Pasien');
-        session()->put('cucu', 'Pasien Baru');
+        session()->put('cucu', 'Pasien Ranap');
 
         $tanggal = Carbon::now()->format('Y-m-d');
 
         // dd($tanggal);
 
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
-            ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->join('penjab', 'penjab.kd_pj', '=', 'reg_periksa.kd_pj')
+            ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
+            ->leftJoin('bangsal', 'bangsal.kd_bangsal', '=', 'kamar.kd_bangsal')
             // ->join('diagnosa_pasien', 'diagnosa_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             // ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
             ->select(
@@ -60,6 +76,8 @@ class PasienOnlineController extends Controller
                 'pasien.kd_kab',
                 'pasien.kd_prop',
                 'penjab.png_jawab',
+                'bangsal.nm_bangsal',
+                'kamar.kd_kamar'
                 // 'diagnosa_pasien.kd_penyakit',
                 // 'diagnosa_pasien.prioritas',
                 // 'penyakit.nm_penyakit'
@@ -104,6 +122,7 @@ class PasienOnlineController extends Controller
             ->select(
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.no_rawat',
+                'reg_periksa.status_lanjut',
                 'kamar_inap.tgl_masuk',
                 'kamar_inap.tgl_keluar',
                 'kamar_inap.diagnosa_awal',
@@ -118,13 +137,84 @@ class PasienOnlineController extends Controller
                 'pasien.kd_kel',
                 'pasien.kd_kec',
                 'pasien.kd_kab',
-                'pasien.kd_prop',
+                'pasien.kd_prop'
                 // 'diagnosa_pasien.kd_penyakit',
                 // 'diagnosa_pasien.prioritas',
                 // 'penyakit.nm_penyakit'
             )
             ->where('reg_periksa.no_rawat', $id)
             ->first();
+
+        $provinsi = Provinsi::all();
+        // $kabkota = KabKota::all();
+
+        $inisial = PasienOnlineController::Inisial($data->nm_pasien);
+        $kewarganegaraan = RsClientController::kewarganegaraan();
+        $dataasal = RsClientController::asalpasien();
+        $datapekerjaan = RsClientController::pekerjaan();
+        $datajenis = RsClientController::jenispasien();
+        $datavarian = RsClientController::variancovid();
+        $statuspasien = RsClientController::statuspasien();
+        $statusrawat = RsClientController::statusrawat();
+        $alatoksigen = RsClientController::alatoksigen();
+        $datakelompok = RsClientController::kelompokgejala();
+        // dd($dataasal);
+
+        return view('data_rsonline.pasien_online_add', compact(
+            'data',
+            'inisial',
+            'kewarganegaraan',
+            'dataasal',
+            'datapekerjaan',
+            'datajenis',
+            'datavarian',
+            'statuspasien',
+            'statusrawat',
+            'alatoksigen',
+            'datakelompok',
+            'provinsi'
+        ));
+    }
+
+    public function addRajal($id)
+    {
+        $id = Crypt::decrypt($id);
+
+        // dd($id);
+
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            // ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            // ->join('diagnosa_pasien', 'diagnosa_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            // ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi as tgl_masuk',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.kd_poli',
+                // 'kamar_inap.tgl_keluar',
+                // 'kamar_inap.diagnosa_awal',
+                // 'kamar_inap.diagnosa_akhir',
+                'pasien.nm_pasien',
+                'pasien.no_ktp',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pasien.pekerjaan',
+                'pasien.no_tlp',
+                'pasien.email',
+                'pasien.kd_kel',
+                'pasien.kd_kec',
+                'pasien.kd_kab',
+                'pasien.kd_prop'
+                // 'diagnosa_pasien.kd_penyakit',
+                // 'diagnosa_pasien.prioritas',
+                // 'penyakit.nm_penyakit'
+            )
+            ->where('reg_periksa.no_rawat', $id)
+            ->first();
+
+        // dd($data);
 
         $provinsi = Provinsi::all();
         // $kabkota = KabKota::all();
@@ -210,7 +300,7 @@ class PasienOnlineController extends Controller
                         'napasCepatId' => $request->napas_cepat,
                         'frekNapas30KaliPerMenitId' => $request->frek_napas,
                         'distresPernapasanBeratId' => $request->distres_pernapasan,
-                        'lainnyaId' => $request->lainnya,
+                        'lainnyaId' => $request->lainnya
                     ]
                 ]
             ]);
@@ -225,12 +315,12 @@ class PasienOnlineController extends Controller
             // $data = $e->getResponse();
             // $responseBodyAsString = $data->getBody()->getContents('message');
             // $data = json_decode($data);
-            // dd($responseBodyAsString);
+            // dd($e);
 
             $id = Crypt::encrypt($request->noRawat);
             Session::flash('error', $test->message);
 
-            return redirect("/rsonline/pasienbaru/add/$id")->withInput();
+            return redirect()->back()->withInput();
         }
 
         // dd($response);
@@ -293,6 +383,62 @@ class PasienOnlineController extends Controller
         return redirect('/rsonline/pasienbaru');
     }
 
+    public function rajal(Request $request)
+    {
+        session()->put('ibu', 'RS Online');
+        session()->put('anak', 'Data Pasien');
+        session()->put('cucu', 'Pasien Rajal/IGD');
+
+        if (!empty($request->get('tanggal'))) {
+            $tanggal = $request->get('tanggal');
+        } else {
+            $tanggal = Carbon::now()->format('Y-m-d');
+        }
+
+        // dd($tanggal);
+
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            // ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->join('diagnosa_pasien', 'diagnosa_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.status_lanjut',
+                // 'kamar_inap.tgl_masuk',
+                // 'kamar_inap.tgl_keluar',
+                // 'kamar_inap.diagnosa_awal',
+                // 'kamar_inap.diagnosa_akhir',
+                // 'kamar_inap.stts_pulang',
+                'pasien.nm_pasien',
+                'pasien.no_ktp',
+                'pasien.tgl_lahir',
+                // 'pasien.jk',
+                'pasien.pekerjaan',
+                // 'pasien.no_tlp',
+                // 'pasien.email',
+                // 'pasien.kd_kel',
+                // 'pasien.kd_kec',
+                // 'pasien.kd_kab',
+                // 'pasien.kd_prop',
+                // 'penjab.png_jawab',
+                'diagnosa_pasien.kd_penyakit',
+                'diagnosa_pasien.prioritas',
+                'penyakit.nm_penyakit',
+                'poliklinik.nm_poli'
+            )
+            ->where('reg_periksa.status_lanjut', '=', 'Ralan')
+            ->where('penyakit.nm_penyakit', 'like', '%covid%')
+            ->whereDate('reg_periksa.tgl_registrasi', $tanggal)
+            ->get();
+
+        // dd($data);
+
+        return view('data_rsonline.pasien_rajal', compact('data'));
+    }
+
     public function terlapor()
     {
         session()->put('ibu', 'RS Online');
@@ -301,8 +447,11 @@ class PasienOnlineController extends Controller
 
         $data = PelaporanCovid::where('status_pulang', false)
             ->orderBy('created_at', 'DESC')->get();
+        $statusrawat = RsClientController::statusrawat();
 
-        return view('data_rsonline.pasien_terlapor', compact('data'));
+        // dd($statusrawat);
+
+        return view('data_rsonline.pasien_terlapor', compact('data', 'statusrawat'));
     }
 
     public function keluar()
@@ -312,7 +461,8 @@ class PasienOnlineController extends Controller
         session()->put('cucu', 'Pasien Keluar');
 
         $data = PelaporanCovid::where('status_pulang', true)
-            ->orderBy('created_at', 'DESC')->get();
+            ->orderBy('created_at', 'DESC')
+            ->get();
 
         // dd($data);
 
@@ -408,7 +558,7 @@ class PasienOnlineController extends Controller
                         'napasCepatId' => $request->napas_cepat,
                         'frekNapas30KaliPerMenitId' => $request->frek_napas,
                         'distresPernapasanBeratId' => $request->distres_pernapasan,
-                        'lainnyaId' => $request->lainnya,
+                        'lainnyaId' => $request->lainnya
                     ]
                 ]
             ]);
@@ -509,6 +659,27 @@ class PasienOnlineController extends Controller
         ));
     }
 
+    public function lapTerapi($id)
+    {
+        $id = Crypt::decrypt($id);
+
+        // dd($id);
+
+        // $data = KomorbidLap::where('lapId', $id)->first();
+        $pasien = PelaporanCovid::where('lapId', $id)->first();
+        $dataobat = PasienOnlineController::getPermintaanObat($pasien->noRawat);
+
+        $terapi = RsClientController::terapi();
+
+        // dd($dataobat);
+
+        return view('data_rsonline.laporan_terapi', compact(
+            'pasien',
+            'dataobat',
+            'terapi'
+        ));
+    }
+
     public function diagnosaUpdate($id, Request $request)
     {
         RsClientController::tokenrs();
@@ -579,7 +750,7 @@ class PasienOnlineController extends Controller
             ],
             'json' => [
                 'laporanCovid19Versi3Id' => $id,
-                'komorbidId' => $split[0],
+                'komorbidId' => $split[0]
             ]
         ]);
 
@@ -632,7 +803,7 @@ class PasienOnlineController extends Controller
                 'Authorization' => "Bearer {$access_token}"
             ],
             'json' => [
-                'komorbidId' => $komorbid[0],
+                'komorbidId' => $komorbid[0]
             ]
         ]);
 
@@ -674,7 +845,7 @@ class PasienOnlineController extends Controller
             'json' => [
                 'laporanCovid19Versi3Id' => $id,
                 'terapiId' => $split[0],
-                'jumlahTerapi' => $request->jumlah,
+                'jumlahTerapi' => $request->jumlah
             ]
         ]);
 
@@ -693,7 +864,7 @@ class PasienOnlineController extends Controller
 
             $id = Crypt::encrypt($id);
 
-            return redirect("/rsonline/pasienterlapor/laptambahan/$id");
+            return redirect("/rsonline/pasienterlapor/lapterapi/$id");
         } else {
             Session::flash('error', $data->message);
 
@@ -710,7 +881,7 @@ class PasienOnlineController extends Controller
 
         return view('data_rsonline.terapi_edit', compact(
             'data',
-            'terapi',
+            'terapi'
         ));
     }
 
@@ -732,7 +903,7 @@ class PasienOnlineController extends Controller
             ],
             'json' => [
                 'terapiId' => $terapi[0],
-                'jumlahTerapi' => $request->jumlah,
+                'jumlahTerapi' => $request->jumlah
             ]
         ]);
 
@@ -750,7 +921,7 @@ class PasienOnlineController extends Controller
 
             $id = Crypt::encrypt($update->lapId);
 
-            return redirect("/rsonline/pasienterlapor/laptambahan/$id");
+            return redirect("/rsonline/pasienterlapor/lapterapi/$id");
         } else {
             Session::flash('error', $data->message);
 
@@ -775,7 +946,7 @@ class PasienOnlineController extends Controller
             'json' => [
                 'laporanCovid19Versi3Id' => $id,
                 'dosisVaksinId' => $dosis[0],
-                'jenisVaksinId' => $jenis[0],
+                'jenisVaksinId' => $jenis[0]
             ]
         ]);
 
@@ -889,7 +1060,7 @@ class PasienOnlineController extends Controller
                 'laporanCovid19Versi3Id' => $id,
                 'jenisPemeriksaanLabId' => $jenis[0],
                 'hasilPemeriksaanLabId' => $request->hasilpemeriksaan,
-                'tanggalHasilPemeriksaanLab' => $request->tgl_hasil,
+                'tanggalHasilPemeriksaanLab' => $request->tgl_hasil
             ]
         ]);
 
@@ -938,7 +1109,7 @@ class PasienOnlineController extends Controller
             'datapenyebabkematian',
             'datapenyebabkematianlangsung',
             'datapasiensaatmeninggal',
-            'datakomorbidcoinsiden',
+            'datakomorbidcoinsiden'
         ));
     }
 
@@ -1025,9 +1196,10 @@ class PasienOnlineController extends Controller
     {
         $split_nama = explode(' ', $nama);
         $singkatan = '';
-        foreach ($split_nama as $kata) {
-            $singkatan .= substr($kata, 0, 1);
-        }
+        // foreach ($split_nama as $kata) {
+        //     $singkatan .= substr($kata, 0, 1);
+        // }
+        $singkatan = substr($split_nama[0], 0, 4);
 
         return $singkatan;
     }
@@ -1071,6 +1243,28 @@ class PasienOnlineController extends Controller
                 'penyakit.nm_penyakit'
             )
             ->where('kamar_inap.no_rawat', $id)
+            ->get();
+
+        return $data;
+    }
+
+    public function getPermintaanObat($id)
+    {
+
+        $data = DB::connection('mysqlkhanza')->table('resep_dokter')
+            ->join('resep_obat', 'resep_obat.no_resep', '=', 'resep_dokter.no_resep')
+            ->leftJoin('databarang', 'databarang.kode_brng', '=', 'resep_dokter.kode_brng')
+            ->select(
+                'resep_obat.no_resep',
+                'resep_obat.tgl_perawatan',
+                'resep_obat.jam',
+                'resep_obat.no_resep',
+                'resep_dokter.kode_brng',
+                'resep_dokter.jml',
+                'resep_dokter.aturan_pakai',
+                'databarang.nama_brng'
+            )
+            ->where('resep_obat.no_rawat', $id)
             ->get();
 
         return $data;

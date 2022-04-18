@@ -12,7 +12,7 @@ class DummyController extends Controller
 {
     public function index()
     {
-        session()->put('ibu', 'Master');
+        session()->put('ibu', 'Master Data');
         session()->put('anak', 'Dummy Geografi');
         session()->forget('cucu');
 

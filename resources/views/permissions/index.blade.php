@@ -14,11 +14,11 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            {{-- @can('permission-create') --}}
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
-                                <i class="fa fa-plus-circle"></i> Tambah</a>
-                            </button>
-                            {{-- @endcan --}}
+                            @can('permission-create')
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
+                                    <i class="fa fa-plus-circle"></i> Tambah</a>
+                                </button>
+                            @endcan
 
                         </div>
                         <!-- /.card-header -->

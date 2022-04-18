@@ -33,13 +33,12 @@
                         <div class="card-body">
                             <form action="/saldokeuangan/lihat" method="GET">
                                 <div class="form-group row">
-
                                     <div class="col-sm-1 col-form-label">
                                         <label>Tanggal</label>
                                     </div>
                                     <div class="col-sm-2 col-form-label">
                                         <div class="input-group date" id="tanggal" data-target-input="nearest">
-                                            <input type="text" class="form-control datetimepicker-input"
+                                            <input type="text" class="form-control datetimepicker-input "
                                                 data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
                                                 value="{{ $tanggal }}" autocomplete="off" />
                                             <div class="input-group-append" data-target="#tanggal"
@@ -54,7 +53,9 @@
                                     </div>
 
                                     <div class="col-sm-2 col-form-label">
-                                        <a href="/saldokeuangan/client" class="btn btn-success" target="_blank">Jalankan
+                                        <a href="/saldokeuangan/client"
+                                            class="btn btn-success @cannot('bios-saldo-client') disabled @endcannot"
+                                            target="_blank">Jalankan
                                             Client</a>
                                     </div>
                                 </div>
@@ -65,7 +66,8 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
+                            <button class="btn btn-primary btn-sm @cannot('bios-saldo-create') disabled @endcannot"
+                                data-toggle="modal" data-target="#modal-default">
                                 <i class="fa fa-plus-circle"></i> Tambah</a>
                             </button>
                         </div>
@@ -104,12 +106,12 @@
                                                     <div class="col text-center">
                                                         <div class="btn-group">
                                                             <a href="/saldokeuangan/edit/{{ Crypt::encrypt($data->id) }}"
-                                                                class="btn btn-warning btn-sm @if ($data->status == 1) disabled @endif"
+                                                                class="btn btn-warning btn-sm @if ($data->status == 1) disabled @endif @cannot('bios-saldo-edit') disabled @endcannot"
                                                                 data-toggle="tooltip" data-placement="bottom" title="Edit">
                                                                 <i class="fas fa-pen"></i>
                                                             </a>
                                                             <a href="/saldokeuangan/delete/{{ Crypt::encrypt($data->id) }}"
-                                                                class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif"
+                                                                class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif @cannot('bios-saldo-delete') disabled @endcannot"
                                                                 data-toggle="tooltip" data-placement="bottom"
                                                                 title="Delete">
                                                                 <i class="fas fa-ban"></i>

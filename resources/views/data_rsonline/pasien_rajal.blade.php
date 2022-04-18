@@ -14,11 +14,38 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-
+                @php
+                    if (!empty(Request::get('tanggal'))) {
+                        $tanggal = Request::get('tanggal');
+                    } else {
+                        $tanggal = \Carbon\Carbon::now()->format('Y-m-d');
+                    }
+                @endphp
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Data Pasien Keluar</div>
+                            {{-- <div class="card_title">Data Pasien Covid</div> --}}
+                            {{-- <div class="float-right"> --}}
+                            <div class="form-group row">
+                                <div class="col-sm-9 mt-2">
+                                    <label>Data Pasien Covid Rajal/IGD</label>
+                                </div>
+
+                                <div class="col-sm-3">
+                                    <form action="/rsonline/pasienrajal" method="GET">
+                                        <div class="input-group input-group" id="tanggal" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
+                                                autocomplete="off" value="{{ $tanggal }}">
+                                            <span class="input-group-append">
+                                                <button type="submit" class="btn btn-info btn-flat btn-sm"><i
+                                                        class="fas fa-search"></i> Tampilkan</button>
+                                            </span>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            {{-- </div> --}}
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -28,38 +55,40 @@
                                             <th class="align-middle">No RM</th>
                                             <th class="align-middle">No Rawat</th>
                                             <th class="align-middle">Nama Pasien</th>
-                                            <th class="align-middle">Tanggal Pulang</th>
-                                            <th class="align-middle">ID Lapor</th>
+                                            <th class="align-middle">Pekerjaan</th>
+                                            <th class="align-middle">Nama Poli</th>
                                             <th class="align-middle">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($data as $index => $datapulang)
-                                            <tr>
-                                                <td>{{ $datapulang->noRm }}</td>
-                                                <td>{{ $datapulang->noRawat }}</td>
-                                                <td>{{ $datapulang->namaPasien }}</td>
-                                                <td>{{ $datapulang->pulang->tgl_pulang }}</td>
-                                                <td>{{ $datapulang->lapId }}</td>
-                                                <td>
-                                                    <div class="col text-center">
-                                                        <div class="btn-group">
-                                                            {{-- <a href="/rsonline/pasienterlapor/laptambahan/{{ Crypt::encrypt($datapulang->lapId) }}"
-                                                                class="btn bg-maroon color-palette @cannot('laptambahan-list') disabled @endcannot"
+                                        @foreach ($data as $data)
+                                            @if (\App\PelaporanCovid::cekLapor($data->no_rawat) == 0)
+                                                <tr>
+                                                    <td>{{ $data->no_rkm_medis }}</td>
+                                                    <td>{{ $data->no_rawat }}</td>
+                                                    <td>{{ $data->nm_pasien }}</td>
+                                                    <td>{{ $data->pekerjaan }}</td>
+                                                    <td>{{ $data->nm_poli }}</td>
+                                                    <td>
+                                                        <div class="col text-center">
+                                                            <div class="btn-group">
+                                                                <a href="/rsonline/pasienbaru/addrajal/{{ Crypt::encrypt($data->no_rawat) }}"
+                                                                    class="btn btn-success btn-sm @cannot('pasienrajal-create') disabled @endcannot"
+                                                                    data-toggle="tooltip" data-placement="bottom"
+                                                                    title="Edit">
+                                                                    <i class="fas fa-plus-square"></i>
+                                                                </a>
+                                                                {{-- <a href="/saldokeuangan/delete/{{ Crypt::encrypt($data->no_rawat) }}"
+                                                                class="btn btn-danger btn-sm delete-confirm "
                                                                 data-toggle="tooltip" data-placement="bottom"
-                                                                title="Laporan Tambahan">
-                                                                <i class="fas fa-file-medical-alt"></i>
+                                                                title="Delete">
+                                                                <i class="fas fa-ban"></i>
                                                             </a> --}}
-                                                            <a href="/rsonline/pasienterlapor/lapterapi/{{ Crypt::encrypt($datapulang->lapId) }}"
-                                                                class="btn bg-indigo color-palette @cannot('laptambahan-list') disabled @endcannot"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="Laporan Terapi">
-                                                                <i class="fas fa-pills"></i>
-                                                            </a>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
+                                                    </td>
+                                                </tr>
+                                            @endif
                                         @endforeach
                                     </tbody>
                                 </table>

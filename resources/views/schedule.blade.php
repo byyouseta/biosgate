@@ -18,9 +18,11 @@
                     <div class="card">
                         <div class="card-header">
                             @if ($data->count() == 0)
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
-                                    <i class="fa fa-plus-circle"></i> Tambah</a>
-                                </button>
+                                @can('schedule-create')
+                                    <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
+                                        <i class="fa fa-plus-circle"></i> Tambah</a>
+                                    </button>
+                                @endcan
                             @else
                                 <div class="card_title">Schedule Update</div>
                             @endif
@@ -41,16 +43,18 @@
                                                 <td>{{ $waktu->waktu_mulai }}</td>
                                                 <td>{{ $waktu->waktu_selesai }}</td>
                                                 <td>
-                                                    <div class="col text-center">
-                                                        <div class="btn-group">
-                                                            <a href="/schedule/delete/{{ Crypt::encrypt($waktu->id) }}"
-                                                                class="btn btn-danger btn-sm delete-confirm"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="Delete">
-                                                                <i class="fas fa-ban"></i>
-                                                            </a>
+                                                    @can('schedule-delete')
+                                                        <div class="col text-center">
+                                                            <div class="btn-group">
+                                                                <a href="/schedule/delete/{{ Crypt::encrypt($waktu->id) }}"
+                                                                    class="btn btn-danger btn-sm delete-confirm"
+                                                                    data-toggle="tooltip" data-placement="bottom"
+                                                                    title="Delete">
+                                                                    <i class="fas fa-ban"></i>
+                                                                </a>
+                                                            </div>
                                                         </div>
-                                                    </div>
+                                                    @endcan
                                                 </td>
                                             </tr>
                                         @empty

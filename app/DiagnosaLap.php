@@ -15,9 +15,12 @@ class DiagnosaLap extends Model
         return $this->belongsTo('App\PelaporanCovid', 'lapId', 'lapId');
     }
 
-    public static function DiagnosaCek($id)
+    public static function DiagnosaCek($id, $ids)
     {
-        $cek = DiagnosaLap::where('diagnosaId', $id)->get();
+        $cek = DiagnosaLap::where('diagnosaId', $id)
+            ->where('lapId', $ids)
+            ->get();
+        // dd($cek);
 
         return $cek;
     }
