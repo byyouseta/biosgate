@@ -110,6 +110,23 @@ Route::post('/rsonline/pasienterlapor/pulang/{id}', 'PasienOnlineController@pula
 //axios
 Route::post('/getKabKota', 'PasienOnlineController@getKabKota')->name('getKabKota');
 Route::post('/getKecamatan', 'PasienOnlineController@getKecamatan')->name('getKecamatan');
+Route::post('/getKelurahan', 'PasienOnlineController@getKelurahan')->name('getKelurahan');
+Route::post('/getSubinstalasi', 'KankerController@getSubinstalasi')->name('getSubinstalasi');
+
+//ajax
+Route::get('/geticd10', 'KankerController@geticd10')->name('geticd10');
+Route::get('/testicd', 'KankerController@test')->name('kanker.test');
+
+Route::get('/kanker/ranap', 'KankerController@pasien')->name('kanker.pasien');
+Route::get('/kanker/rajal', 'KankerController@rajal')->name('kanker.rajal');
+Route::get('/kanker/addrajal/{id}', 'KankerController@addrajal')->name('kanker.addrajal');
+Route::post('/kanker/addpasien', 'KankerController@store')->name('kanker.store');
+Route::get('/kanker/{id}/edit', 'KankerController@edit')->name('kanker.edit');
+Route::post('/kanker/{id}/update', 'KankerController@update')->name('kanker.update');
+Route::get('/kanker/{id}/delete', 'KankerController@delete')->name('kanker.delete');
+Route::get('/kanker/terlapor', 'KankerController@terlapor')->name('kanker.terlapor');
+Route::get('/kanker/referensi', 'KankerController@referensi')->name('kanker.referensi');
+
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
@@ -137,6 +154,11 @@ Route::get('/master/dummygeo', 'DummyController@index')->name('dummy.index');
 Route::get('/master/dummygeo/provinsi', 'DummyController@provinsi')->name('dummy.provinsi');
 Route::get('/master/dummygeo/kabkota', 'DummyController@kabkota')->name('dummy.kabkota');
 Route::post('/master/dummygeo/kecamatan', 'DummyController@kecamatan')->name('dummy.kecamatan');
+Route::post('/master/dummygeo/kelurahan', 'DummyController@kelurahan')->name('dummy.kelurahan');
+
+Route::get('/master/dummy/instalasi', 'DummyController@instalasi')->name('dummy.instalasi');
+Route::get('/master/dummy/subinstalasi', 'DummyController@subinstalasi')->name('dummy.subinstalasi');
+
 
 
 Route::get('/permission', 'PermissionController@index')->name('permission.index');

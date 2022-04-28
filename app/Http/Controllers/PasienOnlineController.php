@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\DiagnosaLap;
 use App\KabKota;
 use App\Kecamatan;
+use App\Kelurahan;
 use App\KomorbidLap;
 use App\PelaporanCovid;
 use App\PemeriksaanLab;
@@ -742,17 +743,29 @@ class PasienOnlineController extends Controller
 
         // $cek = KomorbidLap::where('lapId', $id)->first();
         $split = explode('-', $request->komorbid);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('POST', "laporancovid19versi3komorbid", [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ],
+                'json' => [
+                    'laporanCovid19Versi3Id' => $id,
+                    'komorbidId' => $split[0]
+                ]
+            ]);
+        } catch (ClientException $e) {
 
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('POST', "laporancovid19versi3komorbid", [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ],
-            'json' => [
-                'laporanCovid19Versi3Id' => $id,
-                'komorbidId' => $split[0]
-            ]
-        ]);
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
 
@@ -796,16 +809,28 @@ class PasienOnlineController extends Controller
         $access_token = session('tokenrs');
 
         $komorbid = explode('-', $request->komorbid);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('PATCH', "laporancovid19versi3komorbid/$id", [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ],
+                'json' => [
+                    'komorbidId' => $komorbid[0]
+                ]
+            ]);
+        } catch (ClientException $e) {
 
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('PATCH', "laporancovid19versi3komorbid/$id", [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ],
-            'json' => [
-                'komorbidId' => $komorbid[0]
-            ]
-        ]);
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
 
@@ -836,18 +861,30 @@ class PasienOnlineController extends Controller
 
         // $cek = TerapiLap::where('lapId', $id)->first();
         $split = explode('-', $request->terapi);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('POST', "laporancovid19versi3terapi", [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ],
+                'json' => [
+                    'laporanCovid19Versi3Id' => $id,
+                    'terapiId' => $split[0],
+                    'jumlahTerapi' => $request->jumlah
+                ]
+            ]);
+        } catch (ClientException $e) {
 
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('POST', "laporancovid19versi3terapi", [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ],
-            'json' => [
-                'laporanCovid19Versi3Id' => $id,
-                'terapiId' => $split[0],
-                'jumlahTerapi' => $request->jumlah
-            ]
-        ]);
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
 
@@ -896,16 +933,29 @@ class PasienOnlineController extends Controller
 
         $terapi = explode('-', $request->terapi);
 
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('PATCH', "laporancovid19versi3terapi/$id", [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ],
-            'json' => [
-                'terapiId' => $terapi[0],
-                'jumlahTerapi' => $request->jumlah
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('PATCH', "laporancovid19versi3terapi/$id", [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ],
+                'json' => [
+                    'terapiId' => $terapi[0],
+                    'jumlahTerapi' => $request->jumlah
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
 
@@ -938,17 +988,30 @@ class PasienOnlineController extends Controller
         $dosis = explode('_', $request->dosisVaksin);
         $jenis = explode('_', $request->jenisVaksin);
 
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('POST', "laporancovid19versi3vaksinasi", [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ],
-            'json' => [
-                'laporanCovid19Versi3Id' => $id,
-                'dosisVaksinId' => $dosis[0],
-                'jenisVaksinId' => $jenis[0]
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('POST', "laporancovid19versi3vaksinasi", [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ],
+                'json' => [
+                    'laporanCovid19Versi3Id' => $id,
+                    'dosisVaksinId' => $dosis[0],
+                    'jenisVaksinId' => $jenis[0]
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
 
@@ -1001,18 +1064,29 @@ class PasienOnlineController extends Controller
         $dosis = explode('_', $request->dosisVaksin);
         $jenis = explode('_', $request->jenisVaksin);
 
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('PATCH', "laporancovid19versi3vaksinasi/$id", [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ],
+                'json' => [
+                    'dosisVaksinId' => $dosis[0],
+                    'jenisVaksinId' => $jenis[0],
+                ]
+            ]);
+        } catch (ClientException $e) {
 
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
 
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('PATCH', "laporancovid19versi3vaksinasi/$id", [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ],
-            'json' => [
-                'dosisVaksinId' => $dosis[0],
-                'jenisVaksinId' => $jenis[0],
-            ]
-        ]);
+            $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
 
@@ -1047,22 +1121,31 @@ class PasienOnlineController extends Controller
 
         $jenis = explode('-', $request->jenisPemeriksaan);
 
-        // dd($cek);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('POST', "laporancovid19versi3pemeriksaanlab", [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ],
+                'json' => [
+                    'laporanCovid19Versi3Id' => $id,
+                    'jenisPemeriksaanLabId' => $jenis[0],
+                    'hasilPemeriksaanLabId' => $request->hasilpemeriksaan,
+                    'tanggalHasilPemeriksaanLab' => $request->tgl_hasil
+                ]
+            ]);
+        } catch (ClientException $e) {
 
-        // if (empty($cek)) {
-        //add data
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('POST', "laporancovid19versi3pemeriksaanlab", [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ],
-            'json' => [
-                'laporanCovid19Versi3Id' => $id,
-                'jenisPemeriksaanLabId' => $jenis[0],
-                'hasilPemeriksaanLabId' => $request->hasilpemeriksaan,
-                'tanggalHasilPemeriksaanLab' => $request->tgl_hasil
-            ]
-        ]);
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
 
@@ -1223,6 +1306,16 @@ class PasienOnlineController extends Controller
             ->pluck('nama', 'id');
 
         return response()->json($Kecamatan);
+    }
+
+    public function getKelurahan(Request $request)
+    {
+
+        // Fetch Employees by Departmentid
+        $Kelurahan = Kelurahan::where('kecamatan_id', $request->get('id'))
+            ->pluck('nama', 'id');
+
+        return response()->json($Kelurahan);
     }
 
     public function getDiagnosa($id)

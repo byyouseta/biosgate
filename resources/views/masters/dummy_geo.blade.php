@@ -14,10 +14,14 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-12">
+                <div class="col-6">
                     <div class="card">
                         <div class="card-header">
                             {{-- <h3 class="card-title">{{ session('anak') }}</h3> --}}
+                            Dummy Geo Dari RSOnline
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
                             @can('geografi-update')
                                 <a href="/master/dummygeo/provinsi" class="btn btn-primary btn-sm">
                                     Sync Data Provinsi
@@ -25,22 +29,36 @@
                                 <a href="/master/dummygeo/kabkota" class="btn btn-primary btn-sm">
                                     Sync Data Kab Kota
                                 </a>
-                                <a href="/master/dummygeo/kecamatan" class="btn btn-primary btn-sm">
-                                    Sync Data Kecamatan
-                                </a>
-                                {{-- <a href="/master/dummygeo/kelurahan" class="btn btn-primary btn-sm">
-                                    Sync Data Kalurahan
-                                </a> --}}
+
                                 <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
                                     Sync Data Kecamatan
                                 </button>
+                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-kelurahan">
+                                    Sync Data Kelurahan
+                                </button>
                             @endcan
                         </div>
-                        <!-- /.card-header -->
-
                         <!-- /.card-body -->
                     </div>
+
                     <!-- /.card -->
+                </div>
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">
+                            {{-- <h3 class="card-title">{{ session('anak') }}</h3> --}}
+                            Sync Data Instalasi RSOnline Kanker
+                        </div>
+                        <div class="card-body">
+                            <a href="/master/dummy/instalasi" class="btn btn-primary btn-sm">
+                                Sync Data Instalasi
+                            </a>
+                            <a href="/master/dummy/subinstalasi" class="btn btn-primary btn-sm">
+                                Sync Data Sub Instalasi
+                            </a>
+                        </div>
+                    </div>
+
                 </div>
                 <!-- /.col -->
             </div>
@@ -56,6 +74,47 @@
                     @csrf
                     <div class="modal-header">
                         <h4 class="modal-title">Sync Data Kecamatan</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- text input -->
+                            <div class="col-md-12">
+
+                                <div class="form-group">
+                                    <label>Page</label>
+
+                                    <input type="number" class="form-control" name="page" required>
+
+                                    @if ($errors->has('page'))
+                                        <div class="text-danger">
+                                            {{ $errors->first('page') }}
+                                        </div>
+                                    @endif
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Tutup</button>
+                        <button type="Submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    <div class="modal fade" id="modal-kelurahan">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="/master/dummygeo/kelurahan">
+                    @csrf
+                    <div class="modal-header">
+                        <h4 class="modal-title">Sync Data Kelurahan</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>

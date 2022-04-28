@@ -28,11 +28,11 @@
                             {{-- <div class="float-right"> --}}
                             <div class="form-group row">
                                 <div class="col-sm-9 mt-2">
-                                    <label>Data Pasien Covid Rajal/IGD</label>
+                                    <label>Data Pasien Kanker Rajal/IGD</label>
                                 </div>
 
                                 <div class="col-sm-3">
-                                    <form action="/rsonline/pasienrajal" method="GET">
+                                    <form action="/kanker/rajal" method="GET">
                                         <div class="input-group input-group" id="tanggal" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
                                                 data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
@@ -72,7 +72,7 @@
                                                     <td>
                                                         <div class="col text-center">
                                                             <div class="btn-group">
-                                                                <a href="/rsonline/pasienbaru/addrajal/{{ Crypt::encrypt($data->no_rawat) }}"
+                                                                <a href="/kanker/addrajal/{{ Crypt::encrypt($data->no_rawat) }}"
                                                                     class="btn btn-success btn-sm @cannot('pasienrajal-create') disabled @endcannot"
                                                                     data-toggle="tooltip" data-placement="bottom"
                                                                     title="Add">

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Setting;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class RsClientController extends Controller
 {
@@ -12,14 +14,25 @@ class RsClientController extends Controller
         $setting = Setting::where('nama', 'rsonline')->first();
         // dd($setting);
         session()->put('base_url', $setting->base_url);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => $setting->base_url]);
+            $response = $client->request('POST', 'rslogin', [
+                'json' => [
+                    'kode_rs' => $setting->satker,
+                    'password' => $setting->key,
+                ]
+            ]);
+        } catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
 
-        $client = new \GuzzleHttp\Client(['base_uri' => $setting->base_url]);
-        $response = $client->request('POST', 'rslogin', [
-            'json' => [
-                'kode_rs' => $setting->satker,
-                'password' => $setting->key,
-            ]
-        ]);
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
 
@@ -110,12 +123,24 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'kewarganegaraan', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'kewarganegaraan', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -130,12 +155,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'provinsi', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'provinsi', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -150,12 +188,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'kabkota', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'kabkota', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -170,12 +221,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'kecamatan', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'kecamatan', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -190,12 +254,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'kelurahan', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'kelurahan', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -210,12 +287,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'dosisvaksin', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'dosisvaksin', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -230,12 +320,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'jenisvaksin', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'jenisvaksin', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -250,12 +353,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'asalpasien', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'asalpasien', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -270,12 +386,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'jenispasien', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'jenispasien', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -290,12 +419,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'kelompokgejala', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'kelompokgejala', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -310,12 +452,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'pekerjaan', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'pekerjaan', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -330,12 +485,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'statuspasien', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'statuspasien', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -350,12 +518,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'statuspasiensaatmeninggal', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'statuspasiensaatmeninggal', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -370,12 +551,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'komorbid', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'komorbid', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -390,12 +584,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'komorbidcoinsiden', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'komorbidcoinsiden', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -410,12 +617,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'statusrawat', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'statusrawat', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -430,12 +650,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'terapi', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'terapi', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -450,12 +683,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'statuskeluar', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'statuskeluar', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -470,12 +716,26 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'penyebabkematian', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'penyebabkematian', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -490,12 +750,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'penyebabkematianlangsung', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'penyebabkematianlangsung', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -510,12 +783,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'alatoksigen', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'alatoksigen', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -530,12 +816,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'jenispemeriksaanlab', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'jenispemeriksaanlab', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
@@ -550,12 +849,25 @@ class RsClientController extends Controller
         RsClientController::tokenrs();
 
         $access_token = session('tokenrs');
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-        $response = $client->request('GET', 'variancovid', [
-            'headers' => [
-                'Authorization' => "Bearer {$access_token}"
-            ]
-        ]);
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+            $response = $client->request('GET', 'variancovid', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
+
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back()->withInput();
+        }
 
         $data = json_decode($response->getBody());
         $data = $data->data;
