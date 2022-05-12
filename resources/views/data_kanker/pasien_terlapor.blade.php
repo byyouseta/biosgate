@@ -45,12 +45,13 @@
                                                     <div class="col text-center">
                                                         <div class="btn-group">
                                                             <a href="/kanker/{{ Crypt::encrypt($data->idReg) }}/edit"
-                                                                class="btn btn-warning btn-sm" data-toggle="tooltip"
-                                                                data-placement="bottom" title="Edit Laporan">
+                                                                class="btn btn-warning btn-sm @cannot('kanker-terlapor-edit') disabled @endcannot"
+                                                                data-toggle="tooltip" data-placement="bottom"
+                                                                title="Edit Laporan">
                                                                 <i class="fas fa-pen"></i>
                                                             </a>
                                                             <a href="/kanker/{{ Crypt::encrypt($data->idReg) }}/delete"
-                                                                class="btn btn-danger btn-sm delete-confirm"
+                                                                class="btn btn-danger btn-sm delete-confirm @cannot('kanker-terlapor-delete') disabled @endcannot"
                                                                 data-toggle="tooltip" data-placement="bottom"
                                                                 title="Delete Laporan">
                                                                 <i class="fas fa-ban"></i>

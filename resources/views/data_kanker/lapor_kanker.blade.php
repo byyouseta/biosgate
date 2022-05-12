@@ -75,7 +75,7 @@
                                     <div class="col-sm-6 col-form-label">
                                         <div class="custom-control custom-radio">
                                             <input class="custom-control-input" id="jk1" type="radio" name="jk" value="1"
-                                                @if (!empty($data->jk) == 'L') checked
+                                                @if ($data->jk == 'L') checked
                                                 @elseif (old('jk') == '1') checked @endif>
                                             <label class="custom-control-label" for="jk1">Laki-laki</label>
                                         </div>
@@ -83,7 +83,7 @@
                                     <div class="col-sm-6 col-form-label">
                                         <div class="custom-control custom-radio">
                                             <input class="custom-control-input" id="jk2" type="radio" name="jk" value="2"
-                                                @if (!empty($data->jk) == 'P') checked
+                                                @if ($data->jk == 'P') checked
                                                 @elseif (old('jk') == '2') checked @endif>
                                             <label class="custom-control-label" for="jk2">Perempuan</label>
                                         </div>
@@ -834,8 +834,7 @@
 @section('plugin')
     <!-- Tempusdominus Bootstrap 4 -->
     <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
-    <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}">
-    </script>
+    <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
     {{-- <script src="{{ asset('template/plugins/select2/js/select2.full.min.js') }}"></script> --}}
     <script>
         // $(function() {

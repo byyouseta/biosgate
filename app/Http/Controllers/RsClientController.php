@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Session;
 
 class RsClientController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public static function tokenrs()
     {
         $setting = Setting::where('nama', 'rsonline')->first();

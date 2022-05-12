@@ -43,8 +43,8 @@
                                                 <td>
                                                     <div class="col text-center">
                                                         <div class="btn-group">
-                                                            <a href="/rsonline/pasienbaru/add/{{ Crypt::encrypt($data->no_rawat) }}"
-                                                                class="btn btn-success btn-sm @cannot('pasienbaru-create') disabled @endcannot"
+                                                            <a href="/kanker/addranap/{{ Crypt::encrypt($data->no_rawat) }}"
+                                                                class="btn btn-success btn-sm @cannot('kanker-ranap-create') disabled @endcannot"
                                                                 data-toggle="tooltip" data-placement="bottom"
                                                                 title="Tambah">
                                                                 <i class="fas fa-plus-square"></i>

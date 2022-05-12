@@ -73,17 +73,11 @@
                                                         <div class="col text-center">
                                                             <div class="btn-group">
                                                                 <a href="/kanker/addrajal/{{ Crypt::encrypt($data->no_rawat) }}"
-                                                                    class="btn btn-success btn-sm @cannot('pasienrajal-create') disabled @endcannot"
+                                                                    class="btn btn-success btn-sm @cannot('kanker-rajal-create') disabled @endcannot"
                                                                     data-toggle="tooltip" data-placement="bottom"
                                                                     title="Add">
                                                                     <i class="fas fa-plus-square"></i>
                                                                 </a>
-                                                                {{-- <a href="/saldokeuangan/delete/{{ Crypt::encrypt($data->no_rawat) }}"
-                                                                class="btn btn-danger btn-sm delete-confirm "
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="Delete">
-                                                                <i class="fas fa-ban"></i>
-                                                            </a> --}}
                                                             </div>
                                                         </div>
                                                     </td>

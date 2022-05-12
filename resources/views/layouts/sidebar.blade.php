@@ -236,59 +236,61 @@
                     @endif
                 </li>
             @endif
-            {{-- @if (Auth::user()->can('setting-list') || Auth::user()->can('schedule-list')) --}}
-            <li class="nav-item @if (@session('ibu') == 'Data Kanker') menu-open @endif">
-                <a href="#" class="nav-link @if (@session('ibu') == 'Data Kanker') active @endif">
-                    <i class="nav-icon fas fa-disease"></i>
-                    <p>
-                        Data Kanker
-                        <i class="right fas fa-angle-left"></i>
-                    </p>
-                </a>
-                <ul class="nav nav-treeview">
-                    {{-- @can('setting-list') --}}
-                    <li class="nav-item">
-                        <a href="/kanker/ranap" class="nav-link @if (@session('anak') == 'Pasien Ranap') active @endif">
-                            <i class="nav-icon fas fa-procedures"></i>
-                            <p>
-                                Pasien Ranap
-                                {{-- <span class="right badge badge-danger">New</span> --}}
-                            </p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/kanker/rajal" class="nav-link @if (@session('anak') == 'Pasien Rajal/IGD') active @endif">
-                            <i class="nav-icon fas fa-user-injured"></i>
-                            <p>
-                                Pasien Rajal/IGD
-                                {{-- <span class="right badge badge-danger">New</span> --}}
-                            </p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/kanker/terlapor" class="nav-link @if (@session('anak') == 'Pasien Terlapor') active @endif">
-                            <i class="nav-icon fas fa-desktop"></i>
-                            <p>
-                                Pasien Terlapor
-                                {{-- <span class="right badge badge-danger">New</span> --}}
-                            </p>
-                        </a>
-                    </li>
-                    {{-- @endcan
-                        @can('schedule-list') --}}
-                    <li class="nav-item">
-                        <a href="/kanker/referensi" class="nav-link @if (@session('anak') == 'Referensi Data') active @endif">
-                            <i class="nav-icon far fa-bookmark"></i>
-                            <p>
-                                Referensi Data
-                                {{-- <span class="right badge badge-danger">New</span> --}}
-                            </p>
-                        </a>
-                    </li>
-                    {{-- @endcan --}}
-                </ul>
-            </li>
-            {{-- @endif --}}
+            @if (Auth::user()->can('kanker-rajal-list') || Auth::user()->can('kanker-ranap-list'))
+                <li class="nav-item @if (@session('ibu') == 'Data Kanker') menu-open @endif">
+                    <a href="#" class="nav-link @if (@session('ibu') == 'Data Kanker') active @endif">
+                        <i class="nav-icon fas fa-disease"></i>
+                        <p>
+                            Data Kanker
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        @can('kanker-ranap-list')
+                            <li class="nav-item">
+                                <a href="/kanker/ranap" class="nav-link @if (@session('anak') == 'Pasien Ranap') active @endif">
+                                    <i class="nav-icon fas fa-procedures"></i>
+                                    <p>
+                                        Pasien Ranap
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('kanker-rajal-list')
+                            <li class="nav-item">
+                                <a href="/kanker/rajal" class="nav-link @if (@session('anak') == 'Pasien Rajal/IGD') active @endif">
+                                    <i class="nav-icon fas fa-user-injured"></i>
+                                    <p>
+                                        Pasien Rajal/IGD
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('kanker-terlapor-list')
+                            <li class="nav-item">
+                                <a href="/kanker/terlapor"
+                                    class="nav-link @if (@session('anak') == 'Pasien Terlapor') active @endif">
+                                    <i class="nav-icon fas fa-desktop"></i>
+                                    <p>
+                                        Pasien Terlapor
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('kanker-referensi-list')
+                            <li class="nav-item">
+                                <a href="/kanker/referensi"
+                                    class="nav-link @if (@session('anak') == 'Referensi Data') active @endif">
+                                    <i class="nav-icon far fa-bookmark"></i>
+                                    <p>
+                                        Referensi Data
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
+                </li>
+            @endif
             @if (Auth::user()->can('setting-list') || Auth::user()->can('schedule-list'))
                 <li class="nav-item @if (@session('ibu') == 'Setting') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Setting') active @endif">

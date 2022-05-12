@@ -119,6 +119,7 @@ Route::get('/testicd', 'KankerController@test')->name('kanker.test');
 
 Route::get('/kanker/ranap', 'KankerController@pasien')->name('kanker.pasien');
 Route::get('/kanker/rajal', 'KankerController@rajal')->name('kanker.rajal');
+Route::get('/kanker/addranap/{id}', 'KankerController@addranap')->name('kanker.addranap');
 Route::get('/kanker/addrajal/{id}', 'KankerController@addrajal')->name('kanker.addrajal');
 Route::post('/kanker/addpasien', 'KankerController@store')->name('kanker.store');
 Route::get('/kanker/{id}/edit', 'KankerController@edit')->name('kanker.edit');

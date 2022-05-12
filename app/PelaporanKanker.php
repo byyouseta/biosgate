@@ -65,7 +65,7 @@ class PelaporanKanker extends Model
 
     public function SubInstalasi()
     {
-        return $this->belongsTo('App\SubInstalasiKanker', 'id_sub_instalasi_unit', 'kode_gabung_sub_instalasi_unit');
+        return $this->belongsTo('App\SubinstalasiKanker', 'id_sub_instalasi_unit', 'kode_gabung_sub_instalasi_unit');
     }
 
     public function Instalasi()

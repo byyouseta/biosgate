@@ -16,6 +16,19 @@ use Illuminate\Support\Facades\Session;
 
 class KankerController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+
+        $this->middleware('permission:kanker-ranap-list|kanker-ranap-create', ['only' => ['pasien']]);
+        $this->middleware('permission:kanker-ranap-create', ['only' => ['addRanap', 'store']]);
+        $this->middleware('permission:kanker-rajal-list', ['only' => ['rajal']]);
+        $this->middleware('permission:kanker-rajal-create', ['only' => ['addRajal', 'store']]);
+        $this->middleware('permission:kanker-terlapor-list', ['only' => ['terlapor']]);
+        $this->middleware('permission:kanker-terlapor-edit', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:kanker-terlapor-delete', ['only' => ['delete']]);
+    }
+
     public static function tokenkanker()
     {
         $setting = Setting::where('nama', 'datakanker')->first();
@@ -101,9 +114,6 @@ class KankerController extends Controller
                     ->orWhere('penyakit.nm_penyakit', 'like', '%anaemia%')
                     ->orWhere('penyakit.nm_penyakit', 'like', '%leukaemia%')
                     ->orWhere('penyakit.nm_penyakit', 'like', '%neoplasm%');
-                // ->orWhere('penjab.png_jawab', 'like', '%covid%');
-                // ->orWhere('kamar_inap.diagnosa_akhir', 'like', '%U07.1%')
-                // ->orWhere('kamar_inap.diagnosa_akhir', 'like', '%U07.2%');
             })
             ->where(function ($pulang) {
                 $pulang->where('kamar_inap.stts_pulang', '=', '-')
@@ -120,6 +130,75 @@ class KankerController extends Controller
         // dd($data);
 
         return view('data_kanker.pasien_ranap', compact('data'));
+    }
+
+    public function addRanap($id)
+    {
+        $id = Crypt::decrypt($id);
+
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('penjab', 'penjab.kd_pj', '=', 'reg_periksa.kd_pj')
+            ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
+            ->leftJoin('bangsal', 'bangsal.kd_bangsal', '=', 'kamar.kd_bangsal')
+            ->join('diagnosa_pasien', 'diagnosa_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.kd_poli',
+                'reg_periksa.kd_pj',
+                'kamar_inap.tgl_masuk',
+                'kamar_inap.tgl_keluar',
+                'kamar_inap.diagnosa_awal',
+                'kamar_inap.diagnosa_akhir',
+                'kamar_inap.stts_pulang',
+                'pasien.nm_pasien',
+                'pasien.no_ktp',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pasien.pekerjaan',
+                'pasien.no_tlp',
+                'pasien.no_peserta',
+                'pasien.alamat',
+                'pasien.kd_kel',
+                'pasien.kd_kec',
+                'pasien.kd_kab',
+                'pasien.kd_prop',
+                'penjab.png_jawab',
+                'bangsal.nm_bangsal',
+                'kamar.kd_kamar',
+                'diagnosa_pasien.kd_penyakit',
+                // 'diagnosa_pasien.prioritas',
+                'penyakit.nm_penyakit'
+            )
+            ->where('reg_periksa.no_rawat', $id)
+            ->first();
+
+        // dd($data);
+
+        $provinsi = Provinsi::all();
+        $caraMasuk = KankerController::CaraMasuk();
+        $asalRujukan = KankerController::AsalRujukan();
+        $instalasi = InstalasiKanker::all();
+        $caraKeluar = KankerController::CaraKeluar();
+        $keadaanKeluar = KankerController::KeadaanKeluar();
+        // $icd10 = KankerController::geticd10(null);
+        $caraBayar = KankerController::CaraBayar();
+
+        return view('data_kanker.lapor_kanker', compact(
+            'data',
+            'provinsi',
+            'caraMasuk',
+            'asalRujukan',
+            'instalasi',
+            'caraKeluar',
+            'keadaanKeluar',
+            // 'icd10',
+            'caraBayar'
+        ));
     }
 
     public function rajal(Request $request)
