@@ -9,7 +9,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" href="{{ asset('template/dist/img/kpi.png') }}">
-    <title>BIOS CLIENT RSUP SURAKARTA</title>
+    <title>{{ config('app.name') }}</title>
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"
@@ -41,7 +41,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <a href="/home" class="brand-link text-center">
                 {{-- <img src="dist/img/AdminLTELogo.png" alt="KPI Logo" class="brand-image img-circle elevation-3"
                     style="opacity: .8"> --}}
-                <span class="brand-text font-weight-light">BIOS CLIENT</span>
+                <span class="brand-text font-weight-light">{{ config('app.name') }}</span>
             </a>
 
             <!-- Sidebar -->

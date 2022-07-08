@@ -248,7 +248,8 @@
                     <ul class="nav nav-treeview">
                         @can('kanker-ranap-list')
                             <li class="nav-item">
-                                <a href="/kanker/ranap" class="nav-link @if (@session('anak') == 'Pasien Ranap') active @endif">
+                                <a href="/kanker/ranap"
+                                    class="nav-link @if (@session('anak') == 'Pasien Ranap') active @endif">
                                     <i class="nav-icon fas fa-procedures"></i>
                                     <p>
                                         Pasien Ranap
@@ -258,7 +259,8 @@
                         @endcan
                         @can('kanker-rajal-list')
                             <li class="nav-item">
-                                <a href="/kanker/rajal" class="nav-link @if (@session('anak') == 'Pasien Rajal/IGD') active @endif">
+                                <a href="/kanker/rajal"
+                                    class="nav-link @if (@session('anak') == 'Pasien Rajal/IGD') active @endif">
                                     <i class="nav-icon fas fa-user-injured"></i>
                                     <p>
                                         Pasien Rajal/IGD
@@ -288,6 +290,37 @@
                                 </a>
                             </li>
                         @endcan
+                    </ul>
+                </li>
+            @endif
+            @if (Auth::user()->can('vedika-list'))
+                <li class="nav-item @if (@session('ibu') == 'Vedika') menu-open @endif">
+                    <a href="#" class="nav-link @if (@session('ibu') == 'Vedika') active @endif">
+                        <i class="nav-icon fas fa-book-medical"></i>
+                        <p>
+                            Vedika
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/vedika/ranap"
+                                class="nav-link @if (@session('anak') == 'Pasien Ranap') active @endif">
+                                <i class="nav-icon fas fa-procedures"></i>
+                                <p>
+                                    Pasien Ranap
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="/vedika/rajal"
+                                class="nav-link @if (@session('anak') == 'Pasien Rajal') active @endif">
+                                <i class="nav-icon fas fa-user-injured"></i>
+                                <p>
+                                    Pasien Rajal/IGD
+                                </p>
+                            </a>
+                        </li>
                     </ul>
                 </li>
             @endif
@@ -352,7 +385,17 @@
                                     <i class="nav-icon fas fa-money-check-alt"></i>
                                     <p>
                                         Data Bank BIOS
-                                        {{-- <span class="right badge badge-danger">New</span> --}}
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('vedika-berkas-list')
+                            <li class="nav-item">
+                                <a href="/master/vedika"
+                                    class="nav-link @if (@session('anak') == 'Berkas Vedika') active @endif">
+                                    <i class="nav-icon fas fa-file-medical"></i>
+                                    <p>
+                                        Berkas Vedika
                                     </p>
                                 </a>
                             </li>
@@ -391,16 +434,19 @@
                     </ul>
                 </li>
             @endif
+            @can('profil-edit')
+                <li class="nav-item">
+                    <a href="/profil" class="nav-link @if (@session('ibu') == 'Profil') active @endif">
+                        <i class="nav-icon fas fa-user"></i>
+                        <p>
+                            Profil
+                        </p>
+                    </a>
+                </li>
+            @endcan
             <li class="nav-item">
-                <a href="/profil" class="nav-link @if (@session('ibu') == 'Profil') active @endif">
-                    <i class="nav-icon fas fa-user"></i>
-                    <p>
-                        Profil
-                    </p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="#" class="nav-link" onclick="event.preventDefault();
+                <a href="#" class="nav-link"
+                    onclick="event.preventDefault();
                 document.getElementById('logout-form').submit();">
                     <span style="color: Tomato;">
                         <i class="nav-icon fas fa-sign-out-alt"></i>

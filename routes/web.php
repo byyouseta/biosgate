@@ -128,6 +128,24 @@ Route::get('/kanker/{id}/delete', 'KankerController@delete')->name('kanker.delet
 Route::get('/kanker/terlapor', 'KankerController@terlapor')->name('kanker.terlapor');
 Route::get('/kanker/referensi', 'KankerController@referensi')->name('kanker.referensi');
 
+//VEDIKA
+Route::get('/vedika/rajal', 'VedikaController@rajal')->name('vedika.rajal');
+Route::get('/vedika/rajal/{id}/billing', 'VedikaController@billingRajal')->name('vedika.billingRajal');
+Route::get('/vedika/rajal/{id}/lab', 'VedikaController@labRajal')->name('vedika.labRajal');
+Route::get('/vedika/rajal/{id}/radiologi', 'VedikaController@radioRajal')->name('vedika.radioRajal');
+Route::get('/vedika/rajal/{id}/triase', 'VedikaController@triase')->name('vedika.triase');
+Route::get('/vedika/rajal/{id}/berkas', 'VedikaController@berkas')->name('vedika.berkas');
+
+Route::get('/vedika/ranap', 'VedikaController@ranap')->name('vedika.ranap');
+Route::get('/vedika/ranap/{id}/billing', 'VedikaController@billingRanap')->name('vedika.billingRanap');
+Route::get('/vedika/ranap/{id}/lab', 'VedikaController@labRanap')->name('vedika.labRanap');
+Route::get('/vedika/ranap/{id}/radiologi', 'VedikaController@radioRanap')->name('vedika.radioRanap');
+Route::get('/vedika/ranap/{id}/berkas', 'VedikaController@berkasRanap')->name('vedika.berkasRanap');
+
+Route::post('/vedika/berkas/store', 'VedikaController@berkasUpload')->name('vedika.berkasUpload');
+// Route::post('/vedika/berkas/store', 'VedikaController@berkasStore')->name('vedika.berkasStore');
+Route::get('/vedika/berkas/{id}/delete', 'VedikaController@berkasDelete')->name('vedika.berkasDelete');
+Route::get('/vedika/berkas/{id}/view', 'VedikaController@berkasShow')->name('vedika.berkasShow');
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
@@ -161,6 +179,11 @@ Route::get('/master/dummy/instalasi', 'DummyController@instalasi')->name('dummy.
 Route::get('/master/dummy/subinstalasi', 'DummyController@subinstalasi')->name('dummy.subinstalasi');
 
 
+Route::get('/master/vedika', 'VedikaController@index')->name('vedika.index');
+Route::post('/master/vedika/store', 'VedikaController@store')->name('vedika.store');
+Route::get('/master/vedika/edit/{id}', 'VedikaController@edit')->name('vedika.edit');
+Route::post('/master/vedika/update/{id}', 'VedikaController@update')->name('vedika.update');
+Route::get('/master/vedika/delete/{id}', 'VedikaController@delete')->name('vedika.delete');
 
 Route::get('/permission', 'PermissionController@index')->name('permission.index');
 Route::post('/permission/store', 'PermissionController@store')->name('permission.store');

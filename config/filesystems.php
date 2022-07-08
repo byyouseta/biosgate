@@ -51,7 +51,7 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => env('APP_URL').'/storage',
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
         ],
 
@@ -62,6 +62,19 @@ return [
             'region' => env('AWS_DEFAULT_REGION'),
             'bucket' => env('AWS_BUCKET'),
             'url' => env('AWS_URL'),
+        ],
+
+        'sftp' => [
+            'driver' => 'sftp',
+            'host' => '10.10.28.10',
+            'port' => 2882,
+            'username' => 'dataserver',
+            'password' => '@j4j4rSur4k4rt4#',
+            // 'privateKey' => 'path/to/or/contents/of/privatekey',
+            'root' => '/var/www/html/webappz/berkasrawat',
+            'visibility' => 'public',
+            'permPublic' => 0775,
+            'timeout' => 10,
         ],
 
     ],

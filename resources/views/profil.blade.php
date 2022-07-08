@@ -20,8 +20,8 @@
                             <div class="col-6">
                                 <div class="form-group">
                                     <label>Nama User</label>
-                                    <input type="text" class="form-control" placeholder="Masukkan Nama User" name="name"
-                                        value="{{ $data->name }}">
+                                    <input type="text" class="form-control" placeholder="Masukkan Nama User"
+                                        name="name" value="{{ $data->name }}">
                                     @if ($errors->has('name'))
                                         <div class="text-danger">
                                             {{ $errors->first('name') }}
@@ -38,15 +38,13 @@
                                         </div>
                                     @endif
                                 </div>
-
-
                             </div>
 
                             <div class="col-6">
                                 <div class="form-group">
                                     <label>Email</label>
-                                    <input type="text" class="form-control" placeholder="Masukkan Email User" name="email"
-                                        value="{{ $data->email }}">
+                                    <input type="text" class="form-control" placeholder="Masukkan Email User"
+                                        name="email" value="{{ $data->email }}">
                                     @if ($errors->has('email'))
                                         <div class="text-danger">
                                             {{ $errors->first('email') }}

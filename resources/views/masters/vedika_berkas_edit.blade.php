@@ -6,11 +6,11 @@
     <section class="content">
         <div class="container-fluid">
 
-            <form role="form" action="/master/bank/update/{{ $data->id }}" method="post">
+            <form role="form" action="/master/vedika/update/{{ $data->id }}" method="post">
                 {{ csrf_field() }}
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Edit Bank</h3>
+                        <h3 class="card-title">Edit Master Berkas Vedika</h3>
                     </div>
                     <!-- /.box-header -->
 
@@ -19,16 +19,9 @@
                             <!-- text input -->
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label>Nama Bank</label>
-                                    <select name="nama" class="form-control select2" required>
-                                        @foreach ($bank as $bank)
-                                            <option value="{{ $bank->kode }}-{{ $bank->uraian }}"
-                                                @if ($bank->kode == $data->kd_bank) selected @endif>
-                                                {{ $bank->kode }}
-                                                -
-                                                {{ $bank->uraian }}</option>
-                                        @endforeach
-                                    </select>
+                                    <label>Nama Berkas</label>
+                                    <input type="text" class="form-control" placeholder="Nama Berkas" name="nama"
+                                        value="{{ $data->nama }}" required>
                                     @if ($errors->has('nama'))
                                         <div class="text-danger">
                                             {{ $errors->first('nama') }}
@@ -36,12 +29,12 @@
                                     @endif
                                 </div>
                                 <div class="form-group">
-                                    <label>No Rekening</label>
+                                    <label>Keterangan</label>
                                     <input type="text" class="form-control" placeholder="Masukkan No Rekening"
-                                        name="norek" value="{{ $data->norek }}" required>
-                                    @if ($errors->has('norek'))
+                                        name="keterangan" value="{{ $data->keterangan }}" required>
+                                    @if ($errors->has('keterangan'))
                                         <div class="text-danger">
-                                            {{ $errors->first('norek') }}
+                                            {{ $errors->first('keterangan') }}
                                         </div>
                                     @endif
                                 </div>
