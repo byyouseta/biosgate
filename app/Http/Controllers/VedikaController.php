@@ -39,8 +39,9 @@ class VedikaController extends Controller
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
             ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
-            ->join('diagnosa_pasien', 'diagnosa_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            // ->join('diagnosa_pasien', 'diagnosa_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            // ->join('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
+            // ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
             ->select(
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.no_rawat',
@@ -51,6 +52,7 @@ class VedikaController extends Controller
                 'reg_periksa.kd_pj',
                 'reg_periksa.umurdaftar',
                 'reg_periksa.sttsumur',
+                'reg_periksa.stts',
                 'poliklinik.nm_poli',
                 'pasien.nm_pasien',
                 'pasien.no_ktp',
@@ -58,14 +60,17 @@ class VedikaController extends Controller
                 'pasien.tgl_lahir',
                 'pasien.jk',
                 'dokter.nm_dokter',
-                'diagnosa_pasien.kd_penyakit',
-                'diagnosa_pasien.prioritas',
-                'penyakit.nm_penyakit'
+                // 'diagnosa_pasien.kd_penyakit',
+                // 'diagnosa_pasien.prioritas',
+                // 'diagnosa_pasien.status',
+                // 'penyakit.nm_penyakit'
             )
             ->where('reg_periksa.kd_pj', '=', 'BPJ')
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
             ->where('reg_periksa.tgl_registrasi', '=', $tanggal)
-            ->where('diagnosa_pasien.prioritas', '=', 1)
+            ->where('reg_periksa.stts', '!=', 'Batal')
+            // ->where('diagnosa_pasien.prioritas', '=', 1)
+            // ->where('diagnosa_pasien.status', '=', 'Ralan')
             ->get();
 
         // dd($data);
@@ -89,8 +94,8 @@ class VedikaController extends Controller
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
             ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
-            ->join('diagnosa_pasien', 'diagnosa_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            // ->join('diagnosa_pasien', 'diagnosa_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            // ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
             ->select(
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.no_rawat',
@@ -107,15 +112,17 @@ class VedikaController extends Controller
                 'pasien.no_peserta',
                 'pasien.tgl_lahir',
                 'pasien.jk',
-                'dokter.nm_dokter',
-                'diagnosa_pasien.kd_penyakit',
-                'diagnosa_pasien.prioritas',
-                'penyakit.nm_penyakit'
+                'dokter.nm_dokter'
+                // 'diagnosa_pasien.kd_penyakit',
+                // 'diagnosa_pasien.prioritas',
+                // 'diagnosa_pasien.status',
+                // 'penyakit.nm_penyakit'
             )
             ->where('reg_periksa.kd_pj', '=', 'BPJ')
             ->where('reg_periksa.status_lanjut', '=', 'Ranap')
             ->where('reg_periksa.tgl_registrasi', '=', $tanggal)
-            ->where('diagnosa_pasien.prioritas', '=', 1)
+            // ->where('diagnosa_pasien.status', '=', 'Ranap')
+            // ->where('diagnosa_pasien.prioritas', '=', 1)
             ->get();
 
         // dd($data);

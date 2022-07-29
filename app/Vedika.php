@@ -141,4 +141,34 @@ class Vedika extends Model
 
         return $data;
     }
+
+    public static function getSep($norawat)
+    {
+        $cari = DB::connection('mysqlkhanza')->table('bridging_sep')
+            ->select(
+                'bridging_sep.no_sep',
+                'bridging_sep.no_rawat'
+            )
+            ->where('bridging_sep.no_rawat', '=', $norawat)
+            ->first();
+
+        return $cari;
+    }
+
+    public static function getDiagnosa($norawat, $status)
+    {
+        $cari = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            ->select(
+                'diagnosa_pasien.kd_penyakit',
+                'diagnosa_pasien.status',
+                'diagnosa_pasien.no_rawat',
+                'penyakit.nm_penyakit'
+            )
+            ->where('diagnosa_pasien.no_rawat', '=', $norawat)
+            ->where('diagnosa_pasien.status', '=', $status)
+            ->first();
+
+        return $cari;
+    }
 }

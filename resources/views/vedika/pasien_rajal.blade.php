@@ -52,7 +52,7 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">No.RM</th>
-                                            <th class="align-middle">No.Rawat</th>
+                                            <th class="align-middle">No.SEP</th>
                                             <th class="align-middle">Nama Pasien</th>
                                             <th class="align-middle">Alamat</th>
                                             <th class="align-middle">Tgl Registrasi</th>
@@ -68,7 +68,8 @@
                                             @if (\App\PelaporanCovid::cekLapor($data->no_rawat) == 0)
                                                 <tr>
                                                     <td>{{ $data->no_rkm_medis }}</td>
-                                                    <td>{{ $data->no_rawat }}</td>
+                                                    <td>{{ App\Vedika::getSep($data->no_rawat) != null ? App\Vedika::getSep($data->no_rawat)->no_sep : '' }}
+                                                    </td>
                                                     <td>{{ $data->nm_pasien }}, {{ $data->umurdaftar }}
                                                         {{ $data->sttsumur }},
                                                         {{ $data->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
@@ -78,9 +79,10 @@
                                                     <td>{{ $data->nm_dokter }}</td>
                                                     <td>{{ $data->no_peserta }}</td>
                                                     <td>
-                                                        @if (!empty($data->kd_penyakit))
+                                                        {{-- @if (!empty($data->kd_penyakit))
                                                             {{ $data->kd_penyakit }} {{ $data->nm_penyakit }}
-                                                        @endif
+                                                        @endif --}}
+                                                        {{ App\Vedika::getDiagnosa($data->no_rawat, 'Ralan') != null ? App\Vedika::getDiagnosa($data->no_rawat, 'Ralan')->kd_penyakit . '-' . App\Vedika::getDiagnosa($data->no_rawat, 'Ralan')->nm_penyakit : '' }}
                                                     </td>
                                                     <td>
                                                         <div class="col text-center">

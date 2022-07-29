@@ -52,7 +52,7 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">No.RM</th>
-                                            <th class="align-middle">No.Rawat</th>
+                                            <th class="align-middle">No.SEP</th>
                                             <th class="align-middle">Nama Pasien</th>
                                             <th class="align-middle">Alamat</th>
                                             <th class="align-middle">Tgl Registrasi</th>
@@ -68,7 +68,8 @@
                                             @if (\App\PelaporanCovid::cekLapor($data->no_rawat) == 0)
                                                 <tr>
                                                     <td>{{ $data->no_rkm_medis }}</td>
-                                                    <td>{{ $data->no_rawat }}</td>
+                                                    <td>{{ App\Vedika::getSep($data->no_rawat) != null ? App\Vedika::getSep($data->no_rawat)->no_sep : '' }}
+                                                    </td>
                                                     <td>{{ $data->nm_pasien }}, {{ $data->umurdaftar }}
                                                         {{ $data->sttsumur }},
                                                         {{ $data->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
@@ -77,10 +78,10 @@
                                                     <td>{{ $data->nm_poli }}</td>
                                                     <td>{{ $data->nm_dokter }}</td>
                                                     <td>{{ $data->no_peserta }}</td>
-                                                    <td>{{ $data->kd_penyakit }} {{ $data->nm_penyakit }}</td>
+                                                    <td>{{ App\Vedika::getDiagnosa($data->no_rawat, 'Ranap') != null ? App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->kd_penyakit . '-' . App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->nm_penyakit : '' }}
+                                                    </td>
                                                     <td>
                                                         <div class="col text-center">
-
                                                             <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/billing"
                                                                 class="btn btn-sm {{ App\Vedika::cekBilling($data->no_rawat) > 0 ? '' : 'disabled' }}"
                                                                 data-toggle="tooltip" data-placement="bottom"

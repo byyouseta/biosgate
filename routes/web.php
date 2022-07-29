@@ -11,6 +11,8 @@
 |
 */
 
+use App\Http\Controllers\SepController;
+
 Route::get('/', function () {
     // return view('home');
     return redirect('/home');
@@ -146,6 +148,8 @@ Route::post('/vedika/berkas/store', 'VedikaController@berkasUpload')->name('vedi
 // Route::post('/vedika/berkas/store', 'VedikaController@berkasStore')->name('vedika.berkasStore');
 Route::get('/vedika/berkas/{id}/delete', 'VedikaController@berkasDelete')->name('vedika.berkasDelete');
 Route::get('/vedika/berkas/{id}/view', 'VedikaController@berkasShow')->name('vedika.berkasShow');
+
+Route::get('/sep', 'SepController@index')->name('sep.index');
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
