@@ -47,7 +47,7 @@
                             {{-- </div> --}}
                         </div>
                         <div class="card-body">
-                            <div style="overflow-x:auto;">
+                            <div>
                                 <table class="table table-bordered table-hover" id="example2">
                                     <thead>
                                         <tr>
@@ -56,8 +56,8 @@
                                             <th class="align-middle">Nama Pasien</th>
                                             <th class="align-middle">Alamat</th>
                                             <th class="align-middle">Tgl Registrasi</th>
-                                            <th class="align-middle">Nama Poli</th>
-                                            <th class="align-middle">Dokter</th>
+                                            {{-- <th class="align-middle">Nama Poli</th> --}}
+                                            <th class="align-middle">DPJP</th>
                                             <th class="align-middle">No.Kartu</th>
                                             <th class="align-middle">D.U</th>
                                             <th class="align-middle">Berkas</th>
@@ -75,7 +75,7 @@
                                                         {{ $data->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
                                                     <td>{{ $data->almt_pj }}</td>
                                                     <td>{{ $data->tgl_registrasi }} {{ $data->jam_reg }}</td>
-                                                    <td>{{ $data->nm_poli }}</td>
+                                                    {{-- <td>{{ $data->nm_poli }}</td> --}}
                                                     <td>{{ $data->nm_dokter }}</td>
                                                     <td>{{ $data->no_peserta }}</td>
                                                     <td>{{ App\Vedika::getDiagnosa($data->no_rawat, 'Ranap') != null ? App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->kd_penyakit . '-' . App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->nm_penyakit : '' }}
@@ -154,18 +154,10 @@
                 "autoWidth": false,
                 "responsive": false,
                 "scrollY": "500px",
-                "scrollX": false,
-            });
-            $('#example').DataTable({
-                "paging": false,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": false,
-                "info": false,
-                "autoWidth": false,
-                "responsive": false,
-                "scrollY": "300px",
-                "scrollX": false,
+                "scrollX": true,
+                "oLanguage": {
+                    "sSearch": "Cari:"
+                }
             });
         });
         //Date picker

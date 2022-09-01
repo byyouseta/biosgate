@@ -324,6 +324,16 @@
                     </ul>
                 </li>
             @endif
+            {{-- @can('profil-edit') --}}
+            <li class="nav-item">
+                <a href="/satusehat" class="nav-link @if (@session('ibu') == 'Satu Sehat') active @endif">
+                    <i class="nav-icon fas fa-stethoscope"></i>
+                    <p>
+                        Satu Sehat
+                    </p>
+                </a>
+            </li>
+            {{-- @endcan --}}
             @if (Auth::user()->can('setting-list') || Auth::user()->can('schedule-list'))
                 <li class="nav-item @if (@session('ibu') == 'Setting') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Setting') active @endif">

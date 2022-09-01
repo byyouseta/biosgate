@@ -84,7 +84,8 @@
                                             <td>
                                                 <div class="col text-center">
                                                     <div class="btn-group">
-                                                        <a href="{{ $path->base_url }}{{ $berkas->lokasi_file }}"
+                                                        {{-- <a href="{{ $path->base_url }}{{ $berkas->lokasi_file }}" --}}
+                                                        <a href="/vedika/berkas/{{ Crypt::encrypt($berkas->lokasi_file) }}/view"
                                                             target="_blank" class="btn btn-info btn-sm"
                                                             data-toggle="tooltip" data-placement="bottom"
                                                             title="Lihat Berkas">

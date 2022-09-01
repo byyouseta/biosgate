@@ -96,6 +96,23 @@ class Vedika extends Model
         return $cek;
     }
 
+    public static function cekResume($id)
+    {
+        $cek = DB::connection('mysqlkhanza')->table('resume_pasien')
+            ->select(
+                'resume_pasien.no_rawat',
+                'resume_pasien.kondisi_pulang',
+                'resume_pasien.obat_pulang',
+                'resume_pasien.tindak_lanjut',
+                'resume_pasien.edukasi',
+                'resume_pasien.tgl_selesai'
+            )
+            ->where('resume_pasien.no_rawat', '=', $id)
+            ->count();
+
+        return $cek;
+    }
+
     public static function getPetugas($idd, $idt)
     {
         $cari = DB::connection('mysqlkhanza')->table('periksa_lab')

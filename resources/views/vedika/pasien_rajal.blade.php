@@ -47,7 +47,7 @@
                             {{-- </div> --}}
                         </div>
                         <div class="card-body">
-                            <div style="overflow-x:auto;">
+                            <div>
                                 <table class="table table-bordered table-hover" id="example2">
                                     <thead>
                                         <tr>
@@ -73,7 +73,7 @@
                                                     <td>{{ $data->nm_pasien }}, {{ $data->umurdaftar }}
                                                         {{ $data->sttsumur }},
                                                         {{ $data->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
-                                                    <td>{{ $data->almt_pj }}</td>
+                                                    <td>{{ $data->alamat }}</td>
                                                     <td>{{ $data->tgl_registrasi }} {{ $data->jam_reg }}</td>
                                                     <td>{{ $data->nm_poli }}</td>
                                                     <td>{{ $data->nm_dokter }}</td>
@@ -108,8 +108,23 @@
                                                             @if ($data->nm_poli == 'IGD')
                                                                 <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/triase"
                                                                     class="btn btn-sm" data-toggle="tooltip"
-                                                                    data-placement="bottom" title="Lab" target="_blank">
+                                                                    data-placement="bottom" title="Data Triase"
+                                                                    target="_blank">
                                                                     <span class="badge badge-secondary">Triase</span>
+                                                                </a>
+                                                                <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/ringkasanIgd"
+                                                                    class="btn btn-sm {{ App\Vedika::cekResume($data->no_rawat) > 0 ? '' : 'disabled' }}"
+                                                                    data-toggle="tooltip" data-placement="bottom"
+                                                                    title="Ringkasan Pasien IGD" target="_blank">
+                                                                    <span class="badge bg-lime">Ringkasan
+                                                                        IGD</span>
+                                                                </a>
+                                                            @else
+                                                                <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/buktiPelayanan"
+                                                                    class="btn btn-sm" data-toggle="tooltip"
+                                                                    data-placement="bottom"
+                                                                    title="Surat Bukti Pelayanan Kesehatan" target="_blank">
+                                                                    <span class="badge bg-purple">SBPK</span>
                                                                 </a>
                                                             @endif
 
@@ -167,19 +182,12 @@
                 "autoWidth": false,
                 "responsive": false,
                 "scrollY": "500px",
-                "scrollX": false,
+                "scrollX": true,
+                "oLanguage": {
+                    "sSearch": "Cari:"
+                }
             });
-            $('#example').DataTable({
-                "paging": false,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": false,
-                "info": false,
-                "autoWidth": false,
-                "responsive": false,
-                "scrollY": "300px",
-                "scrollX": false,
-            });
+
         });
         //Date picker
         $('#tanggal').datetimepicker({

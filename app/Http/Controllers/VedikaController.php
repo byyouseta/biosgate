@@ -59,7 +59,8 @@ class VedikaController extends Controller
                 'pasien.no_peserta',
                 'pasien.tgl_lahir',
                 'pasien.jk',
-                'dokter.nm_dokter',
+                'pasien.alamat',
+                'dokter.nm_dokter'
                 // 'diagnosa_pasien.kd_penyakit',
                 // 'diagnosa_pasien.prioritas',
                 // 'diagnosa_pasien.status',
@@ -92,8 +93,9 @@ class VedikaController extends Controller
 
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-            ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
             ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->join('dpjp_ranap', 'dpjp_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->leftJoin('dokter', 'dokter.kd_dokter', '=', 'dpjp_ranap.kd_dokter')
             // ->join('diagnosa_pasien', 'diagnosa_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
             // ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
             ->select(
@@ -148,7 +150,7 @@ class VedikaController extends Controller
                 'billing.tambahan',
                 'billing.totalbiaya',
                 'billing.status',
-                'billing.tgl_byr',
+                'billing.tgl_byr'
             )
             ->where('billing.no_rawat', '=', $id)
             ->get();
@@ -176,7 +178,7 @@ class VedikaController extends Controller
                 'billing.tambahan',
                 'billing.totalbiaya',
                 'billing.status',
-                'billing.tgl_byr',
+                'billing.tgl_byr'
             )
             ->where('billing.no_rawat', '=', $id)
             ->get();
@@ -330,31 +332,6 @@ class VedikaController extends Controller
                     ->groupBy('template_laboratorium.Pemeriksaan')
                     ->get();
             }
-
-            // dd($cek, $data);
-            // for ($i = 0; $i < count($data); $i++) {
-            //     foreach ($data as $medis) {
-            //         $petugas[$i] =  DB::connection('mysqlkhanza')->table('petugas')
-            //             ->select('petugas.nip', 'petugas.nama')
-            //             ->where('petugas.nip', '=', $medis->petugas)
-            //             ->first();
-
-            //         $dokterLab[$i] =  DB::connection('mysqlkhanza')->table('dokter')
-            //             ->select('dokter.kd_dokter', 'dokter.nm_dokter')
-            //             ->where('dokter.kd_dokter', $medis->dokter_lab)
-            //             ->first();
-            //         $dokterPerujuk[$i] =  DB::connection('mysqlkhanza')->table('dokter')
-            //             ->select('dokter.kd_dokter', 'dokter.nm_dokter')
-            //             ->where('dokter.kd_dokter', $medis->dokter_perujuk)
-            //             ->first();
-            //     }
-            // }
-
-
-
-            // dd($pasien, $cek, $data, $petugas, $dokterLab, $dokterPerujuk);
-
-            // dd($data, $petugas, $dokterLab, $dokterPerujuk);
 
             return view('vedika.multi_lab', compact(
                 'data',
@@ -700,7 +677,126 @@ class VedikaController extends Controller
             'data',
             'primer',
             'sekunder',
-            'skala',
+            'skala'
+        ));
+    }
+
+    public function buktiPelayanan($id)
+    {
+        session()->put('ibu', 'Vedika');
+        session()->put('anak', 'Pasien Rajal');
+        session()->put('cucu', 'Surat Bukti Pelayanan Kesehatan');
+
+        $id = Crypt::decrypt($id);
+
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->join('penjab', 'penjab.kd_pj', '=', 'reg_periksa.kd_pj')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
+            ->select(
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'pasien.alamat',
+                'reg_periksa.almt_pj',
+                'reg_periksa.umurdaftar',
+                'reg_periksa.sttsumur',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.stts',
+                'reg_periksa.no_rawat',
+                'reg_periksa.kd_poli',
+                'poliklinik.nm_poli',
+                'dokter.nm_dokter',
+                'dokter.kd_dokter',
+                'penjab.png_jawab'
+            )
+            ->where('reg_periksa.no_rawat', '=', $id)
+            ->first();
+
+        $diagnosa = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            ->select(
+                'diagnosa_pasien.no_rawat',
+                'diagnosa_pasien.kd_penyakit',
+                'diagnosa_pasien.status',
+                'penyakit.nm_penyakit'
+            )
+            ->where('diagnosa_pasien.status', '=', 'Ralan')
+            ->where('diagnosa_pasien.no_rawat', '=', $id)
+            ->get();
+
+        $prosedur = DB::connection('mysqlkhanza')->table('prosedur_pasien')
+            ->join('icd9', 'icd9.kode', '=', 'prosedur_pasien.kode')
+            ->select(
+                'prosedur_pasien.no_rawat',
+                'prosedur_pasien.kode',
+                'prosedur_pasien.status',
+                'icd9.deskripsi_panjang',
+            )
+            ->where('prosedur_pasien.status', '=', 'Ralan')
+            ->where('prosedur_pasien.no_rawat', '=', $id)
+            ->get();
+        // dd($id, $data, $diagnosa, $prosedur);
+
+        return view('vedika.sbpk', compact(
+            'data',
+            'diagnosa',
+            'prosedur'
+        ));
+    }
+
+    public function ringkasanIgd($id)
+    {
+        session()->put('ibu', 'Vedika');
+        session()->put('anak', 'Pasien Rajal');
+        session()->put('cucu', 'Ringkasan Pasien Gawat Darurat');
+
+        $id = Crypt::decrypt($id);
+
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('penilaian_medis_igd', 'penilaian_medis_igd.no_rawat', '=', 'reg_periksa.no_rawat')
+            // ->join('resume_pasien', 'resume_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
+            ->select(
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'pasien.alamat',
+                'pasien.no_ktp',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.stts',
+                'reg_periksa.no_rawat',
+                'reg_periksa.kd_poli',
+                'dokter.nm_dokter',
+                'dokter.kd_dokter',
+                'penilaian_medis_igd.diagnosis'
+            )
+            ->where('reg_periksa.no_rawat', '=', $id)
+            ->first();
+
+        $resume = DB::connection('mysqlkhanza')->table('resume_pasien')
+            ->select(
+                'resume_pasien.no_rawat',
+                'resume_pasien.kondisi_pulang',
+                'resume_pasien.obat_pulang',
+                'resume_pasien.tindak_lanjut',
+                'resume_pasien.edukasi',
+                'resume_pasien.tgl_selesai'
+            )
+            ->where('resume_pasien.no_rawat', '=', $id)
+            ->first();
+
+        // dd($id, $data, $resume);
+
+        return view('vedika.resume_igd', compact(
+            'data',
+            'resume'
         ));
     }
 
@@ -758,8 +854,8 @@ class VedikaController extends Controller
 
         $master =  DB::connection('mysqlkhanza')->table('master_berkas_digital')
             ->get();
-        $path = Setting::where('nama', 'webappz_berkasrawat');
-        // dd($data, $berkas);
+        $path = Setting::where('nama', 'webappz_berkasrawat')->first();
+        // dd($data, $berkas, $path);
 
         return view('vedika.berkas', compact('data', 'berkas', 'master', 'path'));
     }
@@ -935,6 +1031,8 @@ class VedikaController extends Controller
     {
         $id = Crypt::decrypt($id);
 
+        // dd($id);
+
         $file = Storage::disk('sftp')->download($id);
         // dd($id, $file);
 
@@ -992,6 +1090,7 @@ class VedikaController extends Controller
         return redirect()->back();
     }
 
+    //Master vedika ndak dipake karena langsung ambil dikhanza aja sinkron dengan data simrs berkas digital
     public function index()
     {
         session()->put('ibu', 'Master Data');

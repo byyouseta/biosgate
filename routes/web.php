@@ -136,6 +136,8 @@ Route::get('/vedika/rajal/{id}/billing', 'VedikaController@billingRajal')->name(
 Route::get('/vedika/rajal/{id}/lab', 'VedikaController@labRajal')->name('vedika.labRajal');
 Route::get('/vedika/rajal/{id}/radiologi', 'VedikaController@radioRajal')->name('vedika.radioRajal');
 Route::get('/vedika/rajal/{id}/triase', 'VedikaController@triase')->name('vedika.triase');
+Route::get('/vedika/rajal/{id}/ringkasanIgd', 'VedikaController@ringkasanIgd')->name('vedika.ringkasanIgd');
+Route::get('/vedika/rajal/{id}/buktiPelayanan', 'VedikaController@buktiPelayanan')->name('vedika.buktiPelayanan');
 Route::get('/vedika/rajal/{id}/berkas', 'VedikaController@berkas')->name('vedika.berkas');
 
 Route::get('/vedika/ranap', 'VedikaController@ranap')->name('vedika.ranap');
@@ -150,6 +152,8 @@ Route::get('/vedika/berkas/{id}/delete', 'VedikaController@berkasDelete')->name(
 Route::get('/vedika/berkas/{id}/view', 'VedikaController@berkasShow')->name('vedika.berkasShow');
 
 Route::get('/sep', 'SepController@index')->name('sep.index');
+
+Route::get('/satusehat', 'SatuSehatController@practitioner')->name('satuSehat.patientSehat');
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');

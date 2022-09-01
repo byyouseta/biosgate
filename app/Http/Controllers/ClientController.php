@@ -8,6 +8,7 @@ use App\Setting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Session;
 
 // use GuzzleHttp\Psr7\Request;
@@ -24,14 +25,28 @@ class ClientController extends Controller
         $setting = Setting::where('nama', 'bios')->first();
 
         session()->put('base_url', $setting->base_url);
+        try {
+            $guzzleRequest['curl'] = [
+                CURLOPT_TCP_KEEPALIVE => 1,
+            ];
+            $client = new \GuzzleHttp\Client(['base_uri' => $setting->base_url]);
+            $response = $client->request('POST', 'token', [
+                'form_params' => [
+                    'satker' => $setting->satker,
+                    'key' => $setting->key,
+                ]
+            ]);
+        } catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode((string) $response->getBody());
+            }
 
-        $client = new \GuzzleHttp\Client(['base_uri' => $setting->base_url]);
-        $response = $client->request('POST', 'token', [
-            'form_params' => [
-                'satker' => $setting->satker,
-                'key' => $setting->key,
-            ]
-        ]);
+            // $id = Crypt::encrypt($id);
+            Session::flash('error', $test->message);
+
+            return redirect()->back();
+        }
 
         $data = json_decode($response->getBody());
 
