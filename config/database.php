@@ -72,6 +72,15 @@ return [
             'password'  => env('DB_PASSWORD_SECOND'),
         ],
 
+        'mysqlkhanzadummy' => [
+            'driver'    => env('DB_CONNECTION_KHANZADUMMY'),
+            'host'      => env('DB_HOST_KHANZADUMMY'),
+            'port'      => env('DB_PORT_KHANZADUMMY'),
+            'database'  => env('DB_DATABASE_KHANZADUMMY'),
+            'username'  => env('DB_USERNAME_KHANZADUMMY'),
+            'password'  => env('DB_PASSWORD_KHANZADUMMY'),
+        ],
+
         'mysqlsimadam' => [
             'driver'    => env('DB_CONNECTION_SIMADAM'),
             'host'      => env('DB_HOST_SIMADAM'),

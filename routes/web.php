@@ -153,7 +153,7 @@ Route::get('/vedika/berkas/{id}/view', 'VedikaController@berkasShow')->name('ved
 
 Route::get('/sep', 'SepController@index')->name('sep.index');
 
-Route::get('/satusehat', 'SatuSehatController@practitioner')->name('satuSehat.patientSehat');
+Route::get('/satusehat', 'SatuSehatController@bundleData')->name('satuSehat.patientSehat');
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
