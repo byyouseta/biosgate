@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUserSehatsTable extends Migration
+class CreatePraktisiSehatsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,9 @@ class CreateUserSehatsTable extends Migration
      */
     public function up()
     {
-        Schema::create('user_sehats', function (Blueprint $table) {
+        Schema::create('praktisi_sehats', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('noRawat', 10);
+            $table->string('nik', 20);
             $table->string('satu_sehat_id', 50);
             $table->timestamps();
         });
@@ -28,6 +28,6 @@ class CreateUserSehatsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_sehats');
+        Schema::dropIfExists('praktisi_sehats');
     }
 }

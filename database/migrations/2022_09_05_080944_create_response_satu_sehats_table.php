@@ -15,15 +15,15 @@ class CreateResponseSatuSehatsTable extends Migration
     {
         Schema::create('response_satu_sehats', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('noRawat', 10);
+            $table->string('noRawat', 20);
             $table->string('encounter_id', 50);
-            $table->string('condition_id', 50);
-            $table->string('condition2_id', 50);
-            $table->string('heart_id', 50);
-            $table->string('respiratory_id', 50);
-            $table->string('systol_id', 50);
-            $table->string('diastol_id', 50);
-            $table->string('temperature_id', 50);
+            $table->string('condition_id', 50)->nullable();
+            $table->string('condition2_id', 50)->nullable();
+            $table->string('heart_id', 50)->nullable();
+            $table->string('respiratory_id', 50)->nullable();
+            $table->string('systol_id', 50)->nullable();
+            $table->string('diastol_id', 50)->nullable();
+            $table->string('temperature_id', 50)->nullable();
             $table->timestamps();
         });
     }

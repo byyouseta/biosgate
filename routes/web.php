@@ -153,7 +153,12 @@ Route::get('/vedika/berkas/{id}/view', 'VedikaController@berkasShow')->name('ved
 
 Route::get('/sep', 'SepController@index')->name('sep.index');
 
-Route::get('/satusehat', 'SatuSehatController@bundleData')->name('satuSehat.patientSehat');
+Route::get('/satusehat', 'SatuSehatController@summary')->name('satuSehat.summary');
+Route::get('/satusehat/bundle', 'SatuSehatController@bundleData')->name('satuSehat.bundleData');
+Route::get('/satusehat/encounter', 'SatuSehatController@sendEncounter')->name('satuSehat.encounter');
+Route::get('/satusehat/composition', 'SatuSehatController@sendComposition')->name('satuSehat.composition');
+Route::get('/satusehat/medication', 'SatuSehatController@sendMedication')->name('satuSehat.medication');
+Route::get('/satusehat/lab', 'SatuSehatController@sendLab')->name('satuSehat.lab');
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
