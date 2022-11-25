@@ -150,6 +150,8 @@ class ClientController extends Controller
 
                         $data = json_decode($response->getBody());
 
+                        dd($data, session('token'));
+
                         if ($data->status != 'MSG20003') {
                             Session::flash('error', $data->message);
 

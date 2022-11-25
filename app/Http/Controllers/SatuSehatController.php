@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\LogErrorSatuSehat;
+use App\MasterLoinc;
 use App\PasienSehat;
 use App\PraktisiSehat;
 use App\ResponseLabSatuSehat;
@@ -12,6 +13,8 @@ use App\ResponseSatuSehat;
 use App\Setting;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\ClientException;
+use Guzzle\Http\Exception\ClientErrorResponseException;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -2110,7 +2113,7 @@ class SatuSehatController extends Controller
         session()->forget('cucu');
         set_time_limit(0);
 
-        $pasien_tanggal = '2022-09-12';
+        $pasien_tanggal = '2022-09-16';
         $idRS = '10080055';
 
         $dataPengunjung = DB::connection('mysqlkhanza')->table('reg_periksa')
@@ -2141,6 +2144,8 @@ class SatuSehatController extends Controller
             ->where('reg_periksa.kd_poli', '!=', 'LAB')
             ->get();
 
+        // dd($dataPengunjung);
+
         foreach ($dataPengunjung as $pasienLab) {
             $cekLab = DB::connection('mysqlkhanza')->table('permintaan_lab')
                 ->join('pegawai', 'pegawai.nik', '=', 'permintaan_lab.dokter_perujuk')
@@ -2163,456 +2168,729 @@ class SatuSehatController extends Controller
                 ->where('permintaan_lab.jam_hasil', '!=', '00:00:00')
                 ->first();
 
-            // dd($cekLab->noorder);
-
             $idCounter = SatuSehatController::getEncounterId($pasienLab->no_rawat);
 
             if ((!empty($cekLab)) && (!empty($idCounter))) {
-
+                //Cek apakah sudah pernah kirim data
                 $cekResponseLab = ResponseLabSatuSehat::where('noOrder', $cekLab->noorder)->first();
 
                 if (empty($cekResponseLab)) {
                     $dokterPerujuk = SatuSehatController::practitioner($cekLab->ktp_dokter);
+
+                    //cek data periksa lab
+                    $periksaLab = DB::connection('mysqlkhanza')->table('periksa_lab')
+                        ->join('jns_perawatan_lab', 'jns_perawatan_lab.kd_jenis_prw', '=', 'periksa_lab.kd_jenis_prw')
+                        ->select(
+                            'periksa_lab.no_rawat',
+                            'periksa_lab.kd_jenis_prw',
+                            'periksa_lab.tgl_periksa',
+                            'periksa_lab.jam',
+                            'periksa_lab.nip as petugas',
+                            'periksa_lab.dokter_perujuk',
+                            'jns_perawatan_lab.nm_perawatan'
+                        )
+                        ->where('no_rawat', $pasienLab->no_rawat)
+                        ->get();
                     // dd($pasienLab, $cekLab, $idCounter->encounter_id, $cekLab->dokter_perujuk, $dokterPerujuk);
+                    // dd($periksaLab);
 
-                    $ServiceRequest = [
-                        "resourceType" => "ServiceRequest",
-                        "identifier" => [
-                            [
-                                "system" => "http://sys-ids.kemkes.go.id/servicerequest/$idRS",
-                                "value" => "$cekLab->noorder"
-                            ]
-                        ],
-                        "status" => "active",
-                        "intent" => "original-order",
-                        "priority" => "routine",
-                        "code" => [
-                            "coding" => [
-                                [
-                                    "system" => "http://loinc.org",
-                                    "code" => "55231-5",
-                                    "display" => "Electrolytes panel - Blood"
-                                ]
-                            ],
-                            "text" => "Panel Elektrolit - Na, K, Cl"
-                        ],
-                        "subject" => [
-                            "reference" => "Patient/100000030009"
-                        ],
-                        "encounter" => [
-                            "reference" => "Encounter/$idCounter->encounter_id",
-                            "display" => "Permintaan Pemeriksaan Elektrolit Total Selasa, 14 Juni 2022 pukul 09:30 WIB"
-                        ],
-                        "occurrenceDateTime" => "2022-06-14T09:30:27+07:00",
-                        "requester" => [
-                            "reference" => "Practitioner/$dokterPerujuk",
-                            "display" => "$cekLab->nama_dokter"
-                        ],
-                        // "performer" => [
-                        //     [
-                        //         "reference" => "Practitioner/N10000005",
-                        //         "display" => "Fatma"
-                        //     ]
-                        // ],
-                        "reasonCode" => [
-                            [
-                                "text" => "Periksa Keseimbangan Elektrolit"
-                            ]
-                        ]
-                    ];
+                    foreach ($periksaLab as $PeriksaLab) {
+                        //ambil data mapping Loinc
+                        $mappingLoinc = SatuSehatController::getLoinc($PeriksaLab->kd_jenis_prw);
+                        // dd($PeriksaLab, $mappingLoinc);
 
-                    //Kirim/Create Service Request
-                    SatuSehatController::getTokenSehat();
-                    $access_token = Session::get('tokenSatuSehat');
-                    // dd($access_token);
-                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-                    try {
-                        $response = $client->request('POST', 'fhir-r4/v1/ServiceRequest', [
-                            'headers' => [
-                                'Authorization' => "Bearer {$access_token}"
-                            ],
-                            'json' => $ServiceRequest
-                        ]);
-                    } catch (ClientException $e) {
-                        // echo $e->getRequest();
-                        // echo $e->getResponse();
-                        if ($e->hasResponse()) {
-                            $response = $e->getResponse();
-
-                            // dd($response);
-                            $test = json_decode($response->getBody());
-                            dd($test);
-                        }
-
-                        $message = "";
-
-                        Session::flash('error', $message);
-
-                        return redirect()->back()->withInput();
-                    }
-
-                    // dd($response);
-
-                    $data = json_decode($response->getBody());
-
-                    // dd($data, $ServiceRequest);
-
-                    $idServiceRequest = $data->id;
-
-                    if (!empty($data->id) && $data->resourceType == "ServiceRequest") {
-                        $simpan = new ResponseLabSatuSehat();
-                        $simpan->noRawat = $pasienLab->no_rawat;
-                        $simpan->tgl_registrasi = $pasienLab->tgl_registrasi;
-                        $simpan->noOrder = $cekLab->noorder;
-                        $simpan->serviceRequest_id = $idServiceRequest;
-                        $simpan->save();
-
-                        $Specimen = [
-                            "resourceType" => "Specimen",
-                            "identifier" => [
-                                [
-                                    "system" => "http://sys-ids.kemkes.go.id/specimen/$idRS",
-                                    "value" => "$cekLab->noorder",
-                                    "assigner" => [
-                                        "reference" => "Organization/$idRS"
-                                    ]
-                                ]
-                            ],
-                            "status" => "available",
-                            "type" => [
-                                "coding" => [
-                                    [
-                                        "system" => "http://snomed.info/sct",
-                                        "code" => "119297000",
-                                        "display" => "Blood specimen (specimen)"
-                                    ]
-                                ]
-                            ],
-                            "collection" => [
-                                "method" => [
-                                    "coding" => [
-                                        [
-                                            "system" => "https://snomed.info/sct",
-                                            "code" => "82078001",
-                                            "display" => "Collection of blood specimen for laboratory (procedure)"
-                                        ]
-                                    ]
-                                ],
-                                "collectedDateTime" => "2022-06-14T08:15:00+07:00"
-                            ],
-                            "subject" => [
-                                "reference" => "Patient/100000030009",
-                                "display" => "$pasienLab->nm_pasien"
-                            ],
-                            "request" => [
-                                [
-                                    "reference" => "ServiceRequest/$idServiceRequest"
-                                ]
-                            ],
-                            "receivedTime" => "2022-06-14T08:25:00+07:00"
-                        ];
-
-                        // dd($Specimen);
-
-                        //Kirim/Create Specimen
-                        SatuSehatController::getTokenSehat();
-                        $access_token = Session::get('tokenSatuSehat');
-                        // dd($access_token);
-                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-                        try {
-                            $response = $client->request('POST', 'fhir-r4/v1/Specimen', [
-                                'headers' => [
-                                    'Authorization' => "Bearer {$access_token}"
-                                ],
-                                'json' => $Specimen
-                            ]);
-                        } catch (ClientException $e) {
-                            // echo $e->getRequest();
-                            // echo $e->getResponse();
-                            if ($e->hasResponse()) {
-                                $response = $e->getResponse();
-
-                                // dd($response);
-                                $test = json_decode($response->getBody());
-                                dd($test);
-                            }
-
-                            $message = "";
-
-                            Session::flash('error', $message);
-
-                            return redirect()->back()->withInput();
-                        }
-
-                        $responseSpecimen = json_decode($response->getBody());
-                        // dd($responseSpecimen);
-
-                        if (!empty($responseSpecimen->id) && $responseSpecimen->resourceType == "Specimen") {
-                            //Update data di table respone medication request
-                            $update = ResponseLabSatuSehat::where('noOrder', $cekLab->noorder)->first();
-                            $update->specimen_id = $responseSpecimen->id;
-                            $update->save();
-
-                            //Seharusnya cek dulu ini paket atau tidak hasilnya juga di foreach tp ini lurus2 aja dulu
-                            $Observation = [
-                                "resourceType" => "Observation",
+                        //Cek apakah sudah ada mapping belum
+                        if (!empty($mappingLoinc)) {
+                            // dd($mappingLoinc);
+                            //data JSON
+                            $ServiceRequest = [
+                                "resourceType" => "ServiceRequest",
                                 "identifier" => [
                                     [
-                                        "system" => "http://sys-ids.kemkes.go.id/observation/$idRS",
+                                        "system" => "http://sys-ids.kemkes.go.id/servicerequest/$idRS",
                                         "value" => "$cekLab->noorder"
                                     ]
                                 ],
-                                "status" => "final",
-                                "category" => [
-                                    [
-                                        "coding" => [
-                                            [
-                                                "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
-                                                "code" => "laboratory",
-                                                "display" => "Laboratory"
-                                            ]
-                                        ]
-                                    ]
-                                ],
+                                "status" => "active",
+                                "intent" => "original-order",
+                                "priority" => "routine",
                                 "code" => [
                                     "coding" => [
                                         [
-                                            "system" => "http://loinc.org",
-                                            "code" => "55231-5",
-                                            "display" => "Sodium [Moles/volume] in Blood"
+                                            "system" => "$mappingLoinc->code_system",
+                                            "code" => "$mappingLoinc->code",
+                                            "display" => "$mappingLoinc->display"
                                         ]
-                                    ]
+                                    ],
+                                    "text" => "$PeriksaLab->nm_perawatan"
                                 ],
                                 "subject" => [
                                     "reference" => "Patient/100000030009"
                                 ],
                                 "encounter" => [
-                                    "reference" => "Encounter/$idCounter->encounter_id"
+                                    "reference" => "Encounter/$idCounter->encounter_id",
+                                    "display" => "Permintaan $PeriksaLab->nm_perawatan pada $PeriksaLab->tgl_periksa pukul $PeriksaLab->jam WIB"
                                 ],
-                                "effectiveDateTime" => "2021-07-02",
-                                "issued" => "2022-08-07T15:30:10+01:00",
-                                "performer" => [
-                                    [
-                                        "reference" => "Practitioner/N10000001"
-                                    ],
-                                    [
-                                        "reference" => "Organization/$idRS"
-                                    ]
-                                ],
-                                "specimen" => [
-                                    "reference" => "Specimen/$responseSpecimen->id"
-                                ],
-                                "basedOn" => [
-                                    [
-                                        "reference" => "ServiceRequest/$idServiceRequest"
-                                    ]
-                                ],
-                                "valueQuantity" => [
-                                    "value" => 147,
-                                    "unit" => "mmol/L",
-                                    "system" => "http://unitsofmeasure.org",
-                                    "code" => "mmol/L"
-                                ],
-                                "interpretation" => [
-                                    [
-                                        "coding" => [
-                                            [
-                                                "system" => "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
-                                                "code" => "H",
-                                                "display" => "High"
-                                            ]
-                                        ]
-                                    ]
-                                ],
-                                "referenceRange" => [
-                                    [
-                                        "low" => [
-                                            "value" => 135,
-                                            "unit" => "mmol/L",
-                                            "system" => "http://unitsofmeasure.org",
-                                            "code" => "mmol/L"
-                                        ],
-                                        "high" => [
-                                            "value" => 145,
-                                            "unit" => "mmol/L",
-                                            "system" => "http://unitsofmeasure.org",
-                                            "code" => "mmol/L"
-                                        ]
-                                    ]
+                                "occurrenceDateTime" => $PeriksaLab->tgl_periksa . "T" . $PeriksaLab->jam . "+07:00",
+                                "requester" => [
+                                    "reference" => "Practitioner/$dokterPerujuk",
+                                    "display" => "$cekLab->nama_dokter"
                                 ]
+                                // ,
+                                // "performer" => [
+                                //     [
+                                //         "reference" => "Practitioner/N10000005",
+                                //         "display" => "Fatma"
+                                //     ]
+                                // ],
+                                // "reasonCode" => [
+                                //     [
+                                //         "text" => "Periksa Keseimbangan Elektrolit"
+                                //     ]
+                                // ]
                             ];
 
-                            //Kirim/Create Observation
+                            // dd($ServiceRequest);
+
+                            //Kirim/Create Service Request
                             SatuSehatController::getTokenSehat();
                             $access_token = Session::get('tokenSatuSehat');
-                            // dd($access_token);
                             $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                             try {
-                                $response = $client->request('POST', 'fhir-r4/v1/Observation', [
+                                $response = $client->request('POST', 'fhir-r4/v1/ServiceRequest', [
                                     'headers' => [
                                         'Authorization' => "Bearer {$access_token}"
                                     ],
-                                    'json' => $Observation
+                                    'json' => $ServiceRequest
                                 ]);
-                            } catch (ClientException $e) {
-                                // echo $e->getRequest();
-                                // echo $e->getResponse();
+                            } catch (BadResponseException $e) {
                                 if ($e->hasResponse()) {
                                     $response = $e->getResponse();
-
-                                    // dd($response);
                                     $test = json_decode($response->getBody());
-                                    dd($test);
+
+                                    // dd($test);
                                 }
 
-                                $message = "";
+                                $message = "Error Kirim Service Request";
 
                                 Session::flash('error', $message);
 
-                                return redirect()->back()->withInput();
+                                // return redirect()->back()->withInput();
+                                $dataLog = ResponseLabSatuSehat::all();
+
+                                // dd($dataLog);
+
+                                return view('satu_sehat.client_rujuklab', compact('dataLog'));
                             }
 
-                            $responseObservation = json_decode($response->getBody());
-                            // dd($responseObservation);
-                            if (!empty($responseObservation->id) && $responseObservation->resourceType == "Observation") {
-                                //Create data di table respone observation lab
-                                $update = ResponseLabSatuSehat::where('noOrder', $cekLab->noorder)->first();
-                                $newObservation = new ResponseObservationLab();
-                                $newObservation->response_lab_satu_sehat_id = $update->id;
-                                $newObservation->observation_id = $responseObservation->id;
-                                $newObservation->save();
-                            }
-                        }
+                            $data = json_decode($response->getBody());
 
-                        //Diagnostic Report
-                        //Cek dulu Observasinya ada berapa hasil
-                        $cekID = ResponseLabSatuSehat::where('noOrder', $cekLab->noorder)->first();
-                        $cekObservation = ResponseObservationLab::where('response_lab_satu_sehat_id', $cekID->id)->get();
-                        $arrObservation = array($cekObservation);
-                        $noObservation = 0;
+                            if (!empty($data->id) && $data->resourceType == "ServiceRequest") {
+                                $idServiceRequest = $data->id;
 
-                        for ($i = 0; $i < $cekObservation->count(); $i++) {
-                            ++$noObservation;
-                            $idOb = $arrObservation[0][$i]['observation_id'];
-                            $tambah[$i] = array(
-                                'id' => "$noObservation",
-                                'reference' => "Observation/$idOb",
-                            );
-                        }
+                                $simpan = new ResponseLabSatuSehat();
+                                $simpan->noRawat = $pasienLab->no_rawat;
+                                $simpan->tgl_registrasi = $pasienLab->tgl_registrasi;
+                                $simpan->noOrder = $cekLab->noorder;
+                                $simpan->serviceRequest_id = $idServiceRequest;
+                                $simpan->save();
 
-                        $Report = [
-                            "resourceType" => "DiagnosticReport",
-                            "identifier" => [
-                                [
-                                    "system" => "http://sys-ids.kemkes.go.id/diagnostic/$idRS/lab",
-                                    "use" => "official",
-                                    "value" => "$cekLab->noorder"
-                                ]
-                            ],
-                            "status" => "final",
-                            "category" => [
-                                [
-                                    "coding" => [
+                                $Specimen = [
+                                    "resourceType" => "Specimen",
+                                    "identifier" => [
                                         [
-                                            "system" => "http://terminology.hl7.org/CodeSystem/v2-0074",
-                                            "code" => "CM",
-                                            "display" => "Chemistry"
+                                            "system" => "http://sys-ids.kemkes.go.id/specimen/$idRS",
+                                            "value" => "$cekLab->noorder",
+                                            "assigner" => [
+                                                "reference" => "Organization/$idRS"
+                                            ]
                                         ]
-                                    ]
-                                ]
-                            ],
-                            "code" => [
-                                "coding" => [
-                                    [
-                                        "system" => "http://loinc.org",
-                                        "code" => "55231-5",
-                                        "display" => "Electrolytes panel - Blood"
-                                    ]
-                                ]
-                            ],
-                            "subject" => [
-                                "reference" => "Patient/100000030009"
-                            ],
-                            "encounter" => [
-                                "reference" => "Encounter/$idCounter->encounter_id"
-                            ],
-                            "effectiveDateTime" => "2012-12-01T12:00:00+01:00",
-                            "issued" => "2012-12-01T12:00:00+01:00",
-                            "performer" => [
-                                [
-                                    "reference" => "Practitioner/N10000001"
-                                ],
-                                [
-                                    "reference" => "Organization/10000004"
-                                ]
-                            ],
-                            // "result" => [
-                            //     [
-                            //         "id" => "1",
-                            //         "reference" => "Observation/b04db6af-2d31-4509-9a00-9b5fc073b389"
-                            //     ],
-                            //     [
-                            //         "id" => "2",
-                            //         "reference" => "Observation/150bc626-7d79-4e38-a37a-38ab8e1a23d2"
-                            //     ],
-                            //     [
-                            //         "id" => "3",
-                            //         "reference" => "Observation/26800d31-b6fd-43fa-83e2-4750410c789c"
-                            //     ]
-                            // ],
-                            "result" => $tambah,
-                            "specimen" => [
-                                [
-                                    "reference" => "Specimen/$responseSpecimen->id"
-                                ]
-                            ],
-                            "basedOn" => [
-                                [
-                                    "reference" => "ServiceRequest/$idServiceRequest"
-                                ]
-                            ],
-                            "conclusion" => "Hipernatremia, Hiperkloremia, Hipokalemia"
-                        ];
+                                    ],
+                                    "status" => "available",
+                                    "type" => [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://snomed.info/sct",
+                                                "code" => "119297000",
+                                                "display" => "Blood specimen (specimen)"
+                                            ]
+                                        ]
+                                    ],
+                                    "collection" => [
+                                        "method" => [
+                                            "coding" => [
+                                                [
+                                                    "system" => "https://snomed.info/sct",
+                                                    "code" => "82078001",
+                                                    "display" => "Collection of blood specimen for laboratory (procedure)"
+                                                ]
+                                            ]
+                                        ],
+                                        "collectedDateTime" => "2022-06-14T08:15:00+07:00"
+                                    ],
+                                    "subject" => [
+                                        "reference" => "Patient/100000030009",
+                                        "display" => "$pasienLab->nm_pasien"
+                                    ],
+                                    "request" => [
+                                        [
+                                            "reference" => "ServiceRequest/$idServiceRequest"
+                                        ]
+                                    ],
+                                    "receivedTime" => $cekLab->tgl_sampel . "T" . $cekLab->jam_sampel . "+07:00"
+                                ];
 
-                        // array_push($Report['result'], $tambah);
-                        // dd($Report);
-                        //Kirim/Create Diagnostic Report
-                        SatuSehatController::getTokenSehat();
-                        $access_token = Session::get('tokenSatuSehat');
-                        // dd($access_token);
-                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-                        try {
-                            $response = $client->request('POST', 'fhir-r4/v1/DiagnosticReport', [
-                                'headers' => [
-                                    'Authorization' => "Bearer {$access_token}"
-                                ],
-                                'json' => $Report
-                            ]);
-                        } catch (ClientException $e) {
-                            // echo $e->getRequest();
-                            // echo $e->getResponse();
-                            if ($e->hasResponse()) {
-                                $response = $e->getResponse();
+                                //Kirim/Create Specimen
+                                SatuSehatController::getTokenSehat();
+                                $access_token = Session::get('tokenSatuSehat');
+                                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                                try {
+                                    $response = $client->request('POST', 'fhir-r4/v1/Specimen', [
+                                        'headers' => [
+                                            'Authorization' => "Bearer {$access_token}"
+                                        ],
+                                        'json' => $Specimen
+                                    ]);
+                                } catch (BadResponseException $e) {
+                                    if ($e->hasResponse()) {
+                                        $response = $e->getResponse();
+                                        $test = json_decode($response->getBody());
+                                        // dd($test);
+                                    }
 
-                                // dd($response);
-                                $test = json_decode($response->getBody());
-                                dd($test);
+                                    $message = "Error Kirim Specimen";
+
+                                    Session::flash('error', $message);
+
+                                    // return redirect()->back()->withInput();
+                                    $dataLog = ResponseLabSatuSehat::all();
+
+                                    // dd($dataLog);
+
+                                    return view('satu_sehat.client_rujuklab', compact('dataLog'));
+                                }
+
+                                $responseSpecimen = json_decode($response->getBody());
+
+                                if (!empty($responseSpecimen->id) && $responseSpecimen->resourceType == "Specimen") {
+                                    //Update data di table respone medication request
+                                    $update = ResponseLabSatuSehat::where('serviceRequest_id', $idServiceRequest)->first();
+                                    $update->specimen_id = $responseSpecimen->id;
+                                    $update->save();
+
+                                    //cek detail data hasil
+                                    // if ($mappingLoinc->permintaan_hasil == "Permintaan dan Hasil") {
+                                    $detailLab = DB::connection('mysqlkhanza')->table('detail_periksa_lab')
+                                        ->join('jns_perawatan_lab', 'jns_perawatan_lab.kd_jenis_prw', '=', 'detail_periksa_lab.kd_jenis_prw')
+                                        ->select(
+                                            'detail_periksa_lab.no_rawat',
+                                            'detail_periksa_lab.kd_jenis_prw',
+                                            'detail_periksa_lab.tgl_periksa',
+                                            'detail_periksa_lab.jam',
+                                            'detail_periksa_lab.nilai',
+                                            'detail_periksa_lab.nilai_rujukan',
+                                            'detail_periksa_lab.keterangan',
+                                            'jns_perawatan_lab.nm_perawatan'
+                                        )
+                                        ->where('detail_periksa_lab.no_rawat', $pasienLab->no_rawat)
+                                        ->where('detail_periksa_lab.kd_jenis_prw', $PeriksaLab->kd_jenis_prw)
+                                        ->get();
+
+                                    // dd($pasienLab, $cekLab, $idCounter->encounter_id, $cekLab->dokter_perujuk, $dokterPerujuk);
+                                    foreach ($detailLab as $DetailLab) {
+                                        //cek nilai hasil lab kosong atau masih dalam proses jika tidak lanjut
+                                        if ((!empty($DetailLab->nilai)) && (strpos($DetailLab->nilai, "proses") === false)) {
+                                            //Seharusnya cek dulu ini paket atau tidak hasilnya juga di foreach tp ini lurus2 aja dulu
+                                            //dah diatas ya dicek
+
+                                            $dataHasil = SatuSehatController::getLoinc($DetailLab->kd_jenis_prw);
+
+                                            // dd($DetailLab, "test", $dataHasil, is_string($DetailLab->nilai), is_numeric($DetailLab->nilai), empty($DetailLab->nilai));
+                                            if (!empty($dataHasil)) {
+                                                if ($dataHasil->tipe_hasil_pemeriksaan == "Nominal") {
+                                                    $Observation = [
+                                                        "resourceType" => "Observation",
+                                                        "identifier" => [
+                                                            [
+                                                                "system" => "http://sys-ids.kemkes.go.id/observation/$idRS",
+                                                                "value" => "$cekLab->noorder"
+                                                            ]
+                                                        ],
+                                                        "status" => "final",
+                                                        "category" => [
+                                                            [
+                                                                "coding" => [
+                                                                    [
+                                                                        "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                                                        "code" => "laboratory",
+                                                                        "display" => "Laboratory"
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "code" => [
+                                                            "coding" => [
+                                                                [
+                                                                    "system" => "$dataHasil->code_system",
+                                                                    "code" => "$dataHasil->code",
+                                                                    "display" => "$dataHasil->display"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "subject" => [
+                                                            "reference" => "Patient/100000030009"
+                                                        ],
+                                                        "encounter" => [
+                                                            "reference" => "Encounter/$idCounter->encounter_id"
+                                                        ],
+                                                        "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                        "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                        "performer" => [
+                                                            [
+                                                                "reference" => "Practitioner/N10000001"
+                                                            ],
+                                                            [
+                                                                "reference" => "Organization/$idRS"
+                                                            ]
+                                                        ],
+                                                        "specimen" => [
+                                                            "reference" => "Specimen/$responseSpecimen->id"
+                                                        ],
+                                                        "basedOn" => [
+                                                            [
+                                                                "reference" => "ServiceRequest/$idServiceRequest"
+                                                            ]
+                                                        ],
+                                                        "valueCodeableConcept" => [
+                                                            "coding" => [
+                                                                [
+                                                                    "system" => "http://loinc.org",
+                                                                    "code" => "LA19710-5",
+                                                                    "display" => "Group A"
+                                                                ]
+                                                            ]
+                                                        ]
+                                                    ];
+                                                } elseif ($dataHasil->tipe_hasil_pemeriksaan == "Ordinal") {
+                                                    $Observation = [
+                                                        "resourceType" => "Observation",
+                                                        "identifier" => [
+                                                            [
+                                                                "system" => "http://sys-ids.kemkes.go.id/observation/$idRS",
+                                                                "value" => "$cekLab->noorder"
+                                                            ]
+                                                        ],
+                                                        "status" => "final",
+                                                        "category" => [
+                                                            [
+                                                                "coding" => [
+                                                                    [
+                                                                        "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                                                        "code" => "laboratory",
+                                                                        "display" => "Laboratory"
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "code" => [
+                                                            "coding" => [
+                                                                [
+                                                                    "system" => "$dataHasil->code_system",
+                                                                    "code" => "$dataHasil->code",
+                                                                    "display" => "$dataHasil->display"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "subject" => [
+                                                            "reference" => "Patient/100000030009"
+                                                        ],
+                                                        "encounter" => [
+                                                            "reference" => "Encounter/$idCounter->encounter_id"
+                                                        ],
+                                                        "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                        "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                        "performer" => [
+                                                            [
+                                                                "reference" => "Practitioner/N10000001"
+                                                            ],
+                                                            [
+                                                                "reference" => "Organization/$idRS"
+                                                            ]
+                                                        ],
+                                                        "specimen" => [
+                                                            "reference" => "Specimen/$responseSpecimen->id"
+                                                        ],
+                                                        "basedOn" => [
+                                                            [
+                                                                "reference" => "ServiceRequest/$idServiceRequest"
+                                                            ]
+                                                        ],
+                                                        "valueCodeableConcept" => [
+                                                            "coding" => [
+                                                                [
+                                                                    "system" => "http://snomed.info/sct",
+                                                                    "code" => "260347006",
+                                                                    "display" => "+"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "referenceRange" => [
+                                                            [
+                                                                "text" => "$DetailLab->nilai_rujukan"
+                                                            ]
+                                                        ]
+                                                    ];
+                                                } elseif ($dataHasil->tipe_hasil_pemeriksaan == "Quantitative") { //
+                                                    $Observation = [
+                                                        "resourceType" => "Observation",
+                                                        "identifier" => [
+                                                            [
+                                                                "system" => "http://sys-ids.kemkes.go.id/observation/$idRS",
+                                                                "value" => "$cekLab->noorder"
+                                                            ]
+                                                        ],
+                                                        "status" => "final",
+                                                        "category" => [
+                                                            [
+                                                                "coding" => [
+                                                                    [
+                                                                        "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                                                        "code" => "laboratory",
+                                                                        "display" => "Laboratory"
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "code" => [
+                                                            "coding" => [
+                                                                [
+                                                                    "system" => "$dataHasil->code_system",
+                                                                    "code" => "$dataHasil->code",
+                                                                    "display" => "$dataHasil->display"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "subject" => [
+                                                            "reference" => "Patient/100000030009"
+                                                        ],
+                                                        "encounter" => [
+                                                            "reference" => "Encounter/$idCounter->encounter_id"
+                                                        ],
+                                                        "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                        "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                        "performer" => [
+                                                            [
+                                                                "reference" => "Practitioner/N10000001"
+                                                            ],
+                                                            [
+                                                                "reference" => "Organization/$idRS"
+                                                            ]
+                                                        ],
+                                                        "specimen" => [
+                                                            "reference" => "Specimen/$responseSpecimen->id"
+                                                        ],
+                                                        "basedOn" => [
+                                                            [
+                                                                "reference" => "ServiceRequest/$idServiceRequest"
+                                                            ]
+                                                        ],
+                                                        "valueQuantity" => [
+                                                            "value" => floatval($DetailLab->nilai),
+                                                            "unit" => "$dataHasil->satuan",
+                                                            "system" => "http://unitsofmeasure.org",
+                                                            "code" => "$dataHasil->satuan"
+                                                        ],
+                                                        "referenceRange" => [
+                                                            [
+                                                                "text" => "$DetailLab->nilai_rujukan"
+                                                            ]
+                                                        ]
+                                                        // ,
+                                                        // "interpretation" => [
+                                                        //     [
+                                                        //         "coding" => [
+                                                        //             [
+                                                        //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
+                                                        //                 "code" => "H",
+                                                        //                 "display" => "High"
+                                                        //             ]
+                                                        //         ]
+                                                        //     ]
+                                                        // ],
+                                                        // "referenceRange" => [
+                                                        //     [
+                                                        //         "low" => [
+                                                        //             "value" => 135,
+                                                        //             "unit" => "mmol/L",
+                                                        //             "system" => "http://unitsofmeasure.org",
+                                                        //             "code" => "mmol/L"
+                                                        //         ],
+                                                        //         "high" => [
+                                                        //             "value" => 145,
+                                                        //             "unit" => "mmol/L",
+                                                        //             "system" => "http://unitsofmeasure.org",
+                                                        //             "code" => "mmol/L"
+                                                        //         ]
+                                                        //     ]
+                                                        // ]
+                                                    ];
+                                                } elseif ($dataHasil->tipe_hasil_pemeriksaan == "Narative") { //
+                                                    $Observation = [
+                                                        "resourceType" => "Observation",
+                                                        "identifier" => [
+                                                            [
+                                                                "system" => "http://sys-ids.kemkes.go.id/observation/$idRS",
+                                                                "value" => "$cekLab->noorder"
+                                                            ]
+                                                        ],
+                                                        "status" => "final",
+                                                        "category" => [
+                                                            [
+                                                                "coding" => [
+                                                                    [
+                                                                        "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                                                        "code" => "laboratory",
+                                                                        "display" => "Laboratory"
+                                                                    ]
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "code" => [
+                                                            "coding" => [
+                                                                [
+                                                                    "system" => "$dataHasil->code_system",
+                                                                    "code" => "$dataHasil->code",
+                                                                    "display" => "$dataHasil->display"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        "subject" => [
+                                                            "reference" => "Patient/100000030009"
+                                                        ],
+                                                        "encounter" => [
+                                                            "reference" => "Encounter/$idCounter->encounter_id"
+                                                        ],
+                                                        "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                        "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                        "performer" => [
+                                                            [
+                                                                "reference" => "Practitioner/N10000001"
+                                                            ],
+                                                            [
+                                                                "reference" => "Organization/$idRS"
+                                                            ]
+                                                        ],
+                                                        "specimen" => [
+                                                            "reference" => "Specimen/$responseSpecimen->id"
+                                                        ],
+                                                        "basedOn" => [
+                                                            [
+                                                                "reference" => "ServiceRequest/$idServiceRequest"
+                                                            ]
+                                                        ],
+                                                        "valueString" => "Sediaan apus terdiri atas sel-sel epitel skuamosa normal, sel-sel metaplastik dan leukosit"
+                                                    ];
+                                                }
+
+                                                //Kirim/Create Observation
+                                                SatuSehatController::getTokenSehat();
+                                                $access_token = Session::get('tokenSatuSehat');
+                                                // dd($access_token);
+                                                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                                                try {
+                                                    $response = $client->request('POST', 'fhir-r4/v1/Observation', [
+                                                        'headers' => [
+                                                            'Authorization' => "Bearer {$access_token}"
+                                                        ],
+                                                        'json' => $Observation
+                                                    ]);
+                                                } catch (BadResponseException $e) {
+                                                    // echo $e->getRequest();
+                                                    // echo $e->getResponse();
+                                                    if ($e->hasResponse()) {
+                                                        $response = $e->getResponse();
+
+                                                        // dd($response);
+                                                        $test = json_decode($response->getBody());
+                                                        // dd($test);
+                                                    }
+
+                                                    $message = "Error Kirim Observation Lab id service " . $idServiceRequest;
+
+                                                    Session::flash('error', $message);
+
+                                                    // return redirect()->back()->withInput();
+                                                    $dataLog = ResponseLabSatuSehat::all();
+
+                                                    // dd($dataLog);
+
+                                                    return view('satu_sehat.client_rujuklab', compact('dataLog'));
+                                                }
+
+                                                $responseObservation = json_decode($response->getBody());
+                                                // dd($responseObservation);
+                                                if (!empty($responseObservation->id) && $responseObservation->resourceType == "Observation") {
+                                                    //Create data di table respone observation lab
+                                                    $update = ResponseLabSatuSehat::where('serviceRequest_id', $idServiceRequest)->first();
+                                                    $newObservation = new ResponseObservationLab();
+                                                    $newObservation->response_lab_satu_sehat_id = $update->id;
+                                                    $newObservation->observation_id = $responseObservation->id;
+                                                    $newObservation->save();
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    dd($responseSpecimen);
+                                }
+
+                                //Diagnostic Report
+                                //Cek dulu Observasinya ada berapa hasil
+                                $cekID = ResponseLabSatuSehat::where('serviceRequest_id', $idServiceRequest)->first();
+                                $cekObservation = ResponseObservationLab::where('response_lab_satu_sehat_id', $cekID->id)->get();
+                                // dd($cekObservation);
+
+                                if (count($cekObservation) > 0) {
+
+                                    $arrObservation = array($cekObservation);
+                                    // $arrObservation = array();
+                                    $noObservation = 0;
+
+                                    for ($i = 0; $i < $cekObservation->count(); $i++) {
+                                        ++$noObservation;
+                                        $idOb = $arrObservation[0][$i]['observation_id'];
+                                        $tambah[$i] = array(
+                                            'id' => "$noObservation",
+                                            'reference' => "Observation/$idOb",
+                                        );
+                                    }
+
+                                    if (empty($tambah)) {
+                                        dd($cekObservation, "cek");
+                                    }
+
+                                    $Report = [
+                                        "resourceType" => "DiagnosticReport",
+                                        "identifier" => [
+                                            [
+                                                "system" => "http://sys-ids.kemkes.go.id/diagnostic/$idRS/lab",
+                                                "use" => "official",
+                                                "value" => "$cekLab->noorder"
+                                            ]
+                                        ],
+                                        "status" => "final",
+                                        "category" => [
+                                            [
+                                                "coding" => [
+                                                    [
+                                                        "system" => "http://terminology.hl7.org/CodeSystem/v2-0074",
+                                                        "code" => "CM",
+                                                        "display" => "Chemistry"
+                                                    ]
+                                                ]
+                                            ]
+                                        ],
+                                        "code" => [
+                                            "coding" => [
+                                                [
+                                                    "system" => "$mappingLoinc->code_system",
+                                                    "code" => "$mappingLoinc->code",
+                                                    "display" => "$mappingLoinc->display"
+                                                ]
+                                            ]
+                                        ],
+                                        "subject" => [
+                                            "reference" => "Patient/100000030009"
+                                        ],
+                                        "encounter" => [
+                                            "reference" => "Encounter/$idCounter->encounter_id"
+                                        ],
+                                        "effectiveDateTime" => $PeriksaLab->tgl_periksa . "T" . $PeriksaLab->jam . "+07:00",
+                                        "issued" => $PeriksaLab->tgl_periksa . "T" . $PeriksaLab->jam . "+07:00",
+                                        "performer" => [
+                                            [
+                                                "reference" => "Practitioner/N10000001"
+                                            ],
+                                            [
+                                                "reference" => "Organization/$idRS"
+                                            ]
+                                        ],
+                                        // "result" => [
+                                        //     [
+                                        //         "id" => "1",
+                                        //         "reference" => "Observation/b04db6af-2d31-4509-9a00-9b5fc073b389"
+                                        //     ],
+                                        //     [
+                                        //         "id" => "2",
+                                        //         "reference" => "Observation/150bc626-7d79-4e38-a37a-38ab8e1a23d2"
+                                        //     ],
+                                        //     [
+                                        //         "id" => "3",
+                                        //         "reference" => "Observation/26800d31-b6fd-43fa-83e2-4750410c789c"
+                                        //     ]
+                                        // ],
+                                        "result" => $tambah,
+                                        "specimen" => [
+                                            [
+                                                "reference" => "Specimen/$responseSpecimen->id"
+                                            ]
+                                        ],
+                                        "basedOn" => [
+                                            [
+                                                "reference" => "ServiceRequest/$idServiceRequest"
+                                            ]
+                                        ]
+                                        // ,
+                                        // "conclusion" => "Hipernatremia, Hiperkloremia, Hipokalemia"
+                                    ];
+
+                                    // array_push($Report['result'], $tambah);
+                                    // dd($Report);
+                                    //Kirim/Create Diagnostic Report
+                                    SatuSehatController::getTokenSehat();
+                                    $access_token = Session::get('tokenSatuSehat');
+                                    // dd($access_token);
+                                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                                    try {
+                                        $response = $client->request('POST', 'fhir-r4/v1/DiagnosticReport', [
+                                            'headers' => [
+                                                'Authorization' => "Bearer {$access_token}"
+                                            ],
+                                            'json' => $Report
+                                        ]);
+                                    } catch (BadResponseException $e) {
+                                        // echo $e->getRequest();
+                                        // echo $e->getResponse();
+                                        if ($e->hasResponse()) {
+                                            $response = $e->getResponse();
+
+                                            // dd($response);
+                                            $test = json_decode($response->getBody());
+                                            // dd($test);
+                                        }
+
+                                        $message = "Error Kirim Report lab id service request " . $idServiceRequest;
+
+                                        Session::flash('error', $message);
+
+                                        // return redirect()->back()->withInput();
+                                        $dataLog = ResponseLabSatuSehat::all();
+
+                                        // dd($dataLog);
+
+                                        return view('satu_sehat.client_rujuklab', compact('dataLog'));
+                                    }
+
+                                    $responseReport = json_decode($response->getBody());
+                                    // dd($responseReport->id);
+                                    if (!empty($responseReport->id) && $responseReport->resourceType == "DiagnosticReport") {
+                                        //Update data di table respone lab
+                                        $update = ResponseLabSatuSehat::where('serviceRequest_id', $idServiceRequest)->first();
+                                        $update->report_id = $responseReport->id;
+                                        $update->save();
+                                    }
+                                }
                             }
-
-                            $message = "";
-
-                            Session::flash('error', $message);
-
-                            return redirect()->back()->withInput();
-                        }
-
-                        $responseReport = json_decode($response->getBody());
-                        // dd($responseReport->id);
-                        if (!empty($responseReport->id) && $responseReport->resourceType == "DiagnosticReport") {
-                            //Update data di table respone lab
-                            $update = ResponseLabSatuSehat::where('noOrder', $cekLab->noorder)->first();
-                            $update->report_id = $responseReport->id;
-                            $update->save();
                         }
                     }
                 }
@@ -3023,6 +3301,39 @@ class SatuSehatController extends Controller
         if (!empty($data)) {
             return $data;
         } else {
+            return null;
+        }
+    }
+
+    public function getLoinc($id)
+    {
+        $data = DB::connection('mysqlkhanza')->table('fhir_lab')
+            // ->join('fhir_master_loinc', 'fhir_master_loinc.kd_loinc', '=', 'fhir_lab.kd_loinc')
+            ->select(
+                'fhir_lab.kd_loinc',
+                'fhir_lab.kd_jenis_prw'
+            )
+            ->where('fhir_lab.kd_jenis_prw', "$id")
+            ->first();
+
+        if (!empty($data)) {
+            $getData = MasterLoinc::where('kd_loinc', $data->kd_loinc)
+                ->first();
+        } else {
+            $getData = null;
+        }
+
+
+        // dd($data, $id, $getData);
+
+        if (!empty($getData)) {
+            return $getData;
+        } else {
+            $error = new LogErrorSatuSehat();
+            $error->subject = 'Lab';
+            $error->keterangan = $id . ' Kode perawatan Lab belum ditemukan dimapping';
+            $error->save();
+
             return null;
         }
     }
