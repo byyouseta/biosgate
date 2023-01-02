@@ -132,9 +132,12 @@ Route::get('/kanker/referensi', 'KankerController@referensi')->name('kanker.refe
 
 //VEDIKA
 Route::get('/vedika/rajal', 'VedikaController@rajal')->name('vedika.rajal');
+Route::get('/vedika/rajal/{id}/detail', 'VedikaController@detailRajal')->name('vedika.detailRajal');
+Route::get('/vedika/rajal/{id}/detailpdf', 'VedikaController@detailRajalPdf')->name('vedika.detailRajalPdf');
 Route::get('/vedika/rajal/{id}/billing', 'VedikaController@billingRajal')->name('vedika.billingRajal');
 Route::get('/vedika/rajal/{id}/lab', 'VedikaController@labRajal')->name('vedika.labRajal');
 Route::get('/vedika/rajal/{id}/radiologi', 'VedikaController@radioRajal')->name('vedika.radioRajal');
+Route::get('/vedika/rajal/{id}/obat', 'VedikaController@obatRajal')->name('vedika.obatRajal');
 Route::get('/vedika/rajal/{id}/triase', 'VedikaController@triase')->name('vedika.triase');
 Route::get('/vedika/rajal/{id}/ringkasanIgd', 'VedikaController@ringkasanIgd')->name('vedika.ringkasanIgd');
 Route::get('/vedika/rajal/{id}/buktiPelayanan', 'VedikaController@buktiPelayanan')->name('vedika.buktiPelayanan');
@@ -144,6 +147,7 @@ Route::get('/vedika/ranap', 'VedikaController@ranap')->name('vedika.ranap');
 Route::get('/vedika/ranap/{id}/billing', 'VedikaController@billingRanap')->name('vedika.billingRanap');
 Route::get('/vedika/ranap/{id}/lab', 'VedikaController@labRanap')->name('vedika.labRanap');
 Route::get('/vedika/ranap/{id}/radiologi', 'VedikaController@radioRanap')->name('vedika.radioRanap');
+Route::get('/vedika/ranap/{id}/obat', 'VedikaController@obatRanap')->name('vedika.obatRanap');
 Route::get('/vedika/ranap/{id}/berkas', 'VedikaController@berkasRanap')->name('vedika.berkasRanap');
 
 Route::post('/vedika/berkas/store', 'VedikaController@berkasUpload')->name('vedika.berkasUpload');
@@ -152,6 +156,11 @@ Route::get('/vedika/berkas/{id}/delete', 'VedikaController@berkasDelete')->name(
 Route::get('/vedika/berkas/{id}/view', 'VedikaController@berkasShow')->name('vedika.berkasShow');
 
 Route::get('/sep', 'SepController@index')->name('sep.index');
+
+//COBA WHATSAPP API BAILEY
+Route::get('/pesan', 'WaController@index')->name('wa.index');
+
+//SATU SEHAT
 
 Route::get('/satusehat', 'SatuSehatController@summary')->name('satuSehat.summary');
 Route::get('/satusehat/bundle', 'SatuSehatController@bundleData')->name('satuSehat.bundleData');

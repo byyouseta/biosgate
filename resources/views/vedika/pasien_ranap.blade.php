@@ -96,9 +96,15 @@
                                                             </a>
                                                             <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/radiologi"
                                                                 class="btn btn-sm {{ App\Vedika::cekrad($data->no_rawat) > 0 ? '' : 'disabled' }}"
-                                                                data-toggle="tooltip" data-placement="bottom" title="Lab"
-                                                                target="_blank">
+                                                                data-toggle="tooltip" data-placement="bottom"
+                                                                title="Radiologi" target="_blank">
                                                                 <span class="badge badge-warning">Radiologi</span>
+                                                            </a>
+                                                            <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/obat"
+                                                                class="btn btn-sm {{ App\Vedika::cekObat($data->no_rawat) > 0 ? '' : 'disabled' }}"
+                                                                data-toggle="tooltip" data-placement="bottom" title="Obat"
+                                                                target="_blank">
+                                                                <span class="badge bg-orange">Obat</span>
                                                             </a>
                                                             <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/berkas"
                                                                 class="btn btn-sm" data-toggle="tooltip"

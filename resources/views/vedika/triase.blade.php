@@ -39,6 +39,8 @@
                                     $bg_color = 'bg-warning';
                                 } elseif ($plan == 'Zona Merah') {
                                     $bg_color = 'bg-danger';
+                                } else {
+                                    $bg_color = '';
                                 }
                             @endphp
 

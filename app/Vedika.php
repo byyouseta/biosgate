@@ -96,6 +96,31 @@ class Vedika extends Model
         return $cek;
     }
 
+    public static function cekObat($id)
+    {
+        $cek = DB::connection('mysqlkhanza')->table('detail_pemberian_obat')
+            ->join('resep_obat', 'resep_obat.no_rawat', '=', 'detail_pemberian_obat.no_rawat')
+            ->join('databarang', 'databarang.kode_brng', '=', 'detail_pemberian_obat.kode_brng')
+            ->select(
+                'detail_pemberian_obat.tgl_perawatan',
+                'detail_pemberian_obat.jam',
+                'detail_pemberian_obat.no_rawat',
+                'detail_pemberian_obat.kode_brng',
+                'detail_pemberian_obat.biaya_obat',
+                'detail_pemberian_obat.jml',
+                'detail_pemberian_obat.total',
+                'detail_pemberian_obat.status',
+                'resep_obat.kd_dokter',
+                'databarang.nama_brng',
+                'databarang.kode_sat'
+            )
+            ->where('detail_pemberian_obat.no_rawat', '=', $id)
+            // ->where('detail_pemberian_obat.status', '=', 'Ralan')
+            ->count();
+
+        return $cek;
+    }
+
     public static function cekResume($id)
     {
         $cek = DB::connection('mysqlkhanza')->table('resume_pasien')
@@ -187,5 +212,59 @@ class Vedika extends Model
             ->first();
 
         return $cari;
+    }
+
+    public static function aturanObatJadi($norawat, $kdObat)
+    {
+        $cek = DB::connection('mysqlkhanza')->table('aturan_pakai')
+            ->select(
+                'aturan_pakai.no_rawat',
+                'aturan_pakai.kode_brng',
+                'aturan_pakai.aturan'
+            )
+            ->where('aturan_pakai.no_rawat', $norawat)
+            ->where('kode_brng', $kdObat)
+            ->first();
+
+        if ($cek != null) {
+            return $cek;
+        } else {
+            return null;
+        }
+    }
+
+    public static function getRacikan($norawat, $noracik)
+    {
+        $cek = DB::connection('mysqlkhanza')->table('detail_obat_racikan')
+            ->join('databarang', 'databarang.kode_brng', '=', 'detail_obat_racikan.kode_brng')
+            ->select(
+                'detail_obat_racikan.no_rawat',
+                'detail_obat_racikan.no_racik',
+                'detail_obat_racikan.kode_brng',
+                'databarang.nama_brng'
+            )
+            ->where('detail_obat_racikan.no_rawat', $norawat)
+            ->where('detail_obat_racikan.no_racik', $noracik)
+            ->orderBy('detail_obat_racikan.kode_brng', 'DESC')
+            ->get();
+
+        // dd($cek);
+
+        return $cek;
+    }
+
+    public static function getJmlRacikan($norawat, $kdObat)
+    {
+        $cek = DB::connection('mysqlkhanza')->table('detail_pemberian_obat')
+            ->select(
+                'detail_pemberian_obat.no_rawat',
+                'detail_pemberian_obat.kode_brng',
+                'detail_pemberian_obat.jml'
+            )
+            ->where('detail_pemberian_obat.no_rawat', $norawat)
+            ->where('detail_pemberian_obat.kode_brng', $kdObat)
+            ->first();
+
+        return $cek;
     }
 }
