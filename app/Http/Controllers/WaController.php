@@ -23,7 +23,11 @@ class WaController extends Controller
         $status = WaController::cekStatus();
         // dd($status);
 
-        $sessionApp = WaController::cekSession();
+        if ($status[2] == 'online') {
+            $sessionApp = WaController::cekSession();
+        } else {
+            $sessionApp = null;
+        }
         // dd($connection, $status, $getSession);
 
         return view('pesan.setting_pesan', compact(
@@ -184,7 +188,20 @@ class WaController extends Controller
             'penerima.starts_with' => 'Format nomor yang digunakan salah'
         ]);
 
-        $sessionApp = WaController::cekSession();
+        $status = WaController::cekStatus();
+        // dd($status);
+
+        if ($status[2] == 'online') {
+            $sessionApp = WaController::cekSession();
+        } else {
+            $message = "Server tidak bisa dijangkau!";
+
+            Session::flash('error', $message);
+
+            return redirect()->back();
+        }
+
+        // $sessionApp = WaController::cekSession();
         // dd($sessionApp);
         if ($sessionApp == true) {
             $setting = Setting::where('nama', 'pesan')->first();
