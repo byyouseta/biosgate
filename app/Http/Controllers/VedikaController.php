@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\BerkasVedika;
 use App\MasterBerkasVedika;
+use App\sepManual;
 use App\Setting;
 use App\Vedika;
 use Carbon\Carbon;
@@ -368,6 +369,61 @@ class VedikaController extends Controller
         // );
 
         return $pdf->stream();
+    }
+
+    public function sepManual($id)
+    {
+        session()->put('ibu', 'Vedika');
+        session()->put('anak', 'Input SEP Manual');
+        session()->forget('cucu');
+
+        $id = Crypt::decrypt($id);
+
+        $cek = sepManual::where('noRawat', $id)->count();
+
+        if (empty($cek)) {
+            $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+                ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                // ->join('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->select(
+                    'reg_periksa.no_rawat',
+                    'reg_periksa.kd_poli',
+                    'pasien.nm_pasien',
+                    'pasien.jk',
+                    'pasien.tmp_lahir',
+                    'pasien.tgl_lahir',
+                    'pasien.alamat',
+                    // 'bridging_sep.no_sep'
+                )
+                ->where('reg_periksa.no_rawat', '=', $id)
+                ->first();
+        } else {
+            Session::flash('error', 'Data SEP sudah ada!');
+
+            return redirect('/vedika/rajal');
+        }
+
+        // dd($data);
+
+        return view('vedika.add_noSep', compact('data'));
+    }
+
+    public function simpanSep(Request $request)
+    {
+        $this->validate($request, [
+            'signed' => 'required',
+        ], [
+            'signed.required' => 'Tanda tangan pasien kosong'
+        ]);
+
+        // dd($request);
+        $data = new sepManual();
+        $data->noRawat = $request->noRawat;
+        $data->no_sep = $request->no_sep;
+        $data->tandaTangan = $request->signed;
+        $data->save();
+
+        return redirect('/vedika/rajal');
     }
 
     public function billingRajal($id)

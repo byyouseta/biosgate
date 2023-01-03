@@ -143,6 +143,9 @@ Route::get('/vedika/rajal/{id}/ringkasanIgd', 'VedikaController@ringkasanIgd')->
 Route::get('/vedika/rajal/{id}/buktiPelayanan', 'VedikaController@buktiPelayanan')->name('vedika.buktiPelayanan');
 Route::get('/vedika/rajal/{id}/berkas', 'VedikaController@berkas')->name('vedika.berkas');
 
+Route::get('/vedika/rajal/{id}/sepmanual', 'VedikaController@sepManual')->name('vedika.sepManual');
+Route::post('/vedika/rajal/simpansep', 'VedikaController@simpanSep')->name('vedika.simpanSep');
+
 Route::get('/vedika/ranap', 'VedikaController@ranap')->name('vedika.ranap');
 Route::get('/vedika/ranap/{id}/billing', 'VedikaController@billingRanap')->name('vedika.billingRanap');
 Route::get('/vedika/ranap/{id}/lab', 'VedikaController@labRanap')->name('vedika.labRanap');
@@ -159,6 +162,10 @@ Route::get('/sep', 'SepController@index')->name('sep.index');
 
 //COBA WHATSAPP API BAILEY
 Route::get('/pesan', 'WaController@index')->name('wa.index');
+Route::get('/pesan/createsession', 'WaController@createSession')->name('wa.createSession');
+Route::get('/pesan/deletesession', 'WaController@deleteSession')->name('wa.deleteSession');
+Route::get('/pesan/kirim', 'WaController@kirimPesan')->name('wa.kirimPesan');
+Route::post('/pesan/kirim', 'WaController@kirim')->name('wa.kirim');
 
 //SATU SEHAT
 

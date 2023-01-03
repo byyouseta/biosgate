@@ -324,15 +324,42 @@
                     </ul>
                 </li>
             @endif
+            <li class="nav-item @if (@session('ibu') == 'Pesan') menu-open @endif">
+                <a href="#" class="nav-link @if (@session('ibu') == 'Pesan') active @endif">
+                    <i class="nav-icon fab fa-whatsapp"></i>
+                    <p>
+                        Pesan
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="/pesan" class="nav-link @if (@session('anak') == 'Setting') active @endif">
+                            <i class="nav-icon fas fa-cog"></i>
+                            <p>
+                                Setting
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/pesan/kirim" class="nav-link @if (@session('anak') == 'Kirim Pesan') active @endif">
+                            <i class="nav-icon fas fa-envelope"></i>
+                            <p>
+                                Kirim Pesan
+                            </p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
             {{-- @can('satu-sehat-create') --}}
-            <li class="nav-item">
+            {{-- <li class="nav-item">
                 <a href="/pesan" class="nav-link @if (@session('ibu') == 'Pesan') active @endif">
                     <i class="nav-icon fab fa-whatsapp"></i>
                     <p>
                         Pesan
                     </p>
                 </a>
-            </li>
+            </li> --}}
             {{-- @endcan --}}
             @can('satu-sehat-create')
                 <li class="nav-item">

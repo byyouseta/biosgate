@@ -1,7 +1,6 @@
 @extends('layouts.master')
 
 @section('head')
-    <meta http-equiv="refresh" content="60;url=/pesan" />
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
@@ -16,69 +15,37 @@
         <div class="container-fluid">
             <div class="row">
                 <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            {{-- @can('setting-create')
-                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#modal-default">
-                                    <i class="fa fa-plus-circle"></i> Tambah</a>
-                                </button>
-                            @endcan --}}
-                            Server Status
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Server Pesan</th>
-                                            <th class="align-middle">Port</th>
-                                            <th class="align-middle">Status</th>
-                                            {{-- <th class="align-middle">Key</th> --}}
-                                            <th class="align-middle">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $status[0] != null ? $status[0] : '-' }}</td>
-                                            <td>{{ $status[1] != null ? $status[1] : '-' }}</td>
-                                            <td>{{ $status[2] }}</td>
-                                            {{-- <td>{{ $setting->key }}</td> --}}
-                                            <td>
-                                                @can('setting-update')
-                                                    <div class="col text-center">
-                                                        <div class="btn-group">
-                                                            <a href="/pesan/createsession"
-                                                                class="btn {{ $sessionApp == 'true' ? 'btn-success' : 'btn-danger' }} btn-sm"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="{{ $sessionApp == 'true' ? 'Session App Found' : 'Session App Not Found' }}">
-                                                                <i class="fas fa-link"></i>
-                                                            </a>
-                                                            <a href="/pesan/deletesession"
-                                                                class="btn btn-danger btn-sm delete-confirm"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="Delete Session App">
-                                                                <i class="fas fa-ban"></i>
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                @endcan
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    @if (!empty($qrCode))
+                    <form method="POST" action="/pesan/kirim">
+                        @csrf
                         <div class="card">
-                            <div class="card-header">Scan Barcode</div>
+                            {{-- <div class="card-header">
+                            Kirim Pesan
+                        </div> --}}
                             <div class="card-body">
-                                Disini
-                                <img src="{{ $qrCode->qr }}" alt="Silahkan scan no Whatsapp yang dipakai" />
+                                <div class="form-group">
+                                    <label>No Penerima <small>(Dalam format 628XXX)</small></label>
+                                    <input type="text" class="form-control" name="penerima" required />
+                                    @if ($errors->has('penerima'))
+                                        <div class="text-danger">
+                                            {{ $errors->first('penerima') }}
+                                        </div>
+                                    @endif
+                                </div>
+                                <div class="form-group">
+                                    <label>Pesan</label>
+                                    <textarea name="pesan" class="form-control" required></textarea>
+                                    @if ($errors->has('pesan'))
+                                        <div class="text-danger">
+                                            {{ $errors->first('pesan') }}
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary">Kirim</button>
                             </div>
                         </div>
-                    @endif
-
+                    </form>
                 </div>
                 <!-- /.col -->
             </div>

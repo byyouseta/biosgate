@@ -194,6 +194,19 @@ class Vedika extends Model
             ->where('bridging_sep.no_rawat', '=', $norawat)
             ->first();
 
+        if (empty($cari)) {
+            $cari = sepManual::where('noRawat', $norawat)
+                ->first();
+        }
+
+        return $cari;
+    }
+
+    public static function getTtd($norawat)
+    {
+        $cari = sepManual::where('noRawat', $norawat)
+            ->first();
+
         return $cari;
     }
 

@@ -95,7 +95,7 @@
 
         .watermark {
             position: fixed;
-            top: 45%;
+            top: 25%;
             width: 100%;
             text-align: center;
             font-size: 50px;
@@ -419,6 +419,7 @@
             </tr>
             <tr>
                 @php
+                    $ttd_pasien = \App\Vedika::getTtd($pasien->no_rawat);
                     $qr_dokter = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $pasien->nm_dokter . "\n" . 'ID ' . $pasien->kd_dokter . "\n" . \Carbon\Carbon::parse($pasien->tgl_registrasi)->format('d-m-Y');
                     $qr_pasien = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $pasien->nm_pasien . "\n" . 'ID ' . $pasien->no_rkm_medis . "\n" . \Carbon\Carbon::parse($pasien->tgl_registrasi)->format('d-m-Y');
                     $qrcode_dokter = base64_encode(
@@ -434,8 +435,14 @@
                             ->generate($qr_pasien),
                     );
                 @endphp
-                <td style="border: 0px solid black;width: 50%"> <img
-                        src="data:image/png;base64, {!! $qrcode_pasien !!}"></td>
+                @if (!empty($ttd_pasien))
+                    <td style="border: 0px solid black;width: 50%"> <img src="{{ $ttd_pasien->tandaTangan }}"
+                            width="auto" height="100px"></td>
+                @else
+                    <td style="border: 0px solid black;width: 50%"> <img
+                            src="data:image/png;base64, {!! $qrcode_pasien !!}"></td>
+                @endif
+
                 <td style="border: 0px solid black;width: 50%"> <img
                         src="data:image/png;base64, {!! $qrcode_dokter !!}"></td>
             </tr>

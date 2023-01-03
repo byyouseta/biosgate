@@ -331,10 +331,18 @@
                                 </tr>
                                 <tr>
                                     @php
+                                        $ttd_pasien = \App\Vedika::getTtd($pasien->no_rawat);
+                                        // dd($ttd_pasien);
                                         $qr_dokter = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $pasien->nm_dokter . "\n" . 'ID ' . $pasien->kd_dokter . "\n" . \Carbon\Carbon::parse($pasien->tgl_registrasi)->format('d-m-Y');
                                         $qr_pasien = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $pasien->nm_pasien . "\n" . 'ID ' . $pasien->no_rkm_medis . "\n" . \Carbon\Carbon::parse($pasien->tgl_registrasi)->format('d-m-Y');
                                     @endphp
-                                    <td class="text-center pt-0 pb-0"> {!! QrCode::size(100)->generate($qr_pasien) !!} </td>
+                                    <td class="text-center pt-0 pb-0">
+                                        @if (!empty($ttd_pasien))
+                                            <img src={{ $ttd_pasien->tandaTangan }} width="auto" height="100px" />
+                                        @else
+                                            {!! QrCode::size(100)->generate($qr_pasien) !!}
+                                        @endif
+                                    </td>
                                     <td class="text-center pt-0 pb-0"> {!! QrCode::size(100)->generate($qr_dokter) !!} </td>
                                 </tr>
                                 <tr>

@@ -75,6 +75,14 @@
                                                 <tr>
                                                     {{-- <td>{{ $data->no_rkm_medis }}</td> --}}
                                                     <td>{{ App\Vedika::getSep($data->no_rawat) != null ? App\Vedika::getSep($data->no_rawat)->no_sep : '' }}
+                                                        @if (App\Vedika::getSep($data->no_rawat) == null && Auth::user()->can('vedika-upload'))
+                                                            <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/sepmanual"
+                                                                class="btn btn-sm " data-toggle="tooltip"
+                                                                data-placement="bottom" title="Input no SEP"
+                                                                target="_blank">
+                                                                <span class="badge badge-primary">Tambah <i
+                                                                        class="fas fa-pen-nib"></i></span></a>
+                                                        @endif
                                                     </td>
                                                     <td>{{ $data->no_peserta }}</td>
                                                     <td>{{ $data->nm_pasien }}, {{ $data->umurdaftar }}
