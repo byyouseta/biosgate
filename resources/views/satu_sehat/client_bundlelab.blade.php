@@ -25,31 +25,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Summary data terkirim
-                                <a href="/satusehat/bundle" class="btn btn-sm btn-primary" target="_blank">Api Bundle</a>
-                                {{-- <a href="/satusehat/encounter" class="btn btn-sm btn-primary" target="_blank">Api
-                                    Encounter</a> --}}
-                                <a href="/satusehat/composition" class="btn btn-sm btn-primary" target="_blank">Api
-                                    Composition</a>
-                                <a href="/satusehat/medication" class="btn btn-sm btn-primary" target="_blank">Api
-                                    Medication</a>
-                                <a href="/satusehat/lab" class="btn btn-sm btn-primary" target="_blank">Api
-                                    Lab</a>
-                                <a href="/satusehat/labbundle" class="btn btn-sm btn-primary" target="_blank">Api
-                                    Lab (MCU/CL)</a>
-                                <div class="float-right">
-                                    <form action="/satusehat" method="GET">
-                                        <div class="input-group input-group" id="tanggal" data-target-input="nearest">
-                                            <input type="text" class="form-control datetimepicker-input"
-                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
-                                                autocomplete="off" value="{{ $tanggal }}">
-                                            <span class="input-group-append">
-                                                <button type="submit" class="btn btn-info btn-flat btn-sm"><i
-                                                        class="fas fa-search"></i> Tampilkan</button>
-                                            </span>
-                                        </div>
-                                    </form>
-                                </div>
+                            <div class="card_title">{{ Session::get('anak') }}
                             </div>
                         </div>
                         <div class="card-body">
@@ -58,16 +34,11 @@
                                 <thead>
                                     <tr>
                                         <th class="align-middle">No Rawat</th>
-                                        <th class="align-middle">Encounter ID</th>
-                                        <th class="align-middle">Condition1 ID</th>
-                                        <th class="align-middle">Condition2 ID</th>
-                                        <th class="align-middle">HeartRate ID</th>
-                                        <th class="align-middle">Respiratory ID</th>
-                                        <th class="align-middle">Systol ID</th>
-                                        <th class="align-middle">Diastol ID</th>
-                                        <th class="align-middle">Temperature ID</th>
-                                        <th class="align-middle">Procedure ID</th>
-                                        <th class="align-middle">Composition ID</th>
+                                        <th class="align-middle">No Order</th>
+                                        <th class="align-middle">Service Request ID</th>
+                                        <th class="align-middle">Specimen ID</th>
+                                        <th class="align-middle">Observation ID</th>
+                                        <th class="align-middle">DiagnosticReport ID</th>
                                         <th class="align-middle">Upload Time</th>
                                     </tr>
                                 </thead>
@@ -75,20 +46,18 @@
                                     @foreach ($dataLog as $summary)
                                         <tr>
                                             <td>{{ $summary->noRawat }}</td>
-                                            <td>{{ $summary->encounter_id }}</td>
-                                            <td>{{ $summary->condition_id }}</td>
-                                            <td>{{ $summary->condition2_id }}</td>
-                                            <td>{{ $summary->heart_id }}</td>
-                                            <td>{{ $summary->respiratory_id }}</td>
-                                            <td>{{ $summary->systol_id }}</td>
-                                            <td>{{ $summary->diastol_id }}</td>
-                                            <td>{{ $summary->temperature_id }}</td>
-                                            <td>{{ $summary->procedure_id }}</td>
-                                            <td>{{ $summary->composition_id }}</td>
+                                            <td>{{ $summary->noOrder }}</td>
+                                            <td>{{ $summary->serviceRequest_id }}</td>
+                                            <td>{{ $summary->specimen_id }}</td>
+                                            <td>
+                                                @foreach ($summary->responseObservation as $dataObservation)
+                                                    {{ $dataObservation->observation_id }}<br>
+                                                @endforeach
+                                            </td>
+                                            <td>{{ $summary->report_id }}</td>
                                             <td>{{ $summary->created_at }}</td>
                                         </tr>
                                     @endforeach
-
                                 </tbody>
                             </table>
                             {{-- </div> --}}

@@ -174,7 +174,8 @@ Route::get('/satusehat/bundle', 'SatuSehatController@bundleData')->name('satuSeh
 Route::get('/satusehat/encounter', 'SatuSehatController@sendEncounter')->name('satuSehat.encounter');
 Route::get('/satusehat/composition', 'SatuSehatController@sendComposition')->name('satuSehat.composition');
 Route::get('/satusehat/medication', 'SatuSehatController@sendMedication')->name('satuSehat.medication');
-Route::get('/satusehat/lab', 'SatuSehatController@sendLab')->name('satuSehat.lab');
+Route::get('/satusehat/lab', 'SatuSehatController@sendLab')->name('satuSehat.sendLab');
+Route::get('/satusehat/labbundle', 'SatuSehatController@bundleLab')->name('satuSehat.bundleLab');
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
