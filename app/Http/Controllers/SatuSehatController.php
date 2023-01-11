@@ -1499,9 +1499,12 @@ class SatuSehatController extends Controller
             ->where('reg_periksa.stts', 'Sudah')
             ->get();
         // dd($data);
-
+        $antrian = 0;
 
         foreach ($data as $key => $dataPengunjung) {
+            // if ($antrian == 5) {
+            //     break;
+            // } else {
             // $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
             // $idDokter = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
             $idPasien = "P02478375538";
@@ -1510,390 +1513,207 @@ class SatuSehatController extends Controller
 
             $getResep = SatuSehatController::getResepObat($dataPengunjung->no_rawat);
             $idCounter = SatuSehatController::getEncounterId($dataPengunjung->no_rawat);
-
+            //Cek List Obat di Response Medication apakah sudah ada
+            $cekResponse = ResponseMedicationSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+            // dd($cekResponse);
             // dd($getResep);
-
-            if ((!empty($getResep)) && (!empty($idCounter))) {
+            if ((!empty($getResep)) && (!empty($idCounter)) && (empty($cekResponse))) {
+                //Resep Obat Jadi di table resep_dokter
                 $listObat = SatuSehatController::getListObat($getResep->no_resep);
                 // dd($listObat);
 
-                foreach ($listObat as $index => $dataListObat) {
-                    // dd($dataListObat);
-                    $noUrutResep = $index + 1;
-                    $noresep = $dataListObat->no_resep . '-' . $noUrutResep;
-                    // dd($noresep);
+                if (!empty($listObat)) {
+                    foreach ($listObat as $index => $dataListObat) {
+                        // dd($dataListObat);
+                        $noUrutResep = $index + 1;
+                        $noresep = $dataListObat->no_resep . '-' . $noUrutResep;
+                        // dd($noresep);
 
-                    //Cek List Obat di Response Medication apakah sudah ada
-                    $cekResponse = ResponseMedicationSatuSehat::where('noResep', $noresep)->first();
-                    //Get Id Obat
-                    $idObat = SatuSehatController::getIdObat($dataListObat->kode_brng);
-                    dd($dataListObat, $idObat);
 
-                    if ((empty($cekResponse)) && (!empty($idObat))) {
-                        $medication1 = [
-                            "resourceType" => "Medication",
-                            "meta" => [
-                                "profile" => [
-                                    "https://fhir.kemkes.go.id/r4/StructureDefinition/Medication"
-                                ]
-                            ],
-                            "identifier" => [
-                                [
-                                    "system" => "http://sys-ids.kemkes.go.id/medication/$idRS",
-                                    "use" => "official",
-                                    "value" => "$dataListObat->no_resep"
-                                ]
-                            ],
-                            "code" => [
-                                "coding" => [ //Iki dinggo mapping obate
-                                    [
-                                        "system" => "http://sys-ids.kemkes.go.id/kfa",
-                                        "code" => "93001019",
-                                        "display" => "Obat Anti Tuberculosis / Rifampicin 150 mg / Isoniazid 75 mg / Pyrazinamide 400 mg / Ethambutol 275 mg Kaplet Salut Selaput (KIMIA FARMA)"
-                                    ]
-                                ]
-                            ],
-                            "status" => "active",
-                            // "manufacturer" => [ //optional
-                            //     "reference" => "Organization/900001"
-                            // ],
-                            "form" => [
-                                "coding" => [ //Iki dinggo medication form tipe obate opo
-                                    [
-                                        "system" => "https://terminology.kemkes.go.id/CodeSystem/medication-form",
-                                        "code" => "BS023",
-                                        "display" => "Kaplet Salut Selaput"
-                                    ]
-                                ]
-                            ],
-                            // "ingredient" => [ //untuk racikan yang wajib
-                            //     [
-                            //         "itemCodeableConcept" => [
-                            //             "coding" => [
-                            //                 [
-                            //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
-                            //                     "code" => "91000330",
-                            //                     "display" => "Rifampin"
-                            //                 ]
-                            //             ]
-                            //         ],
-                            //         "isActive" => true,
-                            //         "strength" => [
-                            //             "numerator" => [
-                            //                 "value" => 150,
-                            //                 "system" => "http://unitsofmeasure.org",
-                            //                 "code" => "mg"
-                            //             ],
-                            //             "denominator" => [
-                            //                 "value" => 1,
-                            //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
-                            //                 "code" => "TAB"
-                            //             ]
-                            //         ]
-                            //     ],
-                            //     [
-                            //         "itemCodeableConcept" => [
-                            //             "coding" => [
-                            //                 [
-                            //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
-                            //                     "code" => "91000328",
-                            //                     "display" => "Isoniazid"
-                            //                 ]
-                            //             ]
-                            //         ],
-                            //         "isActive" => true,
-                            //         "strength" => [
-                            //             "numerator" => [
-                            //                 "value" => 75,
-                            //                 "system" => "http://unitsofmeasure.org",
-                            //                 "code" => "mg"
-                            //             ],
-                            //             "denominator" => [
-                            //                 "value" => 1,
-                            //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
-                            //                 "code" => "TAB"
-                            //             ]
-                            //         ]
-                            //     ],
-                            //     [
-                            //         "itemCodeableConcept" => [
-                            //             "coding" => [
-                            //                 [
-                            //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
-                            //                     "code" => "91000329",
-                            //                     "display" => "Pyrazinamide"
-                            //                 ]
-                            //             ]
-                            //         ],
-                            //         "isActive" => true,
-                            //         "strength" => [
-                            //             "numerator" => [
-                            //                 "value" => 400,
-                            //                 "system" => "http://unitsofmeasure.org",
-                            //                 "code" => "mg"
-                            //             ],
-                            //             "denominator" => [
-                            //                 "value" => 1,
-                            //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
-                            //                 "code" => "TAB"
-                            //             ]
-                            //         ]
-                            //     ],
-                            //     [
-                            //         "itemCodeableConcept" => [
-                            //             "coding" => [
-                            //                 [
-                            //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
-                            //                     "code" => "91000288",
-                            //                     "display" => "Ethambutol"
-                            //                 ]
-                            //             ]
-                            //         ],
-                            //         "isActive" => true,
-                            //         "strength" => [
-                            //             "numerator" => [
-                            //                 "value" => 275,
-                            //                 "system" => "http://unitsofmeasure.org",
-                            //                 "code" => "mg"
-                            //             ],
-                            //             "denominator" => [
-                            //                 "value" => 1,
-                            //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
-                            //                 "code" => "TAB"
-                            //             ]
-                            //         ]
-                            //     ]
-                            // ],
-                            "extension" => [ //harus bos
-                                [
-                                    "url" => "https://fhir.kemkes.go.id/r4/StructureDefinition/MedicationType",
-                                    "valueCodeableConcept" => [
-                                        "coding" => [
-                                            [
-                                                "system" => "https://terminology.kemkes.go.id/CodeSystem/medication-type",
-                                                "code" => "NC",
-                                                "display" => "Non-compound"
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ];
+                        //Get Id Obat
+                        $mappingObat = SatuSehatController::getIdObat($dataListObat->kode_brng);
+                        // dd($getResep, $dataListObat, $mappingObat);
 
-                        //Kirim/Create Medication
-                        SatuSehatController::getTokenSehat();
-                        $access_token = Session::get('tokenSatuSehat');
-                        // dd($access_token);
-                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-                        try {
-                            $response = $client->request('POST', 'fhir-r4/v1/Medication', [
-                                'headers' => [
-                                    'Authorization' => "Bearer {$access_token}"
+                        if ((empty($cekResponse)) && (!empty($mappingObat))) {
+                            $medication1 = [
+                                "resourceType" => "Medication",
+                                "meta" => [
+                                    "profile" => [
+                                        "https://fhir.kemkes.go.id/r4/StructureDefinition/Medication"
+                                    ]
                                 ],
-                                'json' => $medication1
-                            ]);
-                        } catch (BadResponseException $e) {
-                            if ($e->hasResponse()) {
-                                $response = $e->getResponse();
-                                $test = json_decode($response->getBody());
-                                // dd($test);
-
-                                $message = "Medication 1 error $test";
-
-                                Session::flash('error', $message);
-                            }
-
-                            $dataLog = ResponseMedicationSatuSehat::all();
-
-                            // dd($dataLog);
-
-                            return view('satu_sehat.client_apotek', compact('dataLog'));
-                        }
-
-                        // dd($response);
-
-                        $data = json_decode($response->getBody());
-
-                        // dd($data, $data->id, $data->resourceType, $index);
-
-                        if (!empty($data->id) && $data->resourceType == "Medication") {
-
-                            $simpan = new ResponseMedicationSatuSehat();
-                            $simpan->noRawat = $dataPengunjung->no_rawat;
-                            $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
-                            $simpan->noResep = $noresep;
-                            $simpan->medication1 = $data->id;
-                            $simpan->save();
-
-                            //Off ini dulu buat pakai langsung dari inisialisasi idMedication1 saja
-                            // $response1 = SatuSehatController::getMedicationId($noresep);
-                            $idMedication1 = $data->id;
-
-                            // dd($response1, $idCounter->encounter_id);
-                            $medicationRequest = [
-                                "resourceType" => "MedicationRequest",
                                 "identifier" => [
                                     [
-                                        "system" => "http://sys-ids.kemkes.go.id/prescription/$idRS",
+                                        "system" => "http://sys-ids.kemkes.go.id/medication/$idRS",
                                         "use" => "official",
                                         "value" => "$dataListObat->no_resep"
-                                    ],
-                                    [
-                                        "system" => "http://sys-ids.kemkes.go.id/prescription-item/$idRS",
-                                        "use" => "official",
-                                        "value" => "$noresep"
                                     ]
                                 ],
-                                "status" => "completed",
-                                "intent" => "order",
-                                "category" => [
-                                    [
-                                        "coding" => [ //tetap saja karena buat rajal ya code dibawah
-                                            [
-                                                "system" => "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
-                                                "code" => "outpatient",
-                                                "display" => "Outpatient"
-                                            ]
+                                "code" => [
+                                    "coding" => [ //Iki dinggo mapping obate
+                                        [
+                                            "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                            "code" => "$mappingObat->id_ihs",
+                                            "display" => "$dataListObat->nama_brng"
                                         ]
                                     ]
                                 ],
-                                "priority" => "routine",
-                                "medicationReference" => [
-                                    "reference" => "Medication/$idMedication1",
-                                    "display" => "$dataListObat->nama_brng"
+                                "status" => "active",
+                                // "manufacturer" => [ //optional
+                                //     "reference" => "Organization/900001"
+                                // ],
+                                "form" => [
+                                    "coding" => [ //Iki dinggo medication form tipe obate opo
+                                        [
+                                            "system" => "$mappingObat->form_coding_system",
+                                            "code" => "$mappingObat->kode_medication",
+                                            "display" => "$mappingObat->form_display"
+                                        ]
+                                    ]
                                 ],
-                                "subject" => [
-                                    "reference" => "Patient/100000030009",
-                                    "display" => "$dataPengunjung->nm_pasien"
-                                ],
-                                "encounter" => [
-                                    "reference" => "Encounter/$idCounter->encounter_id"
-                                ],
-                                "authoredOn" => "$dataPengunjung->tgl_registrasi",
-                                "requester" => [
-                                    "reference" => "Practitioner/$idDokter",
-                                    "display" => "$dataPengunjung->nama_dokter"
-                                ],
-                                // "reasonCode" => [ //Optional
+                                // "ingredient" => [ //untuk racikan yang wajib
                                 //     [
-                                //         "coding" => [
-                                //             [
-                                //                 "system" => "http://hl7.org/fhir/sid/icd-10",
-                                //                 "code" => "A15.0", //diagnosa pasien icd 10
-                                //                 "display" => "Tuberculosis of lung, confirmed by sputum microscopy with or without culture"
+                                //         "itemCodeableConcept" => [
+                                //             "coding" => [
+                                //                 [
+                                //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                //                     "code" => "91000330",
+                                //                     "display" => "Rifampin"
+                                //                 ]
+                                //             ]
+                                //         ],
+                                //         "isActive" => true,
+                                //         "strength" => [
+                                //             "numerator" => [
+                                //                 "value" => 150,
+                                //                 "system" => "http://unitsofmeasure.org",
+                                //                 "code" => "mg"
+                                //             ],
+                                //             "denominator" => [
+                                //                 "value" => 1,
+                                //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+                                //                 "code" => "TAB"
+                                //             ]
+                                //         ]
+                                //     ],
+                                //     [
+                                //         "itemCodeableConcept" => [
+                                //             "coding" => [
+                                //                 [
+                                //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                //                     "code" => "91000328",
+                                //                     "display" => "Isoniazid"
+                                //                 ]
+                                //             ]
+                                //         ],
+                                //         "isActive" => true,
+                                //         "strength" => [
+                                //             "numerator" => [
+                                //                 "value" => 75,
+                                //                 "system" => "http://unitsofmeasure.org",
+                                //                 "code" => "mg"
+                                //             ],
+                                //             "denominator" => [
+                                //                 "value" => 1,
+                                //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+                                //                 "code" => "TAB"
+                                //             ]
+                                //         ]
+                                //     ],
+                                //     [
+                                //         "itemCodeableConcept" => [
+                                //             "coding" => [
+                                //                 [
+                                //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                //                     "code" => "91000329",
+                                //                     "display" => "Pyrazinamide"
+                                //                 ]
+                                //             ]
+                                //         ],
+                                //         "isActive" => true,
+                                //         "strength" => [
+                                //             "numerator" => [
+                                //                 "value" => 400,
+                                //                 "system" => "http://unitsofmeasure.org",
+                                //                 "code" => "mg"
+                                //             ],
+                                //             "denominator" => [
+                                //                 "value" => 1,
+                                //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+                                //                 "code" => "TAB"
+                                //             ]
+                                //         ]
+                                //     ],
+                                //     [
+                                //         "itemCodeableConcept" => [
+                                //             "coding" => [
+                                //                 [
+                                //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                //                     "code" => "91000288",
+                                //                     "display" => "Ethambutol"
+                                //                 ]
+                                //             ]
+                                //         ],
+                                //         "isActive" => true,
+                                //         "strength" => [
+                                //             "numerator" => [
+                                //                 "value" => 275,
+                                //                 "system" => "http://unitsofmeasure.org",
+                                //                 "code" => "mg"
+                                //             ],
+                                //             "denominator" => [
+                                //                 "value" => 1,
+                                //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+                                //                 "code" => "TAB"
                                 //             ]
                                 //         ]
                                 //     ]
                                 // ],
-                                // "courseOfTherapyType" => [ //optional
-                                //     "coding" => [
-                                //         [
-                                //             "system" => "http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
-                                //             "code" => "continuous",
-                                //             "display" => "Continuing long term therapy"
-                                //         ]
-                                //     ]
-                                // ],
-                                "dosageInstruction" => [
+                                "extension" => [ //harus bos
                                     [
-                                        "sequence" => 1,
-                                        "text" => "4 tablet per hari", //optional
-                                        "additionalInstruction" => [ //optional
-                                            [
-                                                "text" => "Diminum setiap hari"
-                                            ]
-                                        ],
-                                        "patientInstruction" => "4 tablet perhari, diminum setiap hari tanpa jeda sampai prose pengobatan berakhir", //opsional
-                                        "timing" => [ //wajib dan ruwet
-                                            "repeat" => [
-                                                "frequency" => 1,
-                                                "period" => 1,
-                                                "periodUnit" => "d"
-                                            ]
-                                        ],
-                                        "route" => [ //wajib
+                                        "url" => "https://fhir.kemkes.go.id/r4/StructureDefinition/MedicationType",
+                                        "valueCodeableConcept" => [
                                             "coding" => [
                                                 [
-                                                    "system" => "http://www.whocc.no/atc",
-                                                    "code" => "O",
-                                                    "display" => "Oral"
-                                                ]
-                                            ]
-                                        ],
-                                        "doseAndRate" => [ //wajib
-                                            [
-                                                "type" => [
-                                                    "coding" => [
-                                                        [
-                                                            "system" => "http://terminology.hl7.org/CodeSystem/dose-rate-type",
-                                                            "code" => "ordered",
-                                                            "display" => "Ordered"
-                                                        ]
-                                                    ]
-                                                ],
-                                                "doseQuantity" => [
-                                                    "value" => 4,
-                                                    "unit" => "TAB",
-                                                    "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
-                                                    "code" => "TAB"
+                                                    "system" => "https://terminology.kemkes.go.id/CodeSystem/medication-type",
+                                                    "code" => "NC",
+                                                    "display" => "Non-compound"
                                                 ]
                                             ]
                                         ]
                                     ]
-                                ],
-                                "dispenseRequest" => [
-                                    "dispenseInterval" => [ //optional
-                                        "value" => 1,
-                                        "unit" => "days",
-                                        "system" => "http://unitsofmeasure.org",
-                                        "code" => "d"
-                                    ],
-                                    "validityPeriod" => [ //optional
-                                        "start" => "2022-01-01",
-                                        "end" => "2022-01-30"
-                                    ],
-                                    "numberOfRepeatsAllowed" => 0, //optional
-                                    "quantity" => [ //wajib
-                                        "value" => 120,
-                                        "unit" => "TAB",
-                                        "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
-                                        "code" => "TAB"
-                                    ],
-                                    "expectedSupplyDuration" => [ //optional
-                                        "value" => 30,
-                                        "unit" => "days",
-                                        "system" => "http://unitsofmeasure.org",
-                                        "code" => "d"
-                                    ],
-                                    "performer" => [ //optional
-                                        "reference" => "Organization/$idRS"
-                                    ]
                                 ]
                             ];
 
-                            // dd($medicationRequest);
+                            // dd($medication1);
 
-                            //Kirim/Create Medication Request
+                            //Kirim/Create Medication
                             SatuSehatController::getTokenSehat();
                             $access_token = Session::get('tokenSatuSehat');
                             // dd($access_token);
                             $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                             try {
-                                $response = $client->request('POST', 'fhir-r4/v1/MedicationRequest', [
+                                $response = $client->request('POST', 'fhir-r4/v1/Medication', [
                                     'headers' => [
                                         'Authorization' => "Bearer {$access_token}"
                                     ],
-                                    'json' => $medicationRequest
+                                    'json' => $medication1
                                 ]);
                             } catch (BadResponseException $e) {
                                 if ($e->hasResponse()) {
                                     $response = $e->getResponse();
                                     $test = json_decode($response->getBody());
-                                    dd($test);
+                                    $pesan = $test->fault;
 
-                                    $message = "Medication Request error " . $test;
+                                    $message = "Medication 1 error $pesan->faultstring";
 
                                     Session::flash('error', $message);
+
+                                    $dataLog = ResponseMedicationSatuSehat::all();
+
+                                    // dd($dataLog);
+
+                                    return view('satu_sehat.client_apotek', compact('dataLog'));
                                 }
 
                                 $dataLog = ResponseMedicationSatuSehat::all();
@@ -1904,37 +1724,195 @@ class SatuSehatController extends Controller
                             }
 
                             // dd($response);
+
                             $data = json_decode($response->getBody());
 
-                            //Update data di table respone medication request
-                            $update = ResponseMedicationSatuSehat::where('noResep', $noresep)->first();
-                            $update->medicationRequest = $data->id;
-                            $update->save();
-                            // $update2 = ResponseMedicationSatuSehat::where('noResep', $noresep)->first();
-                            // dd($data, $update2);
-                            if (!empty($data->id) && $data->resourceType == "MedicationRequest") {
-                                //Langsung kirim medication 1 sebagai medication2
-                                //Kirim/Create Medication
+                            // dd($data, $data->id, $data->resourceType, $index);
+
+                            if (!empty($data->id) && $data->resourceType == "Medication") {
+
+                                $simpan = new ResponseMedicationSatuSehat();
+                                $simpan->noRawat = $dataPengunjung->no_rawat;
+                                $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                                $simpan->noResep = $noresep;
+                                $simpan->medication1 = $data->id;
+                                $simpan->save();
+
+                                //Off ini dulu buat pakai langsung dari inisialisasi idMedication1 saja
+                                // $response1 = SatuSehatController::getMedicationId($noresep);
+                                $idMedication1 = $data->id;
+
+                                // dd($response1, $idCounter->encounter_id);
+                                $medicationRequest = [
+                                    "resourceType" => "MedicationRequest",
+                                    "identifier" => [
+                                        [
+                                            "system" => "http://sys-ids.kemkes.go.id/prescription/$idRS",
+                                            "use" => "official",
+                                            "value" => "$dataListObat->no_resep"
+                                        ],
+                                        [
+                                            "system" => "http://sys-ids.kemkes.go.id/prescription-item/$idRS",
+                                            "use" => "official",
+                                            "value" => "$noresep"
+                                        ]
+                                    ],
+                                    "status" => "completed",
+                                    "intent" => "order",
+                                    "category" => [
+                                        [
+                                            "coding" => [ //tetap saja karena buat rajal ya code dibawah
+                                                [
+                                                    "system" => "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                                                    "code" => "outpatient",
+                                                    "display" => "Outpatient"
+                                                ]
+                                            ]
+                                        ]
+                                    ],
+                                    "priority" => "routine",
+                                    "medicationReference" => [
+                                        "reference" => "Medication/$idMedication1",
+                                        "display" => "$dataListObat->nama_brng"
+                                    ],
+                                    "subject" => [
+                                        "reference" => "Patient/$idPasien",
+                                        "display" => "$dataPengunjung->nm_pasien"
+                                    ],
+                                    "encounter" => [
+                                        "reference" => "Encounter/$idCounter->encounter_id"
+                                    ],
+                                    "authoredOn" => "$dataPengunjung->tgl_registrasi",
+                                    "requester" => [
+                                        "reference" => "Practitioner/$idDokter",
+                                        "display" => "$dataPengunjung->nama_dokter"
+                                    ],
+                                    // "reasonCode" => [ //Optional
+                                    //     [
+                                    //         "coding" => [
+                                    //             [
+                                    //                 "system" => "http://hl7.org/fhir/sid/icd-10",
+                                    //                 "code" => "A15.0", //diagnosa pasien icd 10
+                                    //                 "display" => "Tuberculosis of lung, confirmed by sputum microscopy with or without culture"
+                                    //             ]
+                                    //         ]
+                                    //     ]
+                                    // ],
+                                    // "courseOfTherapyType" => [ //optional
+                                    //     "coding" => [
+                                    //         [
+                                    //             "system" => "http://terminology.hl7.org/CodeSystem/medicationrequest-course-of-therapy",
+                                    //             "code" => "continuous",
+                                    //             "display" => "Continuing long term therapy"
+                                    //         ]
+                                    //     ]
+                                    // ],
+                                    "dosageInstruction" => [
+                                        [
+                                            "sequence" => 1,
+                                            "text" => "$dataListObat->aturan_pakai", //optional
+                                            // "additionalInstruction" => [ //optional
+                                            //     [
+                                            //         "text" => "Diminum setiap hari"
+                                            //     ]
+                                            // ],
+                                            "patientInstruction" => "$dataListObat->aturan_pakai", //opsional
+                                            "timing" => [ //wajib dan ruwet
+                                                "repeat" => [
+                                                    "frequency" => 1,
+                                                    "period" => 1,
+                                                    "periodUnit" => "d"
+                                                ]
+                                            ],
+                                            "route" => [ //wajib
+                                                "coding" => [
+                                                    [
+                                                        "system" => "$mappingObat->route_system",
+                                                        "code" => "$mappingObat->kode_route",
+                                                        "display" => "$mappingObat->route_display"
+                                                    ]
+                                                ]
+                                            ],
+                                            "doseAndRate" => [ //wajib
+                                                [
+                                                    "type" => [
+                                                        "coding" => [
+                                                            [
+                                                                "system" => "http://terminology.hl7.org/CodeSystem/dose-rate-type",
+                                                                "code" => "ordered",
+                                                                "display" => "Ordered"
+                                                            ]
+                                                        ]
+                                                    ],
+                                                    "doseQuantity" => [
+                                                        "value" => $dataListObat->jml, //perlu dikoreksi
+                                                        "unit" => "$mappingObat->kode_ingredient",
+                                                        "system" => "$mappingObat->ingredient_system",
+                                                        "code" => "$mappingObat->kode_ingredient"
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ],
+                                    "dispenseRequest" => [
+                                        // "dispenseInterval" => [ //optional
+                                        //     "value" => 1,
+                                        //     "unit" => "days",
+                                        //     "system" => "http://unitsofmeasure.org",
+                                        //     "code" => "d"
+                                        // ],
+                                        "validityPeriod" => [ //optional Waktu Peresepan
+                                            "start" => "$getResep->tgl_permintaan",
+                                            "end" => "$getResep->tgl_penyerahan"
+                                        ],
+                                        "numberOfRepeatsAllowed" => 0, //optional
+                                        "quantity" => [ //wajib
+                                            "value" => $dataListObat->jml,
+                                            "unit" => "$mappingObat->kode_ingredient",
+                                            "system" => "$mappingObat->ingredient_system",
+                                            "code" => "$mappingObat->kode_ingredient"
+                                        ],
+                                        // "expectedSupplyDuration" => [ //optional
+                                        //     "value" => 30,
+                                        //     "unit" => "days",
+                                        //     "system" => "http://unitsofmeasure.org",
+                                        //     "code" => "d"
+                                        // ],
+                                        "performer" => [ //optional
+                                            "reference" => "Organization/$idRS"
+                                        ]
+                                    ]
+                                ];
+
+                                // dd($medicationRequest);
+
+                                //Kirim/Create Medication Request
                                 SatuSehatController::getTokenSehat();
                                 $access_token = Session::get('tokenSatuSehat');
                                 // dd($access_token);
                                 $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                                 try {
-                                    $response = $client->request('POST', 'fhir-r4/v1/Medication', [
+                                    $response = $client->request('POST', 'fhir-r4/v1/MedicationRequest', [
                                         'headers' => [
                                             'Authorization' => "Bearer {$access_token}"
                                         ],
-                                        'json' => $medication1
+                                        'json' => $medicationRequest
                                     ]);
                                 } catch (BadResponseException $e) {
                                     if ($e->hasResponse()) {
                                         $response = $e->getResponse();
                                         $test = json_decode($response->getBody());
-                                        dd($test);
+                                        $pesan = $test->fault;
 
-                                        $message = "Medication 2 error " . $test;
+                                        $message = "Medication request error $pesan->faultstring";
 
                                         Session::flash('error', $message);
+
+                                        $dataLog = ResponseMedicationSatuSehat::all();
+
+                                        // dd($dataLog);
+
+                                        return view('satu_sehat.client_apotek', compact('dataLog'));
                                     }
 
                                     $dataLog = ResponseMedicationSatuSehat::all();
@@ -1945,155 +1923,46 @@ class SatuSehatController extends Controller
                                 }
 
                                 // dd($response);
-
                                 $data = json_decode($response->getBody());
 
-                                // dd($data);
-                                //Update data di table respone medication2
-                                $update = ResponseMedicationSatuSehat::where('noResep', $noresep)->first();
-                                $update->medication2 = $data->id;
+                                //Update data di table respone medication request
+                                $update = ResponseMedicationSatuSehat::where('medication1', $idMedication1)->first();
+                                $update->medicationRequest = $data->id;
                                 $update->save();
 
-                                //variabel dinamis
-                                // $apoteker = SatuSehatController::practitioner('3309090909870004');
-                                $apoteker = "10001354453";
-                                $lokasiApotek = '6a647d0b-d880-4e91-aa87-7bc7e4f7c066';
-                                //Waktu
-                                $waktuAwal = $getResep->tgl_permintaan . ' ' . $getResep->jam_permintaan;
-                                $waktu_mulai = new Carbon($waktuAwal);
-                                $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
-                                $waktuSelesai = $getResep->tgl_penyerahan . ' ' . $getResep->jam_penyerahan;
-                                $waktu_selesai = new Carbon($waktuSelesai);
-                                $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
-
-                                // dd($apoteker);
-
+                                $idMedicationRequest = $data->id;
                                 // $update2 = ResponseMedicationSatuSehat::where('noResep', $noresep)->first();
                                 // dd($data, $update2);
-                                $response2 = SatuSehatController::getMedicationId($noresep);
-                                if (!empty($data->id) && $data->resourceType == "Medication") {
-                                    $medicationDispense = [
-                                        "resourceType" => "MedicationDispense",
-                                        "identifier" => [
-                                            [
-                                                "system" => "http://sys-ids.kemkes.go.id/prescription/$idRS",
-                                                "use" => "official",
-                                                "value" => "$dataListObat->no_resep"
-                                            ],
-                                            [
-                                                "system" => "http://sys-ids.kemkes.go.id/prescription-item/$idRS",
-                                                "use" => "official",
-                                                "value" => "$noresep"
-                                            ]
-                                        ],
-                                        "status" => "completed", //wajib
-                                        "category" => [ //wajib
-                                            "coding" => [
-                                                [
-                                                    "system" => "http://terminology.hl7.org/fhir/CodeSystem/medicationdispense-category",
-                                                    "code" => "outpatient",
-                                                    "display" => "Outpatient"
-                                                ]
-                                            ]
-                                        ],
-                                        "medicationReference" => [
-                                            "reference" => "Medication/$response2->medication2", //wajib
-                                            "display" => "Obat Anti Tuberculosis / Rifampicin 150 mg / Isoniazid 75 mg / Pyrazinamide 400 mg / Ethambutol 275 mg Kaplet Salut Selaput (KIMIA FARMA)" //free text
-                                        ],
-                                        "subject" => [ //wajib
-                                            "reference" => "Patient/100000030009",
-                                            "display" => "$dataPengunjung->nm_pasien"
-                                        ],
-                                        "context" => [ //wajib
-                                            "reference" => "Encounter/$idCounter->encounter_id"
-                                        ],
-                                        "performer" => [ //optional
-                                            [
-                                                "actor" => [
-                                                    "reference" => "Practitioner/$apoteker",
-                                                    "display" => "WAHID BUDI NUGROHO, S.Farm, Apt"
-                                                ]
-                                            ]
-                                        ],
-                                        "location" => [ //wajib
-                                            "reference" => "Location/$lokasiApotek",
-                                            "display" => "Apotek RSUP Surakarta"
-                                        ],
-                                        "authorizingPrescription" => [
-                                            [
-                                                "reference" => "MedicationRequest/$response2->medicationRequest"
-                                            ]
-                                        ],
-                                        "quantity" => [ //wajib
-                                            "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
-                                            "code" => "TAB",
-                                            "value" => 120
-                                        ],
-                                        "daysSupply" => [ //optional
-                                            "value" => 30,
-                                            "unit" => "Day",
-                                            "system" => "http://unitsofmeasure.org",
-                                            "code" => "d"
-                                        ],
-                                        "whenPrepared" => "$formatWaktuMulai", //optional
-                                        "whenHandedOver" => "$formatWaktuSelesai", //optional
-                                        "dosageInstruction" => [
-                                            [
-                                                "sequence" => 1, //wajib
-                                                "text" => "Diminum 4 tablet sekali dalam sehari",
-                                                "timing" => [
-                                                    "repeat" => [
-                                                        "frequency" => 1,
-                                                        "period" => 1,
-                                                        "periodUnit" => "d"
-                                                    ]
-                                                ],
-                                                "doseAndRate" => [
-                                                    [
-                                                        "type" => [
-                                                            "coding" => [
-                                                                [
-                                                                    "system" => "http://terminology.hl7.org/CodeSystem/dose-rate-type",
-                                                                    "code" => "ordered",
-                                                                    "display" => "Ordered"
-                                                                ]
-                                                            ]
-                                                        ],
-                                                        "doseQuantity" => [ //wajib
-                                                            "value" => 4,
-                                                            "unit" => "TAB",
-                                                            "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
-                                                            "code" => "TAB"
-                                                        ]
-                                                    ]
-                                                ]
-                                            ]
-                                        ]
-                                    ];
-                                    // dd($medicationDispense);
+                                if (!empty($data->id) && $data->resourceType == "MedicationRequest") {
+                                    //Langsung kirim medication 1 sebagai medication2
+                                    //Kirim/Create Medication
                                     SatuSehatController::getTokenSehat();
                                     $access_token = Session::get('tokenSatuSehat');
                                     // dd($access_token);
                                     $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                                     try {
-                                        $response = $client->request('POST', 'fhir-r4/v1/MedicationDispense', [
+                                        $response = $client->request('POST', 'fhir-r4/v1/Medication', [
                                             'headers' => [
                                                 'Authorization' => "Bearer {$access_token}"
                                             ],
-                                            'json' => $medicationDispense
+                                            'json' => $medication1
                                         ]);
                                     } catch (BadResponseException $e) {
                                         if ($e->hasResponse()) {
                                             $response = $e->getResponse();
                                             $test = json_decode($response->getBody());
-                                            dd($test);
+                                            $pesan = $test->fault;
 
-                                            $message = "Medication Dispace error " . $test;
+                                            $message = "Medication 2 error $pesan->faultstring";
 
                                             Session::flash('error', $message);
+
+                                            $dataLog = ResponseMedicationSatuSehat::all();
+
+                                            // dd($dataLog);
+
+                                            return view('satu_sehat.client_apotek', compact('dataLog'));
                                         }
-
-
 
                                         $dataLog = ResponseMedicationSatuSehat::all();
 
@@ -2103,18 +1972,201 @@ class SatuSehatController extends Controller
                                     }
 
                                     // dd($response);
+
                                     $data = json_decode($response->getBody());
 
-                                    //Update data di table respone medication request
-                                    $update = ResponseMedicationSatuSehat::where('noResep', $noresep)->first();
-                                    $update->medicationDispence = $data->id;
+                                    // dd($data);
+                                    //Update data di table respone medication2
+                                    $update = ResponseMedicationSatuSehat::where('medication1', $idMedication1)->first();
+                                    $update->medication2 = $data->id;
                                     $update->save();
+
+                                    //variabel dinamis
+                                    $idMedication2 = $data->id;
+                                    // $apoteker = SatuSehatController::practitioner('3309090909870004');
+                                    $apoteker = "10001354453";
+                                    $lokasiApotek = '6a647d0b-d880-4e91-aa87-7bc7e4f7c066';
+                                    //Waktu
+                                    $waktuAwal = $getResep->tgl_permintaan . ' ' . $getResep->jam_permintaan;
+                                    $waktu_mulai = new Carbon($waktuAwal);
+                                    $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
+                                    $waktuSelesai = $getResep->tgl_penyerahan . ' ' . $getResep->jam_penyerahan;
+                                    $waktu_selesai = new Carbon($waktuSelesai);
+                                    $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
+                                    //Cek Obat yang diberikan
+                                    $obatPasien = SatuSehatController::obatDiberikan($getResep->no_rawat, $dataListObat->kode_brng);
+
+                                    // dd($obatPasien);
+                                    $jmlObatPasien = $obatPasien[0];
+                                    if ($jmlObatPasien == null) {
+                                        $jmlObatPasien = 0;
+                                    } else {
+                                        $jmlObatPasien = $jmlObatPasien->jml;
+                                    }
+                                    $aturanObatPasien = $obatPasien[1];
+                                    if ($aturanObatPasien == null) {
+                                        $aturanObatPasien = '';
+                                    } else {
+                                        $aturanObatPasien = $aturanObatPasien->aturan;
+                                    }
+                                    // dd($obatPasien);
+
+                                    // $update2 = ResponseMedicationSatuSehat::where('noResep', $noresep)->first();
+                                    // dd($data, $update2);
+                                    // $response2 = SatuSehatController::getMedicationId($noresep);
+                                    if (!empty($data->id) && $data->resourceType == "Medication") {
+                                        $medicationDispense = [
+                                            "resourceType" => "MedicationDispense",
+                                            "identifier" => [
+                                                [
+                                                    "system" => "http://sys-ids.kemkes.go.id/prescription/$idRS",
+                                                    "use" => "official",
+                                                    "value" => "$dataListObat->no_resep"
+                                                ],
+                                                [
+                                                    "system" => "http://sys-ids.kemkes.go.id/prescription-item/$idRS",
+                                                    "use" => "official",
+                                                    "value" => "$noresep"
+                                                ]
+                                            ],
+                                            "status" => "completed", //wajib
+                                            "category" => [ //wajib
+                                                "coding" => [
+                                                    [
+                                                        "system" => "http://terminology.hl7.org/fhir/CodeSystem/medicationdispense-category",
+                                                        "code" => "outpatient",
+                                                        "display" => "Outpatient"
+                                                    ]
+                                                ]
+                                            ],
+                                            "medicationReference" => [
+                                                "reference" => "Medication/$idMedication2", //wajib
+                                                "display" => "$dataListObat->nama_brng" //free text
+                                            ],
+                                            "subject" => [ //wajib
+                                                "reference" => "Patient/$idPasien",
+                                                "display" => "$dataPengunjung->nm_pasien"
+                                            ],
+                                            "context" => [ //wajib
+                                                "reference" => "Encounter/$idCounter->encounter_id"
+                                            ],
+                                            "performer" => [ //optional
+                                                [
+                                                    "actor" => [
+                                                        "reference" => "Practitioner/$apoteker",
+                                                        "display" => "WAHID BUDI NUGROHO, S.Farm, Apt"
+                                                    ]
+                                                ]
+                                            ],
+                                            "location" => [ //wajib
+                                                "reference" => "Location/$lokasiApotek",
+                                                "display" => "Apotek RSUP Surakarta"
+                                            ],
+                                            "authorizingPrescription" => [
+                                                [
+                                                    "reference" => "MedicationRequest/$idMedicationRequest"
+                                                ]
+                                            ],
+                                            "quantity" => [ //wajib
+                                                "system" => "$mappingObat->ingredient_system",
+                                                "code" => "$mappingObat->kode_ingredient",
+                                                "value" => $jmlObatPasien
+                                            ],
+                                            // "daysSupply" => [ //optional
+                                            //     "value" => 30,
+                                            //     "unit" => "Day",
+                                            //     "system" => "http://unitsofmeasure.org",
+                                            //     "code" => "d"
+                                            // ],
+                                            "whenPrepared" => "$formatWaktuMulai", //optional
+                                            "whenHandedOver" => "$formatWaktuSelesai", //optional
+                                            "dosageInstruction" => [
+                                                [
+                                                    "sequence" => 1, //wajib
+                                                    "text" => "$aturanObatPasien",
+                                                    "timing" => [
+                                                        "repeat" => [
+                                                            "frequency" => 1,
+                                                            "period" => 1,
+                                                            "periodUnit" => "wk" //ben ambigu rpp sek dinggo sek text
+                                                        ]
+                                                    ],
+                                                    "doseAndRate" => [
+                                                        [
+                                                            "type" => [
+                                                                "coding" => [
+                                                                    [
+                                                                        "system" => "http://terminology.hl7.org/CodeSystem/dose-rate-type",
+                                                                        "code" => "ordered",
+                                                                        "display" => "Ordered"
+                                                                    ]
+                                                                ]
+                                                            ],
+                                                            "doseQuantity" => [ //wajib
+                                                                "value" => $jmlObatPasien, //ndadak mecah iki dosise piro sekali minum
+                                                                "unit" => "$mappingObat->kode_ingredient",
+                                                                "system" => "$mappingObat->ingredient_system",
+                                                                "code" => "$mappingObat->kode_ingredient"
+                                                            ]
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ];
+                                        // dd($medicationDispense);
+                                        SatuSehatController::getTokenSehat();
+                                        $access_token = Session::get('tokenSatuSehat');
+                                        // dd($access_token);
+                                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                                        try {
+                                            $response = $client->request('POST', 'fhir-r4/v1/MedicationDispense', [
+                                                'headers' => [
+                                                    'Authorization' => "Bearer {$access_token}"
+                                                ],
+                                                'json' => $medicationDispense
+                                            ]);
+                                        } catch (BadResponseException $e) {
+                                            if ($e->hasResponse()) {
+                                                $response = $e->getResponse();
+                                                $test = json_decode($response->getBody());
+                                                $pesan = $test->fault;
+
+                                                $message = "Medication 1 dispence $pesan->faultstring";
+
+                                                Session::flash('error', $message);
+
+                                                $dataLog = ResponseMedicationSatuSehat::all();
+
+                                                // dd($dataLog);
+
+                                                return view('satu_sehat.client_apotek', compact('dataLog'));
+                                            }
+
+
+
+                                            $dataLog = ResponseMedicationSatuSehat::all();
+
+                                            // dd($dataLog);
+
+                                            return view('satu_sehat.client_apotek', compact('dataLog'));
+                                        }
+
+                                        // dd($response);
+                                        $data = json_decode($response->getBody());
+
+                                        //Update data di table respone medication request
+                                        $update = ResponseMedicationSatuSehat::where('medication1', $idMedication1)->first();
+                                        $update->medicationDispence = $data->id;
+                                        $update->save();
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+            //     ++$antrian;
+            // }
         }
         $dataLog = ResponseMedicationSatuSehat::all();
 
@@ -5442,15 +5494,32 @@ class SatuSehatController extends Controller
     public function getIdObat($kd_obat)
     {
         $data = DB::connection('mysqlkhanza')->table('fhir_farmasi')
+            ->join('fhir_master_medicationform', 'fhir_master_medicationform.kd_medication', '=', 'fhir_farmasi.kode_medication')
+            ->join('fhir_master_ucum', 'fhir_master_ucum.kd_ucum', '=', 'fhir_farmasi.kode_ucum')
+            ->join('fhir_master_ingredient', 'fhir_master_ingredient.kd_ingredient', '=', 'fhir_farmasi.kode_ingredient')
+            ->join('fhir_master_route', 'fhir_master_route.kd_route', '=', 'fhir_farmasi.kode_route')
             ->select(
                 'fhir_farmasi.kode_brng',
-                'fhir_farmasi.id_ihs'
+                'fhir_farmasi.id_ihs',
+                'fhir_farmasi.kode_medication',
+                'fhir_master_medicationform.display as form_display',
+                'fhir_master_medicationform.coding_system as form_coding_system',
+                'fhir_farmasi.kode_ucum',
+                'fhir_master_ucum.system as ucum_system',
+                'fhir_master_ucum.name as ucum_name',
+                'fhir_farmasi.kode_ingredient',
+                'fhir_master_ingredient.display as ingredient_display',
+                'fhir_master_ingredient.system as ingredient_system',
+                'fhir_farmasi.kode_route',
+                'fhir_master_route.display as route_display',
+                'fhir_master_route.keterangan as route_keterangan',
+                'fhir_master_route.system as route_system'
             )
             ->where('fhir_farmasi.kode_brng', $kd_obat)
             ->first();
 
         if (!empty($data)) {
-            return $data->id_ihs;
+            return $data;
         } else {
             $error = new LogErrorSatuSehat();
             $error->subject = 'Farmasi';
@@ -5459,6 +5528,41 @@ class SatuSehatController extends Controller
 
             return null;
         }
+    }
+
+    public function obatDiberikan($idRawat, $idObat)
+    {
+        $data = DB::connection('mysqlkhanza')->table('detail_pemberian_obat')
+            ->select(
+                'detail_pemberian_obat.no_rawat',
+                'detail_pemberian_obat.kode_brng',
+                'detail_pemberian_obat.jml',
+                'detail_pemberian_obat.tgl_perawatan',
+                'detail_pemberian_obat.jam'
+            )
+            ->where('detail_pemberian_obat.no_rawat', $idRawat)
+            ->where('detail_pemberian_obat.kode_brng', $idObat)
+            ->first();
+
+        $aturan = DB::connection('mysqlkhanza')->table('aturan_pakai')
+            ->select(
+                'aturan_pakai.no_rawat',
+                'aturan_pakai.kode_brng',
+                'aturan_pakai.aturan'
+            )
+            ->where('aturan_pakai.no_rawat', $idRawat)
+            ->where('aturan_pakai.kode_brng', $idObat)
+            ->first();
+
+        // if (empty($data)) {
+        //     return 0;
+        // }
+
+        // if (empty($aturan)) {
+        //     return 0;
+        // }
+
+        return array($data, $aturan);
     }
 
     public function getMedicationId($noResep)
