@@ -19,7 +19,7 @@ class Vedika extends Model
                 'billing.tambahan',
                 'billing.totalbiaya',
                 'billing.status',
-                'billing.tgl_byr',
+                'billing.tgl_byr'
             )
             ->where('billing.no_rawat', '=', $id)
             ->count();
@@ -153,7 +153,7 @@ class Vedika extends Model
         $data = DB::connection('mysqlkhanza')->table('petugas')
             ->select(
                 'petugas.nip',
-                'petugas.nama',
+                'petugas.nama'
             )
             ->where('petugas.nip', '=', $cari->nip)
             ->first();
@@ -176,7 +176,7 @@ class Vedika extends Model
         $data = DB::connection('mysqlkhanza')->table('dokter')
             ->select(
                 'dokter.kd_dokter',
-                'dokter.nm_dokter',
+                'dokter.nm_dokter'
             )
             ->where('dokter.kd_dokter', '=', $cari->kd_dokter)
             ->first();

@@ -49,21 +49,24 @@
                                                         <div class="btn-group">
                                                             {{-- {{ dd($sessionApp) }} --}}
 
-                                                            @if ($sessionApp == false)
-                                                                <a href="/pesan/createsession"
-                                                                    class="btn {{ $sessionApp == 'true' ? 'btn-success' : 'btn-danger' }} btn-sm"
-                                                                    data-toggle="tooltip" data-placement="bottom"
-                                                                    title="{{ $sessionApp == 'true' ? 'Session App Found' : 'Session App Not Found' }}">
-                                                                    <i class="fas fa-link"></i>
-                                                                </a>
-                                                            @elseif ($sessionApp == true)
-                                                                <a href="/pesan/deletesession"
-                                                                    class="btn btn-success btn-sm delete-confirm"
-                                                                    data-toggle="tooltip" data-placement="bottom"
-                                                                    title="Delete Session App">
-                                                                    <i class="fas fa-unlink"></i>
-                                                                </a>
-                                                            @elseif ($sessionApp == null)
+
+                                                            @if ($status[2] == 'online')
+                                                                @if ($sessionApp == false)
+                                                                    <a href="/pesan/createsession"
+                                                                        class="btn {{ $sessionApp == 'true' ? 'btn-success' : 'btn-danger' }} btn-sm"
+                                                                        data-toggle="tooltip" data-placement="bottom"
+                                                                        title="{{ $sessionApp == 'true' ? 'Session App Found' : 'Session App Not Found' }}">
+                                                                        <i class="fas fa-link"></i>
+                                                                    </a>
+                                                                @elseif ($sessionApp == true)
+                                                                    <a href="/pesan/deletesession"
+                                                                        class="btn btn-success btn-sm delete-confirm"
+                                                                        data-toggle="tooltip" data-placement="bottom"
+                                                                        title="Delete Session App">
+                                                                        <i class="fas fa-unlink"></i>
+                                                                    </a>
+                                                                @endif
+                                                            @else
                                                                 <a href="/pesan/createsession"
                                                                     class="btn {{ $sessionApp == 'true' ? 'btn-success' : 'btn-danger' }} btn-sm disabled"
                                                                     data-toggle="tooltip" data-placement="bottom"

@@ -33,10 +33,27 @@ class SDMController extends Controller
         $farmasi = SDMController::profesi('PHARMACIST');
         $profesionallain = SDMController::profesi('PROFESIONAL-LAIN');
         $nonmedis = SDMController::profesi('NON-MEDIS');
+        $nonmedisAdministrasi = SDMController::profesi('NON-MEDIS ADMINISTRASI');
+        $sanitarian = SDMController::profesi('SANITARIAN');
 
-        // dd($perawat);
+        // dd($nonmedisAdministrasi, $sanitarian);
 
-        return view('layanan_sdm', compact('spesialis', 'drg', 'umum', 'perawat', 'bidan', 'laborat', 'radio', 'nutrision', 'fisio', 'farmasi', 'profesionallain', 'nonmedis'));
+        return view('bios.layanan_sdm', compact(
+            'spesialis',
+            'drg',
+            'umum',
+            'perawat',
+            'bidan',
+            'laborat',
+            'radio',
+            'nutrision',
+            'fisio',
+            'farmasi',
+            'profesionallain',
+            'nonmedis',
+            'nonmedisAdministrasi',
+            'sanitarian'
+        ));
     }
 
     public function profesi($profesi)
@@ -53,7 +70,7 @@ class SDMController extends Controller
 
         // dd($data);
 
-        $pns = $tetap = $kontrak = 0;
+        $pns = $tetap = $kontrak = $pppk = 0;
 
         foreach ($data as $pegawai) {
             if (($pegawai->nama_status == 'PNS') or ($pegawai->nama_status == 'CPNS')) {
@@ -62,6 +79,8 @@ class SDMController extends Controller
                 $tetap++;
             } elseif ($pegawai->nama_status == 'MITRA') {
                 $kontrak++;
+            } elseif ($pegawai->nama_status == 'PPPK') {
+                $pppk++;
             }
         }
 
@@ -69,13 +88,14 @@ class SDMController extends Controller
             'tgl_transaksi' => Carbon::now()->format('Y-m-d'),
             'pns' => $pns,
             'non_pns_tetap' => $tetap,
-            'kontrak' => $kontrak
+            'kontrak' => $kontrak,
+            'pppk' => $pppk
         ];
 
 
         $data = json_decode(json_encode($array));
 
-        // dd($spesialis);
+        // dd($array);
 
         return $data;
     }

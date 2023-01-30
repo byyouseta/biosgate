@@ -29,7 +29,7 @@ class BorController extends Controller
 
         // dd($alos);
 
-        return view('layanan_bor', compact('bor', 'alos', 'toi', 'bto'));
+        return view('bios.layanan_bor', compact('bor', 'alos', 'toi', 'bto'));
     }
 
     public function cari(Request $request)
@@ -44,7 +44,7 @@ class BorController extends Controller
 
         // dd($alos);
 
-        return view('layanan_bor', compact('bor', 'alos', 'toi', 'bto'));
+        return view('bios.layanan_bor', compact('bor', 'alos', 'toi', 'bto'));
     }
 
     public function bor($tanggal)
@@ -62,7 +62,11 @@ class BorController extends Controller
 
         $HP = BorController::HP($tanggal);
 
-        $nilaiBor = number_format($HP * 100 / $jmlTT, 2);
+        $jmlHari = Carbon::parse($tanggal)->subMonth()->daysInMonth;
+
+        $nilaiBor = number_format($HP * 100 / ($jmlTT * $jmlHari), 2);
+
+        // dd($HP, $jmlTT, $jmlHari);
 
         $arrayBor = [
             'bor' => $nilaiBor,
@@ -155,7 +159,8 @@ class BorController extends Controller
     public function jmlTT()
     {
         $data = DB::connection('mysqlkhanza')->table('kamar')
-            ->select('kamar.kd_kamar')
+            ->select('kamar.kd_kamar', 'kamar.statusdata')
+            ->where('kamar.statusdata', '1')
             ->count();
 
         return $data;
@@ -163,25 +168,59 @@ class BorController extends Controller
 
     public function HP($tanggal)
     {
+        // dd($tanggal);
+        $awalBulanLalu = Carbon::parse($tanggal)->subMonth()->startOfMonth();
+        $akhirBulanLalu = Carbon::parse($tanggal)->subMonth()->endOfMonth();
+        // dd($awalBulanLalu, $akhirBulanLalu, $tanggal);
         $HP = DB::connection('mysqlkhanza')->table('kamar_inap')
-            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
+            // ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
             ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
-            ->select('kamar_inap.no_rawat', 'kamar_inap.tgl_masuk', 'kamar_inap.tgl_keluar', 'kamar.kelas')
-            ->whereDate('kamar_inap.tgl_keluar', '>=', $tanggal)
-            ->whereDate('kamar_inap.tgl_masuk', '<=', $tanggal)
-            ->count();
+            ->select('kamar_inap.no_rawat', 'kamar_inap.tgl_masuk', 'kamar_inap.tgl_keluar', 'kamar.kelas', 'kamar_inap.lama')
+            ->whereDate('kamar_inap.tgl_masuk', '<=', $akhirBulanLalu)
+            ->whereDate('kamar_inap.tgl_masuk', '>=', $awalBulanLalu)
+            ->orWhere(function ($query) use ($awalBulanLalu) {
+                $query->where('kamar_inap.tgl_masuk', '<', $awalBulanLalu)
+                    ->where('kamar_inap.tgl_keluar', '>', $awalBulanLalu);
+            })
+            ->get();
+        $hari = 0;
+        foreach ($HP as $data) {
+            $masuk = new Carbon($data->tgl_masuk);
+            $keluar = new Carbon($data->tgl_keluar);
+            $selisih = $keluar->diff($masuk);
+            $days = $selisih->format('%a');
+            // dd($masuk, $keluar, $selisih, $days);
+            if ($days < 1) {
+                $hari = $hari + 1;
+                $data->tempHari = 1;
+            } elseif ($days > 350) {
+                $data->tempHari = 1;
+                $hari = $hari + 1;
+            } else {
+                $data->tempHari = $days;
+                $hari = $hari + $days;
+            }
+        }
+        // dd($HP, $hari);
 
-        return $HP;
+        return $hari;
     }
 
     public function PasienKeluar($tanggal)
     {
+        $awalBulanLalu = Carbon::parse($tanggal)->subMonth()->startOfMonth();
+        $akhirBulanLalu = Carbon::parse($tanggal)->subMonth()->endOfMonth();
+
         $pasien_keluar = DB::connection('mysqlkhanza')->table('kamar_inap')
             ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
             ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
             ->select('kamar_inap.no_rawat', 'kamar_inap.lama', 'kamar_inap.tgl_keluar', 'kamar.kelas')
-            ->whereDate('kamar_inap.tgl_keluar', '=', $tanggal)
+            ->whereDate('kamar_inap.tgl_keluar', '>=', $awalBulanLalu)
+            ->whereDate('kamar_inap.tgl_keluar', '<=', $akhirBulanLalu)
+            ->orderBy('kamar_inap.tgl_keluar', 'ASC')
             ->get();
+
+        // dd($pasien_keluar);
 
         return $pasien_keluar;
     }

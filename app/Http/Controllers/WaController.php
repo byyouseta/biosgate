@@ -46,7 +46,9 @@ class WaController extends Controller
         // dd($sessionApp, $status);
 
         if ($sessionApp == true) {
-            WaController::deleteSession();
+            // WaController::deleteSession();
+
+            return redirect('/pesan');
         }
         $client = new \GuzzleHttp\Client((['base_uri' => $setting->base_url]));
         try {
@@ -122,10 +124,12 @@ class WaController extends Controller
 
         if (!empty($data)) {
             $pecah = explode(':', $data->base_url);
-            // dd($data, $pecah);
 
             $ipServer = $pecah[0];
             $portServer = $pecah[1];
+
+            // dd($ipServer, $portServer);
+
 
             // foreach ($ports as $port) {
             $connection = @fsockopen($ipServer, $portServer);

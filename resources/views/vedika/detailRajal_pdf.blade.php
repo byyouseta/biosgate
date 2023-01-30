@@ -240,7 +240,7 @@
         </div>
         <table style="width: 100%">
             <tr>
-                <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}" alt="Logo RSUP"
+                <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}" alt="Logo RSUP"
                         width="100">
                 </td>
                 <td>

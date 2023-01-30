@@ -392,7 +392,7 @@ class VedikaController extends Controller
                     'pasien.jk',
                     'pasien.tmp_lahir',
                     'pasien.tgl_lahir',
-                    'pasien.alamat',
+                    'pasien.alamat'
                     // 'bridging_sep.no_sep'
                 )
                 ->where('reg_periksa.no_rawat', '=', $id)
@@ -1337,7 +1337,7 @@ class VedikaController extends Controller
                 'prosedur_pasien.no_rawat',
                 'prosedur_pasien.kode',
                 'prosedur_pasien.status',
-                'icd9.deskripsi_panjang',
+                'icd9.deskripsi_panjang'
             )
             ->where('prosedur_pasien.status', '=', 'Ralan')
             ->where('prosedur_pasien.no_rawat', '=', $id)

@@ -30,26 +30,26 @@ class VisitController extends Controller
 
         // dd($visitpagi, $visitsiang1, $visitsiang2);
 
-        return view('layanan_ikt', compact('visitpagi', 'visitsiang1', 'visitsiang2', 'tidakvisit', 'pertama'));
+        return view('bios.layanan_ikt', compact('visitpagi', 'visitsiang1', 'visitsiang2', 'tidakvisit', 'pertama'));
     }
 
     public function cari(Request $request)
     {
-        session()->put('ibu', 'Data Transaksi');
-        session()->put('anak', 'Data IKT');
+        session()->put('ibu', 'BIOS facelift');
+        session()->put('anak', 'Data Visit/IKT');
 
         $tanggal = $request->get('tanggal');
 
         //data Inap Tanggal sesuai tanggal
         $visitpagi = VisitController::visit($tanggal, '00:00:00', '10:00:00');
         $visitsiang1 = VisitController::visit($tanggal, '10:00:01', '12:00:00');
-        $visitsiang2 = VisitController::visit($tanggal, '12:00:01', '16:00:00');
+        $visitsiang2 = VisitController::visit($tanggal, '12:00:01', '23:59:59');
         $tidakvisit = VisitController::tidakvisit($tanggal);
         $pertama = VisitController::pertama($tanggal);
 
         // dd($visitpagi, $visitsiang1, $visitsiang2);
 
-        return view('layanan_ikt', compact('visitpagi', 'visitsiang1', 'visitsiang2', 'tidakvisit', 'pertama'));
+        return view('bios.layanan_ikt', compact('visitpagi', 'visitsiang1', 'visitsiang2', 'tidakvisit', 'pertama'));
     }
 
     public function visit($tanggal, $mulai, $selesai)
@@ -81,16 +81,34 @@ class VisitController extends Controller
     {
         $data = DB::connection('mysqlkhanza')->table('kamar_inap')
             // ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
-            ->join('dpjp_ranap', 'dpjp_ranap.no_rawat', '=', 'kamar_inap.no_rawat')
+            // ->join('dpjp_ranap', 'dpjp_ranap.no_rawat', '=', 'kamar_inap.no_rawat')
             ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
-            ->select('kamar_inap.no_rawat', 'kamar_inap.tgl_masuk', 'kamar_inap.tgl_keluar', 'kamar.kelas', 'dpjp_ranap.kd_dokter')
+            ->select('kamar_inap.no_rawat', 'kamar_inap.tgl_masuk', 'kamar_inap.tgl_keluar', 'kamar.kelas')
             ->whereDate('kamar_inap.tgl_masuk', '<=', $tanggal)
             ->whereDate('kamar_inap.tgl_keluar', '>=', $tanggal)
             ->orWhereDate('kamar_inap.tgl_keluar', '=', '0000-00-00')
+            ->orderBy('kamar_inap.no_rawat', 'ASC')
+            // ->groupBy('kamar_inap.no_rawat')
             ->get();
 
         // dd($data);
+        foreach ($data as $item) {
+            $dpjp = DB::connection('mysqlkhanza')->table('dpjp_ranap')
+                ->select('dpjp_ranap.no_rawat', 'dpjp_ranap.kd_dokter')
+                ->where('dpjp_ranap.no_rawat', $item->no_rawat)
+                ->get();
+
+            foreach ($dpjp as $listDpjp) {
+                $dokterDpjp = $listDpjp->kd_dokter;
+            }
+
+            $item->kd_dokter = $dokterDpjp;
+            // dd($item);
+        }
+        // dd($data);
+
         $tidak_visit = 0;
+        $pasien = array();
 
         foreach ($data as $data2) {
             $cek = DB::connection('mysqlkhanza')->table('rawat_inap_dr')
@@ -105,11 +123,12 @@ class VisitController extends Controller
 
             // dd($cek);
             if ($cek == 0) {
+                array_push($pasien, $data2->no_rawat . ' dpjp ' . $data2->kd_dokter);
                 $tidak_visit++;
             }
         }
 
-        // dd($tidak_visit, $data->count());
+        // dd($tidak_visit, $pasien);
 
         $array = [
             'jumlah' => $tidak_visit,

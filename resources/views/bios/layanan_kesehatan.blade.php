@@ -16,19 +16,53 @@
             <div class="row">
                 <div class="col-12">
                     <div class="card">
+                        @if (Request::get('tanggal'))
+                            @php
+                                $tanggal = Request::get('tanggal');
+                            @endphp
+                        @else
+                            @php
+                                $tanggal = \Carbon\Carbon::now()
+                                    ->locale('id')
+                                    ->format('Y-m-d');
+                            @endphp
+                        @endif
                         <div class="card-body">
-                            <div class="form-group row">
-                                <div class="col-sm-2 col-form-label">
-                                    <a href="/layanan/bor/client" class="btn btn-success">Jalankan Client</a>
+                            <form action="/layanan/kesehatan/lihat" method="GET">
+                                <div class="form-group row">
+
+                                    <div class="col-sm-1 col-form-label">
+                                        <label>Tanggal</label>
+                                    </div>
+                                    <div class="col-sm-2 col-form-label">
+                                        <div class="input-group date" id="tanggal" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
+                                                value="{{ $tanggal }}" />
+                                            <div class="input-group-append" data-target="#tanggal"
+                                                data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-sm-1 col-form-label">
+                                        <button type="Submit" class="btn btn-primary btn-block">Lihat</button>
+                                    </div>
+
+                                    <div class="col-sm-2 col-form-label">
+                                        <a href="/layanan/kesehatan/client" class="btn btn-success" target="_blank">Jalankan
+                                            Client</a>
+                                    </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Jumlah Dokter Spesialis hari ini</div>
+                            <div class="card_title">Jumlah Pasien Rawat Inap</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -36,16 +70,22 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
+                                            <th class="align-middle">Kode Kelas</th>
+                                            <th class="align-middle">Jumlah Pasien</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <td>{{ $spesialis->tgl_transaksi }}</td>
-                                        <td>{{ $spesialis->pns }}</td>
-                                        <td>{{ $spesialis->non_pns_tetap }}</td>
-                                        <td>{{ $spesialis->kontrak }}</td>
+                                        @forelse ($inap as $data)
+                                            <tr>
+                                                <td>{{ $data->tgl_transaksi }}</td>
+                                                <td>{{ $data->kode_kelas }}</td>
+                                                <td>{{ $data->jumlah }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3">Data Kosong</td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
 
@@ -56,7 +96,7 @@
                 <div class="col-4">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Jumlah Dokter Gigi hari ini</div>
+                            <div class="card_title">Jumlah Pasien IGD</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -64,47 +104,13 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
+                                            <th class="align-middle">Jumlah Pasien</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{{ $drg->tgl_transaksi }}</td>
-                                            <td>{{ $drg->pns }}</td>
-                                            <td>{{ $drg->non_pns_tetap }}</td>
-                                            <td>{{ $drg->kontrak }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">Jumlah Dokter Umum hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $umum->tgl_transaksi }}</td>
-                                            <td>{{ $umum->pns }}</td>
-                                            <td>{{ $umum->non_pns_tetap }}</td>
-                                            <td>{{ $umum->kontrak }}</td>
+                                            <td>{{ $igd->tgl_transaksi }}</td>
+                                            <td>{{ $igd->jumlah }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -116,7 +122,7 @@
                 <div class="col-4">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Jumlah Perawat hari ini</div>
+                            <div class="card_title">Jumlah Layanan Laboratorium (Sample)</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -124,17 +130,13 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
+                                            <th class="align-middle">Jumlah</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{{ $perawat->tgl_transaksi }}</td>
-                                            <td>{{ $perawat->pns }}</td>
-                                            <td>{{ $perawat->non_pns_tetap }}</td>
-                                            <td>{{ $perawat->kontrak }}</td>
+                                            <td>{{ $labsample->tgl_transaksi }}</td>
+                                            <td>{{ $labsample->jumlah }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -146,7 +148,72 @@
                 <div class="col-4">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Jumlah Bidan hari ini</div>
+                            <div class="card_title">Jumlah Layanan Laboratorium (Parameter)</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="overflow-x:auto;">
+                                <table class="table table-bordered table-hover" id="example">
+                                    <thead>
+                                        <tr>
+                                            <th class="align-middle">Tanggal Transaksi</th>
+                                            <th class="align-middle">Nama Layanan</th>
+                                            <th class="align-middle">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (!empty($labparameter))
+                                            @forelse ($labparameter as $data)
+                                                <tr>
+                                                    <td>{{ $data->tgl_transaksi }}</td>
+                                                    <td>{{ $data->nama_layanan }}</td>
+                                                    <td>{{ $data->jumlah }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3">Data Kosong</td>
+                                                </tr>
+                                            @endforelse
+                                        @endif
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card_title">Jumlah Tindakan Operasi</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="overflow-x:auto;">
+                                <table class="table table-bordered table-hover" id="example3">
+                                    <thead>
+                                        <tr>
+                                            <th class="align-middle">Tanggal Transaksi</th>
+                                            <th class="align-middle">Klasifikasi Operasi</th>
+                                            <th class="align-middle">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($operasi as $dataOperasi)
+                                            <tr>
+                                                <td>{{ $dataOperasi->tgl_transaksi }}</td>
+                                                <td>{{ $dataOperasi->klasifikasi_operasi }}</td>
+                                                <td>{{ $dataOperasi->jumlah }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card_title">Jumlah Layanan Radiologi</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -154,17 +221,13 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
+                                            <th class="align-middle">Jumlah</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{{ $bidan->tgl_transaksi }}</td>
-                                            <td>{{ $bidan->pns }}</td>
-                                            <td>{{ $bidan->non_pns_tetap }}</td>
-                                            <td>{{ $bidan->kontrak }}</td>
+                                            <td>{{ $radiologi->tgl_transaksi }}</td>
+                                            <td>{{ $radiologi->jumlah }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -176,7 +239,7 @@
                 <div class="col-4">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Jumlah Pranata Laboratorium hari ini</div>
+                            <div class="card_title">Jumlah Pasien Rawat Jalan</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -184,17 +247,13 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
+                                            <th class="align-middle">Jumlah</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{{ $laborat->tgl_transaksi }}</td>
-                                            <td>{{ $laborat->pns }}</td>
-                                            <td>{{ $laborat->non_pns_tetap }}</td>
-                                            <td>{{ $laborat->kontrak }}</td>
+                                            <td>{{ $rajal->tgl_transaksi }}</td>
+                                            <td>{{ $rajal->jumlah }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -206,25 +265,63 @@
                 <div class="col-4">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Jumlah Radiografer hari ini</div>
+                            <div class="card_title">Jumlah Pasien Rawat Jalan/Poli</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="overflow-x:auto;">
+                                <table class="table table-bordered table-hover" id="example2">
+                                    <thead>
+                                        <tr>
+                                            <th class="align-middle">Tanggal Transaksi</th>
+                                            <th class="align-middle">Nama Poli</th>
+                                            <th class="align-middle">Jumlah</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($rajalpoli as $data)
+                                            <tr>
+                                                <td>{{ $data->tgl_transaksi }}</td>
+                                                <td>{{ $data->nama_poli }}</td>
+                                                <td>{{ $data->jumlah }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3">Data Kosong</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card_title">Jumlah Pasien BPJS dan non-BPJS</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
                                 <table class="table table-bordered table-hover">
                                     <thead>
                                         <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
+
+
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{{ $radio->tgl_transaksi }}</td>
-                                            <td>{{ $radio->pns }}</td>
-                                            <td>{{ $radio->non_pns_tetap }}</td>
-                                            <td>{{ $radio->kontrak }}</td>
+                                            <th class="align-middle">Tanggal Transaksi</th>
+                                            <td>{{ $bpjs->tgl_transaksi }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="align-middle">Jumlah Pasien BPJS</th>
+                                            <td>{{ $bpjs->jumlah }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th class="align-middle">Jumlah Pasien NonBPJS</th>
+                                            <td>{{ $nonbpjs->jumlah }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -236,7 +333,7 @@
                 <div class="col-4">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Jumlah Nutritionist hari ini</div>
+                            <div class="card_title">Jumlah Layanan Farmasi</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
@@ -244,146 +341,20 @@
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $nutrision->tgl_transaksi }}</td>
-                                            <td>{{ $nutrision->pns }}</td>
-                                            <td>{{ $nutrision->non_pns_tetap }}</td>
-                                            <td>{{ $nutrision->kontrak }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">Jumlah Fisioterapis hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $fisio->tgl_transaksi }}</td>
-                                            <td>{{ $fisio->pns }}</td>
-                                            <td>{{ $fisio->non_pns_tetap }}</td>
-                                            <td>{{ $fisio->kontrak }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">Jumlah Pharmacist hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
+                                            <th class="align-middle">Jumlah</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>{{ $farmasi->tgl_transaksi }}</td>
-                                            <td>{{ $farmasi->pns }}</td>
-                                            <td>{{ $farmasi->non_pns_tetap }}</td>
-                                            <td>{{ $farmasi->kontrak }}</td>
+                                            <td>{{ $farmasi->jumlah }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
-
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">Jumlah Profesional Lain hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $profesionallain->tgl_transaksi }}</td>
-                                            <td>{{ $profesionallain->pns }}</td>
-                                            <td>{{ $profesionallain->non_pns_tetap }}</td>
-                                            <td>{{ $profesionallain->kontrak }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="card_title">Jumlah Non Medis hari ini</div>
-                        </div>
-                        <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">PNS</th>
-                                            <th class="align-middle">Non PNS Tetap</th>
-                                            <th class="align-middle">Kontrak</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $nonmedis->tgl_transaksi }}</td>
-                                            <td>{{ $nonmedis->pns }}</td>
-                                            <td>{{ $nonmedis->non_pns_tetap }}</td>
-                                            <td>{{ $nonmedis->kontrak }}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- /.col -->
             </div>
             <!-- /.row -->
@@ -409,6 +380,17 @@
     <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
     <script>
         $(function() {
+            $('#example3').DataTable({
+                "paging": false,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": false,
+                "info": false,
+                "autoWidth": false,
+                "responsive": false,
+                "scrollY": "300px",
+                "scrollX": false,
+            });
             $('#example2').DataTable({
                 "paging": false,
                 "lengthChange": false,
