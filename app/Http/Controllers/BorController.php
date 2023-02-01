@@ -34,6 +34,10 @@ class BorController extends Controller
 
     public function cari(Request $request)
     {
+        session()->put('ibu', 'BIOS facelift');
+        session()->put('anak', 'Data Statistik');
+        session()->forget('cucu');
+
         $tanggal = $request->get('tanggal');
 
         //data Inap Tanggal sesuai tanggal
@@ -47,18 +51,9 @@ class BorController extends Controller
         return view('bios.layanan_bor', compact('bor', 'alos', 'toi', 'bto'));
     }
 
-    public function bor($tanggal)
+    public static function bor($tanggal)
     {
         $jmlTT = BorController::jmlTT();
-
-        //Hari Perawatan adalah Jumlah Pasien by Mas Guruh
-        // $HP = DB::connection('mysqlkhanza')->table('kamar_inap')
-        //     ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
-        //     ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
-        //     ->select('kamar_inap.no_rawat', 'kamar_inap.tgl_masuk', 'kamar_inap.tgl_keluar', 'kamar.kelas')
-        //     ->whereDate('kamar_inap.tgl_keluar', '>=', $tanggal)
-        //     ->whereDate('kamar_inap.tgl_masuk', '<=', $tanggal)
-        //     ->count();
 
         $HP = BorController::HP($tanggal);
 
@@ -80,7 +75,7 @@ class BorController extends Controller
         return $bor;
     }
 
-    public function alos($tanggal)
+    public static function alos($tanggal)
     {
         $pasien_keluar = BorController::PasienKeluar($tanggal);
 
@@ -97,7 +92,6 @@ class BorController extends Controller
             $nilaiAlos = number_format(0, 2);
         }
 
-
         $arrayAlos = [
             'alos' => $nilaiAlos,
             'tgl_transaksi' => $tanggal
@@ -110,7 +104,7 @@ class BorController extends Controller
         return $alos;
     }
 
-    public function toi($tanggal)
+    public static function toi($tanggal)
     {
         $jmlTT = BorController::jmlTT();
         $HP = BorController::HP($tanggal);
@@ -137,7 +131,7 @@ class BorController extends Controller
         return $toi;
     }
 
-    public function bto($tanggal)
+    public static function bto($tanggal)
     {
         $pasien_keluar = BorController::PasienKeluar($tanggal)->count();
         $jmlTT = BorController::jmlTT();
@@ -156,7 +150,7 @@ class BorController extends Controller
         return $bto;
     }
 
-    public function jmlTT()
+    public static function jmlTT()
     {
         $data = DB::connection('mysqlkhanza')->table('kamar')
             ->select('kamar.kd_kamar', 'kamar.statusdata')
@@ -166,7 +160,7 @@ class BorController extends Controller
         return $data;
     }
 
-    public function HP($tanggal)
+    public static function HP($tanggal)
     {
         // dd($tanggal);
         $awalBulanLalu = Carbon::parse($tanggal)->subMonth()->startOfMonth();
@@ -206,7 +200,7 @@ class BorController extends Controller
         return $hari;
     }
 
-    public function PasienKeluar($tanggal)
+    public static function PasienKeluar($tanggal)
     {
         $awalBulanLalu = Carbon::parse($tanggal)->subMonth()->startOfMonth();
         $akhirBulanLalu = Carbon::parse($tanggal)->subMonth()->endOfMonth();

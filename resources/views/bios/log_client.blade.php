@@ -1,6 +1,7 @@
 @extends('layouts.master')
 
 @section('head')
+    <meta http-equiv="refresh" content="600" />
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
@@ -21,7 +22,7 @@
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
+                                <table class="table table-bordered table-hover table-sm">
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Tanggal Transaksi</th>
@@ -40,7 +41,7 @@
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="3">Data Kosong</td>
+                                                <td colspan="4">Data Kosong</td>
                                             </tr>
                                         @endforelse
                                     </tbody>

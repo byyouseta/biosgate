@@ -12,7 +12,6 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Support\Facades\Session;
-use phpDocumentor\Reflection\PseudoTypes\False_;
 
 // use GuzzleHttp\Psr7\Request;
 
@@ -232,14 +231,16 @@ class ClientController extends Controller
 
     public function kesehatan()
     {
-        session()->put('ibu', 'Client Saldo Awal');
+        session()->put('ibu', 'Client Layanan Kesehatan Harian');
         session()->forget('anak');
 
         ClientController::token();
 
-        // $tanggal = Carbon::now()->locale('id')->format('Y-m-d');
+        $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
 
-        $tanggal = '2023-01-25';
+        // $tanggal = '2023-01-29';
+
+        // dd($tanggal);
 
         //data Inap Tanggal sesuai tanggal
         $cekRawatInap = LogResponseBios::where('tanggal', $tanggal)
@@ -327,13 +328,13 @@ class ClientController extends Controller
             ->first();
         if (empty($cekJaminan)) {
             ClientController::sendJaminan($tanggal);
-        } elseif ($cekRajal->status_terkirim == false) {
+        } elseif ($cekJaminan->status_terkirim == false) {
             ClientController::sendJaminan($tanggal);
         }
 
         //data Farmasi sesuai tanggal
         $cekFarmasi = LogResponseBios::where('tanggal', $tanggal)
-            ->where('nama_fungsi', 'cekFarmasi')
+            ->where('nama_fungsi', 'sendFarmasi')
             ->first();
         if (empty($cekFarmasi)) {
             ClientController::sendFarmasi($tanggal);
@@ -341,10 +342,232 @@ class ClientController extends Controller
             ClientController::sendFarmasi($tanggal);
         }
 
+        $dataLog = LogResponseBios::where('tanggal', $tanggal)
+            ->where('periode', 'Harian')
+            ->get();
 
-        $dataLog = LogResponseBios::where('tanggal', $tanggal)->get();
+        return view('bios.log_client', compact('dataLog'));
+    }
 
-        return view('bios.log_client_kesehatan', compact('dataLog'));
+    public function statistik()
+    {
+        session()->put('ibu', 'Client Layanan Kesehatan Bulanan');
+        session()->forget('anak');
+
+        ClientController::token();
+
+        $tanggal = '2023-01-05';
+        $pecahTanggal = explode('-', $tanggal);
+        $tanggalCek = $pecahTanggal[2];
+
+        if ($tanggalCek == '05') {
+            //data BOR sesuai tanggal
+            $cekBor = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendBor')
+                ->first();
+            if (empty($cekBor)) {
+                ClientController::sendBor($tanggal);
+            } elseif ($cekBor->status_terkirim == false) {
+                ClientController::sendBor($tanggal);
+            }
+
+            //data TOI sesuai tanggal
+            $cekToi = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendToi')
+                ->first();
+            if (empty($cekToi)) {
+                ClientController::sendToi($tanggal);
+            } elseif ($cekToi->status_terkirim == false) {
+                ClientController::sendToi($tanggal);
+            }
+
+            //data ALOS sesuai tanggal
+            $cekAlos = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendAlos')
+                ->first();
+            if (empty($cekAlos)) {
+                ClientController::sendAlos($tanggal);
+            } elseif ($cekAlos->status_terkirim == false) {
+                ClientController::sendAlos($tanggal);
+            }
+
+            //data BTO sesuai tanggal
+            $cekBto = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendBto')
+                ->first();
+            if (empty($cekBto)) {
+                ClientController::sendBto($tanggal);
+            } elseif ($cekBto->status_terkirim == false) {
+                ClientController::sendBto($tanggal);
+            }
+        }
+
+        $dataLog = LogResponseBios::where('tanggal', $tanggal)
+            ->where('periode', 'Bulanan')
+            ->get();
+
+        return view('bios.log_client', compact('dataLog'));
+    }
+
+    public function sdm()
+    {
+        session()->put('ibu', 'Client Layanan Kesehatan Bulanan');
+        session()->forget('anak');
+
+        ClientController::token();
+
+        $tanggal = '2023-01-30';
+        $pecahTanggal = explode('-', $tanggal);
+        $tanggalCek = $pecahTanggal[2];
+        $BulanCek = $pecahTanggal[1];
+
+        if ($tanggalCek == '30' and (($BulanCek == 01) or ($BulanCek == 07))) {
+            //data Dokter Spesialis sesuai tanggal
+            $cekSpesialis = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendDokterSpesialis')
+                ->first();
+            if (empty($cekSpesialis)) {
+                ClientController::sendDokterSpesialis($tanggal);
+            } elseif ($cekSpesialis->status_terkirim == false) {
+                ClientController::sendDokterSpesialis($tanggal);
+            }
+
+            //data Dokter Gigi sesuai tanggal
+            $cekGigi = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendDokterGigi')
+                ->first();
+            if (empty($cekGigi)) {
+                ClientController::sendDokterGigi($tanggal);
+            } elseif ($cekGigi->status_terkirim == false) {
+                ClientController::sendDokterGigi($tanggal);
+            }
+
+            //data Dokter Umum sesuai tanggal
+            $cekUmum = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendDokterUmum')
+                ->first();
+            if (empty($cekUmum)) {
+                ClientController::sendDokterUmum($tanggal);
+            } elseif ($cekUmum->status_terkirim == false) {
+                ClientController::sendDokterUmum($tanggal);
+            }
+
+            //data Perawat sesuai tanggal
+            $cekPerawat = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendPerawat')
+                ->first();
+            if (empty($cekPerawat)) {
+                ClientController::sendPerawat($tanggal);
+            } elseif ($cekPerawat->status_terkirim == false) {
+                ClientController::sendPerawat($tanggal);
+            }
+
+            //data Bidan sesuai tanggal
+            $cekBidan = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendBidan')
+                ->first();
+            if (empty($cekBidan)) {
+                ClientController::sendBidan($tanggal);
+            } elseif ($cekBidan->status_terkirim == false) {
+                ClientController::sendBidan($tanggal);
+            }
+
+            //data Pranata Laboratorium sesuai tanggal
+            $cekLaborat = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendPranataLab')
+                ->first();
+            if (empty($cekLaborat)) {
+                ClientController::sendPranataLab($tanggal);
+            } elseif ($cekLaborat->status_terkirim == false) {
+                ClientController::sendPranataLab($tanggal);
+            }
+
+            //data Radiographer sesuai tanggal
+            $cekRadiographer = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendRadiographer')
+                ->first();
+            if (empty($cekRadiographer)) {
+                ClientController::sendRadiographer($tanggal);
+            } elseif ($cekRadiographer->status_terkirim == false) {
+                ClientController::sendRadiographer($tanggal);
+            }
+
+            //data Nutrisionist sesuai tanggal
+            $cekNutrisionist = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendNutrisionist')
+                ->first();
+            if (empty($cekRadiographer)) {
+                ClientController::sendNutrisionist($tanggal);
+            } elseif ($cekRadiographer->status_terkirim == false) {
+                ClientController::sendNutrisionist($tanggal);
+            }
+
+            //data Fisioterapis sesuai tanggal
+            $cekNutrisionist = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendFisioterapis')
+                ->first();
+            if (empty($cekNutrisionist)) {
+                ClientController::sendFisioterapis($tanggal);
+            } elseif ($cekNutrisionist->status_terkirim == false) {
+                ClientController::sendFisioterapis($tanggal);
+            }
+
+            //data Pharmacist sesuai tanggal
+            $cekPharmacist = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendPharmacist')
+                ->first();
+            if (empty($cekPharmacist)) {
+                ClientController::sendPharmacist($tanggal);
+            } elseif ($cekPharmacist->status_terkirim == false) {
+                ClientController::sendPharmacist($tanggal);
+            }
+
+            //data Tenaga Professional Lainnya sesuai tanggal
+            $cekProlain = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendProfessionalLainnya')
+                ->first();
+            if (empty($cekProlain)) {
+                ClientController::sendProfessionalLainnya($tanggal);
+            } elseif ($cekProlain->status_terkirim == false) {
+                ClientController::sendProfessionalLainnya($tanggal);
+            }
+
+            //data Tenaga Non-Medis sesuai tanggal
+            $cekNonMedis = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendNonMedis')
+                ->first();
+            if (empty($cekNonMedis)) {
+                ClientController::sendNonMedis($tanggal);
+            } elseif ($cekNonMedis->status_terkirim == false) {
+                ClientController::sendNonMedis($tanggal);
+            }
+
+            //data Tenaga Non-Medis-Administrasi sesuai tanggal
+            $cekNonMedisAdmin = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendNonMedisAdmin')
+                ->first();
+            if (empty($cekNonMedisAdmin)) {
+                ClientController::sendNonMedisAdmin($tanggal);
+            } elseif ($cekNonMedisAdmin->status_terkirim == false) {
+                ClientController::sendNonMedisAdmin($tanggal);
+            }
+
+            //data Tenaga Sanitarian sesuai tanggal
+            $cekSanitarian = LogResponseBios::where('tanggal', $tanggal)
+                ->where('nama_fungsi', 'sendSanitarian')
+                ->first();
+            if (empty($cekSanitarian)) {
+                ClientController::sendSanitarian($tanggal);
+            } elseif ($cekSanitarian->status_terkirim == false) {
+                ClientController::sendSanitarian($tanggal);
+            }
+        }
+
+        $dataLog = LogResponseBios::where('tanggal', $tanggal)
+            ->where('periode', 'Semesteran')
+            ->get();
+
+        return view('bios.log_client', compact('dataLog'));
     }
 
     public function sendRawatInap($tanggal)
@@ -374,7 +597,7 @@ class ClientController extends Controller
                     // dd($test, 'sendrawatInap');
                     $update = LogResponseBios::updateOrCreate(
                         ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRawatInap'],
-                        ['status_terkirim' => false]
+                        ['status_terkirim' => false, 'periode' => 'Harian']
                     );
                 }
             }
@@ -385,7 +608,7 @@ class ClientController extends Controller
             if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRawatInap'],
-                    ['status_terkirim' => true]
+                    ['status_terkirim' => true, 'periode' => 'Harian']
                 );
             }
         }
@@ -416,7 +639,7 @@ class ClientController extends Controller
                 // dd($test, 'Send IGD');
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendIgd'],
-                    ['status_terkirim' => false]
+                    ['status_terkirim' => false, 'periode' => 'Harian']
                 );
             }
         }
@@ -428,7 +651,7 @@ class ClientController extends Controller
         if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
             $update = LogResponseBios::updateOrCreate(
                 ['tanggal' => $tanggal, 'nama_fungsi' => 'sendIgd'],
-                ['status_terkirim' => true]
+                ['status_terkirim' => true, 'periode' => 'Harian']
             );
         }
     }
@@ -458,7 +681,7 @@ class ClientController extends Controller
                 dd($test, 'Send Lab Sample');
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendLabSample'],
-                    ['status_terkirim' => false]
+                    ['status_terkirim' => false, 'periode' => 'Harian']
                 );
             }
         }
@@ -470,7 +693,7 @@ class ClientController extends Controller
         if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
             $update = LogResponseBios::updateOrCreate(
                 ['tanggal' => $tanggal, 'nama_fungsi' => 'sendLabSample'],
-                ['status_terkirim' => true]
+                ['status_terkirim' => true, 'periode' => 'Harian']
             );
         }
     }
@@ -503,7 +726,7 @@ class ClientController extends Controller
                     // dd($test, 'Send data Lab Parameter');
                     $update = LogResponseBios::updateOrCreate(
                         ['tanggal' => $tanggal, 'nama_fungsi' => 'sendLabParameter'],
-                        ['status_terkirim' => false]
+                        ['status_terkirim' => false, 'periode' => 'Harian']
                     );
                 }
             }
@@ -515,7 +738,7 @@ class ClientController extends Controller
             if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendLabParameter'],
-                    ['status_terkirim' => true]
+                    ['status_terkirim' => true, 'periode' => 'Harian']
                 );
             }
         }
@@ -549,7 +772,7 @@ class ClientController extends Controller
                     // dd($test, 'Send data Lab Parameter');
                     $update = LogResponseBios::updateOrCreate(
                         ['tanggal' => $tanggal, 'nama_fungsi' => 'sendOperasi'],
-                        ['status_terkirim' => false]
+                        ['status_terkirim' => false, 'periode' => 'Harian']
                     );
                 }
             }
@@ -561,7 +784,7 @@ class ClientController extends Controller
             if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendOperasi'],
-                    ['status_terkirim' => true]
+                    ['status_terkirim' => true, 'periode' => 'Harian']
                 );
             }
         }
@@ -592,7 +815,7 @@ class ClientController extends Controller
                 // dd($test, 'Send data Radiologi');
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRadiologi'],
-                    ['status_terkirim' => false]
+                    ['status_terkirim' => false, 'periode' => 'Harian']
                 );
             }
         }
@@ -604,7 +827,7 @@ class ClientController extends Controller
         if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
             $update = LogResponseBios::updateOrCreate(
                 ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRadiologi'],
-                ['status_terkirim' => true]
+                ['status_terkirim' => true, 'periode' => 'Harian']
             );
         }
     }
@@ -634,7 +857,7 @@ class ClientController extends Controller
                 // dd($test, 'Send data Rajal');
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRajal'],
-                    ['status_terkirim' => false]
+                    ['status_terkirim' => false, 'periode' => 'Harian']
                 );
             }
         }
@@ -646,7 +869,7 @@ class ClientController extends Controller
         if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
             $update = LogResponseBios::updateOrCreate(
                 ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRajal'],
-                ['status_terkirim' => true]
+                ['status_terkirim' => true, 'periode' => 'Harian']
             );
         }
     }
@@ -678,7 +901,7 @@ class ClientController extends Controller
                     // dd($test, 'Send data Rajal Poli');
                     $update = LogResponseBios::updateOrCreate(
                         ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRajalPoli'],
-                        ['status_terkirim' => false]
+                        ['status_terkirim' => false, 'periode' => 'Harian']
                     );
                 }
             }
@@ -690,7 +913,7 @@ class ClientController extends Controller
             if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRajalPoli'],
-                    ['status_terkirim' => true]
+                    ['status_terkirim' => true, 'periode' => 'Harian']
                 );
             }
         }
@@ -723,19 +946,19 @@ class ClientController extends Controller
                 // dd($test, 'Send data BPJS dan Non BPJS');
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendJaminan'],
-                    ['status_terkirim' => false]
+                    ['status_terkirim' => false, 'periode' => 'Harian']
                 );
             }
         }
 
         $dataResponse = json_decode($response->getBody());
 
-        // dd($data);
+        // dd($dataResponse);
 
         if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
             $update = LogResponseBios::updateOrCreate(
                 ['tanggal' => $tanggal, 'nama_fungsi' => 'sendJaminan'],
-                ['status_terkirim' => true]
+                ['status_terkirim' => true, 'periode' => 'Harian']
             );
         }
     }
@@ -765,7 +988,7 @@ class ClientController extends Controller
                 // dd($test, 'Send data farmasi');
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendFarmasi'],
-                    ['status_terkirim' => false]
+                    ['status_terkirim' => false, 'periode' => 'Harian']
                 );
             }
         }
@@ -777,7 +1000,806 @@ class ClientController extends Controller
         if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
             $update = LogResponseBios::updateOrCreate(
                 ['tanggal' => $tanggal, 'nama_fungsi' => 'sendFarmasi'],
-                ['status_terkirim' => true]
+                ['status_terkirim' => true, 'periode' => 'Harian']
+            );
+        }
+    }
+
+    public function sendBor($tanggal)
+    {
+        $data = BorController::bor($tanggal);
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/layanan/bor', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $data->tgl_transaksi,
+                    'bor' => $data->bor,
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendBor'],
+                    ['status_terkirim' => false, 'periode' => 'Bulanan']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendBor'],
+                ['status_terkirim' => true, 'periode' => 'Bulanan']
+            );
+        }
+    }
+
+    public function sendToi($tanggal)
+    {
+        $data = BorController::toi($tanggal);
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/layanan/toi', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $data->tgl_transaksi,
+                    'toi' => $data->toi,
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendToi'],
+                    ['status_terkirim' => false, 'periode' => 'Bulanan']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendToi'],
+                ['status_terkirim' => true, 'periode' => 'Bulanan']
+            );
+        }
+    }
+
+    public function sendAlos($tanggal)
+    {
+        $data = BorController::alos($tanggal);
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/layanan/alos', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $data->tgl_transaksi,
+                    'alos' => $data->alos,
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendAlos'],
+                    ['status_terkirim' => false, 'periode' => 'Bulanan']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendAlos'],
+                ['status_terkirim' => true, 'periode' => 'Bulanan']
+            );
+        }
+    }
+
+    public function sendBto($tanggal)
+    {
+        $data = BorController::bto($tanggal);
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/layanan/bto', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $data->tgl_transaksi,
+                    'bto' => $data->bto,
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendBto'],
+                    ['status_terkirim' => false, 'periode' => 'Bulanan']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendBto'],
+                ['status_terkirim' => true, 'periode' => 'Bulanan']
+            );
+        }
+    }
+
+    public function sendDokterSpesialis($tanggal)
+    {
+        $data = SDMController::profesi('DOKTER-SPESIALIS');
+
+        // dd($data, $tanggal);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/dokter_spesialis', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendDokterSpesialis'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendDokterSpesialis'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendDokterGigi($tanggal)
+    {
+        $data = SDMController::profesi('DOKTER-GIGI');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/dokter_gigi', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendDokterGigi'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendDokterGigi'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendDokterUmum($tanggal)
+    {
+        $data = SDMController::profesi('DOKTER-UMUM');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/dokter_umum', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendDokterUmum'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendDokterUmum'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendPerawat($tanggal)
+    {
+        $data = SDMController::profesi('PERAWAT');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/perawat', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendPerawat'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendPerawat'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendBidan($tanggal)
+    {
+        $data = SDMController::profesi('BIDAN');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/bidan', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendBidan'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendBidan'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendPranataLab($tanggal)
+    {
+        $data = SDMController::profesi('PRANATA-LABORATORIUM');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/pranata_laboratorium', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendPranataLab'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendPranataLab'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendRadiographer($tanggal)
+    {
+        $data = SDMController::profesi('RADIOGRAPHER');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/radiographer', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRadiographer'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRadiographer'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendNutrisionist($tanggal)
+    {
+        $data = SDMController::profesi('NUTRITIONIST');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/nutritionist', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendNutrisionist'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendNutrisionist'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendFisioterapis($tanggal)
+    {
+        $data = SDMController::profesi('FISIOTERAPIS');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/fisioterapis', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendFisioterapis'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendFisioterapis'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendPharmacist($tanggal)
+    {
+        $data = SDMController::profesi('PHARMACIST');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/pharmacist', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendPharmacist'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendPharmacist'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendProfessionalLainnya($tanggal)
+    {
+        $data = SDMController::profesi('PROFESIONAL-LAIN');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/profesional_lain', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendProfessionalLainnya'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendProfessionalLainnya'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendNonMedis($tanggal)
+    {
+        $data = SDMController::profesi('NON-MEDIS');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/non_medis', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendNonMedis'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendNonMedis'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendNonMedisAdmin($tanggal)
+    {
+        $data = SDMController::profesi('NON-MEDIS-ADMINISTRASI');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/non_medis_administrasi', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak,
+                    'keterangan' => 'umum, keuangan, sdm, humas, bmn'
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendNonMedisAdmin'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendNonMedisAdmin'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
+            );
+        }
+    }
+
+    public function sendSanitarian($tanggal)
+    {
+        $data = SDMController::profesi('SANITARIAN');
+
+        // dd($data);
+        //Kirim data
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/sdm/sanitarian', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'pns' => $data->pns,
+                    'pppk' => $data->pppk,
+                    'non_pns_tetap' => $data->non_pns_tetap,
+                    'kontrak' => $data->kontrak
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data bor error');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendSanitarian'],
+                    ['status_terkirim' => false, 'periode' => 'Semesteran']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendSanitarian'],
+                ['status_terkirim' => true, 'periode' => 'Semesteran']
             );
         }
     }

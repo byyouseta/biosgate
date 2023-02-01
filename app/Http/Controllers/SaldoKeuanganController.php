@@ -136,7 +136,7 @@ class SaldoKeuanganController extends Controller
                     foreach ($data_saldo as $data) {
 
                         $tgl_transaksi = Carbon::parse($data->tgl_transaksi)->format('Y/m/d');
-                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
                         $response = $client->request('POST', 'ws/saldo/prod', [
                             'headers' => [
                                 'token' => session('token'),
@@ -203,7 +203,7 @@ class SaldoKeuanganController extends Controller
         ClientController::token();
 
         //Ambil Data Ref Akun
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
         $response = $client->request('GET', 'ws/ref/rekening');
         $rekening = json_decode($response->getBody());
         $rekening = $rekening->data;

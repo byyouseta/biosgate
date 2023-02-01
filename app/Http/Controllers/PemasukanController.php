@@ -118,11 +118,11 @@ class PemasukanController extends Controller
         ClientController::token();
 
         //Ambil Data Ref Akun
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
         $response = $client->request('GET', 'ws/ref/akun');
         $akun = json_decode($response->getBody());
         $akun = $akun->data;
-
+        // dd($akun);
         return $akun;
     }
 

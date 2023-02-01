@@ -101,7 +101,7 @@ class KesehatanController extends Controller
 
         // dd($data);
         $lamakelas1 = $lamakelas2 = $lamakelas3 = $nonkelas = 0;
-        $pasien1 = $pasien2 = $pasien3 = 0;
+        $pasien1 = $pasien2 = $pasien3 = $pasienVip = 0;
 
         foreach ($data as $data) {
             if ($data->kelas == 'Kelas 1') {
@@ -114,13 +114,20 @@ class KesehatanController extends Controller
                 // $lamakelas3 = $lamakelas3 + $data->lama;
                 $pasien3++;
             } else {
-                $nonkelas = $nonkelas + $data->lama;
+                // $nonkelas = $nonkelas + $data->lama;
+                $pasienVip++;
             }
         }
 
         // dd($lamakelas1, $pasien1, $lamakelas2, $pasien2, $lamakelas3, $pasien3);
 
         $datainap = [
+            [
+                'kode_kelas' => '01',
+                // 'jml_hari' => $lamakelas1,
+                'jumlah' => $pasienVip,
+                'tgl_transaksi' => $tanggal
+            ],
             [
                 'kode_kelas' => '02',
                 // 'jml_hari' => $lamakelas1,

@@ -19,7 +19,8 @@
                         <div class="card-body">
                             <div class="form-group row">
                                 <div class="col-sm-2 col-form-label">
-                                    <a href="/layanan/bor/client" class="btn btn-success">Jalankan Client</a>
+                                    <a href="/layanan/sdm/client" class="btn btn-success" target="_blank">Jalankan
+                                        Client</a>
                                 </div>
                             </div>
                         </div>

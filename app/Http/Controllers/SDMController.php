@@ -27,7 +27,7 @@ class SDMController extends Controller
         $perawat = SDMController::profesi('PERAWAT');
         $bidan = SDMController::profesi('BIDAN');
         $laborat = SDMController::profesi('PRANATA-LABORATORIUM');
-        $radio = SDMController::profesi('RADIOGRAFER');
+        $radio = SDMController::profesi('RADIOGRAPHER');
         $nutrision = SDMController::profesi('NUTRITIONIST');
         $fisio = SDMController::profesi('FISIOTERAPIS');
         $farmasi = SDMController::profesi('PHARMACIST');
@@ -56,7 +56,7 @@ class SDMController extends Controller
         ));
     }
 
-    public function profesi($profesi)
+    public static function profesi($profesi)
     {
         // $tanggal = Carbon::now()->format('Y-m-d');
 

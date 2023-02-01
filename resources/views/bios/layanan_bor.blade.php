@@ -51,7 +51,8 @@
                                     </div>
 
                                     <div class="col-sm-2 col-form-label">
-                                        <a href="/layanan/bor/client" class="btn btn-success">Jalankan Client</a>
+                                        <a href="/layanan/bor/client" class="btn btn-success" target="_blank">Jalankan
+                                            Client</a>
                                     </div>
                                 </div>
                             </form>

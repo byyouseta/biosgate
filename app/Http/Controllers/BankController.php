@@ -92,12 +92,12 @@ class BankController extends Controller
         ClientController::token();
 
         //Ambil Data Ref Akun
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
         $response = $client->request('GET', 'ws/ref/bank');
         $bank = json_decode($response->getBody());
-        $bank = $bank->data;
+        // $bank = $bank->data;
 
-        // dd($bank);
+        dd($bank);
         return $bank;
     }
 }

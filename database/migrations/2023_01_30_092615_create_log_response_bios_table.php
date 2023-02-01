@@ -18,6 +18,7 @@ class CreateLogResponseBiosTable extends Migration
             $table->date('tanggal');
             $table->string('nama_fungsi', 50);
             $table->boolean('status_terkirim');
+            $table->string('periode', 50);
             $table->timestamps();
         });
     }

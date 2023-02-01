@@ -63,11 +63,13 @@ Route::get('/layanan/kesehatan/lihat', 'KesehatanController@cari')->name('keseha
 
 Route::get('/layanan/bor', 'BorController@index')->name('bor.index');
 Route::get('/layanan/bor/lihat', 'BorController@cari')->name('bor.cari');
+Route::get('/layanan/bor/client', 'ClientController@statistik')->name('client.statistik');
 
 Route::get('/layanan/visit', 'VisitController@index')->name('visit.index');
 Route::get('/layanan/visit/lihat', 'VisitController@cari')->name('visit.cari');
 
 Route::get('/layanan/sdm', 'SDMController@index')->name('sdm.index');
+Route::get('/layanan/sdm/client', 'ClientController@sdm')->name('client.sdm');
 
 //RSonline
 Route::get('/rsonline/geografi', 'RsClientController@geografi')->name('rsclient.geografi');
