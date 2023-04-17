@@ -14,18 +14,20 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="form-group row">
-                                <div class="col-sm-2 col-form-label">
-                                    <a href="/layanan/sdm/client" class="btn btn-success" target="_blank">Jalankan
-                                        Client</a>
+                @can('facelift-sdm-client')
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="form-group row">
+                                    <div class="col-sm-2 col-form-label">
+                                        <a href="/layanan/sdm/client" class="btn btn-success" target="_blank">Jalankan
+                                            Client</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                @endcan
                 <div class="col-4">
                     <div class="card">
                         <div class="card-header">

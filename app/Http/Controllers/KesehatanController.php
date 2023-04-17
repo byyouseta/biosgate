@@ -410,7 +410,7 @@ class KesehatanController extends Controller
             ->select('reg_periksa.no_rawat', 'reg_periksa.tgl_registrasi', 'reg_periksa.kd_poli', 'reg_periksa.status_lanjut', 'reg_periksa.stts')
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
             ->where('reg_periksa.kd_poli', '!=', 'IGDK')
-            ->where('reg_periksa.stts', '=', 'Sudah')
+            // ->where('reg_periksa.stts', '=', 'Sudah')
             ->whereDate('reg_periksa.tgl_registrasi', '=', $tanggal)
             ->count();
 
@@ -443,7 +443,7 @@ class KesehatanController extends Controller
             $jumlahpoli = DB::connection('mysqlkhanza')->table('reg_periksa')
                 ->select('reg_periksa.no_rawat', 'reg_periksa.tgl_registrasi', 'reg_periksa.kd_poli', 'reg_periksa.status_lanjut', 'reg_periksa.stts')
                 ->where('reg_periksa.status_lanjut', '=', 'Ralan')
-                ->where('reg_periksa.stts', '=', 'Sudah')
+                // ->where('reg_periksa.stts', '=', 'Sudah')
                 ->where('reg_periksa.kd_poli', '=', $poli->kd_poli)
                 ->whereDate('reg_periksa.tgl_registrasi', '=', $tanggal)
                 ->orderBy('reg_periksa.kd_poli', 'asc')
@@ -472,7 +472,7 @@ class KesehatanController extends Controller
             // ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
             ->select('reg_periksa.no_rawat', 'reg_periksa.tgl_registrasi', 'reg_periksa.kd_poli', 'reg_periksa.kd_pj', 'reg_periksa.stts')
             ->where('reg_periksa.kd_pj', '=', 'BPJ')
-            ->where('reg_periksa.stts', '=', 'Sudah')
+            // ->where('reg_periksa.stts', '=', 'Sudah')
             ->whereDate('reg_periksa.tgl_registrasi', '=', $tanggal)
             ->count();
 
@@ -492,7 +492,7 @@ class KesehatanController extends Controller
             // ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
             ->select('reg_periksa.no_rawat', 'reg_periksa.tgl_registrasi', 'reg_periksa.kd_poli', 'reg_periksa.kd_pj', 'reg_periksa.stts')
             ->where('reg_periksa.kd_pj', '<>', 'BPJ')
-            ->where('reg_periksa.stts', '=', 'Sudah')
+            // ->where('reg_periksa.stts', '=', 'Sudah')
             ->whereDate('reg_periksa.tgl_registrasi', '=', $tanggal)
             ->count();
 
@@ -507,13 +507,35 @@ class KesehatanController extends Controller
 
     public static function farmasi($tanggal)
     {
+        // $tanggal = '2023-02-15';
         $data = DB::connection('mysqlkhanza')->table('resep_obat')
             ->select('resep_obat.no_rawat', 'resep_obat.no_resep', 'resep_obat.tgl_peresepan', 'resep_obat.status')
             ->whereDate('resep_obat.tgl_peresepan', '=', $tanggal)
             ->count();
 
+        $resepPulang = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('permintaan_resep_pulang', 'permintaan_resep_pulang.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->select('permintaan_resep_pulang.tgl_permintaan', 'permintaan_resep_pulang.no_rawat', 'pasien.no_rkm_medis')
+            ->whereDate('permintaan_resep_pulang.tgl_permintaan', '=', $tanggal)
+            ->groupBy('pasien.no_rkm_medis')
+            ->get();
+
+        $permintaanStok = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('permintaan_stok_obat_pasien', 'permintaan_stok_obat_pasien.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->select('permintaan_stok_obat_pasien.tgl_permintaan', 'permintaan_stok_obat_pasien.no_rawat', 'permintaan_stok_obat_pasien.status', 'pasien.no_rkm_medis')
+            ->whereDate('permintaan_stok_obat_pasien.tgl_permintaan', '=', $tanggal)
+            ->where('permintaan_stok_obat_pasien.status', '=', 'Sudah')
+            ->groupBy('pasien.no_rkm_medis')
+            ->get();
+
+        // dd($data, $resepPulang->count(), $permintaanStok->count(), $data + $resepPulang->count() + $permintaanStok->count());
+
+        $jumlah = $data + $resepPulang->count() + $permintaanStok->count();
+
         $array = [
-            'jumlah' => $data,
+            'jumlah' => $jumlah,
             'tgl_transaksi' => $tanggal
         ];
         $resep = json_decode(json_encode($array));

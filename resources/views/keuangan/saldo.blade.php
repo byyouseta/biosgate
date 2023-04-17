@@ -30,8 +30,13 @@
                                     ->format('Y-m-d');
                             @endphp
                         @endif
+                        @php
+                            $kemarin = \Carbon\Carbon::parse($tanggal)
+                                ->yesterday()
+                                ->format('Y-m-d');
+                        @endphp
                         <div class="card-body">
-                            <form action="/saldokeuangan/lihat" method="GET">
+                            <form action="/saldo/operasional/lihat" method="GET">
                                 <div class="form-group row">
                                     <div class="col-sm-1 col-form-label">
                                         <label>Tanggal</label>
@@ -72,75 +77,75 @@
                             </button>
                         </div>
                         <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover" id="example">
-                                    <thead>
+                            {{-- <div style="overflow-x:auto;"> --}}
+                            <table class="table table-bordered table-hover" id="example">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle">Kode Bank</th>
+                                        <th class="align-middle">Nama Bank</th>
+                                        <th class="align-middle">No Rekening</th>
+                                        <th class="align-middle">Saldo</th>
+                                        <th class="align-middle">Kode Rekening</th>
+                                        <th class="align-middle">Tanggal Transaksi</th>
+                                        <th class="align-middle">Status</th>
+                                        <th class="align-middle">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($data as $data)
                                         <tr>
-                                            <th class="align-middle">Kode Bank</th>
-                                            <th class="align-middle">Nama Bank</th>
-                                            <th class="align-middle">No Rekening</th>
-                                            <th class="align-middle">Saldo</th>
-                                            <th class="align-middle">Kode Rekening</th>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">Status</th>
-                                            <th class="align-middle">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($data as $data)
-                                            <tr>
-                                                <td>{{ $data->bank->kd_bank }}</td>
-                                                <td>{{ $data->bank->nama }}</td>
-                                                <td>{{ $data->bank->norek }}</td>
-                                                <td>{{ number_format($data->saldo, 2, ',', '.') }}</td>
-                                                <td>{{ $data->kd_rek }}</td>
-                                                <td>{{ $data->tgl_transaksi }}</td>
-                                                <td>
-                                                    @if ($data->status == 1)
-                                                        <span class="right badge badge-success">Sudah Terkirim</span>
-                                                    @else
-                                                        <span class="right badge badge-danger">Belum Terkirim</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <div class="col text-center">
-                                                        <div class="btn-group">
-                                                            <a href="/saldokeuangan/edit/{{ Crypt::encrypt($data->id) }}"
-                                                                class="btn btn-warning btn-sm @if ($data->status == 1) disabled @endif @cannot('bios-saldo-edit') disabled @endcannot"
-                                                                data-toggle="tooltip" data-placement="bottom" title="Edit">
-                                                                <i class="fas fa-pen"></i>
-                                                            </a>
-                                                            <a href="/saldokeuangan/delete/{{ Crypt::encrypt($data->id) }}"
-                                                                class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif @cannot('bios-saldo-delete') disabled @endcannot"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="Delete">
-                                                                <i class="fas fa-ban"></i>
-                                                            </a>
-                                                        </div>
+                                            <td>{{ $data->bank->kd_bank }}</td>
+                                            <td>{{ $data->bank->nama }}</td>
+                                            <td>{{ $data->bank->norek }}</td>
+                                            <td class="text-right">{{ number_format($data->saldo_akhir, 2, ',', '.') }}
+                                            </td>
+                                            <td>{{ $data->bank->Rekening->uraian }}</td>
+                                            <td class="text-center">{{ $data->tgl_transaksi }}</td>
+                                            <td>
+                                                @if ($data->status == 1)
+                                                    <span class="right badge badge-success">Sudah Terkirim</span>
+                                                @else
+                                                    <span class="right badge badge-danger">Belum Terkirim</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="col text-center">
+                                                    <div class="btn-group">
+                                                        <a href="/saldo/operasional/{{ Crypt::encrypt($data->id) }}/edit"
+                                                            class="btn btn-warning btn-sm @cannot('bios-saldo-edit') disabled @endcannot"
+                                                            data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                                            <i class="fas fa-pen"></i>
+                                                        </a>
+                                                        <a href="/saldo/operasional/{{ Crypt::encrypt($data->id) }}/delete"
+                                                            class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif @cannot('bios-saldo-delete') disabled @endcannot"
+                                                            data-toggle="tooltip" data-placement="bottom" title="Delete">
+                                                            <i class="fas fa-ban"></i>
+                                                        </a>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            {{-- </div> --}}
                         </div>
                     </div>
                 </div>
                 <!-- /.col -->
             </div>
             <!-- /.row -->
-        </div>
-        <!-- /.container-fluid -->
+            {{-- </div> --}}
+            <!-- /.container-fluid -->
     </section>
     {{-- Modal Add --}}
     <div class="modal fade" id="modal-default">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form method="POST" action="/saldokeuangan/store">
+                <form method="POST" action="/saldo/operasional/store">
                     @csrf
                     <div class="modal-header">
-                        <h4 class="modal-title">Tambah Data Penerimaan</h4>
+                        <h4 class="modal-title">Tambah Data</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -149,6 +154,18 @@
                         <div class="row">
                             <!-- text input -->
                             <div class="col-md-12">
+                                <div class="form-group">
+                                    <label>Tgl Transaksi</label>
+                                    <div class="input-group date" id="tanggal_transaksi" data-target-input="nearest">
+                                        <input type="text" class="form-control datetimepicker-input "
+                                            data-target="#tanggal_transaksi" data-toggle="datetimepicker"
+                                            name="tanggal_transaksi" value="{{ $kemarin }}" autocomplete="off" />
+                                        <div class="input-group-append" data-target="#tanggal_transaksi"
+                                            data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <label>Bank</label>
                                     <select name="bank" class="form-control select2">
@@ -174,20 +191,6 @@
                                     @if ($errors->has('saldo'))
                                         <div class="text-danger">
                                             {{ $errors->first('saldo') }}
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="form-group">
-                                    <label>Kode Rekening</label>
-                                    <select name="kd_rek" class="form-control select2">
-                                        @foreach ($rekening as $rekening)
-                                            <option value="{{ $rekening->kode }}">
-                                                {{ $rekening->uraian }}</option>
-                                        @endforeach
-                                    </select>
-                                    @if ($errors->has('kd_rek'))
-                                        <div class="text-danger">
-                                            {{ $errors->first('kd_rek') }}
                                         </div>
                                     @endif
                                 </div>
@@ -237,14 +240,17 @@
                 "scrollX": false,
             });
             $('#example').DataTable({
-                "paging": false,
-                "lengthChange": false,
+                "paging": true,
+                "lengthChange": true,
                 "searching": true,
                 "ordering": true,
+                "order": [
+                    [5, 'desc']
+                ],
                 "info": false,
                 "autoWidth": false,
                 "responsive": false,
-                "scrollY": "300px",
+                "scrollY": "auto",
             });
             //Initialize Select2 Elements
             $('.select2').select2()
@@ -252,6 +258,9 @@
         //Date picker
         $('#tanggal').datetimepicker({
             format: 'YYYY-MM'
+        });
+        $('#tanggal_transaksi').datetimepicker({
+            format: 'YYYY-MM-DD'
         });
     </script>
 @endsection

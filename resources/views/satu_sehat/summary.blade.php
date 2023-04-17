@@ -94,6 +94,34 @@
                             {{-- </div> --}}
                         </div>
                     </div>
+                    <div class="card">
+                        <div class="card-header">
+                            Log Error
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered table-hover table-sm display nowrap" id="example">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle">No</th>
+                                        <th class="align-middle">Subject</th>
+                                        <th class="align-middle">Keterangan</th>
+                                        <th class="align-middle">Created Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($errorLog as $index => $log)
+                                        <tr>
+                                            <td class="text-center">{{ ++$index }}</td>
+                                            <td>{{ $log->subject }}</td>
+                                            <td>{{ $log->keterangan }}</td>
+                                            <td>{{ $log->created_at }}</td>
+                                        </tr>
+                                    @endforeach
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
                 <!-- /.col -->
             </div>
@@ -132,11 +160,11 @@
                 "scrollX": true,
             });
             $('#example').DataTable({
-                "paging": false,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": false,
-                "info": false,
+                "paging": true,
+                "lengthChange": true,
+                "searching": true,
+                "ordering": true,
+                "info": true,
                 "autoWidth": false,
                 "responsive": false,
                 "scrollY": "300px",

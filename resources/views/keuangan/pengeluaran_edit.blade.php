@@ -11,11 +11,11 @@
     <section class="content">
         <div class="container-fluid">
 
-            <form role="form" action="/penerimaan/update/{{ $data->id }}" method="post">
+            <form role="form" action="/pengeluaran/update/{{ $data->id }}" method="post">
                 {{ csrf_field() }}
                 <div class="card">
                     <div class="card-header">
-                        <h3 class="card-title">Edit Penerimaan</h3>
+                        <h3 class="card-title">Edit Pengeluaran</h3>
                     </div>
                     <!-- /.box-header -->
 
@@ -25,11 +25,14 @@
                                 <!-- text input -->
                                 <div class="form-group">
                                     <label>Kode Akun</label>
-                                    <select name="kd_akun" class="form-control select2">
+                                    <select name="kd_akun" class="form-control select2" disabled>
                                         @foreach ($akun as $akun)
-                                            <option value="{{ $akun->kode }}"
-                                                @if ($data->kd_akun == $akun->kode) selected @endif>{{ $akun->kode }} -
-                                                {{ $akun->uraian }}</option>
+                                            @if (substr($akun->kode, 0, 1) == '5')
+                                                <option value="{{ $akun->kode }}"
+                                                    @if ($data->kd_akun == $akun->kode) selected @endif>
+                                                    {{ $akun->kode }} -
+                                                    {{ $akun->uraian }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                     @if ($errors->has('kd_akun'))

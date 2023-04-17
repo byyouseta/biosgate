@@ -17,7 +17,6 @@ class CreateSaldoKeuangansTable extends Migration
             $table->bigIncrements('id');
             $table->integer('bank_id');
             $table->bigInteger('saldo');
-            $table->string('kd_rek', 3);
             $table->date('tgl_transaksi');
             $table->boolean('status');
             $table->timestamps();

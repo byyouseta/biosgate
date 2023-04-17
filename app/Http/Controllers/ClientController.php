@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
+use Illuminate\Contracts\Session\Session as SessionSession;
 use Illuminate\Support\Facades\Session;
 
 // use GuzzleHttp\Psr7\Request;
@@ -25,13 +26,12 @@ class ClientController extends Controller
     public static function token()
     {
         $hariini = Carbon::now();
-        $cache_day = new Carbon(session('tokenBiosDay'));
-        // $cache_day = new Carbon('2023-1-29 12:30:30');
-        $selisih = $cache_day->diff($hariini);
+
 
         // $jalan = intval($selisih->format('%S'));
         // dd($selisih, $selisih->d, $jalan);
-        // dd($cache_day);
+        // session()->forget('tokenBiosDay');
+        // dd(session('tokenBiosDay'));
 
         if (session('tokenBiosDay') == null) {
             // session()->put('tokenBiosDay', $hariini);
@@ -54,49 +54,62 @@ class ClientController extends Controller
                     $response = $e->getResponse();
                     $test = json_decode((string) $response->getBody());
                 }
-                dd($test);
+                // dd($test);
             }
 
             $data = json_decode($response->getBody());
 
             // dd($data);
+            if (!empty($data)) {
+                if ($data->status == "MSG20004") {
+                    session()->put('tokenBios', $data->token);
+                    session()->put('tokenBiosDay', $hariini);
+                } else {
+                    Session::flash('error', 'Get Token BIOS Gagal');
 
-            if ($data->status == "MSG20004") {
-                session()->put('tokenBios', $data->token);
-                session()->put('tokenBiosDay', $hariini);
-            }
-        } elseif ($selisih->d >= 1) {
-            $setting = Setting::where('nama', 'bios')->first();
-
-            session()->put('base_url_bios', $setting->base_url);
-            try {
-                $guzzleRequest['curl'] = [
-                    CURLOPT_TCP_KEEPALIVE => 1,
-                ];
-                $client = new \GuzzleHttp\Client(['base_uri' => $setting->base_url]);
-                $response = $client->request('POST', 'token', [
-                    'form_params' => [
-                        'satker' => $setting->satker,
-                        'key' => $setting->key,
-                    ]
-                ]);
-            } catch (BadResponseException $e) {
-                if ($e->hasResponse()) {
-                    $response = $e->getResponse();
-                    $test = json_decode((string) $response->getBody());
+                    return redirect()->back();
                 }
-                dd($test);
-
-                return redirect()->back();
             }
+        } else {
+            $cache_day = new Carbon(session('tokenBiosDay'));
+            // $cache_day = new Carbon('2023-1-29 12:30:30');
+            $selisih = $cache_day->diff($hariini);
 
-            $data = json_decode($response->getBody());
+            if ($selisih->d >= 1) {
+                $setting = Setting::where('nama', 'bios')->first();
 
-            // dd($data);
+                session()->put('base_url_bios', $setting->base_url);
+                try {
+                    $guzzleRequest['curl'] = [
+                        CURLOPT_TCP_KEEPALIVE => 1,
+                    ];
+                    $client = new \GuzzleHttp\Client(['base_uri' => $setting->base_url]);
+                    $response = $client->request('POST', 'token', [
+                        'form_params' => [
+                            'satker' => $setting->satker,
+                            'key' => $setting->key,
+                        ]
+                    ]);
+                } catch (BadResponseException $e) {
+                    if ($e->hasResponse()) {
+                        $response = $e->getResponse();
+                        $test = json_decode((string) $response->getBody());
+                    }
+                }
 
-            if ($data->status == "MSG20004") {
-                session()->put('tokenBios', $data->token);
-                session()->put('tokenBiosDay', $hariini);
+                $data = json_decode($response->getBody());
+
+                // dd($data, 'else');
+                if (!empty($data)) {
+                    if ($data->status == "MSG20004") {
+                        session()->put('tokenBios', $data->token);
+                        session()->put('tokenBiosDay', $hariini);
+                    } else {
+                        Session::flash('error', 'Get Token BIOS Gagal');
+
+                        return redirect()->back();
+                    }
+                }
             }
         }
 
@@ -236,9 +249,11 @@ class ClientController extends Controller
 
         ClientController::token();
 
+        // dd(Session('tokenBios'));
+
         $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
 
-        // $tanggal = '2023-01-29';
+        // $tanggal = '2023-01-01';
 
         // dd($tanggal);
 
@@ -292,6 +307,7 @@ class ClientController extends Controller
             ClientController::sendOperasi($tanggal);
         }
 
+
         //data Radiologi sesuai tanggal
         $cekRadiologi = LogResponseBios::where('tanggal', $tanggal)
             ->where('nama_fungsi', 'sendRadiologi')
@@ -300,6 +316,16 @@ class ClientController extends Controller
             ClientController::sendRadiologi($tanggal);
         } elseif ($cekRadiologi->status_terkirim == false) {
             ClientController::sendRadiologi($tanggal);
+        }
+
+        //data Forensik sesuai tanggal
+        $cekForensik = LogResponseBios::where('tanggal', $tanggal)
+            ->where('nama_fungsi', 'sendForensik')
+            ->first();
+        if (empty($cekForensik)) {
+            ClientController::sendForensik($tanggal);
+        } elseif ($cekForensik->status_terkirim == false) {
+            ClientController::sendForensik($tanggal);
         }
 
         //data Rajal sesuai tanggal
@@ -346,6 +372,8 @@ class ClientController extends Controller
             ->where('periode', 'Harian')
             ->get();
 
+        // dd($dataLog);
+
         return view('bios.log_client', compact('dataLog'));
     }
 
@@ -356,11 +384,15 @@ class ClientController extends Controller
 
         ClientController::token();
 
-        $tanggal = '2023-01-05';
+        $tanggal = Carbon::now()->subMonth()->format('Y-m-d');
+        // $tanggal = '2023-02-05';
         $pecahTanggal = explode('-', $tanggal);
         $tanggalCek = $pecahTanggal[2];
 
+        // dd($tanggal);
+
         if ($tanggalCek == '05') {
+            // dd($tanggalCek);
             //data BOR sesuai tanggal
             $cekBor = LogResponseBios::where('tanggal', $tanggal)
                 ->where('nama_fungsi', 'sendBor')
@@ -401,27 +433,29 @@ class ClientController extends Controller
                 ClientController::sendBto($tanggal);
             }
         }
-
-        $dataLog = LogResponseBios::where('tanggal', $tanggal)
+        $dataLog = LogResponseBios::whereMonth('tanggal', Carbon::parse($tanggal)->format('m'))
+            ->whereYear('tanggal', Carbon::parse($tanggal)->format('Y'))
             ->where('periode', 'Bulanan')
             ->get();
+        // dd($dataLog);
 
         return view('bios.log_client', compact('dataLog'));
     }
 
     public function sdm()
     {
-        session()->put('ibu', 'Client Layanan Kesehatan Bulanan');
+        session()->put('ibu', 'Client Layanan Kesehatan Semesteran');
         session()->forget('anak');
 
         ClientController::token();
 
-        $tanggal = '2023-01-30';
+        $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
+        // $tanggal = '2023-01-30';
         $pecahTanggal = explode('-', $tanggal);
         $tanggalCek = $pecahTanggal[2];
         $BulanCek = $pecahTanggal[1];
 
-        if ($tanggalCek == '30' and (($BulanCek == 01) or ($BulanCek == 07))) {
+        if ($tanggalCek == '5' and (($BulanCek == 01) or ($BulanCek == 07))) {
             //data Dokter Spesialis sesuai tanggal
             $cekSpesialis = LogResponseBios::where('tanggal', $tanggal)
                 ->where('nama_fungsi', 'sendDokterSpesialis')
@@ -678,7 +712,7 @@ class ClientController extends Controller
                 $response = $e->getResponse();
                 $test = json_decode($response->getBody());
 
-                dd($test, 'Send Lab Sample');
+                // dd($test, 'Send Lab Sample');
                 $update = LogResponseBios::updateOrCreate(
                     ['tanggal' => $tanggal, 'nama_fungsi' => 'sendLabSample'],
                     ['status_terkirim' => false, 'periode' => 'Harian']
@@ -828,6 +862,53 @@ class ClientController extends Controller
             $update = LogResponseBios::updateOrCreate(
                 ['tanggal' => $tanggal, 'nama_fungsi' => 'sendRadiologi'],
                 ['status_terkirim' => true, 'periode' => 'Harian']
+            );
+        }
+    }
+
+    public function sendForensik($tanggal)
+    {
+        // $data = KesehatanController::radiologi($tanggal);
+
+        // dd($data);
+        //Kirim data tidak tahu dari mana layanan belum ada
+        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+        try {
+            $response = $client->request('POST', 'ws/kesehatan/layanan/forensik', [
+                'headers' => [
+                    'token' => session('tokenBios'),
+                ],
+                'form_params' => [
+                    'tgl_transaksi' => $tanggal,
+                    'jumlah' => 0,
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                // dd($test, 'Send data Forensik');
+                $update = LogResponseBios::updateOrCreate(
+                    ['tanggal' => $tanggal, 'nama_fungsi' => 'sendForensik'],
+                    ['status_terkirim' => false, 'periode' => 'Harian']
+                );
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($data);
+
+        if (!empty($dataResponse) and ($dataResponse->status == 'MSG20003')) {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendForensik'],
+                ['status_terkirim' => true, 'periode' => 'Harian']
+            );
+        } else {
+            $update = LogResponseBios::updateOrCreate(
+                ['tanggal' => $tanggal, 'nama_fungsi' => 'sendForensik'],
+                ['status_terkirim' => false, 'periode' => 'Harian']
             );
         }
     }
@@ -1009,7 +1090,7 @@ class ClientController extends Controller
     {
         $data = BorController::bor($tanggal);
 
-        // dd($data);
+        // dd($data, $tanggal);
         //Kirim data
         $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
         try {

@@ -15,7 +15,7 @@ use App\Http\Controllers\SepController;
 
 Route::get('/', function () {
     // return view('home');
-    return redirect('/home');
+    return redirect('/login');
 });
 
 Auth::routes([
@@ -38,6 +38,9 @@ Route::post('/penerimaan/update/{id}', 'PemasukanController@update')->name('pema
 Route::get('/penerimaan/delete/{id}', 'PemasukanController@delete')->name('pemasukan.delete');
 Route::get('/penerimaan/lihat', 'PemasukanController@cari')->name('pemasukan.cari');
 Route::get('/penerimaan/client', 'PemasukanController@client')->name('pemasukan.client');
+Route::post('/penerimaan/import', 'PemasukanController@import')->name('pemasukan.import');
+Route::get('/penerimaan/template', 'PemasukanController@template')->name('pemasukan.template');
+// Route::get('/penerimaan/chart', 'PemasukanController@chart')->name('pemasukan.chart');
 
 Route::get('/pengeluaran', 'PengeluaranController@index')->name('pengeluaran.index');
 Route::post('/pengeluaran/store', 'PengeluaranController@store')->name('pengeluaran.store');
@@ -46,17 +49,31 @@ Route::post('/pengeluaran/update/{id}', 'PengeluaranController@update')->name('p
 Route::get('/pengeluaran/delete/{id}', 'PengeluaranController@delete')->name('pengeluaran.delete');
 Route::get('/pengeluaran/lihat', 'PengeluaranController@cari')->name('pengeluaran.cari');
 Route::get('/pengeluaran/client', 'PengeluaranController@client')->name('pengeluaran.client');
+Route::post('/pengeluaran/import', 'PengeluaranController@import')->name('pengeluaran.import');
 
-Route::get('/saldokeuangan', 'SaldoKeuanganController@index')->name('saldokeuangan.index');
-Route::post('/saldokeuangan/store', 'SaldoKeuanganController@store')->name('saldokeuangan.store');
-Route::get('/saldokeuangan/edit/{id}', 'SaldoKeuanganController@edit')->name('saldokeuangan.edit');
-Route::post('/saldokeuangan/update/{id}', 'SaldoKeuanganController@update')->name('saldokeuangan.update');
-Route::get('/saldokeuangan/delete/{id}', 'SaldoKeuanganController@delete')->name('saldokeuangan.delete');
-Route::get('/saldokeuangan/lihat', 'SaldoKeuanganController@cari')->name('saldokeuangan.cari');
+Route::get('/saldo/operasional', 'SaldoKeuanganController@index')->name('saldooperasional.index');
+Route::post('/saldo/operasional/store', 'SaldoKeuanganController@store')->name('saldooperasional.store');
+Route::get('/saldo/operasional/{id}/edit', 'SaldoKeuanganController@edit')->name('saldooperasional.edit');
+Route::post('/saldo/operasional/{id}/update', 'SaldoKeuanganController@update')->name('saldooperasional.update');
+Route::get('/saldo/operasional/{id}/delete', 'SaldoKeuanganController@delete')->name('saldooperasional.delete');
+Route::get('/saldo/operasional/lihat', 'SaldoKeuanganController@cari')->name('saldokeuangan.cari');
 Route::get('/saldokeuangan/client', 'SaldoKeuanganController@client')->name('saldokeuangan.client');
 
+Route::get('/saldo/pengelolaankas', 'SaldoKeuanganController@indexPengelolaan')->name('saldopengelolaan.indexPengelolaan');
+Route::post('/saldo/pengelolaankas/store', 'SaldoKeuanganController@storePengelolaan')->name('saldopengelolaan.storePengelolaan');
+Route::get('/saldo/pengelolaankas/{id}/edit', 'SaldoKeuanganController@editPengelolaan')->name('saldopengelolaan.editPengelolaan');
+Route::post('/saldo/pengelolaankas/{id}/update', 'SaldoKeuanganController@updatePengelolaan')->name('saldopengelolaan.updatePengelolaan');
+Route::get('/saldo/pengelolaankas/{id}/delete', 'SaldoKeuanganController@deletePengelolaan')->name('saldopengelolaan.deletePengelolaan');
+Route::get('/saldo/pengelolaankas/lihat', 'SaldoKeuanganController@cariPengelolaan')->name('saldopengelolaan.cariPengelolaan');
 
-Route::get('/pengeluaran', 'PengeluaranController@index')->name('pengeluaran.index');
+Route::get('/saldo/kelolaan', 'SaldoKeuanganController@indexKelolaan')->name('saldokelolaan.indexKelolaan');
+Route::post('/saldo/kelolaan/store', 'SaldoKeuanganController@storeKelolaan')->name('saldokelolaan.storeKelolaan');
+Route::get('/saldo/kelolaan/{id}/edit', 'SaldoKeuanganController@editKelolaan')->name('saldokelolaan.editKelolaan');
+Route::post('/saldo/kelolaan/{id}/update', 'SaldoKeuanganController@updateKelolaan')->name('saldokelolaan.updateKelolaan');
+Route::get('/saldo/kelolaan/{id}/delete', 'SaldoKeuanganController@deleteKelolaan')->name('saldokelolaan.deleteKelolaan');
+Route::get('/saldo/kelolaan/lihat', 'SaldoKeuanganController@cariKelolaan')->name('saldokelolaan.cariKelolaan');
+
+Route::get('/saldo/laporan', 'PemasukanController@chart')->name('saldo.chart');
 
 Route::get('/layanan/kesehatan', 'KesehatanController@index')->name('kesehatan.index');
 Route::get('/layanan/kesehatan/lihat', 'KesehatanController@cari')->name('kesehatan.cari');
@@ -136,6 +153,7 @@ Route::get('/kanker/referensi', 'KankerController@referensi')->name('kanker.refe
 Route::get('/vedika/rajal', 'VedikaController@rajal')->name('vedika.rajal');
 Route::get('/vedika/rajal/{id}/detail', 'VedikaController@detailRajal')->name('vedika.detailRajal');
 Route::get('/vedika/rajal/{id}/detailpdf', 'VedikaController@detailRajalPdf')->name('vedika.detailRajalPdf');
+Route::get('/vedika/rajal/{id}/cronispdf', 'VedikaController@cronisRajalPdf')->name('vedika.cronisRajalPdf');
 Route::get('/vedika/rajal/{id}/billing', 'VedikaController@billingRajal')->name('vedika.billingRajal');
 Route::get('/vedika/rajal/{id}/lab', 'VedikaController@labRajal')->name('vedika.labRajal');
 Route::get('/vedika/rajal/{id}/radiologi', 'VedikaController@radioRajal')->name('vedika.radioRajal');
@@ -161,6 +179,13 @@ Route::get('/vedika/berkas/{id}/delete', 'VedikaController@berkasDelete')->name(
 Route::get('/vedika/berkas/{id}/view', 'VedikaController@berkasShow')->name('vedika.berkasShow');
 
 Route::get('/sep', 'SepController@index')->name('sep.index');
+
+//IBS OPERASI
+Route::get('/operasi/booking', 'OperasiController@index')->name('operasi.index');
+Route::post('/operasi/booking', 'OperasiController@simpan')->name('operasi.index');
+Route::get('/operasi/{id}/booking', 'OperasiController@booking')->name('operasi.index');
+Route::get('/operasi/jadwal', 'OperasiController@jadwal')->name('operasi.jadwal');
+
 
 //COBA WHATSAPP API BAILEY
 Route::get('/pesan', 'WaController@index')->name('wa.index');

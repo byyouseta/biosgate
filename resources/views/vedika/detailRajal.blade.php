@@ -24,6 +24,10 @@
                                     class="btn btn-primary btn-sm" target="_blank">
                                     <i class="far fa-file-pdf"></i> PDF</a>
                                 </a>
+                                <a href="/vedika/rajal/{{ Crypt::encrypt($pasien->no_rawat) }}/cronispdf"
+                                    class="btn btn-secondary btn-sm" target="_blank">
+                                    <i class="far fa-file-pdf"></i> Cronis PDF</a>
+                                </a>
                             </div>
                         </div>
                         @if ($billing->count() > 0)
@@ -859,14 +863,14 @@
 
                                         @endphp
                                         <td class="text-center pt-0 pb-0" style="width: 70%">
-                                            Penerima Obat
+                                            &nbsp;
                                         </td>
                                         <td class="text-center pt-0 pb-0" style="width: 30%"> {!! QrCode::size(100)->generate($qr_dokter) !!}
                                         </td>
                                     </tr>
                                     <tr>
                                         <td class="text-center pt-0 pb-0" style="width: 70%">
-                                            (................................)<br> Pasien/Suami/Istri/Anak/Lainnya
+                                            &nbsp;<br> &nbsp;
                                         </td>
                                         <td class="text-center pt-0 pb-0"> {{ $resepObat->nm_dokter }} </td>
                                     </tr>

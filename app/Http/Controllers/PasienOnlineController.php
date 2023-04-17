@@ -449,7 +449,7 @@ class PasienOnlineController extends Controller
         $data = PelaporanCovid::where('status_pulang', false)
             ->orderBy('created_at', 'DESC')->get();
         $statusrawat = RsClientController::statusrawat();
-
+        // $statusrawat = null;
         // dd($statusrawat);
 
         return view('data_rsonline.pasien_terlapor', compact('data', 'statusrawat'));
@@ -641,11 +641,17 @@ class PasienOnlineController extends Controller
         $pasien = PelaporanCovid::where('lapId', $id)->first();
 
         $diagnosa = PasienOnlineController::getDiagnosa($pasien->noRawat);
-        $komorbid = RsClientController::komorbid();
-        $terapi = RsClientController::terapi();
-        $dosisvaksin = RsClientController::dosisvaksin();
-        $jenisvaksin = RsClientController::jenisvaksin();
-        $lab = RsClientController::jenispemeriksaanlab();
+        // $komorbid = RsClientController::komorbid();
+        // $terapi = RsClientController::terapi();
+        // $dosisvaksin = RsClientController::dosisvaksin();
+        // $jenisvaksin = RsClientController::jenisvaksin();
+        // $lab = RsClientController::jenispemeriksaanlab();
+        // $diagnosa = null;
+        $komorbid = null;
+        $terapi =   null;
+        $dosisvaksin = null;
+        $jenisvaksin = null;
+        $lab = null;
 
         // dd($diagnosa);
 

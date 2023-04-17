@@ -30,6 +30,11 @@
                                     ->format('Y-m-d');
                             @endphp
                         @endif
+                        @php
+                            $kemarin = \Carbon\Carbon::parse($tanggal)
+                                ->yesterday()
+                                ->format('Y-m-d');
+                        @endphp
                         <div class="card-body">
                             <form action="/penerimaan/lihat" method="GET">
                                 <div class="form-group row">
@@ -49,16 +54,22 @@
                                         </div>
                                     </div>
 
-                                    <div class="col-sm-1 col-form-label">
-                                        <button type="Submit" class="btn btn-primary btn-block">Lihat</button>
-                                    </div>
-
-                                    <div class="col-sm-2 col-form-label">
+                                    <div class="col-sm-9 col-form-label">
+                                        <button type="Submit" class="btn btn-primary">Lihat</button>
+                                        {{-- <a href="/penerimaan/chart" class="btn btn-secondary" target="_blank"><i
+                                                class="fas fa-chart-bar"></i> Chart
+                                        </a> --}}
                                         <a href="/penerimaan/client"
                                             class="btn btn-success @cannot('bios-pemasukan-client') disabled @endcannot"
                                             target="_blank">Jalankan
                                             Client</a>
                                     </div>
+                                    {{-- <div class="col-sm-1 col-form-label">
+
+                                    </div>
+                                    <div class="col-sm-2 col-form-label">
+
+                                    </div> --}}
                                 </div>
                             </form>
                         </div>
@@ -67,59 +78,68 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-
                             <button class="btn btn-primary btn-sm @cannot('bios-pemasukan-create') disabled @endcannot"
                                 data-toggle="modal" data-target="#modal-default">
                                 <i class="fa fa-plus-circle"></i> Tambah</a>
                             </button>
+
+                            <div class="btn-group float-right">
+                                <a href="/penerimaan/template" class="btn btn-sm float-right btn-default"><i
+                                        class="fas fa-file-download"></i> Download
+                                    Template </a>
+                                <button
+                                    class="btn btn-success btn-sm float-right @cannot('bios-pemasukan-create') disabled @endcannot"
+                                    data-toggle="modal" data-target="#modal-import">
+                                    <i class="fas fa-file-upload"></i> Import</a>
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body">
-                            <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover" id="example">
-                                    <thead>
+                            {{-- <div style="overflow-x:auto;"> --}}
+                            <table class="table table-bordered table-hover" id="example">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle">Kode Akun</th>
+                                        <th class="align-middle">Jumlah</th>
+                                        <th class="align-middle">Tanggal Transaksi</th>
+                                        <th class="align-middle">Status</th>
+                                        <th class="align-middle">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($data as $data)
                                         <tr>
-                                            <th class="align-middle">Kode Akun</th>
-                                            <th class="align-middle">Jumlah</th>
-                                            <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">Status</th>
-                                            <th class="align-middle">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($data as $data)
-                                            <tr>
-                                                <td>{{ $data->kd_akun }}</td>
-                                                <td>{{ number_format($data->jumlah, 2, ',', '.') }}</td>
-                                                <td>{{ $data->tgl_transaksi }}</td>
-                                                <td>
-                                                    @if ($data->status == 1)
-                                                        <span class="right badge badge-success">Sudah Terkirim</span>
-                                                    @else
-                                                        <span class="right badge badge-danger">Belum Terkirim</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <div class="col text-center">
-                                                        <div class="btn-group">
-                                                            <a href="/penerimaan/edit/{{ Crypt::encrypt($data->id) }}"
-                                                                class="btn btn-warning btn-sm @if ($data->status == 1) disabled @endif @cannot('bios-pemasukan-edit') disabled @endcannot"
-                                                                data-toggle="tooltip" data-placement="bottom" title="Edit">
-                                                                <i class="fas fa-pen"></i>
-                                                            </a>
-                                                            <a href="/penerimaan/delete/{{ Crypt::encrypt($data->id) }}"
-                                                                class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif @cannot('bios-pemasukan-delete') disabled @endcannot"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="Delete">
-                                                                <i class="fas fa-ban"></i>
-                                                            </a>
-                                                        </div>
+                                            <td>{{ $data->kd_akun }}</td>
+                                            <td class="text-right">{{ number_format($data->jumlah, 2, ',', '.') }}</td>
+                                            <td>{{ $data->tgl_transaksi }}</td>
+                                            <td>
+                                                @if ($data->status == 1)
+                                                    <span class="right badge badge-success">Sudah Terkirim</span>
+                                                @else
+                                                    <span class="right badge badge-danger">Belum Terkirim</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="col text-center">
+                                                    <div class="btn-group">
+                                                        <a href="/penerimaan/edit/{{ Crypt::encrypt($data->id) }}"
+                                                            class="btn btn-warning btn-sm @cannot('bios-pemasukan-edit') disabled @endcannot"
+                                                            data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                                            <i class="fas fa-pen"></i>
+                                                        </a>
+                                                        <a href="/penerimaan/delete/{{ Crypt::encrypt($data->id) }}"
+                                                            class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif @cannot('bios-pemasukan-delete') disabled @endcannot"
+                                                            data-toggle="tooltip" data-placement="bottom" title="Delete">
+                                                            <i class="fas fa-ban"></i>
+                                                        </a>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                            {{-- </div> --}}
                         </div>
                     </div>
                 </div>
@@ -146,11 +166,26 @@
                             <!-- text input -->
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    <div class="form-group">
+                                        <label>Tgl Transaksi</label>
+                                        <div class="input-group date" id="tanggal_transaksi" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input "
+                                                data-target="#tanggal_transaksi" data-toggle="datetimepicker"
+                                                name="tanggal_transaksi" value="{{ $kemarin }}"
+                                                autocomplete="off" />
+                                            <div class="input-group-append" data-target="#tanggal_transaksi"
+                                                data-toggle="datetimepicker">
+                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <label>Kode Akun</label>
                                     <select name="kd_akun" class="form-control select2">
                                         @foreach ($akun as $akun)
-                                            <option value="{{ $akun->kode }}">{{ $akun->kode }} -
-                                                {{ $akun->uraian }}</option>
+                                            @if (substr($akun->kode, 0, 1) == '4')
+                                                <option value="{{ $akun->kode }}">{{ $akun->kode }} -
+                                                    {{ $akun->uraian }}</option>
+                                            @endif
                                         @endforeach
                                     </select>
                                     @if ($errors->has('kd_akun'))
@@ -187,6 +222,48 @@
         </div>
         <!-- /.modal-dialog -->
     </div>
+    <div class="modal fade" id="modal-import">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="/penerimaan/import" enctype="multipart/form-data">
+                    @csrf
+                    <div class="modal-header">
+                        <h4 class="modal-title">Import Data Penerimaan</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- text input -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="exampleInputFile">File input</label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="customFile"
+                                                name="file">
+                                            <label class="custom-file-label" for="customFile">Choose file</label>
+                                        </div>
+
+                                    </div>
+                                    <div>
+                                        <small><i>* File berformat xls/xlsx</i></small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+                        <button type="Submit" class="btn btn-primary">Upload</button>
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
 @endsection
 @section('plugin')
     <script src="{{ asset('template/plugins/datatables/jquery.dataTables.min.js') }}"></script>
@@ -206,28 +283,22 @@
     <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
     <!-- Select2 -->
     <script src="{{ asset('template/plugins/select2/js/select2.full.min.js') }}"></script>
+    <!-- bs-custom-file-input -->
+    <script src="{{ asset('template/plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
     <script>
         $(function() {
-            $('#example2').DataTable({
-                "paging": false,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": false,
-                "info": false,
-                "autoWidth": false,
-                "responsive": false,
-                "scrollY": "300px",
-                "scrollX": false,
-            });
             $('#example').DataTable({
-                "paging": false,
-                "lengthChange": false,
+                "paging": true,
+                "lengthChange": true,
                 "searching": true,
                 "ordering": true,
+                "order": [
+                    [2, 'desc']
+                ],
                 "info": false,
                 "autoWidth": false,
                 "responsive": false,
-                "scrollY": "300px",
+                "scrollY": "Auto",
             });
             //Initialize Select2 Elements
             $('.select2').select2()
@@ -235,6 +306,12 @@
         //Date picker
         $('#tanggal').datetimepicker({
             format: 'YYYY-MM'
+        });
+        $('#tanggal_transaksi').datetimepicker({
+            format: 'YYYY-MM-DD'
+        });
+        $(function() {
+            bsCustomFileInput.init();
         });
     </script>
 @endsection

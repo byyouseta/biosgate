@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Bank;
+use App\Rekening;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
@@ -27,8 +28,11 @@ class BankController extends Controller
 
         $data = Bank::all();
         $bank = BankController::RefBank();
+        $rekening = Rekening::all();
 
-        return view('masters.banks', compact('data', 'bank'));
+        // dd($bank);
+
+        return view('masters.banks', compact('data', 'bank', 'rekening'));
     }
 
     public function store(Request $request)
@@ -42,6 +46,12 @@ class BankController extends Controller
         $data->kd_bank = $split[0];
         $data->nama = $split[1];
         $data->norek = $request->norek;
+        $data->namaRek = $request->namaRek;
+        $data->cabang = $request->cabang;
+        $data->noBilyet = $request->noBilyet;
+        $data->rekening_id = $request->kd_rek;
+        $data->tgl_buka = $request->tanggal;
+        $data->default = $request->default;
         $data->save();
 
         Session::flash('sukses', 'Data Berhasil ditambahkan!');
@@ -55,8 +65,9 @@ class BankController extends Controller
 
         $data = Bank::find($id);
         $bank = BankController::RefBank();
+        $rekening = Rekening::all();
 
-        return view('masters.banks_edit', compact('data', 'bank'));
+        return view('masters.banks_edit', compact('data', 'bank', 'rekening'));
     }
 
     public function update($id, Request $request)
@@ -69,6 +80,12 @@ class BankController extends Controller
         $data->kd_bank = $split[0];
         $data->nama = $split[1];
         $data->norek = $request->norek;
+        $data->namaRek = $request->namaRek;
+        $data->cabang = $request->cabang;
+        $data->noBilyet = $request->noBilyet;
+        $data->rekening_id = $request->kd_rek;
+        $data->tgl_buka = $request->tanggal;
+        $data->default = $request->default;
         $data->save();
 
         Session::flash('sukses', 'Data Berhasil diupdate!');
@@ -95,9 +112,9 @@ class BankController extends Controller
         $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
         $response = $client->request('GET', 'ws/ref/bank');
         $bank = json_decode($response->getBody());
-        // $bank = $bank->data;
+        $bank = $bank->data;
 
-        dd($bank);
+        // dd($bank);
         return $bank;
     }
 }

@@ -48,9 +48,15 @@ class SatuSehatController extends Controller
         } else {
             $tanggal = new Carbon($request->get('tanggal'));
         }
+
         $dataLog = ResponseSatuSehat::whereDate('tgl_registrasi', $tanggal)
             ->get();
-        return view('satu_sehat.summary', compact('dataLog'));
+
+        $errorLog = LogErrorSatuSehat::whereDate('created_at', $tanggal)->get();
+
+        // dd($errorLog);
+
+        return view('satu_sehat.summary', compact('dataLog', 'errorLog'));
     }
 
     public function bundleData()
@@ -60,7 +66,13 @@ class SatuSehatController extends Controller
         session()->forget('cucu');
         set_time_limit(0);
 
-        $pasien_tanggal = '2022-11-25';
+        // SatuSehatController::getTokenSehat();
+
+        // dd(Session('tokenSatuSehat'));
+
+        $pasien_tanggal = Carbon::now()->format('Y-m-d');
+        $kemarin = Carbon::yesterday();
+        // $pasien_tanggal = '2022-11-25';
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
@@ -81,30 +93,39 @@ class SatuSehatController extends Controller
                 'pasien.jk',
                 'pegawai.no_ktp as ktp_dokter',
                 'pegawai.nama as nama_dokter',
-                'poliklinik.nm_poli'
+                'poliklinik.nm_poli',
+                'poliklinik.kd_poli'
+
             )
-            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+            ->selectRaw("(CASE WHEN (poliklinik.kd_poli = 'u0041') THEN 'IGD' ELSE poliklinik.nm_poli END) as alias_nm_poli")
             ->where('reg_periksa.status_lanjut', 'Ralan')
             ->where('reg_periksa.stts', 'Sudah')
+            // ->where('reg_periksa.no_rawat', '=', '2023/03/09/000107')
+            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+            ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
+            ->orderBy('reg_periksa.tgl_registrasi', 'ASC')
             ->get();
-        // dd($data);
+        // dd($data, $kemarin);
+        $loop = 0;
 
         foreach ($data as $key => $dataPengunjung) {
             $cekLog = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->count();
-
+            // dd($cekLog);
+            // if ($dataPengunjung->no_rawat == '2023/03/09/000107') {
             if ($cekLog == 0) {
-                $idRS = '10080055';
+                $idRS = '100025586';
                 //Karena masih masalah diminta kirim pakai dummy dulu
-                // $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
-                // $idDokter = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
-                $idPasien = "P02478375538";
-                $idDokter = "10009880728";
+                $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
+                $idDokter = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
+                // $idPasien = "P02478375538";
+                // $idDokter = "10009880728";
                 $idLokasi = SatuSehatController::getIdPoli($dataPengunjung->kd_poli);
                 $diagnosaPrimer = SatuSehatController::getDiagnosisPrimerRalan($dataPengunjung->no_rawat);
 
-                // dd($dataPengunjung->no_rawat);
+                // dd($dataPengunjung->no_rawat, $idPasien, $idDokter, $idLokasi, $diagnosaPrimer);
 
                 if ((!empty($idPasien)) && (!empty($idDokter)) && (!empty($diagnosaPrimer)) && (!empty($idLokasi))) {
+
                     $diagnosaSekunder = SatuSehatController::getDiagnosisSekunderRalan($dataPengunjung->no_rawat);
                     $procedurePasien = SatuSehatController::getProcedureRalan($dataPengunjung->no_rawat);
                     $cekDiet = SatuSehatController::getDiet($dataPengunjung->no_rawat, $dataPengunjung->tgl_registrasi); //nyoba bundle composition
@@ -218,7 +239,7 @@ class SatuSehatController extends Controller
                                     [
                                         "location" => [
                                             "reference" => "Location/$idLokasi",
-                                            "display" => "$dataPengunjung->nm_poli"
+                                            "display" => "$dataPengunjung->alias_nm_poli"
                                         ]
                                     ]
                                 ],
@@ -386,7 +407,7 @@ class SatuSehatController extends Controller
                                     [
                                         "location" => [
                                             "reference" => "Location/$idLokasi",
-                                            "display" => "$dataPengunjung->nm_poli"
+                                            "display" => "$dataPengunjung->alias_nm_poli"
                                         ]
                                     ]
                                 ],
@@ -983,7 +1004,7 @@ class SatuSehatController extends Controller
                                 "entry" => $dataBundle
                             ]
                         ]);
-                    } catch (ClientException $e) {
+                    } catch (BadResponseException $e) {
                         // echo $e->getRequest();
                         // echo $e->getResponse();
                         if ($e->hasResponse()) {
@@ -991,14 +1012,18 @@ class SatuSehatController extends Controller
 
                             // dd($response);
                             $test = json_decode($response->getBody());
-                            // dd($test);
+                            // dd($test->issue[0]->expression[0]);
+                            // $pesan = $test->issue[0]->expression[0];
+                            $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat";
+
+                            Session::flash('error', $message);
+
+                            // return redirect()->back()->withInput();
+                            // $dataLog = ResponseSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                            // dd($dataLog);
+
+                            // return view('satu_sehat.client_bundle', compact('dataLog'));
                         }
-
-                        $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat";
-
-                        Session::flash('error', $message);
-
-                        // return redirect()->back()->withInput();
                     }
 
                     // dd($response);
@@ -1127,13 +1152,21 @@ class SatuSehatController extends Controller
                                 }
                             }
                         }
+                        //Tambah variabel loop
+                        ++$loop;
+                    }
+
+                    if ($loop == 8) {
+                        goto Selesai;
                     }
                 }
             }
+            // }
         }
         // $dataLog = ResponseSatuSehat::whereDate('created_at', Carbon::now())
         //     ->get();
-        $dataLog = ResponseSatuSehat::all();
+        Selesai:
+        $dataLog = ResponseSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
         // dd($dataLog);
 
         return view('satu_sehat.client_bundle', compact('dataLog'));
@@ -1469,8 +1502,11 @@ class SatuSehatController extends Controller
         session()->forget('cucu');
         set_time_limit(0);
 
-        $pasien_tanggal = '2022-11-25';
-        $idRS = '10080055';
+        // $pasien_tanggal = '2022-11-25';
+        // $idRS = '10080055';
+        $pasien_tanggal = Carbon::now()->format('Y-m-d');
+        $kemarin = Carbon::yesterday();
+        $idRS = '100025586';
 
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
@@ -1494,21 +1530,22 @@ class SatuSehatController extends Controller
                 'pegawai.nama as nama_dokter',
                 'poliklinik.nm_poli'
             )
-            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
             ->where('reg_periksa.status_lanjut', 'Ralan')
             ->where('reg_periksa.stts', 'Sudah')
+            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+            ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
             ->get();
         // dd($data);
         $antrian = 0;
 
         foreach ($data as $key => $dataPengunjung) {
-            // if ($antrian == 5) {
-            //     break;
-            // } else {
-            // $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
-            // $idDokter = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
-            $idPasien = "P02478375538";
-            $idDokter = "10009880728";
+            if ($antrian == 5) {
+                goto Selesai;
+            }
+            $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
+            $idDokter = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
+            // $idPasien = "P02478375538";
+            // $idDokter = "10009880728";
             $idLokasi = SatuSehatController::getIdPoli($dataPengunjung->kd_poli);
 
             $getResep = SatuSehatController::getResepObat($dataPengunjung->no_rawat);
@@ -1680,7 +1717,7 @@ class SatuSehatController extends Controller
                                         "valueCodeableConcept" => [
                                             "coding" => [
                                                 [
-                                                    "system" => "https://terminology.kemkes.go.id/CodeSystem/medication-type",
+                                                    "system" => "http://terminology.kemkes.go.id/CodeSystem/medication-type",
                                                     "code" => "NC",
                                                     "display" => "Non-compound"
                                                 ]
@@ -1708,27 +1745,45 @@ class SatuSehatController extends Controller
                                 if ($e->hasResponse()) {
                                     $response = $e->getResponse();
                                     $test = json_decode($response->getBody());
-                                    $errorCode = (array) $test;
-                                    // dd($errorCode['issue'][0]->details->text);
+                                    $errorCode2 = (array) $test;
+                                    $errorCode = $test->issue;
+                                    $pesan = $errorCode[0]->details->text;
 
-                                    $pesan = $errorCode['issue'][0]->details->text;
+                                    if (!empty($errorCode)) {
+                                        // $pesan = $errorCode['issue'][0]->details->text;
+                                        $cekError = LogErrorSatuSehat::where('subject', 'Medication1')
+                                            ->where('keterangan', 'like', $pesan)
+                                            ->whereDate('created_at', Carbon::now())
+                                            ->get();
 
-                                    $message = "Medication 1 error $pesan";
+                                        if ($cekError->count() < 1) {
+                                            $simpan = new LogErrorSatuSehat();
+                                            $simpan->subject = 'Medication1';
+                                            $simpan->keterangan = $pesan;
+                                            $simpan->save();
+                                        }
 
-                                    Session::flash('error', $message);
+                                        $message = "Medication1 error $pesan";
 
-                                    $dataLog = ResponseMedicationSatuSehat::all();
+                                        Session::flash('error', $message);
 
-                                    // dd($dataLog);
+                                        $dataLog = ResponseMedicationSatuSehat::all();
+                                        return view('satu_sehat.client_apotek', compact('dataLog'));
+                                    } else {
+                                        Session::flash('error', $errorCode2['fault']->faultstring);
 
-                                    return view('satu_sehat.client_apotek', compact('dataLog'));
+                                        $dataLog = ResponseMedicationSatuSehat::all();
+                                        return view('satu_sehat.client_apotek', compact('dataLog'));
+                                    }
+                                    // dd($test, $errorCode[0]->details->text, 'medication 1');
+
+                                    // $message = "Medication 1 error $pesan";
+
+                                    // Session::flash('error', $message);
+
+                                    // goto SkipObatJadi;
+
                                 }
-
-                                $dataLog = ResponseMedicationSatuSehat::all();
-
-                                // dd($dataLog);
-
-                                return view('satu_sehat.client_apotek', compact('dataLog'));
                             }
 
                             // dd($response);
@@ -1911,19 +1966,23 @@ class SatuSehatController extends Controller
                                         $response = $e->getResponse();
                                         $test = json_decode($response->getBody());
                                         $errorCode = (array) $test;
-                                        // dd($errorCode['issue'][0]->details->text);
+                                        if (!empty($errorCode['issue'][0])) {
+                                            $pesan = $errorCode['issue'][0]->details->text;
 
-                                        $pesan = $errorCode['issue'][0]->details->text;
+                                            $message = "Medication Request error $pesan";
 
-                                        $message = "Medication Request error $pesan";
+                                            Session::flash('error', $message);
 
-                                        Session::flash('error', $message);
+                                            $dataLog = ResponseMedicationSatuSehat::all();
+                                            return view('satu_sehat.client_apotek', compact('dataLog'));
+                                        } else {
+                                            Session::flash('error', $errorCode['fault']->faultstring);
 
-                                        $dataLog = ResponseMedicationSatuSehat::all();
-
+                                            $dataLog = ResponseMedicationSatuSehat::all();
+                                            return view('satu_sehat.client_apotek', compact('dataLog'));
+                                        }
+                                        // dd($test, 'Medication request', $medicationRequest);
                                         // dd($dataLog);
-
-                                        return view('satu_sehat.client_apotek', compact('dataLog'));
                                     }
 
                                     $dataLog = ResponseMedicationSatuSehat::all();
@@ -1963,19 +2022,21 @@ class SatuSehatController extends Controller
                                             $response = $e->getResponse();
                                             $test = json_decode($response->getBody());
                                             $errorCode = (array) $test;
-                                            // dd($errorCode['issue'][0]->details->text);
+                                            if (!empty($errorCode['issue'][0])) {
+                                                $pesan = $errorCode['issue'][0]->details->text;
 
-                                            $pesan = $errorCode['issue'][0]->details->text;
+                                                $message = "Medication2 error $pesan";
 
-                                            $message = "Medication 2 error $pesan";
+                                                Session::flash('error', $message);
 
-                                            Session::flash('error', $message);
+                                                $dataLog = ResponseMedicationSatuSehat::all();
+                                                return view('satu_sehat.client_apotek', compact('dataLog'));
+                                            } else {
+                                                Session::flash('error', $errorCode['fault']->faultstring);
 
-                                            $dataLog = ResponseMedicationSatuSehat::all();
-
-                                            // dd($dataLog);
-
-                                            return view('satu_sehat.client_apotek', compact('dataLog'));
+                                                $dataLog = ResponseMedicationSatuSehat::all();
+                                                return view('satu_sehat.client_apotek', compact('dataLog'));
+                                            }
                                         }
 
                                         $dataLog = ResponseMedicationSatuSehat::all();
@@ -1998,8 +2059,8 @@ class SatuSehatController extends Controller
                                     //variabel dinamis
                                     $idMedication2 = $data->id;
                                     // $apoteker = SatuSehatController::practitioner('3309090909870004');
-                                    $apoteker = "10001354453";
-                                    $lokasiApotek = '6a647d0b-d880-4e91-aa87-7bc7e4f7c066';
+                                    $apoteker = "10007445367"; //Pak Wahid
+                                    $lokasiApotek = '5ca46bfc-9c51-4ed5-b160-bbabd1a50163';
                                     //Waktu
                                     $waktuAwal = $getResep->tgl_permintaan . ' ' . $getResep->jam_permintaan;
                                     $waktu_mulai = new Carbon($waktuAwal);
@@ -2144,19 +2205,21 @@ class SatuSehatController extends Controller
                                                 $response = $e->getResponse();
                                                 $test = json_decode($response->getBody());
                                                 $errorCode = (array) $test;
-                                                // dd($errorCode['issue'][0]->details->text);
+                                                if (!empty($errorCode['issue'][0])) {
+                                                    $pesan = $errorCode['issue'][0]->details->text;
 
-                                                $pesan = $errorCode['issue'][0]->details->text;
+                                                    $message = "Medication Dispance error $pesan";
 
-                                                $message = "Medication Dispence error $pesan";
+                                                    Session::flash('error', $message);
 
-                                                Session::flash('error', $message);
+                                                    $dataLog = ResponseMedicationSatuSehat::all();
+                                                    return view('satu_sehat.client_apotek', compact('dataLog'));
+                                                } else {
+                                                    Session::flash('error', $errorCode['fault']->faultstring);
 
-                                                $dataLog = ResponseMedicationSatuSehat::all();
-
-                                                // dd($dataLog);
-
-                                                return view('satu_sehat.client_apotek', compact('dataLog'));
+                                                    $dataLog = ResponseMedicationSatuSehat::all();
+                                                    return view('satu_sehat.client_apotek', compact('dataLog'));
+                                                }
                                             }
 
                                             $dataLog = ResponseMedicationSatuSehat::all();
@@ -2177,410 +2240,415 @@ class SatuSehatController extends Controller
                                 }
                             }
                         }
+                        SkipObatJadi:
                     }
                 }
 
                 //Obat racikan dikirim
-                if (($listObatRacik->count() > 0) && ($detailRacikan->count() > 0)) {
-                    foreach ($listObatRacik as $resepRacikan) {
-                        $formRacik = SatuSehatController::getMedicationForm($resepRacikan->kd_racik);
-                        $listIngridient = array();
-                        // for ($i = 0; $i < $detailRacikan->count(); $i++) {
-                        foreach ($detailRacikan as $ingridientRacikan) {
-                            // dd($ingridientRacikan);
-                            $itemObat = SatuSehatController::getIdObat($ingridientRacikan->kode_brng);
-                            // dd($resepRacikan, $ingridientRacikan, $itemObat);
-                            if (!empty($itemObat)) {
-                                if ($formRacik->kd_ingredient != null) {
-                                    $jenis = DB::connection('mysqlkhanza')->table('fhir_master_ingredient')
-                                        ->select(
-                                            'fhir_master_ingredient.kd_ingredient',
-                                            'fhir_master_ingredient.display',
-                                            'fhir_master_ingredient.system'
-                                        )
-                                        ->where('fhir_master_ingredient.kd_ingredient', $formRacik->kd_ingredient)
-                                        ->first();
+                // if (($listObatRacik->count() > 0) && ($detailRacikan->count() > 0)) {
+                //     foreach ($listObatRacik as $resepRacikan) {
+                //         $formRacik = SatuSehatController::getMedicationForm($resepRacikan->kd_racik);
+                //         $listIngridient = array();
+                //         // for ($i = 0; $i < $detailRacikan->count(); $i++) {
+                //         foreach ($detailRacikan as $ingridientRacikan) {
+                //             // dd($ingridientRacikan);
+                //             $itemObat = SatuSehatController::getIdObat($ingridientRacikan->kode_brng);
+                //             // dd($resepRacikan, $ingridientRacikan, $itemObat);
+                //             if (!empty($itemObat)) {
+                //                 if ($formRacik->kd_ingredient != null) {
+                //                     $jenis = DB::connection('mysqlkhanza')->table('fhir_master_ingredient')
+                //                         ->select(
+                //                             'fhir_master_ingredient.kd_ingredient',
+                //                             'fhir_master_ingredient.display',
+                //                             'fhir_master_ingredient.system'
+                //                         )
+                //                         ->where('fhir_master_ingredient.kd_ingredient', $formRacik->kd_ingredient)
+                //                         ->first();
 
-                                    $ingridient = [
-                                        "itemCodeableConcept" => [
-                                            "coding" => [
-                                                [
-                                                    "system" => "http://sys-ids.kemkes.go.id/kfa",
-                                                    "code" => "$itemObat->id_ihs",
-                                                    "display" => "$ingridientRacikan->nama_brng"
-                                                ]
-                                            ]
-                                        ],
-                                        "isActive" => true,
-                                        "strength" => [
-                                            "numerator" => [
-                                                "value" => $ingridientRacikan->jml,
-                                                "system" => "$itemObat->ingredient_system",
-                                                "code" => "$itemObat->kode_ingredient"
-                                            ],
-                                            "denominator" => [
-                                                "value" => $resepRacikan->jml_dr,
-                                                "system" => "$jenis->system",
-                                                "code" => "$jenis->kd_ingredient"
-                                            ]
-                                        ]
-                                    ];
-                                } else {
-                                    $jenis = DB::connection('mysqlkhanza')->table('fhir_master_ucum')
-                                        ->select(
-                                            'fhir_master_ucum.kd_ucum',
-                                            'fhir_master_ucum.name',
-                                            'fhir_master_ucum.system'
-                                        )
-                                        ->where('fhir_master_ucum.kd_ucum', $formRacik->kd_ucum)
-                                        ->first();
+                //                     $ingridient = [
+                //                         "itemCodeableConcept" => [
+                //                             "coding" => [
+                //                                 [
+                //                                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                //                                     "code" => "$itemObat->id_ihs",
+                //                                     "display" => "$ingridientRacikan->nama_brng"
+                //                                 ]
+                //                             ]
+                //                         ],
+                //                         "isActive" => true,
+                //                         "strength" => [
+                //                             "numerator" => [
+                //                                 "value" => $ingridientRacikan->jml,
+                //                                 "system" => "$itemObat->ingredient_system",
+                //                                 "code" => "$itemObat->kode_ingredient"
+                //                             ],
+                //                             "denominator" => [
+                //                                 "value" => $resepRacikan->jml_dr,
+                //                                 "system" => "$jenis->system",
+                //                                 "code" => "$jenis->kd_ingredient"
+                //                             ]
+                //                         ]
+                //                     ];
+                //                 } else {
+                //                     $jenis = DB::connection('mysqlkhanza')->table('fhir_master_ucum')
+                //                         ->select(
+                //                             'fhir_master_ucum.kd_ucum',
+                //                             'fhir_master_ucum.name',
+                //                             'fhir_master_ucum.system'
+                //                         )
+                //                         ->where('fhir_master_ucum.kd_ucum', $formRacik->kd_ucum)
+                //                         ->first();
 
-                                    $ingridient = [
-                                        "itemCodeableConcept" => [
-                                            "coding" => [
-                                                [
-                                                    "system" => "http://sys-ids.kemkes.go.id/kfa",
-                                                    "code" => "$itemObat->id_ihs",
-                                                    "display" => "$ingridientRacikan->nama_brng"
-                                                ]
-                                            ]
-                                        ],
-                                        "isActive" => true,
-                                        "strength" => [
-                                            "numerator" => [
-                                                "value" => $ingridientRacikan->jml,
-                                                "system" => "$itemObat->ucum_system",
-                                                "code" => "$itemObat->kode_ucum"
-                                            ],
-                                            "denominator" => [
-                                                "value" => $resepRacikan->jml_dr,
-                                                "system" => "$jenis->system",
-                                                "code" => "$jenis->kd_ucum"
-                                            ]
-                                        ]
-                                    ];
-                                }
+                //                     $ingridient = [
+                //                         "itemCodeableConcept" => [
+                //                             "coding" => [
+                //                                 [
+                //                                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                //                                     "code" => "$itemObat->id_ihs",
+                //                                     "display" => "$ingridientRacikan->nama_brng"
+                //                                 ]
+                //                             ]
+                //                         ],
+                //                         "isActive" => true,
+                //                         "strength" => [
+                //                             "numerator" => [
+                //                                 "value" => $ingridientRacikan->jml,
+                //                                 "system" => "$itemObat->ucum_system",
+                //                                 "code" => "$itemObat->kode_ucum"
+                //                             ],
+                //                             "denominator" => [
+                //                                 "value" => $resepRacikan->jml_dr,
+                //                                 "system" => "$jenis->system",
+                //                                 "code" => "$jenis->kd_ucum"
+                //                             ]
+                //                         ]
+                //                     ];
+                //                 }
 
-                                array_push($listIngridient, $ingridient);
-                            }
-                        }
+                //                 array_push($listIngridient, $ingridient);
+                //             }
+                //         }
 
-                        $medicationRacik1 = [
-                            "resourceType" => "Medication",
-                            "meta" => [
-                                "profile" => [
-                                    "https://fhir.kemkes.go.id/r4/StructureDefinition/Medication"
-                                ]
-                            ],
-                            "status" => "active",
-                            "form" => [
-                                "coding" => [
-                                    [
-                                        "system" => "$formRacik->coding_system",
-                                        "code" => "$formRacik->kode_medication",
-                                        "display" => "$formRacik->display"
-                                    ]
-                                ]
-                            ],
-                            "ingredient" => $listIngridient,
-                            "extension" => [
-                                [
-                                    "url" => "https://fhir.kemkes.go.id/r4/StructureDefinition/MedicationType",
-                                    "valueCodeableConcept" => [
-                                        "coding" => [
-                                            [
-                                                "system" => "https://terminology.kemkes.go.id/CodeSystem/medication-type",
-                                                "code" => "EP",
-                                                "display" => "Divide into equal parts"
-                                            ]
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ];
+                //         $medicationRacik1 = [
+                //             "resourceType" => "Medication",
+                //             "meta" => [
+                //                 "profile" => [
+                //                     "https://fhir.kemkes.go.id/r4/StructureDefinition/Medication"
+                //                 ]
+                //             ],
+                //             "status" => "active",
+                //             "form" => [
+                //                 "coding" => [
+                //                     [
+                //                         "system" => "$formRacik->coding_system",
+                //                         "code" => "$formRacik->kode_medication",
+                //                         "display" => "$formRacik->display"
+                //                     ]
+                //                 ]
+                //             ],
+                //             "ingredient" => $listIngridient,
+                //             "extension" => [
+                //                 [
+                //                     "url" => "https://fhir.kemkes.go.id/r4/StructureDefinition/MedicationType",
+                //                     "valueCodeableConcept" => [
+                //                         "coding" => [
+                //                             [
+                //                                 "system" => "https://terminology.kemkes.go.id/CodeSystem/medication-type",
+                //                                 "code" => "EP",
+                //                                 "display" => "Divide into equal parts"
+                //                             ]
+                //                         ]
+                //                     ]
+                //                 ]
+                //             ]
+                //         ];
 
-                        //Kirim/Create Medication
-                        SatuSehatController::getTokenSehat();
-                        $access_token = Session::get('tokenSatuSehat');
-                        // dd($access_token);
-                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-                        try {
-                            $response = $client->request('POST', 'fhir-r4/v1/Medication', [
-                                'headers' => [
-                                    'Authorization' => "Bearer {$access_token}"
-                                ],
-                                'json' => $medicationRacik1
-                            ]);
-                        } catch (BadResponseException $e) {
-                            if ($e->hasResponse()) {
-                                $response = $e->getResponse();
-                                $test = json_decode($response->getBody());
-                                $errorCode = (array) $test;
-                                // dd($errorCode['issue'][0]->details->text);
+                //         //Kirim/Create Medication
+                //         SatuSehatController::getTokenSehat();
+                //         $access_token = Session::get('tokenSatuSehat');
+                //         // dd($access_token);
+                //         $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                //         try {
+                //             $response = $client->request('POST', 'fhir-r4/v1/Medication', [
+                //                 'headers' => [
+                //                     'Authorization' => "Bearer {$access_token}"
+                //                 ],
+                //                 'json' => $medicationRacik1
+                //             ]);
+                //         } catch (BadResponseException $e) {
+                //             if ($e->hasResponse()) {
+                //                 $response = $e->getResponse();
+                //                 $test = json_decode($response->getBody());
+                //                 $errorCode = (array) $test;
+                //                 dd($test);
 
-                                $pesan = $errorCode['issue'][0]->details->text;
+                //                 $pesan = $errorCode['issue'][0]->details->text;
 
-                                $message = "Medication Racik 1 error $pesan";
+                //                 $message = "Medication Racik 1 error $pesan";
 
-                                Session::flash('error', $message);
+                //                 Session::flash('error', $message);
 
-                                $dataLog = ResponseMedicationSatuSehat::all();
+                //                 goto SkipObatRacik;
 
-                                // dd($dataLog);
+                //                 $dataLog = ResponseMedicationSatuSehat::all();
 
-                                return view('satu_sehat.client_apotek', compact('dataLog'));
-                            }
+                //                 // dd($dataLog);
 
-                            $dataLog = ResponseMedicationSatuSehat::all();
+                //                 return view('satu_sehat.client_apotek', compact('dataLog'));
+                //             }
 
-                            // dd($dataLog);
+                //             $dataLog = ResponseMedicationSatuSehat::all();
 
-                            return view('satu_sehat.client_apotek', compact('dataLog'));
-                        }
+                //             // dd($dataLog);
 
-                        // dd($response);
+                //             return view('satu_sehat.client_apotek', compact('dataLog'));
+                //         }
 
-                        $data = json_decode($response->getBody());
+                //         // dd($response);
 
-                        // dd($medicationRacik1, $data, $noresep, $noUrutResep);
-                        if (!empty($data->id) && $data->resourceType == "Medication") {
+                //         $data = json_decode($response->getBody());
 
-                            $simpan = new ResponseMedicationSatuSehat();
-                            $simpan->noRawat = $dataPengunjung->no_rawat;
-                            $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
-                            $simpan->noResep = $resepRacikan->no_resep . '-' . ++$noUrutResep;
-                            $simpan->medication1 = $data->id;
-                            $simpan->save();
+                //         // dd($medicationRacik1, $data, $noresep, $noUrutResep);
+                //         if (!empty($data->id) && $data->resourceType == "Medication") {
 
-                            $idMedicationRacik1 = $data->id;
+                //             $simpan = new ResponseMedicationSatuSehat();
+                //             $simpan->noRawat = $dataPengunjung->no_rawat;
+                //             $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                //             $simpan->noResep = $resepRacikan->no_resep . '-' . ++$noUrutResep;
+                //             $simpan->medication1 = $data->id;
+                //             $simpan->save();
 
-                            $routeRacik = SatuSehatController::getRouteRacik($resepRacikan->kd_racik);
+                //             $idMedicationRacik1 = $data->id;
 
-                            $medicationRequestRacik = [
-                                "resourceType" => "MedicationRequest",
-                                "identifier" => [
-                                    [
-                                        "system" => "http://sys-ids.kemkes.go.id/prescription/$idRS",
-                                        "use" => "official",
-                                        "value" => "$resepRacikan->no_resep"
-                                    ],
-                                    [
-                                        "system" => "http://sys-ids.kemkes.go.id/prescription-item/$idRS",
-                                        "use" => "official",
-                                        "value" => $resepRacikan->no_resep . "-" . $noUrutResep
-                                    ]
-                                ],
-                                "status" => "completed",
-                                "intent" => "order",
-                                "category" => [
-                                    [
-                                        "coding" => [
-                                            [
-                                                "system" => "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
-                                                "code" => "outpatient",
-                                                "display" => "Outpatient"
-                                            ]
-                                        ]
-                                    ]
-                                ],
-                                "priority" => "routine",
-                                "medicationReference" => [
-                                    "reference" => "Medication/$idMedicationRacik1"
-                                ],
-                                "subject" => [
-                                    "reference" => "Patient/$idPasien",
-                                    "display" => "$dataPengunjung->nm_pasien"
-                                ],
-                                "encounter" => [
-                                    "reference" => "Encounter/$idCounter->encounter_id"
-                                ],
-                                "authoredOn" => "$dataPengunjung->tgl_registrasi",
-                                "requester" => [
-                                    "reference" => "Practitioner/$idDokter",
-                                    "display" => "$dataPengunjung->nama_dokter"
-                                ],
-                                "dosageInstruction" => [
-                                    [
-                                        "sequence" => 1,
-                                        "text" => "$resepRacikan->aturan_pakai",
-                                        "patientInstruction" => "$resepRacikan->aturan_pakai",
-                                        "timing" => [
-                                            "repeat" => [
-                                                "frequency" => 3,
-                                                "period" => 1,
-                                                "periodUnit" => "wk" //sengaja
-                                            ]
-                                        ],
-                                        "route" => [
-                                            "coding" => [
-                                                [
-                                                    "system" => "$routeRacik->system",
-                                                    "code" => "$routeRacik->kd_route",
-                                                    "display" => "$routeRacik->display"
-                                                ]
-                                            ]
-                                        ],
-                                        "doseAndRate" => [
-                                            [
-                                                "type" => [
-                                                    "coding" => [
-                                                        [
-                                                            "system" => "http://terminology.hl7.org/CodeSystem/dose-rate-type",
-                                                            "code" => "ordered",
-                                                            "display" => "Ordered"
-                                                        ]
+                //             $routeRacik = SatuSehatController::getRouteRacik($resepRacikan->kd_racik);
 
-                                                    ]
-                                                ],
-                                                "doseQuantity" => [
-                                                    "value" => $resepRacikan->jml_dr,
-                                                    "unit" => "$jenis->kd_ingredient",
-                                                    "system" => "$jenis->system",
-                                                    "code" => "$jenis->kd_ingredient"
-                                                ]
-                                            ]
-                                        ]
-                                    ]
-                                ],
-                                "dispenseRequest" => [
-                                    // "dispenseInterval" => [
-                                    //     "value" => 1,
-                                    //     "unit" => "days",
-                                    //     "system" => "http://unitsofmeasure.org",
-                                    //     "code" => "d"
-                                    // ],
-                                    "validityPeriod" => [
-                                        "start" => "$getResep->tgl_permintaan",
-                                        "end" => "$getResep->tgl_penyerahan"
-                                    ],
-                                    "numberOfRepeatsAllowed" => 0,
-                                    "quantity" => [
-                                        "value" => $resepRacikan->jml_dr,
-                                        "unit" => "$jenis->kd_ingredient",
-                                        "system" => "$jenis->system",
-                                        "code" => "$jenis->kd_ingredient"
-                                    ]
-                                    // ,
-                                    // "expectedSupplyDuration" => [
-                                    //     "value" => 10,
-                                    //     "unit" => "days",
-                                    //     "system" => "http://unitsofmeasure.org",
-                                    //     "code" => "d"
-                                    // ]
-                                ]
-                            ];
+                //             $medicationRequestRacik = [
+                //                 "resourceType" => "MedicationRequest",
+                //                 "identifier" => [
+                //                     [
+                //                         "system" => "http://sys-ids.kemkes.go.id/prescription/$idRS",
+                //                         "use" => "official",
+                //                         "value" => "$resepRacikan->no_resep"
+                //                     ],
+                //                     [
+                //                         "system" => "http://sys-ids.kemkes.go.id/prescription-item/$idRS",
+                //                         "use" => "official",
+                //                         "value" => $resepRacikan->no_resep . "-" . $noUrutResep
+                //                     ]
+                //                 ],
+                //                 "status" => "completed",
+                //                 "intent" => "order",
+                //                 "category" => [
+                //                     [
+                //                         "coding" => [
+                //                             [
+                //                                 "system" => "http://terminology.hl7.org/CodeSystem/medicationrequest-category",
+                //                                 "code" => "outpatient",
+                //                                 "display" => "Outpatient"
+                //                             ]
+                //                         ]
+                //                     ]
+                //                 ],
+                //                 "priority" => "routine",
+                //                 "medicationReference" => [
+                //                     "reference" => "Medication/$idMedicationRacik1"
+                //                 ],
+                //                 "subject" => [
+                //                     "reference" => "Patient/$idPasien",
+                //                     "display" => "$dataPengunjung->nm_pasien"
+                //                 ],
+                //                 "encounter" => [
+                //                     "reference" => "Encounter/$idCounter->encounter_id"
+                //                 ],
+                //                 "authoredOn" => "$dataPengunjung->tgl_registrasi",
+                //                 "requester" => [
+                //                     "reference" => "Practitioner/$idDokter",
+                //                     "display" => "$dataPengunjung->nama_dokter"
+                //                 ],
+                //                 "dosageInstruction" => [
+                //                     [
+                //                         "sequence" => 1,
+                //                         "text" => "$resepRacikan->aturan_pakai",
+                //                         "patientInstruction" => "$resepRacikan->aturan_pakai",
+                //                         "timing" => [
+                //                             "repeat" => [
+                //                                 "frequency" => 3,
+                //                                 "period" => 1,
+                //                                 "periodUnit" => "wk" //sengaja
+                //                             ]
+                //                         ],
+                //                         "route" => [
+                //                             "coding" => [
+                //                                 [
+                //                                     "system" => "$routeRacik->system",
+                //                                     "code" => "$routeRacik->kd_route",
+                //                                     "display" => "$routeRacik->display"
+                //                                 ]
+                //                             ]
+                //                         ],
+                //                         "doseAndRate" => [
+                //                             [
+                //                                 "type" => [
+                //                                     "coding" => [
+                //                                         [
+                //                                             "system" => "http://terminology.hl7.org/CodeSystem/dose-rate-type",
+                //                                             "code" => "ordered",
+                //                                             "display" => "Ordered"
+                //                                         ]
 
-                            //Kirim/Create Medication Request
-                            SatuSehatController::getTokenSehat();
-                            $access_token = Session::get('tokenSatuSehat');
-                            // dd($access_token);
-                            $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-                            try {
-                                $response = $client->request('POST', 'fhir-r4/v1/MedicationRequest', [
-                                    'headers' => [
-                                        'Authorization' => "Bearer {$access_token}"
-                                    ],
-                                    'json' => $medicationRequestRacik
-                                ]);
-                            } catch (BadResponseException $e) {
-                                if ($e->hasResponse()) {
-                                    $response = $e->getResponse();
-                                    $test = json_decode($response->getBody());
-                                    $errorCode = (array) $test;
-                                    // dd($errorCode['issue'][0]->details->text);
+                //                                     ]
+                //                                 ],
+                //                                 "doseQuantity" => [
+                //                                     "value" => $resepRacikan->jml_dr,
+                //                                     "unit" => "$jenis->kd_ingredient",
+                //                                     "system" => "$jenis->system",
+                //                                     "code" => "$jenis->kd_ingredient"
+                //                                 ]
+                //                             ]
+                //                         ]
+                //                     ]
+                //                 ],
+                //                 "dispenseRequest" => [
+                //                     // "dispenseInterval" => [
+                //                     //     "value" => 1,
+                //                     //     "unit" => "days",
+                //                     //     "system" => "http://unitsofmeasure.org",
+                //                     //     "code" => "d"
+                //                     // ],
+                //                     "validityPeriod" => [
+                //                         "start" => "$getResep->tgl_permintaan",
+                //                         "end" => "$getResep->tgl_penyerahan"
+                //                     ],
+                //                     "numberOfRepeatsAllowed" => 0,
+                //                     "quantity" => [
+                //                         "value" => $resepRacikan->jml_dr,
+                //                         "unit" => "$jenis->kd_ingredient",
+                //                         "system" => "$jenis->system",
+                //                         "code" => "$jenis->kd_ingredient"
+                //                     ]
+                //                     // ,
+                //                     // "expectedSupplyDuration" => [
+                //                     //     "value" => 10,
+                //                     //     "unit" => "days",
+                //                     //     "system" => "http://unitsofmeasure.org",
+                //                     //     "code" => "d"
+                //                     // ]
+                //                 ]
+                //             ];
 
-                                    $pesan = $errorCode['issue'][0]->details->text;
+                //             //Kirim/Create Medication Request
+                //             SatuSehatController::getTokenSehat();
+                //             $access_token = Session::get('tokenSatuSehat');
+                //             // dd($access_token);
+                //             $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                //             try {
+                //                 $response = $client->request('POST', 'fhir-r4/v1/MedicationRequest', [
+                //                     'headers' => [
+                //                         'Authorization' => "Bearer {$access_token}"
+                //                     ],
+                //                     'json' => $medicationRequestRacik
+                //                 ]);
+                //             } catch (BadResponseException $e) {
+                //                 if ($e->hasResponse()) {
+                //                     $response = $e->getResponse();
+                //                     $test = json_decode($response->getBody());
+                //                     $errorCode = (array) $test;
+                //                     dd($test);
 
-                                    $message = "Medication Request Racik error $pesan";
+                //                     $pesan = $errorCode['issue'][0]->details->text;
 
-                                    Session::flash('error', $message);
+                //                     $message = "Medication Request Racik error $pesan";
 
-                                    $dataLog = ResponseMedicationSatuSehat::all();
+                //                     Session::flash('error', $message);
 
-                                    // dd($dataLog);
+                //                     $dataLog = ResponseMedicationSatuSehat::all();
 
-                                    return view('satu_sehat.client_apotek', compact('dataLog'));
-                                }
+                //                     // dd($dataLog);
 
-                                $dataLog = ResponseMedicationSatuSehat::all();
+                //                     return view('satu_sehat.client_apotek', compact('dataLog'));
+                //                 }
 
-                                // dd($dataLog);
+                //                 $dataLog = ResponseMedicationSatuSehat::all();
 
-                                return view('satu_sehat.client_apotek', compact('dataLog'));
-                            }
+                //                 // dd($dataLog);
 
-                            // dd($response);
-                            $data = json_decode($response->getBody());
-                            if (!empty($data->id) && $data->resourceType == "MedicationRequest") {
-                                //Update data di table respone medication request
-                                $update = ResponseMedicationSatuSehat::where('medication1', $idMedicationRacik1)->first();
-                                $update->medicationRequest = $data->id;
-                                $update->save();
+                //                 return view('satu_sehat.client_apotek', compact('dataLog'));
+                //             }
 
-                                $idMedicationRequestRacik = $data->id;
+                //             // dd($response);
+                //             $data = json_decode($response->getBody());
+                //             if (!empty($data->id) && $data->resourceType == "MedicationRequest") {
+                //                 //Update data di table respone medication request
+                //                 $update = ResponseMedicationSatuSehat::where('medication1', $idMedicationRacik1)->first();
+                //                 $update->medicationRequest = $data->id;
+                //                 $update->save();
 
-                                $medicationRacik2 = $medicationRacik1;
+                //                 $idMedicationRequestRacik = $data->id;
 
-                                //Kirim/Create Medication 2
-                                SatuSehatController::getTokenSehat();
-                                $access_token = Session::get('tokenSatuSehat');
-                                // dd($access_token);
-                                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
-                                try {
-                                    $response = $client->request('POST', 'fhir-r4/v1/Medication', [
-                                        'headers' => [
-                                            'Authorization' => "Bearer {$access_token}"
-                                        ],
-                                        'json' => $medicationRacik2
-                                    ]);
-                                } catch (BadResponseException $e) {
-                                    if ($e->hasResponse()) {
-                                        $response = $e->getResponse();
-                                        $test = json_decode($response->getBody());
-                                        $errorCode = (array) $test;
-                                        // dd($errorCode['issue'][0]->details->text);
+                //                 $medicationRacik2 = $medicationRacik1;
 
-                                        $pesan = $errorCode['issue'][0]->details->text;
+                //                 //Kirim/Create Medication 2
+                //                 SatuSehatController::getTokenSehat();
+                //                 $access_token = Session::get('tokenSatuSehat');
+                //                 // dd($access_token);
+                //                 $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                //                 try {
+                //                     $response = $client->request('POST', 'fhir-r4/v1/Medication', [
+                //                         'headers' => [
+                //                             'Authorization' => "Bearer {$access_token}"
+                //                         ],
+                //                         'json' => $medicationRacik2
+                //                     ]);
+                //                 } catch (BadResponseException $e) {
+                //                     if ($e->hasResponse()) {
+                //                         $response = $e->getResponse();
+                //                         $test = json_decode($response->getBody());
+                //                         $errorCode = (array) $test;
+                //                         dd($test);
 
-                                        $message = "Medication Racik 2 error $pesan";
+                //                         $pesan = $errorCode['issue'][0]->details->text;
 
-                                        Session::flash('error', $message);
+                //                         $message = "Medication Racik 2 error $pesan";
 
-                                        $dataLog = ResponseMedicationSatuSehat::all();
+                //                         Session::flash('error', $message);
 
-                                        // dd($dataLog);
+                //                         $dataLog = ResponseMedicationSatuSehat::all();
 
-                                        return view('satu_sehat.client_apotek', compact('dataLog'));
-                                    }
+                //                         // dd($dataLog);
 
-                                    $dataLog = ResponseMedicationSatuSehat::all();
+                //                         return view('satu_sehat.client_apotek', compact('dataLog'));
+                //                     }
 
-                                    // dd($dataLog);
+                //                     $dataLog = ResponseMedicationSatuSehat::all();
 
-                                    return view('satu_sehat.client_apotek', compact('dataLog'));
-                                }
+                //                     // dd($dataLog);
 
-                                // dd($response);
+                //                     return view('satu_sehat.client_apotek', compact('dataLog'));
+                //                 }
 
-                                $data = json_decode($response->getBody());
+                //                 // dd($response);
 
-                                if (!empty($data->id) && $data->resourceType == "Medication") {
-                                    //Update data di table respone medication2
-                                    $update = ResponseMedicationSatuSehat::where('medication1', $idMedicationRacik1)->first();
-                                    $update->medication2 = $data->id;
-                                    $update->save();
-                                }
-                            }
-                        }
-                    }
-                }
+                //                 $data = json_decode($response->getBody());
+
+                //                 if (!empty($data->id) && $data->resourceType == "Medication") {
+                //                     //Update data di table respone medication2
+                //                     $update = ResponseMedicationSatuSehat::where('medication1', $idMedicationRacik1)->first();
+                //                     $update->medication2 = $data->id;
+                //                     $update->save();
+                //                 }
+                //             }
+                //         }
+                //         SkipObatRacik:
+                //     }
+                // }
+                ++$antrian;
             }
-            //     ++$antrian;
             // }
+            SkipData:
         }
+        Selesai:
 
-
-        $dataLog = ResponseMedicationSatuSehat::all();
+        $dataLog = ResponseMedicationSatuSehat::orderBy('created_at', 'DESC')->get();
 
         // dd($dataLog);
 
@@ -2594,8 +2662,10 @@ class SatuSehatController extends Controller
         session()->forget('cucu');
         set_time_limit(0);
 
-        $pasien_tanggal = '2022-11-25';
-        $idRS = '10080055';
+        // $pasien_tanggal = '2022-11-25';
+        $pasien_tanggal = Carbon::now()->format('Y-m-d');
+        $kemarin = Carbon::yesterday();
+        $idRS = '100025586';
 
         $dataPengunjung = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
@@ -2619,10 +2689,11 @@ class SatuSehatController extends Controller
                 'pegawai.nama as nama_dokter',
                 'poliklinik.nm_poli'
             )
-            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
             ->where('reg_periksa.status_lanjut', 'Ralan')
             ->where('reg_periksa.stts', 'Sudah')
             ->where('reg_periksa.kd_poli', '!=', 'LAB')
+            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+            ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
             ->get();
 
         // dd($dataPengunjung);
@@ -2656,9 +2727,10 @@ class SatuSehatController extends Controller
                 $cekResponseLab = ResponseLabSatuSehat::where('noOrder', $cekLab->noorder)->first();
 
                 if (empty($cekResponseLab)) {
-                    // $dokterPerujuk = SatuSehatController::practitioner($cekLab->ktp_dokter);
-                    $idPasien = "P02478375538";
-                    $dokterPerujuk = "10009880728";
+                    $dokterPerujuk = SatuSehatController::practitioner($cekLab->ktp_dokter);
+                    $idPasien = SatuSehatController::patientSehat($pasienLab->ktp_pasien);
+                    // $idPasien = "P02478375538";
+                    // $dokterPerujuk = "10009880728";
                     //cek data periksa lab
                     $periksaLab = DB::connection('mysqlkhanza')->table('periksa_lab')
                         ->join('jns_perawatan_lab', 'jns_perawatan_lab.kd_jenis_prw', '=', 'periksa_lab.kd_jenis_prw')
@@ -2843,7 +2915,7 @@ class SatuSehatController extends Controller
                                     if ($e->hasResponse()) {
                                         $response = $e->getResponse();
                                         $test = json_decode($response->getBody());
-                                        dd($test);
+                                        // dd($test);
                                     }
 
                                     $message = "Error Kirim Specimen dengan id service " . $idServiceRequest;
@@ -3878,7 +3950,7 @@ class SatuSehatController extends Controller
                                                 "coding" => [
                                                     [
                                                         "system" => "http://terminology.hl7.org/CodeSystem/v2-0074",
-                                                        "code" => "CM",
+                                                        "code" => "CH",
                                                         "display" => "Chemistry"
                                                     ]
                                                 ]
@@ -3902,9 +3974,9 @@ class SatuSehatController extends Controller
                                         "effectiveDateTime" => $PeriksaLab->tgl_periksa . "T" . $PeriksaLab->jam . "+07:00",
                                         "issued" => $PeriksaLab->tgl_periksa . "T" . $PeriksaLab->jam . "+07:00",
                                         "performer" => [
-                                            [
-                                                "reference" => "Practitioner/10006926841"
-                                            ],
+                                            // [
+                                            //     "reference" => "Practitioner/10006926841"
+                                            // ],
                                             [
                                                 "reference" => "Organization/$idRS"
                                             ]
@@ -3960,7 +4032,7 @@ class SatuSehatController extends Controller
 
                                             // dd($response);
                                             $test = json_decode($response->getBody());
-                                            // dd($test);
+                                            dd($test);
                                         }
 
                                         $message = "Error Kirim Report lab id service request " . $idServiceRequest;
@@ -3991,7 +4063,7 @@ class SatuSehatController extends Controller
             }
         }
 
-        $dataLog = ResponseLabSatuSehat::all();
+        $dataLog = ResponseLabSatuSehat::whereDate('created_at', new Carbon($pasien_tanggal))->get();
 
         // dd($dataLog);
 
@@ -4005,8 +4077,9 @@ class SatuSehatController extends Controller
         session()->forget('cucu');
         set_time_limit(0);
 
-        $pasien_tanggal = '2022-11-25';
-        $idRS = '10080055';
+        // $pasien_tanggal = '2022-11-25';
+        $pasien_tanggal = Carbon::now()->format('Y-m-d');
+        $idRS = '100025586';
 
         $dataPengunjung = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
@@ -4045,9 +4118,12 @@ class SatuSehatController extends Controller
             $cekLog = ResponseSatuSehat::where('noRawat', $pengunjung->no_rawat)->count();
 
             if ($cekLog == 0) {
-                $idRS = '10080055';
-                $idPasien = 'P02478375538';
-                $idDokter = '10009880728';
+                // $idRS = '10080055';
+
+                // $idPasien = 'P02478375538';
+                // $idDokter = '10009880728';
+                $idDokter = SatuSehatController::practitioner($pengunjung->ktp_dokter);
+                $idPasien = SatuSehatController::patientSehat($pengunjung->ktp_pasien);
                 $idLokasi = SatuSehatController::getIdPoli($pengunjung->kd_poli);
 
                 if ((!empty($idPasien)) && (!empty($idDokter))) {
@@ -5424,7 +5500,7 @@ class SatuSehatController extends Controller
                                                 "coding" => [
                                                     [
                                                         "system" => "http://terminology.hl7.org/CodeSystem/v2-0074",
-                                                        "code" => "CM",
+                                                        "code" => "CH",
                                                         "display" => "Chemistry"
                                                     ]
                                                 ]
@@ -5537,7 +5613,7 @@ class SatuSehatController extends Controller
             }
         }
 
-        $dataLog = ResponseLabSatuSehat::all();
+        $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
 
         // dd($dataLog);
 
@@ -5625,9 +5701,9 @@ class SatuSehatController extends Controller
                         $response = $e->getResponse();
                         $test = json_decode((string) $response->getBody());
                     }
-                    dd($test);
+                    // dd($test->fault);
                     // $id = Crypt::encrypt($id);
-                    Session::flash('error', $test->message);
+                    Session::flash('error', 'Ambil id pasien gagal!');
 
                     return redirect()->back()->withInput();
                 }
@@ -5649,12 +5725,18 @@ class SatuSehatController extends Controller
                     return $data;
                     // dd($data);
                 } else {
-                    $error = new LogErrorSatuSehat();
-                    $error->subject = 'Pasien';
-                    $error->keterangan = $id . ' tidak ditemukan di Satu Sehat';
-                    $error->save();
+                    $cek = LogErrorSatuSehat::where('subject', 'Pasien')
+                        ->where('keterangan', 'like', "%$id%")
+                        ->count();
 
-                    return null;
+                    if ($cek == 0) {
+                        $error = new LogErrorSatuSehat();
+                        $error->subject = 'Pasien';
+                        $error->keterangan = $id . ' tidak ditemukan di Satu Sehat';
+                        $error->save();
+
+                        return null;
+                    }
                 }
             }
         } else {
@@ -5686,9 +5768,9 @@ class SatuSehatController extends Controller
                         $response = $e->getResponse();
                         $test = json_decode((string) $response->getBody());
                     }
-                    dd($test);
+                    // dd($test->fault);
                     // $id = Crypt::encrypt($id);
-                    Session::flash('error', $test->message);
+                    Session::flash('error', 'Ambil respon practitioner gagal!');
 
                     return redirect()->back()->withInput();
                 }
@@ -5710,12 +5792,18 @@ class SatuSehatController extends Controller
 
                     return $data;
                 } else {
-                    $error = new LogErrorSatuSehat();
-                    $error->subject = 'Praktitioner';
-                    $error->keterangan = $id . ' tidak ditemukan di Satu Sehat';
-                    $error->save();
+                    $cek = LogErrorSatuSehat::where('subject', 'Praktitioner')
+                        ->where('keterangan', 'like', "%$id%")
+                        ->count();
 
-                    return null;
+                    if ($cek == 0) {
+                        $error = new LogErrorSatuSehat();
+                        $error->subject = 'Praktitioner';
+                        $error->keterangan = $id . ' tidak ditemukan di Satu Sehat';
+                        $error->save();
+
+                        return null;
+                    }
                 }
             }
         } else {
@@ -5728,8 +5816,7 @@ class SatuSehatController extends Controller
         $data = DB::connection('mysqlkhanza')->table('fhir_poliklinik')
             ->select(
                 'fhir_poliklinik.kd_poli',
-                'fhir_poliklinik.id_ihs',
-
+                'fhir_poliklinik.id_ihs'
             )
             ->where('fhir_poliklinik.kd_poli', $id)
             ->first();
@@ -5868,7 +5955,7 @@ class SatuSehatController extends Controller
                 'resep_obat.tgl_perawatan as tgl_permintaan',
                 'resep_obat.jam as jam_permintaan',
                 'resep_obat.tgl_penyerahan',
-                'resep_obat.jam_penyerahan',
+                'resep_obat.jam_penyerahan'
             )
             ->where('resep_obat.no_rawat', $id)
             ->where('resep_obat.status', 'ralan')
@@ -5914,7 +6001,7 @@ class SatuSehatController extends Controller
                 'resep_dokter_racikan.aturan_pakai',
                 'resep_dokter_racikan.keterangan',
                 'metode_racik.kd_racik',
-                'metode_racik.nm_racik',
+                'metode_racik.nm_racik'
             )
             ->where('resep_dokter_racikan.no_resep', $resep)
             ->get();
@@ -5958,10 +6045,17 @@ class SatuSehatController extends Controller
         if (!empty($data)) {
             return $data;
         } else {
-            $error = new LogErrorSatuSehat();
-            $error->subject = 'Farmasi';
-            $error->keterangan = $kd_obat . ' Kode Obat tidak ditemukan di Mapping Satu Sehat';
-            $error->save();
+            $cari = LogErrorSatuSehat::where('Subject', 'Farmasi')
+                ->where('keterangan', 'like', $kd_obat)
+                ->whereDate('created_at', Carbon::now())
+                ->get();
+            if ($cari->count() < 0) {
+                $error = new LogErrorSatuSehat();
+                $error->subject = 'Farmasi';
+                $error->keterangan = $kd_obat . ' Kode Obat tidak ditemukan di Mapping Satu Sehat';
+                $error->save();
+            }
+
 
             return null;
         }
@@ -6102,16 +6196,21 @@ class SatuSehatController extends Controller
             $getData = null;
         }
 
-
         // dd($data, $id, $getData);
 
         if (!empty($getData)) {
             return $getData;
         } else {
-            $error = new LogErrorSatuSehat();
-            $error->subject = 'Lab';
-            $error->keterangan = $id . ' Kode perawatan Lab belum ditemukan dimapping';
-            $error->save();
+            $cek = LogErrorSatuSehat::where('subject', 'Lab')
+                ->where('keterangan', 'like', '%' . $id . '%')
+                ->whereDate('created_at', Carbon::now())
+                ->get();
+            if ($cek->count() < 1) {
+                $error = new LogErrorSatuSehat();
+                $error->subject = 'Lab';
+                $error->keterangan = $id . ' Kode perawatan Lab belum ditemukan dimapping';
+                $error->save();
+            }
 
             return null;
         }
@@ -6162,10 +6261,16 @@ class SatuSehatController extends Controller
         if (!empty($data)) {
             return $data;
         } else {
-            $error = new LogErrorSatuSehat();
-            $error->subject = 'Lab Answer Loinc';
-            $error->keterangan = $id . ' Kode loinc tidak memiliki answer';
-            $error->save();
+            $cek = LogErrorSatuSehat::where('subject', 'Lab Answer Loinc')
+                ->where('keterangan', 'like', $id)
+                ->whereDate('created_at', Carbon::now())
+                ->get();
+            if ($cek->count() < 1) {
+                $error = new LogErrorSatuSehat();
+                $error->subject = 'Lab Answer Loinc';
+                $error->keterangan = $id . ' Kode loinc tidak memiliki answer';
+                $error->save();
+            }
 
             return null;
         }

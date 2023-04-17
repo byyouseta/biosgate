@@ -114,7 +114,7 @@
             </div>
             <table style="width: 100%">
                 <tr>
-                    <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}" alt="Logo RSUP"
+                    <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}" alt="Logo RSUP"
                             width="100">
                     </td>
                     <td>
@@ -464,7 +464,7 @@
             <div>
                 <table style="width: 100%">
                     <tr>
-                        <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
+                        <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}"
                                 alt="Logo RSUP" width="100">
                         </td>
                         <td>
@@ -619,14 +619,14 @@
                                 $dokterLab = \App\Vedika::getDokter($order->tgl_hasil, $order->jam_hasil);
                                 $dokter_lab = $dokterLab->nm_dokter;
                                 $kd_dokter_lab = $dokterLab->kd_dokter;
-
+                                
                                 $petugasLab = \App\Vedika::getPetugas($order->tgl_hasil, $order->jam_hasil);
                                 $petugas_lab = $petugasLab->nama;
                                 $kd_petugas_lab = $petugasLab->nip;
-
+                                
                                 $qr_dokter = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $dokter_lab . "\n" . 'ID ' . $kd_dokter_lab . "\n" . \Carbon\Carbon::parse($order->tgl_hasil)->format('d-m-Y');
                                 $qr_petugas = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $petugas_lab . "\n" . 'ID ' . $kd_petugas_lab . "\n" . \Carbon\Carbon::parse($order->tgl_hasil)->format('d-m-Y');
-
+                                
                                 $qrcode_dokter = base64_encode(
                                     QrCode::format('svg')
                                         ->size(100)
@@ -670,7 +670,7 @@
         <div>
             <table style="width: 100%">
                 <tr>
-                    <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
+                    <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}"
                             alt="Logo RSUP" width="100">
                     </td>
                     <td>
@@ -809,7 +809,7 @@
         <div>
             <table style="width: 100%">
                 <tr>
-                    <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
+                    <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}"
                             alt="Logo RSUP" width="100">
                     </td>
                     <td>
@@ -958,7 +958,7 @@
                         );
                     @endphp
                     <td style="width: 70%; border:0px solid black; text-align:center; vertical-align:top">
-                        Penerima Obat
+                        &nbsp;
                     </td>
                     <td style="width: 30%; border:0px solid black; text-align:center"> <img
                             src="data:image/png;base64, {!! $qrcode_dokter !!}">
@@ -966,7 +966,7 @@
                 </tr>
                 <tr>
                     <td style="width: 70%; border:0px solid black; text-align:center">
-                        (................................)<br> Pasien/Suami/Istri/Anak/Lainnya
+                        &nbsp;<br> &nbsp;
                     </td>
                     <td style="text-align:center"> {{ $resepObat->nm_dokter }} </td>
                 </tr>
@@ -990,14 +990,14 @@
                         }
                     }
                 }
-
+                
                 //data PLAN
                 if (!empty($primer)) {
                     $plan = $primer->plan;
                 } else {
                     $plan = $sekunder->plan;
                 }
-
+                
                 if ($plan == 'Zona Hijau') {
                     $bg_color = 'background-color:green;';
                 } elseif ($plan == 'Zona Kuning') {
@@ -1025,7 +1025,7 @@
                     </tr>
                     <tr>
                         <td style="border:1px solid black" rowspan="4"><img
-                                src="{{ asset('image/logorsup.jpg') }}" alt="Logo RSUP" width="100">
+                                src="{{ public_path('image/logorsup.jpg') }}" alt="Logo RSUP" width="100">
                         </td>
                         <td style="border-top:1px solid black" colspan="5">
                             <div style="font-size: 25px; text-align:center">RSUP SURAKARTA</div>
@@ -1281,7 +1281,7 @@
             <table style="border: 0px solid black">
                 <thead>
                     <tr>
-                        <td style="width:3%"><img src="{{ asset('image/logorsup.jpg') }}" alt="Logo RSUP"
+                        <td style="width:3%"><img src="{{ public_path('image/logorsup.jpg') }}" alt="Logo RSUP"
                                 width="30">
                         </td>
                         <td>

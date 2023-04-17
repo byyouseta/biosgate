@@ -90,6 +90,9 @@
                 "lengthChange": true,
                 "searching": true,
                 "ordering": true,
+                "order": [
+                    [6, 'desc']
+                ],
                 "info": true,
                 "autoWidth": false,
                 "responsive": false,
@@ -101,6 +104,9 @@
                 "lengthChange": false,
                 "searching": false,
                 "ordering": false,
+                "order": [
+                    [6, 'desc']
+                ],
                 "info": false,
                 "autoWidth": false,
                 "responsive": false,

@@ -18,11 +18,11 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Data Saldo</div>
+                            <div class="card_title">Data Saldo Operasional</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
+                                <table class="table table-bordered table-hover table-sm">
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Kode Bank</th>
@@ -35,13 +35,13 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($data as $data)
+                                        @forelse ($operasional as $data)
                                             <tr>
                                                 <td>{{ $data->bank->kd_bank }}</td>
                                                 <td>{{ $data->bank->nama }}</td>
                                                 <td>{{ $data->bank->norek }}</td>
-                                                <td>{{ number_format($data->saldo, 2, ',', '.') }}</td>
-                                                <td>{{ $data->kd_rek }}</td>
+                                                <td>{{ number_format($data->saldo_akhir, 2, ',', '.') }}</td>
+                                                <td>{{ $data->bank->Rekening->kode }}</td>
                                                 <td>{{ $data->tgl_transaksi }}</td>
                                                 <td>
                                                     @if ($data->status == 1)
@@ -51,7 +51,12 @@
                                                     @endif
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        @empty
+                                            <tr>
+                                                <td colspan="7">Data Pengiriman kemarin Kosong
+                                                </td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>
@@ -61,36 +66,91 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card_title">Summary data terkirim kemarin</div>
+                            <div class="card_title">Data Saldo Pengelolaan Kas</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
+                                <table class="table table-bordered table-hover table-sm">
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Kode Bank</th>
                                             <th class="align-middle">Nama Bank</th>
                                             <th class="align-middle">No Rekening</th>
-                                            <th class="align-middle">Kode Rekening</th>
-                                            <th class="align-middle">Nama Rekening</th>
-                                            <th class="align-middle">Saldo</th>
+                                            <th class="align-middle">Nilai Deposito</th>
+                                            <th class="align-middle">Nilai Bunga</th>
                                             <th class="align-middle">Tanggal Transaksi</th>
-                                            <th class="align-middle">Tanggal Update</th>
+                                            <th class="align-middle">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($cekdata as $data)
+                                        @forelse ($pengelolaan as $data)
                                             <tr>
-                                                <td>{{ $data->kd_bank }}</td>
-                                                <td>{{ $data->nm_bank }}</td>
-                                                <td>{{ $data->norek }}</td>
-                                                <td>{{ $data->kd_rek }}</td>
-                                                <td>{{ $data->nm_rek }}</td>
-                                                <td>{{ $data->saldo }}</td>
+                                                <td>{{ $data->bank->kd_bank }}</td>
+                                                <td>{{ $data->bank->nama }}</td>
+                                                <td>{{ $data->bank->norek }}</td>
+                                                <td>{{ number_format($data->nilai_deposito, 2, ',', '.') }}</td>
+                                                <td>{{ number_format($data->nilai_bunga, 2, ',', '.') }}</td>
                                                 <td>{{ $data->tgl_transaksi }}</td>
-                                                <td>{{ $data->tgl_update }}</td>
+                                                <td>
+                                                    @if ($data->status == 1)
+                                                        <span class="right badge badge-success">Sudah Terkirim</span>
+                                                    @else
+                                                        <span class="right badge badge-danger">Belum Terkirim</span>
+                                                    @endif
+                                                </td>
                                             </tr>
-                                        @endforeach
+                                        @empty
+                                            <tr>
+                                                <td colspan="7">Data Pengiriman kemarin Kosong
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card_title">Data Saldo Dana Kelolaan</div>
+                        </div>
+                        <div class="card-body">
+                            <div style="overflow-x:auto;">
+                                <table class="table table-bordered table-hover table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="align-middle">Kode Bank</th>
+                                            <th class="align-middle">Nama Bank</th>
+                                            <th class="align-middle">No Rekening</th>
+                                            <th class="align-middle">Saldo Akhir</th>
+                                            <th class="align-middle">Tanggal Transaksi</th>
+                                            <th class="align-middle">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($kelolaan as $data)
+                                            <tr>
+                                                <td>{{ $data->bank->kd_bank }}</td>
+                                                <td>{{ $data->bank->nama }}</td>
+                                                <td>{{ $data->bank->norek }}</td>
+                                                <td>{{ number_format($data->saldo, 2, ',', '.') }}</td>
+                                                <td>{{ $data->tgl_transaksi }}</td>
+                                                <td>
+                                                    @if ($data->status == 1)
+                                                        <span class="right badge badge-success">Sudah Terkirim</span>
+                                                    @else
+                                                        <span class="right badge badge-danger">Belum Terkirim</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="6">Data Pengiriman kemarin Kosong
+                                                </td>
+                                            </tr>
+                                        @endforelse
                                     </tbody>
                                 </table>
                             </div>

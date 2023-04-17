@@ -371,6 +371,139 @@ class VedikaController extends Controller
         return $pdf->stream();
     }
 
+    public function cronisRajalPdf($id)
+    {
+        $id = Crypt::decrypt($id);
+        // mengambil data id rapat
+        $pasien = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->join('penjab', 'penjab.kd_pj', '=', 'reg_periksa.kd_pj')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.kd_pj',
+                'reg_periksa.stts',
+                'reg_periksa.kd_dokter',
+                'poliklinik.nm_poli',
+                'pasien.nm_pasien',
+                'pasien.no_ktp',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pasien.alamat',
+                'pasien.no_peserta',
+                'dokter.nm_dokter',
+                'penjab.png_jawab'
+            )
+            ->where('reg_periksa.kd_pj', '=', 'BPJ')
+            ->where('reg_periksa.status_lanjut', '=', 'Ralan')
+            ->where('reg_periksa.no_rawat', '=', $id)
+            ->first();
+
+        // dd($pasien);
+
+        //Ambil data billing
+        $billing = VedikaController::billingRajal($pasien->no_rawat);
+        //Ambil data untuk Bukti Pelayanan
+        $buktiPelayanan = VedikaController::buktiPelayanan($pasien->no_rawat);
+        $diagnosa = $buktiPelayanan[0];
+        $prosedur = $buktiPelayanan[1];
+        //Ambil data Radiologi
+        $radiologi = VedikaController::radioRajal($pasien->no_rawat);
+        $dataRadiologi = $radiologi[0];
+        $dokterRadiologi = $radiologi[1];
+        //Ambil data Triase dan Ringkasan IGD
+        if ($pasien->nm_poli == "IGD") {
+            $triase = VedikaController::triase($pasien->no_rawat);
+            $dataTriase = $triase[0];
+            $primer = $triase[1];
+            $sekunder = $triase[2];
+            $skala = $triase[3];
+
+            $ringkasan = VedikaController::ringkasanIgd($pasien->no_rawat);
+            $dataRingkasan = $ringkasan[0];
+            $resumeIgd = $ringkasan[1];
+        } else {
+            $dataTriase = $primer = $sekunder = $skala = $dataRingkasan = $resumeIgd = null;
+        }
+        //Ambil Berkas tambahan
+        $berkas = VedikaController::berkas($pasien->no_rawat);
+        $dataBerkas = $berkas[0];
+        $masterBerkas = $berkas[1];
+        $pathBerkas = $berkas[2];
+        //Data Lab
+        $lab = VedikaController::lab($pasien->no_rawat);
+        $permintaanLab = $lab[0];
+        $hasilLab = $lab[1];
+        //Data Obat
+        $obat = VedikaController::obat($pasien->no_rawat);
+        $resepObat = $obat[0];
+        $obatJadi = $obat[1];
+        $obatRacik = $obat[2];
+
+        // dd($pasien, $billing);
+
+        $pdf = Pdf::loadView('vedika.cronisRajal_pdf', [
+            'pasien' => $pasien,
+            'billing' => $billing,
+            'diagnosa' => $diagnosa,
+            'prosedur' => $prosedur,
+            'permintaanLab' => $permintaanLab,
+            'hasilLab' => $hasilLab,
+            'dataRadiologi' => $dataRadiologi,
+            'dokterRadiologi' => $dokterRadiologi,
+            'dataTriase' => $dataTriase,
+            'primer' => $primer,
+            'sekunder' => $sekunder,
+            'skala' => $skala,
+            'dataRingkasan' => $dataRingkasan,
+            'resumeIgd' => $resumeIgd,
+            'resepObat' => $resepObat,
+            'obatJadi' => $obatJadi,
+            'obatRacik' => $obatRacik,
+            'dataBerkas' => $dataBerkas,
+            'masterBerkas' => $masterBerkas,
+            'pathBerkas' => $pathBerkas
+        ]);
+
+        // (Optional) Setup the paper size and orientation
+        $pdf->setPaper('A4', 'potraid');
+
+        // $pdf->setOptions(['isRemoteEnabled' => true]);
+
+        // Render the HTML as PDF
+        //$pdf->render();
+        //Watermark
+        // $pdf->setPaper('L');
+        // $pdf->output();
+        // $canvas = $pdf->getDomPDF()->getCanvas();
+
+        // $height = $canvas->get_height();
+        // $width = $canvas->get_width();
+
+        // $canvas->set_opacity(.2, "Multiply");
+
+        // $canvas->set_opacity(.2);
+
+        // $canvas->page_text(
+        //     $width / 5,
+        //     $height / 2,
+        //     'VedikaRSUPGate',
+        //     null,
+        //     55,
+        //     array(0, 0, 0),
+        //     2,
+        //     2,
+        //     -30
+        // );
+
+        return $pdf->stream();
+    }
+
     public function sepManual($id)
     {
         session()->put('ibu', 'Vedika');
@@ -1634,9 +1767,9 @@ class VedikaController extends Controller
         // dd(Session(''))
 
         if (Session('anak') == 'Pasien Rajal')
-            return redirect("/vedika/rajal/$id/berkas");
+            return redirect("/vedika/rajal/$id/detail");
         else
-            return redirect("/vedika/ranap/$id/berkas");
+            return redirect("/vedika/ranap/$id/detail");
     }
 
     public function berkasShow($id)

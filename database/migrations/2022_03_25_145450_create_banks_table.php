@@ -18,6 +18,10 @@ class CreateBanksTable extends Migration
             $table->string('kd_bank', 5);
             $table->string('nama', 50);
             $table->string('norek', 30);
+            $table->string('namaRek', 50);
+            $table->string('cabang', 50);
+            $table->string('jenis', 30);
+            $table->string('noBilyet', 30)->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

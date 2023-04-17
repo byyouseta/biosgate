@@ -49,10 +49,11 @@
                                     <div class="col-sm-1 col-form-label">
                                         <button type="Submit" class="btn btn-primary btn-block">Lihat</button>
                                     </div>
-
-                                    <div class="col-sm-2 col-form-label">
-                                        <a href="/layanan/bor/client" class="btn btn-success">Jalankan Client</a>
-                                    </div>
+                                    @can('facelift-ikt-client')
+                                        <div class="col-sm-2 col-form-label">
+                                            <a href="/layanan/bor/client" class="btn btn-success">Jalankan Client</a>
+                                        </div>
+                                    @endcan
                                 </div>
                             </form>
                         </div>

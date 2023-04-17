@@ -60,7 +60,8 @@
                                                         <div class="btn-group">
                                                             <a href="/rsonline/pasienterlapor/editlap/{{ Crypt::encrypt($data->lapId) }}"
                                                                 class="btn btn-warning @cannot('pasienbaru-edit') disabled @endcannot"
-                                                                data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                                                data-toggle="tooltip" data-placement="bottom"
+                                                                title="Edit">
                                                                 <i class="fas fa-pen-square"></i>
                                                             </a>
                                                             <a href="/rsonline/pasienterlapor/laptambahan/{{ Crypt::encrypt($data->lapId) }}"

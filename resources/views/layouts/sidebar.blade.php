@@ -22,7 +22,7 @@
                     </p>
                 </a>
             </li>
-            @if (Auth::user()->can('bios-kesehatan-list'))
+            {{-- @if (Auth::user()->can('bios-kesehatan-list'))
                 <li class="nav-item @if (@session('ibu') == 'BIOS G2') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'BIOS G2') active @endif">
                         <i class="nav-icon fas fa-exchange-alt "></i>
@@ -38,8 +38,48 @@
                                     <i class="nav-icon fas fa-heartbeat"></i>
                                     <p>
                                         Layanan Kesehatan
-                                        {{-- <span class="right badge badge-danger">New</span> --}}
                                     </p>
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
+                </li>
+            @endif --}}
+            @if (Auth::user()->can('facelift-kesehatan-list') ||
+                    Auth::user()->can('facelift-statistik-list') ||
+                    Auth::user()->can('bios-pemasukan-list') ||
+                    Auth::user()->can('bios-pengeluaran-list'))
+                <li class="nav-item @if (@session('ibu') == 'BIOS facelift') menu-open @endif">
+                    <a href="#" class="nav-link @if (@session('ibu') == 'BIOS facelift') active @endif">
+                        <i class="nav-icon fas fa-exchange-alt"></i>
+                        <p>
+                            BIOS facelift
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        @can('facelift-kesehatan-list')
+                            <li class="nav-item">
+                                <a href="/layanan/kesehatan"
+                                    class="nav-link @if (@session('anak') == 'Data Layanan Kesehatan') active @endif">
+                                    <i class="nav-icon fas fa-hospital"></i>
+                                    <p>Data Layanan Kesehatan</p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('facelift-statistik-list')
+                            <li class="nav-item">
+                                <a href="/layanan/bor" class="nav-link @if (@session('anak') == 'Data Statistik') active @endif">
+                                    <i class="nav-icon far fa-chart-bar"></i>
+                                    <p>Data Statistik</p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('facelift-sdm-list')
+                            <li class="nav-item">
+                                <a href="/layanan/sdm" class="nav-link @if (@session('anak') == 'Data SDM') active @endif">
+                                    <i class="nav-icon fas fa-hospital-user"></i>
+                                    <p>Data SDM</p>
                                 </a>
                             </li>
                         @endcan
@@ -77,11 +117,40 @@
                                     @endcan
                                     @can('bios-saldo-list')
                                         <li class="nav-item">
-                                            <a href="/saldokeuangan"
-                                                class="nav-link @if (@session('cucu') == 'Data Saldo') active @endif">
+                                            <a href="/saldo/operasional"
+                                                class="nav-link @if (@session('cucu') == 'Saldo Operasional') active @endif">
                                                 <i class="nav-icon fas fa-wallet"></i>
                                                 <p>
-                                                    Data Saldo
+                                                    Saldo Operasional
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="/saldo/pengelolaankas"
+                                                class="nav-link @if (@session('cucu') == 'Saldo Pengelolaan Kas') active @endif">
+                                                <i class="nav-icon fas fa-wallet"></i>
+                                                <p>
+                                                    Saldo Pengelolaan Kas
+                                                </p>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a href="/saldo/kelolaan"
+                                                class="nav-link @if (@session('cucu') == 'Saldo Dana Kelolaan') active @endif">
+                                                <i class="nav-icon fas fa-wallet"></i>
+                                                <p>
+                                                    Saldo Dana Kelolaan
+                                                </p>
+                                            </a>
+                                        </li>
+                                    @endcan
+                                    @can('bios-saldo-chart')
+                                        <li class="nav-item">
+                                            <a href="/saldo/laporan"
+                                                class="nav-link @if (@session('cucu') == 'Laporan Saldo') active @endif">
+                                                <i class="nav-icon fas fa-chart-bar"></i>
+                                                <p>
+                                                    Laporan Saldo
                                                 </p>
                                             </a>
                                         </li>
@@ -89,44 +158,6 @@
                                 </ul>
                             </li>
                         @endif
-                    </ul>
-                </li>
-            @endif
-            @if (Auth::user()->can('facelift-kesehatan-list') || Auth::user()->can('facelift-statistik-list'))
-                <li class="nav-item @if (@session('ibu') == 'BIOS facelift') menu-open @endif">
-                    <a href="#" class="nav-link @if (@session('ibu') == 'BIOS facelift') active @endif">
-                        <i class="nav-icon fas fa-exchange-alt"></i>
-                        <p>
-                            BIOS facelift
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        @can('facelift-kesehatan-list')
-                            <li class="nav-item">
-                                <a href="/layanan/kesehatan"
-                                    class="nav-link @if (@session('anak') == 'Data Layanan Kesehatan') active @endif">
-                                    <i class="nav-icon fas fa-hospital"></i>
-                                    <p>Data Layanan Kesehatan</p>
-                                </a>
-                            </li>
-                        @endcan
-                        @can('facelift-statistik-list')
-                            <li class="nav-item">
-                                <a href="/layanan/bor" class="nav-link @if (@session('anak') == 'Data Statistik') active @endif">
-                                    <i class="nav-icon far fa-chart-bar"></i>
-                                    <p>Data Statistik</p>
-                                </a>
-                            </li>
-                        @endcan
-                        @can('facelift-sdm-list')
-                            <li class="nav-item">
-                                <a href="/layanan/sdm" class="nav-link @if (@session('anak') == 'Data SDM') active @endif">
-                                    <i class="nav-icon fas fa-hospital-user"></i>
-                                    <p>Data SDM</p>
-                                </a>
-                            </li>
-                        @endcan
                         @can('facelift-ikt-list')
                             <li class="nav-item">
                                 <a href="/layanan/visit" class="nav-link @if (@session('anak') == 'Data Visit/IKT') active @endif">
@@ -324,33 +355,76 @@
                     </ul>
                 </li>
             @endif
-            <li class="nav-item @if (@session('ibu') == 'Pesan') menu-open @endif">
-                <a href="#" class="nav-link @if (@session('ibu') == 'Pesan') active @endif">
-                    <i class="nav-icon fab fa-whatsapp"></i>
-                    <p>
-                        Pesan
-                        <i class="right fas fa-angle-left"></i>
-                    </p>
-                </a>
-                <ul class="nav nav-treeview">
-                    <li class="nav-item">
-                        <a href="/pesan" class="nav-link @if (@session('anak') == 'Setting') active @endif">
-                            <i class="nav-icon fas fa-cog"></i>
-                            <p>
-                                Setting
-                            </p>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="/pesan/kirim" class="nav-link @if (@session('anak') == 'Kirim Pesan') active @endif">
-                            <i class="nav-icon fas fa-envelope"></i>
-                            <p>
-                                Kirim Pesan
-                            </p>
-                        </a>
-                    </li>
-                </ul>
-            </li>
+            @if (Auth::user()->can('operasi-booking-list') || Auth::user()->can('operasi-jadwal-list'))
+                <li class="nav-item @if (@session('ibu') == 'Operasi') menu-open @endif">
+                    <a href="#" class="nav-link @if (@session('ibu') == 'Operasi') active @endif">
+                        <i class="nav-icon fas fa-heartbeat"></i>
+                        <p>
+                            Operasi
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        @can('operasi-booking-list')
+                            <li class="nav-item">
+                                <a href="/operasi/booking"
+                                    class="nav-link @if (@session('anak') == 'Booking Operasi') active @endif">
+                                    <i class="nav-icon fas fa-book-medical"></i>
+                                    <p>
+                                        Booking Operasi
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('operasi-jadwal-list')
+                            <li class="nav-item">
+                                <a href="/operasi/jadwal"
+                                    class="nav-link @if (@session('anak') == 'Jadwal Operasi') active @endif">
+                                    <i class="nav-icon fas fa-procedures"></i>
+                                    <p>
+                                        Jadwal Operasi
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
+                </li>
+            @endif
+            @can('pesan-list')
+                <li class="nav-item @if (@session('ibu') == 'Pesan') menu-open @endif">
+                    <a href="#" class="nav-link @if (@session('ibu') == 'Pesan') active @endif">
+                        <i class="nav-icon fab fa-whatsapp"></i>
+                        <p>
+                            Pesan
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        @can('pesan-setting')
+                            <li class="nav-item">
+                                <a href="/pesan" class="nav-link @if (@session('anak') == 'Setting') active @endif">
+                                    <i class="nav-icon fas fa-cog"></i>
+                                    <p>
+                                        Setting
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('pesan-kirim')
+                            <li class="nav-item">
+                                <a href="/pesan/kirim" class="nav-link @if (@session('anak') == 'Kirim Pesan') active @endif">
+                                    <i class="nav-icon fas fa-envelope"></i>
+                                    <p>
+                                        Kirim Pesan
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+
+                    </ul>
+                </li>
+            @endcan
+
             {{-- @can('satu-sehat-create') --}}
             {{-- <li class="nav-item">
                 <a href="/pesan" class="nav-link @if (@session('ibu') == 'Pesan') active @endif">

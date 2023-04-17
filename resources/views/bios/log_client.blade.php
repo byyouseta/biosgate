@@ -36,7 +36,13 @@
                                             <tr>
                                                 <td>{{ $listLog->tanggal }}</td>
                                                 <td>{{ $listLog->nama_fungsi }}</td>
-                                                <td>{{ $listLog->status_terkirim }}</td>
+                                                <td>
+                                                    @if ($listLog->status_terkirim == 1)
+                                                        <span class="right badge badge-success">Sudah Terkirim</span>
+                                                    @else
+                                                        <span class="right badge badge-danger">Belum Terkirim</span>
+                                                    @endif
+                                                </td>
                                                 <td>{{ $listLog->updated_at }}</td>
                                             </tr>
                                         @empty

@@ -15,14 +15,14 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-6">
+                <div class="col-12">
                     <div class="card">
                         <div class="card-header">
                             <div class="card_title">Data Pengeluaran</div>
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
+                                <table class="table table-bordered table-hover table-sm">
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Kode Akun</th>
@@ -55,7 +55,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-6">
+                {{-- <div class="col-6">
                     <div class="card">
                         <div class="card-header">
                             <div class="card_title">Summary data terkirim kemarin</div>
@@ -87,7 +87,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
                 <!-- /.col -->
             </div>
             <!-- /.row -->
