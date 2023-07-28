@@ -253,7 +253,7 @@ class ClientController extends Controller
 
         $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
 
-        // $tanggal = '2023-01-01';
+        // $tanggal = '2023-06-21';
 
         // dd($tanggal);
 
@@ -379,7 +379,7 @@ class ClientController extends Controller
 
     public function statistik()
     {
-        session()->put('ibu', 'Client Layanan Kesehatan Bulanan');
+        session()->put('ibu', 'Client Data Statistik');
         session()->forget('anak');
 
         ClientController::token();
@@ -444,13 +444,13 @@ class ClientController extends Controller
 
     public function sdm()
     {
-        session()->put('ibu', 'Client Layanan Kesehatan Semesteran');
+        session()->put('ibu', 'Client Data SDM');
         session()->forget('anak');
 
         ClientController::token();
 
-        $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
-        // $tanggal = '2023-01-30';
+        $tanggal = Carbon::now()->format('Y-m-d');
+        // $tanggal = '2023-07-05';
         $pecahTanggal = explode('-', $tanggal);
         $tanggalCek = $pecahTanggal[2];
         $BulanCek = $pecahTanggal[1];

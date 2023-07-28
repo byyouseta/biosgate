@@ -12,6 +12,7 @@
         "barryvdh/laravel-dompdf": "^2.0",
         "fideloper/proxy": "^4.0",
         "guzzlehttp/guzzle": "^7.4",
+        "josiasmontag/laravel-recaptchav3": "^1.0",
         "laravel/framework": "^6.0",
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "^6.3",

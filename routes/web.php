@@ -18,6 +18,14 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
+// Survei
+Route::get('/survei', 'SurveiController@index')->name('survei');
+Route::get('/survei/pengaduan', 'SurveiController@pengaduan')->name('survei.pengaduan');
+Route::post('/survei/pengaduan/store', 'SurveiController@store')->name('survei.store');
+Route::get('/survei/{id}/tiket', 'SurveiController@showTicket')->name('survei.showcTiket');
+Route::get('/survei/pengaduan/periksa', 'SurveiController@periksa')->name('survei.periksa');
+Route::post('/survei/pengaduan/periksa', 'SurveiController@periksaTiket')->name('survei.periksaTiket');
+
 Auth::routes([
     'register' => false, // Registration Routes...
     'reset' => false, // Password Reset Routes...
@@ -127,6 +135,11 @@ Route::post('/rsonline/pasienterlapor/diagnosa/{id}', 'PasienOnlineController@di
 Route::get('/rsonline/pasienpulang', 'PasienOnlineController@keluar')->name('pasienonline.keluar');
 Route::get('/rsonline/pasienterlapor/pulang/{id}', 'PasienOnlineController@pulang')->name('pasienonline.pulang');
 Route::post('/rsonline/pasienterlapor/pulang/{id}', 'PasienOnlineController@pulangupdate')->name('pasienonline.pulangupdate');
+
+//RSOnline antrian
+Route::get('/rsonline/antrian', 'RsoAntrianController@index')->name('antrian.index');
+Route::get('/rsonline/antrian/clientadd', 'RsoAntrianController@clientAdd')->name('antrian.clientAdd');
+
 
 //axios
 Route::post('/getKabKota', 'PasienOnlineController@getKabKota')->name('getKabKota');

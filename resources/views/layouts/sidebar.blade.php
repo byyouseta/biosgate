@@ -48,7 +48,8 @@
             @if (Auth::user()->can('facelift-kesehatan-list') ||
                     Auth::user()->can('facelift-statistik-list') ||
                     Auth::user()->can('bios-pemasukan-list') ||
-                    Auth::user()->can('bios-pengeluaran-list'))
+                    Auth::user()->can('bios-pengeluaran-list') ||
+                    Auth::user()->can('bios-saldo-list'))
                 <li class="nav-item @if (@session('ibu') == 'BIOS facelift') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'BIOS facelift') active @endif">
                         <i class="nav-icon fas fa-exchange-alt"></i>
@@ -83,7 +84,9 @@
                                 </a>
                             </li>
                         @endcan
-                        @if (Auth::user()->can('bios-pemasukan-list') || Auth::user()->can('bios-pengeluaran-list'))
+                        @if (Auth::user()->can('bios-pemasukan-list') ||
+                                Auth::user()->can('bios-pengeluaran-list') ||
+                                Auth::user()->can('bios-saldo-list'))
                             <li class="nav-item @if (@session('anak') == 'Layanan Keuangan') menu-open @endif">
                                 <a href="#" class="nav-link @if (@session('anak') == 'Layanan Keuangan') active @endif">
                                     <i class="nav-icon fas fa-dollar-sign"></i>
@@ -265,6 +268,17 @@
                             </li>
                         </ul>
                     @endif
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="/rsonline/antrian"
+                                class="nav-link @if (@session('anak') == 'Antrian') active @endif">
+                                <i class="nav-icon fas fa-user-clock"></i>
+                                <p>
+                                    Antrian
+                                </p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             @endif
             @if (Auth::user()->can('kanker-rajal-list') || Auth::user()->can('kanker-ranap-list'))

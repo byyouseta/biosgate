@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use GuzzleHttp\Exception\ClientException;
 use Guzzle\Http\Exception\ClientErrorResponseException;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -116,7 +117,33 @@ class SatuSehatController extends Controller
                 $idRS = '100025586';
                 //Karena masih masalah diminta kirim pakai dummy dulu
                 $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
+                if ($idPasien == null) {
+                    $cek = LogErrorSatuSehat::where('subject', 'Pasien')
+                        ->where('keterangan', 'like', '%' . $dataPengunjung->no_rkm_medis . '%')
+                        ->whereDate('created_at', Carbon::now())
+                        ->get();
+
+                    if ($cek->count() == 0) {
+                        $error = new LogErrorSatuSehat();
+                        $error->subject = 'Pasien';
+                        $error->keterangan =  ' cek NIK Pasien no RM ' . $dataPengunjung->no_rkm_medis;
+                        $error->save();
+                    }
+                }
                 $idDokter = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
+                if ($idDokter == null) {
+                    $cek = LogErrorSatuSehat::where('subject', 'Praktitioner')
+                        ->where('keterangan', 'like', '%' . $dataPengunjung->nama_dokter . '%')
+                        ->whereDate('created_at', Carbon::now())
+                        ->get();
+
+                    if ($cek->count() == 0) {
+                        $error = new LogErrorSatuSehat();
+                        $error->subject = 'Praktitioner';
+                        $error->keterangan = $dataPengunjung->nama_dokter . ' tidak ditemukan';
+                        $error->save();
+                    }
+                }
                 // $idPasien = "P02478375538";
                 // $idDokter = "10009880728";
                 $idLokasi = SatuSehatController::getIdPoli($dataPengunjung->kd_poli);
@@ -1004,7 +1031,7 @@ class SatuSehatController extends Controller
                                 "entry" => $dataBundle
                             ]
                         ]);
-                    } catch (BadResponseException $e) {
+                    } catch (RequestException $e) {
                         // echo $e->getRequest();
                         // echo $e->getResponse();
                         if ($e->hasResponse()) {
@@ -1014,15 +1041,40 @@ class SatuSehatController extends Controller
                             $test = json_decode($response->getBody());
                             // dd($test->issue[0]->expression[0]);
                             // $pesan = $test->issue[0]->expression[0];
+                            $errorCode = (array) $test;
+
+                            if (!empty($errorCode['issue'][0])) {
+                                $pesan = $errorCode['issue'][0]->details->text;
+                            } else {
+                                $pesan = $errorCode['fault']->faultstring;
+                                if (str_contains($pesan, 'Rate limit quota violation')) {
+                                    Session::flash('error', $pesan);
+                                    goto Selesai;
+                                }
+                            }
+
+                            $cek = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
+                                ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                                ->whereDate('created_at', Carbon::now())
+                                ->get();
+                            if ($cek->count() < 1) {
+                                $error = new LogErrorSatuSehat();
+                                $error->subject = 'Bundle Ralan';
+                                $error->keterangan = $dataPengunjung->no_rawat . ' error kirim' . $pesan;
+                                $error->save();
+                            }
+
                             $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat";
 
                             Session::flash('error', $message);
 
-                            // return redirect()->back()->withInput();
-                            // $dataLog = ResponseSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
-                            // dd($dataLog);
+                            goto KirimPasienlain;
+                        } else {
+                            $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat, no response!";
 
-                            // return view('satu_sehat.client_bundle', compact('dataLog'));
+                            Session::flash('error', $message);
+
+                            goto KirimPasienlain;
                         }
                     }
 
@@ -1156,9 +1208,11 @@ class SatuSehatController extends Controller
                         ++$loop;
                     }
 
-                    if ($loop == 8) {
+                    if ($loop == 10) {
                         goto Selesai;
                     }
+
+                    KirimPasienlain:
                 }
             }
             // }
@@ -1337,7 +1391,7 @@ class SatuSehatController extends Controller
         session()->forget('cucu');
         set_time_limit(0);
 
-        $pasien_tanggal = '2022-09-13';
+        $pasien_tanggal = '2023-04-28';
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
@@ -1366,15 +1420,17 @@ class SatuSehatController extends Controller
             ->get();
         // dd($data);
 
+        $lopp = 0;
+
         foreach ($data as $key => $dataPengunjung) {
             $cekLog = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
-            $cekDiet = SatuSehatController::getDiet('2022/08/23/000193', '2022-08-24');
+            $cekDiet = SatuSehatController::getDiet('2023/04/28/000005', '2023-04-28');
 
-            // dd($cekDiet);
+            // dd($cekDiet, $cekLog);
 
-            if ((!empty($cekLog)) && (empty($cekLog->composition_id)) && (!empty($cekDiet))) {
+            if ((!empty($cekLog))  && (!empty($cekDiet))) {
                 // dd($cekLog, $cekDiet->monitoring_evaluasi);
-                $idRS = '10080055';
+                $idRS = '100025586';
                 $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
                 $idDokter = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
                 $idLokasi = SatuSehatController::getIdPoli($dataPengunjung->kd_poli);
@@ -1468,7 +1524,7 @@ class SatuSehatController extends Controller
                         ],
                         'json' => $compositionData
                     ]);
-                } catch (ClientException $e) {
+                } catch (BadResponseException $e) {
                     // echo $e->getRequest();
                     // echo $e->getResponse();
                     if ($e->hasResponse()) {
@@ -1493,6 +1549,10 @@ class SatuSehatController extends Controller
                 dd($data);
             }
         }
+
+        Selesai:
+
+        dd('Selesai');
     }
 
     public function sendMedication()
@@ -1553,7 +1613,9 @@ class SatuSehatController extends Controller
             //Cek List Obat di Response Medication apakah sudah ada
             $cekResponse = ResponseMedicationSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
             // dd($cekResponse);
-            // dd($getResep);
+            // if (!empty($getResep) && !empty($cekResponse)) {
+            //     dd($getResep, $cekResponse);
+            // }
             if ((!empty($getResep)) && (!empty($idCounter)) && (empty($cekResponse))) {
                 //Resep Obat Jadi di table resep_dokter
                 $listObat = SatuSehatController::getListObat($getResep->no_resep);
@@ -1571,10 +1633,11 @@ class SatuSehatController extends Controller
                         $noresep = $dataListObat->no_resep . '-' . $noUrutResep;
                         // dd($noresep);
 
-
                         //Get Id Obat
                         $mappingObat = SatuSehatController::getIdObat($dataListObat->kode_brng);
-                        // dd($getResep, $dataListObat, $mappingObat);
+                        // if (!empty($cekResponse) && !empty($mappingObat)) {
+                        //     dd($getResep, $dataListObat, $mappingObat);
+                        // }
 
                         if ((empty($cekResponse)) && (!empty($mappingObat))) {
                             $medication1 = [
@@ -1741,56 +1804,58 @@ class SatuSehatController extends Controller
                                     ],
                                     'json' => $medication1
                                 ]);
+                                // dd('terkirim');
                             } catch (BadResponseException $e) {
                                 if ($e->hasResponse()) {
                                     $response = $e->getResponse();
                                     $test = json_decode($response->getBody());
-                                    $errorCode2 = (array) $test;
-                                    $errorCode = $test->issue;
-                                    $pesan = $errorCode[0]->details->text;
+                                    $errorCode = (array) $test;
 
-                                    if (!empty($errorCode)) {
-                                        // $pesan = $errorCode['issue'][0]->details->text;
-                                        $cekError = LogErrorSatuSehat::where('subject', 'Medication1')
-                                            ->where('keterangan', 'like', $pesan)
-                                            ->whereDate('created_at', Carbon::now())
-                                            ->get();
+                                    // dd($test);
 
-                                        if ($cekError->count() < 1) {
-                                            $simpan = new LogErrorSatuSehat();
-                                            $simpan->subject = 'Medication1';
-                                            $simpan->keterangan = $pesan;
-                                            $simpan->save();
-                                        }
+                                    if (!empty($errorCode['issue'][0])) {
+                                        $pesan = $errorCode['issue'][0]->details->text;
 
-                                        $message = "Medication1 error $pesan";
+                                        $message = "Medication 1 error $pesan";
 
                                         Session::flash('error', $message);
 
-                                        $dataLog = ResponseMedicationSatuSehat::all();
-                                        return view('satu_sehat.client_apotek', compact('dataLog'));
+                                        $cek = LogErrorSatuSehat::where('subject', 'Obat Medication1')
+                                            ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                                            ->whereDate('created_at', Carbon::now())
+                                            ->get();
+                                        if ($cek->count() < 1) {
+                                            $error = new LogErrorSatuSehat();
+                                            $error->subject = 'Obat Medication1';
+                                            $error->keterangan = $dataPengunjung->no_rawat . ' error kirim ' . $dataListObat->nama_brng . ' pesan ' . $pesan;
+                                            $error->save();
+                                        }
+
+                                        // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                        // return view('satu_sehat.client_apotek', compact('dataLog'));
                                     } else {
-                                        Session::flash('error', $errorCode2['fault']->faultstring);
+                                        Session::flash('error', $errorCode['fault']->faultstring);
 
-                                        $dataLog = ResponseMedicationSatuSehat::all();
-                                        return view('satu_sehat.client_apotek', compact('dataLog'));
+                                        $cek = LogErrorSatuSehat::where('subject', 'Obat Medication1')
+                                            ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                                            ->whereDate('created_at', Carbon::now())
+                                            ->get();
+                                        if ($cek->count() < 1) {
+                                            $error = new LogErrorSatuSehat();
+                                            $error->subject = 'Obat Medication1';
+                                            $error->keterangan = $dataPengunjung->no_rawat . ' error kirim ' . $dataListObat->nama_brng . ' pesan ' . $errorCode['fault']->faultstring;
+                                            $error->save();
+                                        }
+                                        // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                        // return view('satu_sehat.client_apotek', compact('dataLog'));
                                     }
-                                    // dd($test, $errorCode[0]->details->text, 'medication 1');
-
-                                    // $message = "Medication 1 error $pesan";
-
-                                    // Session::flash('error', $message);
-
-                                    // goto SkipObatJadi;
-
+                                    goto NextObatJadi;
                                 }
                             }
 
                             // dd($response);
 
                             $data = json_decode($response->getBody());
-
-                            // dd($data, $data->id, $data->resourceType, $index);
 
                             if (!empty($data->id) && $data->resourceType == "Medication") {
 
@@ -1805,7 +1870,6 @@ class SatuSehatController extends Controller
                                 // $response1 = SatuSehatController::getMedicationId($noresep);
                                 $idMedication1 = $data->id;
 
-                                // dd($response1, $idCounter->encounter_id);
                                 $medicationRequest = [
                                     "resourceType" => "MedicationRequest",
                                     "identifier" => [
@@ -1947,8 +2011,6 @@ class SatuSehatController extends Controller
                                     ]
                                 ];
 
-                                // dd($medicationRequest);
-
                                 //Kirim/Create Medication Request
                                 SatuSehatController::getTokenSehat();
                                 $access_token = Session::get('tokenSatuSehat');
@@ -1973,23 +2035,19 @@ class SatuSehatController extends Controller
 
                                             Session::flash('error', $message);
 
-                                            $dataLog = ResponseMedicationSatuSehat::all();
-                                            return view('satu_sehat.client_apotek', compact('dataLog'));
+                                            // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                            // return view('satu_sehat.client_apotek', compact('dataLog'));
                                         } else {
                                             Session::flash('error', $errorCode['fault']->faultstring);
 
-                                            $dataLog = ResponseMedicationSatuSehat::all();
-                                            return view('satu_sehat.client_apotek', compact('dataLog'));
+                                            // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                            // return view('satu_sehat.client_apotek', compact('dataLog'));
                                         }
-                                        // dd($test, 'Medication request', $medicationRequest);
-                                        // dd($dataLog);
+                                        goto NextObatJadi;
                                     }
 
-                                    $dataLog = ResponseMedicationSatuSehat::all();
-
-                                    // dd($dataLog);
-
-                                    return view('satu_sehat.client_apotek', compact('dataLog'));
+                                    // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                    // return view('satu_sehat.client_apotek', compact('dataLog'));
                                 }
 
                                 // dd($response);
@@ -2001,8 +2059,6 @@ class SatuSehatController extends Controller
                                 $update->save();
 
                                 $idMedicationRequest = $data->id;
-                                // $update2 = ResponseMedicationSatuSehat::where('noResep', $noresep)->first();
-                                // dd($data, $update2);
                                 if (!empty($data->id) && $data->resourceType == "MedicationRequest") {
                                     //Langsung kirim medication 1 sebagai medication2
                                     //Kirim/Create Medication
@@ -2029,28 +2085,23 @@ class SatuSehatController extends Controller
 
                                                 Session::flash('error', $message);
 
-                                                $dataLog = ResponseMedicationSatuSehat::all();
-                                                return view('satu_sehat.client_apotek', compact('dataLog'));
+                                                // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                                // return view('satu_sehat.client_apotek', compact('dataLog'));
                                             } else {
                                                 Session::flash('error', $errorCode['fault']->faultstring);
 
-                                                $dataLog = ResponseMedicationSatuSehat::all();
-                                                return view('satu_sehat.client_apotek', compact('dataLog'));
+                                                // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                                // return view('satu_sehat.client_apotek', compact('dataLog'));
                                             }
+                                            goto NextObatJadi;
                                         }
 
-                                        $dataLog = ResponseMedicationSatuSehat::all();
-
-                                        // dd($dataLog);
-
-                                        return view('satu_sehat.client_apotek', compact('dataLog'));
+                                        // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                        // return view('satu_sehat.client_apotek', compact('dataLog'));
                                     }
-
-                                    // dd($response);
 
                                     $data = json_decode($response->getBody());
 
-                                    // dd($data);
                                     //Update data di table respone medication2
                                     $update = ResponseMedicationSatuSehat::where('medication1', $idMedication1)->first();
                                     $update->medication2 = $data->id;
@@ -2071,7 +2122,6 @@ class SatuSehatController extends Controller
                                     //Cek Obat yang diberikan
                                     $obatPasien = SatuSehatController::obatDiberikan($getResep->no_rawat, $dataListObat->kode_brng);
 
-                                    // dd($obatPasien);
                                     $jmlObatPasien = $obatPasien[0];
                                     if ($jmlObatPasien == null) {
                                         $jmlObatPasien = 0;
@@ -2084,11 +2134,7 @@ class SatuSehatController extends Controller
                                     } else {
                                         $aturanObatPasien = $aturanObatPasien->aturan;
                                     }
-                                    // dd($obatPasien);
 
-                                    // $update2 = ResponseMedicationSatuSehat::where('noResep', $noresep)->first();
-                                    // dd($data, $update2);
-                                    // $response2 = SatuSehatController::getMedicationId($noresep);
                                     if (!empty($data->id) && $data->resourceType == "Medication") {
                                         $medicationDispense = [
                                             "resourceType" => "MedicationDispense",
@@ -2212,24 +2258,21 @@ class SatuSehatController extends Controller
 
                                                     Session::flash('error', $message);
 
-                                                    $dataLog = ResponseMedicationSatuSehat::all();
-                                                    return view('satu_sehat.client_apotek', compact('dataLog'));
+                                                    // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                                    // return view('satu_sehat.client_apotek', compact('dataLog'));
                                                 } else {
                                                     Session::flash('error', $errorCode['fault']->faultstring);
 
-                                                    $dataLog = ResponseMedicationSatuSehat::all();
-                                                    return view('satu_sehat.client_apotek', compact('dataLog'));
+                                                    // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                                    // return view('satu_sehat.client_apotek', compact('dataLog'));
                                                 }
                                             }
 
-                                            $dataLog = ResponseMedicationSatuSehat::all();
-
-                                            // dd($dataLog);
-
-                                            return view('satu_sehat.client_apotek', compact('dataLog'));
+                                            goto NextObatJadi;
+                                            // $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+                                            // return view('satu_sehat.client_apotek', compact('dataLog'));
                                         }
 
-                                        // dd($response);
                                         $data = json_decode($response->getBody());
 
                                         //Update data di table respone medication request
@@ -2239,8 +2282,8 @@ class SatuSehatController extends Controller
                                     }
                                 }
                             }
+                            NextObatJadi:
                         }
-                        SkipObatJadi:
                     }
                 }
 
@@ -2648,7 +2691,8 @@ class SatuSehatController extends Controller
         }
         Selesai:
 
-        $dataLog = ResponseMedicationSatuSehat::orderBy('created_at', 'DESC')->get();
+        $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $pasien_tanggal)
+            ->orderBy('created_at', 'DESC')->get();
 
         // dd($dataLog);
 
@@ -4219,7 +4263,7 @@ class SatuSehatController extends Controller
 
                             // dd($response);
                             $test = json_decode($response->getBody());
-                            dd($test);
+                            dd($test, $pengunjung);
                         }
                         $message = "Error Kirim Encounter No Rawat" . $pengunjung->no_rawat;
 
@@ -5682,10 +5726,20 @@ class SatuSehatController extends Controller
 
         if (is_numeric($id)) {
             $cek_lokal = PasienSehat::where('nik', $id)->first();
+            // dd($cek_lokal);
 
             if (!empty($cek_lokal)) {
                 return $cek_lokal->satu_sehat_id;
             } else {
+                // $cek = DB::connection('mysqlkhanza')->table('pasien')
+                //     ->select(
+                //         'pasien.nm_pasien',
+                //         'pasien.no_ktp',
+                //         'pasien.tgl_lahir'
+                //     )
+                //     ->where('pasien.no_ktp', $id)
+                //     ->first();
+                // dd($cek);
                 SatuSehatController::getTokenSehat();
                 $access_token = Session::get('tokenSatuSehat');
                 // dd($access_token);
@@ -5696,35 +5750,53 @@ class SatuSehatController extends Controller
                             'Authorization' => "Bearer {$access_token}"
                         ]
                     ]);
-                } catch (ClientException $e) {
+                    // $response = $client->request('GET', 'fhir-r4/v1/Patient?name=' . $cek->nm_pasien . '&birthdate=' . $cek->tgl_lahir . '&identifier=https://fhir.kemkes.go.id/id/nik|' . $id, [
+                    //     'headers' => [
+                    //         'Authorization' => "Bearer {$access_token}"
+                    //     ]
+                    // ]);
+                } catch (RequestException $e) {
                     if ($e->hasResponse()) {
                         $response = $e->getResponse();
                         $test = json_decode((string) $response->getBody());
-                    }
-                    // dd($test->fault);
-                    // $id = Crypt::encrypt($id);
-                    Session::flash('error', 'Ambil id pasien gagal!');
+                        // dd($test->fault);
+                        // $id = Crypt::encrypt($id);
+                        Session::flash('error', 'Ambil id pasien gagal!');
 
-                    return redirect()->back()->withInput();
+                        // return redirect()->back()->withInput();
+                        goto SimpanError;
+                    } else {
+                        Session::flash('error', 'Server tidak respon!');
+
+                        // return redirect()->back()->withInput();
+                        return null;
+                    }
                 }
 
                 $data = json_decode($response->getBody());
                 // $data = $data->entry;
 
+
                 if ($data->total == 1) {
-                    foreach ($data->entry as $responseData) {
-                        // dd($responseData->resource);
-                        $data = $responseData->resource->id;
+                    // dd($data, 'pasien');
+                    if (!empty($data->entry)) {
+                        foreach ($data->entry as $responseData) {
+                            // dd($responseData->resource);
+                            $data = $responseData->resource->id;
+                        }
+
+                        $simpanID = new PasienSehat();
+                        $simpanID->nik = $id;
+                        $simpanID->satu_sehat_id = $data;
+                        $simpanID->save();
+
+                        return $data;
+                        // dd($data);
+                    } else {
+                        goto SimpanError;
                     }
-
-                    $simpanID = new PasienSehat();
-                    $simpanID->nik = $id;
-                    $simpanID->satu_sehat_id = $data;
-                    $simpanID->save();
-
-                    return $data;
-                    // dd($data);
                 } else {
+                    SimpanError:
                     $cek = LogErrorSatuSehat::where('subject', 'Pasien')
                         ->where('keterangan', 'like', "%$id%")
                         ->count();
@@ -5767,12 +5839,18 @@ class SatuSehatController extends Controller
                     if ($e->hasResponse()) {
                         $response = $e->getResponse();
                         $test = json_decode((string) $response->getBody());
+                    } else {
+                        Session::flash('error', 'Server tidak respon!');
+
+                        // return redirect()->back()->withInput();
+                        return null;
                     }
                     // dd($test->fault);
                     // $id = Crypt::encrypt($id);
                     Session::flash('error', 'Ambil respon practitioner gagal!');
 
-                    return redirect()->back()->withInput();
+                    // return redirect()->back()->withInput();
+                    goto ErrorPractitioner;
                 }
 
                 $data = json_decode($response->getBody());
@@ -5780,6 +5858,8 @@ class SatuSehatController extends Controller
 
                 // dd($data->resource->id);
                 if ($data->total == 1) {
+                    // dd($data, 'practitioner');
+
                     foreach ($data->entry as $responseData) {
                         $data = $responseData->resource->id;
                         // dd($responseData->resource);
@@ -5792,11 +5872,12 @@ class SatuSehatController extends Controller
 
                     return $data;
                 } else {
+                    ErrorPractitioner:
                     $cek = LogErrorSatuSehat::where('subject', 'Praktitioner')
                         ->where('keterangan', 'like', "%$id%")
                         ->count();
 
-                    if ($cek == 0) {
+                    if ($cek < 1) {
                         $error = new LogErrorSatuSehat();
                         $error->subject = 'Praktitioner';
                         $error->keterangan = $id . ' tidak ditemukan di Satu Sehat';
@@ -5807,6 +5888,20 @@ class SatuSehatController extends Controller
                 }
             }
         } else {
+            // $cek = LogErrorSatuSehat::where('subject', 'Praktitioner')
+            //     ->where('keterangan', 'like', "%$id%")
+            //     ->where('created_at', Carbon::now())
+            //     ->count();
+
+            // if ($cek == 0) {
+            //     $error = new LogErrorSatuSehat();
+            //     $error->subject = 'Praktitioner';
+            //     $error->keterangan = $id . ' terindikasi ada kesalahan data';
+            //     $error->save();
+
+            //     return null;
+            // }
+
             return null;
         }
     }
@@ -5851,8 +5946,24 @@ class SatuSehatController extends Controller
         // dd($data);
 
         if (!empty($data)) {
+            $cek = LogErrorSatuSehat::where('subject', 'Diagnosa Primer Pasien')
+                ->where('keterangan', 'like', "%$id%")
+                ->delete();
+
             return $data;
         } else {
+            $cek = LogErrorSatuSehat::where('subject', 'Diagnosa Primer Pasien')
+                ->where('keterangan', 'like', "%$id%")
+                ->whereDate('created_at', Carbon::now())
+                ->count();
+
+            if ($cek < 1) {
+                $error = new LogErrorSatuSehat();
+                $error->subject = 'Diagnosa Primer Pasien';
+                $error->keterangan = $id . ' tidak ditemukan di database';
+                $error->save();
+            }
+
             return null;
         }
 
@@ -6044,18 +6155,20 @@ class SatuSehatController extends Controller
 
         if (!empty($data)) {
             return $data;
+            // dd($kd_obat, 'dapat');
         } else {
+            // dd($kd_obat, 'tidak');
             $cari = LogErrorSatuSehat::where('Subject', 'Farmasi')
-                ->where('keterangan', 'like', $kd_obat)
+                ->where('keterangan', 'like', "%$kd_obat%")
                 ->whereDate('created_at', Carbon::now())
-                ->get();
-            if ($cari->count() < 0) {
+                ->count();
+            // dd($cari);
+            if ($cari < 1) {
                 $error = new LogErrorSatuSehat();
                 $error->subject = 'Farmasi';
                 $error->keterangan = $kd_obat . ' Kode Obat tidak ditemukan di Mapping Satu Sehat';
                 $error->save();
             }
-
 
             return null;
         }
