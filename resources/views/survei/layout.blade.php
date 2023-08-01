@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Survei RSUP Surakarta</title>
+    <link rel="icon" href="{{ asset('/image/LogoRSUP.png') }}">
 
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet"

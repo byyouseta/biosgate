@@ -25,12 +25,17 @@ Route::post('/survei/pengaduan/store', 'SurveiController@store')->name('survei.s
 Route::get('/survei/{id}/tiket', 'SurveiController@showTicket')->name('survei.showcTiket');
 Route::get('/survei/pengaduan/periksa', 'SurveiController@periksa')->name('survei.periksa');
 Route::post('/survei/pengaduan/periksa', 'SurveiController@periksaTiket')->name('survei.periksaTiket');
+Route::get('/survei/kepuasan', 'SurveiController@kepuasan')->name('survei.kepuasan');
+Route::post('/survei/kepuasan/store', 'SurveiController@simpan')->name('survei.simpan');
 
 Auth::routes([
     'register' => false, // Registration Routes...
     'reset' => false, // Password Reset Routes...
     'verify' => false, // Email Verification Routes...
 ]);
+// Survei data
+Route::get('/survei/datapengaduan', 'DataSurveiController@pengaduan')->name('datasurvei.pengaduan');
+Route::get('/survei/datakepuasan', 'DataSurveiController@kepuasan')->name('datasurvei.kepuasan');
 
 //BIOS V.2
 Route::get('/home', 'HomeController@index')->name('home');

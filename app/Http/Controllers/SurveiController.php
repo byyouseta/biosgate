@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Kepuasan;
 use App\Pengaduan;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -62,7 +63,7 @@ class SurveiController extends Controller
 
         $this->validate($request, [
             'no_tiket' => 'required|digits_between:0,12',
-            'g-recaptcha-response' => 'required|recaptchav3:register,0.5'
+            'g-recaptcha-response' => 'required|recaptchav3:periksa,0.5'
         ], [
             'no_tiket.required' => 'Kolom No Tiket belum diisi',
             'no_tiket.digits_between' => 'Tiket harus berbentuk urutan angka 12 digits',
@@ -97,7 +98,7 @@ class SurveiController extends Controller
             'tgl_kejadian' => 'required',
             'jam_kejadian' => 'required',
             'deskripsi' => 'required',
-            'g-recaptcha-response' => 'required|recaptchav3:register,0.5'
+            'g-recaptcha-response' => 'required|recaptchav3:pengaduan,0.5'
         ], [
             'nama.required' => 'Kolom Nama Pelapor belum diisi',
             'no_hp.required' => 'Kolom No HP/ Whatsapp belum diisi',
@@ -189,5 +190,65 @@ class SurveiController extends Controller
         $id = Crypt::encrypt($no_tiket);
 
         return redirect("survei/$id/tiket");
+    }
+
+    public function kepuasan()
+    {
+        session()->put('ibu', 'Survei');
+        session()->put('anak', 'Kepuasan');
+        session()->forget('cucu');
+
+        return view('survei.kepuasan');
+    }
+
+    public function simpan(Request $request)
+    {
+        $this->validate($request, [
+            'umur' => 'required',
+            'no_hp' => 'required',
+            'jk' => 'required',
+            'pendidikan' => 'required',
+            'pekerjaan' => 'required',
+            'penjamin' => 'required',
+            'unit' => 'required',
+            'pertanyaan1' => 'required',
+            'pertanyaan2' => 'required',
+            'pertanyaan3' => 'required',
+            'pertanyaan4' => 'required_if:penjamin,1',
+            'pertanyaan5' => 'required',
+            'pertanyaan6' => 'required',
+            'pertanyaan7' => 'required',
+            'pertanyaan8' => 'required',
+            'pertanyaan9' => 'required',
+            'pertanyaan10' => 'required',
+            'saran' => 'required',
+            'g-recaptcha-response' => 'required|recaptchav3:kepuasan,0.5'
+        ]);
+
+        // dd($request);
+        $simpan = new Kepuasan();
+        $simpan->umur  = $request->umur;
+        $simpan->no_hp = $request->no_hp;
+        $simpan->jk = $request->jk;
+        $simpan->pendidikan = $request->pendidikan;
+        $simpan->pekerjaan = $request->pekerjaan;
+        $simpan->penjamin = $request->penjamin;
+        $simpan->unit = $request->unit;
+        $simpan->pertanyaan1 = $request->pertanyaan1;
+        $simpan->pertanyaan2 = $request->pertanyaan2;
+        $simpan->pertanyaan3 = $request->pertanyaan3;
+        $simpan->pertanyaan4 = $request->pertanyaan4;
+        $simpan->pertanyaan5 = $request->pertanyaan5;
+        $simpan->pertanyaan6 = $request->pertanyaan6;
+        $simpan->pertanyaan7 = $request->pertanyaan7;
+        $simpan->pertanyaan8 = $request->pertanyaan8;
+        $simpan->pertanyaan9 = $request->pertanyaan9;
+        $simpan->pertanyaan10 = $request->pertanyaan10;
+        $simpan->saran = $request->saran;
+        $simpan->save();
+
+        Session::flash('sukses', 'Data Berhasil disimpan!');
+
+        return redirect('/survei');
     }
 }

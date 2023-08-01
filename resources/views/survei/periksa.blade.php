@@ -34,7 +34,7 @@
                                         <button type="submit" class="btn btn-info btn-flat">Cek Status</button>
                                     </span>
                                 </div>
-                                {!! RecaptchaV3::field('register') !!}
+                                {!! RecaptchaV3::field('periksa') !!}
                             </form>
                         </div>
                     </div>

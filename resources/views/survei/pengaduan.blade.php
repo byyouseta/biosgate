@@ -471,7 +471,7 @@
                                     <span id="rate_val">{{ old('nilai_gangguan') }}</span>
                                 </div>
 
-                                {!! RecaptchaV3::field('register') !!}
+                                {!! RecaptchaV3::field('pengaduan') !!}
                                 <!-- submit button -->
                                 <button type="submit" class="btn btn-primary" id="submit">Submit</button>
                                 <input type="reset" class="btn btn-secondary">

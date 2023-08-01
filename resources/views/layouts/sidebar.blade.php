@@ -369,6 +369,41 @@
                     </ul>
                 </li>
             @endif
+            {{-- @if (Auth::user()->can('user-list') || Auth::user()->can('bank-list')) --}}
+            <li class="nav-item @if (@session('ibu') == 'Survei') menu-open @endif">
+                <a href="#" class="nav-link @if (@session('ibu') == 'Survei') active @endif">
+                    <i class="nav-icon fas fa-vote-yea"></i>
+                    <p>
+                        Survei
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    {{-- @can('user-list') --}}
+                    <li class="nav-item">
+                        <a href="/survei/datapengaduan"
+                            class="nav-link @if (@session('anak') == 'Data Pengaduan') active @endif">
+                            <i class="nav-icon fas fa-exclamation-triangle"></i>
+                            <p>
+                                Data Pengaduan
+                            </p>
+                        </a>
+                    </li>
+                    {{-- @endcan
+                        @can('bank-list') --}}
+                    <li class="nav-item">
+                        <a href="/survei/datakepuasan"
+                            class="nav-link @if (@session('anak') == 'Data Kepuasan') active @endif">
+                            <i class="nav-icon fas fa-check"></i>
+                            <p>
+                                Data Kepuasan
+                            </p>
+                        </a>
+                    </li>
+                    {{-- @endcan --}}
+                </ul>
+            </li>
+            {{-- @endif --}}
             @if (Auth::user()->can('operasi-booking-list') || Auth::user()->can('operasi-jadwal-list'))
                 <li class="nav-item @if (@session('ibu') == 'Operasi') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Operasi') active @endif">
@@ -449,6 +484,7 @@
                 </a>
             </li> --}}
             {{-- @endcan --}}
+
             @can('satu-sehat-create')
                 <li class="nav-item">
                     <a href="/satusehat" class="nav-link @if (@session('ibu') == 'Satu Sehat') active @endif">
@@ -569,6 +605,7 @@
                     </ul>
                 </li>
             @endif
+
             @can('profil-edit')
                 <li class="nav-item">
                     <a href="/profil" class="nav-link @if (@session('ibu') == 'Profil') active @endif">
