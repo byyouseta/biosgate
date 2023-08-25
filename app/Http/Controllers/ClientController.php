@@ -253,7 +253,7 @@ class ClientController extends Controller
 
         $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
 
-        // $tanggal = '2023-06-21';
+        // $tanggal = '2023-08-12';
 
         // dd($tanggal);
 

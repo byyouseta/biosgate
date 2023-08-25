@@ -184,6 +184,7 @@ class PemasukanController extends Controller
 
         ClientController::token();
         $now = Carbon::now();
+        // $now = new Carbon('2023-07-12');
         $jam = Carbon::now()->format('H:i:s');
 
         $data_pemasukan = Pemasukan::where('status', '=', 'false')

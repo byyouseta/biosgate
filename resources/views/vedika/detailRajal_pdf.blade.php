@@ -99,7 +99,7 @@
             width: 100%;
             text-align: center;
             font-size: 50px;
-            color: lightcoral;
+            color: rgb(228, 145, 145);
             opacity: .5;
             transform: rotate(-30deg);
             transform-origin: 50% 50%;
@@ -426,16 +426,16 @@
                         QrCode::format('svg')
                             ->size(100)
                             ->errorCorrection('H')
-                            ->generate($qr_dokter),
+                            ->generate($qr_dokter)
                     );
                     $qrcode_pasien = base64_encode(
                         QrCode::format('svg')
                             ->size(100)
                             ->errorCorrection('H')
-                            ->generate($qr_pasien),
+                            ->generate($qr_pasien)
                     );
                 @endphp
-                @if (!empty($ttd_pasien))
+                @if (!empty($ttd_pasien->tandaTangan))
                     <td style="border: 0px solid black;width: 50%"> <img src="{{ $ttd_pasien->tandaTangan }}"
                             width="auto" height="100px"></td>
                 @else
@@ -619,25 +619,25 @@
                                 $dokterLab = \App\Vedika::getDokter($order->tgl_hasil, $order->jam_hasil);
                                 $dokter_lab = $dokterLab->nm_dokter;
                                 $kd_dokter_lab = $dokterLab->kd_dokter;
-                                
+
                                 $petugasLab = \App\Vedika::getPetugas($order->tgl_hasil, $order->jam_hasil);
                                 $petugas_lab = $petugasLab->nama;
                                 $kd_petugas_lab = $petugasLab->nip;
-                                
+
                                 $qr_dokter = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $dokter_lab . "\n" . 'ID ' . $kd_dokter_lab . "\n" . \Carbon\Carbon::parse($order->tgl_hasil)->format('d-m-Y');
                                 $qr_petugas = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $petugas_lab . "\n" . 'ID ' . $kd_petugas_lab . "\n" . \Carbon\Carbon::parse($order->tgl_hasil)->format('d-m-Y');
-                                
+
                                 $qrcode_dokter = base64_encode(
                                     QrCode::format('svg')
                                         ->size(100)
                                         ->errorCorrection('H')
-                                        ->generate($qr_dokter),
+                                        ->generate($qr_dokter)
                                 );
                                 $qrcode_petugas = base64_encode(
                                     QrCode::format('svg')
                                         ->size(100)
                                         ->errorCorrection('H')
-                                        ->generate($qr_petugas),
+                                        ->generate($qr_petugas)
                                 );
                             @endphp
 
@@ -782,7 +782,7 @@
                             QrCode::format('svg')
                                 ->size(100)
                                 ->errorCorrection('H')
-                                ->generate($qr_dokter),
+                                ->generate($qr_dokter)
                         );
                     @endphp
                     <td style="width: 70%; border: 0px solid black"></td>
@@ -851,7 +851,7 @@
                         <td style="width: 15%; border:0px solid black">No.Rawat</td>
                         <td style="width: 60%; border:0px solid black">: {{ $resepObat->no_rawat }}</td>
                         <td style="width: 15%; border:0px solid black">BB (Kg)</td>
-                        <td style="width: 10%; border:0px solid black">: {{ $resepObat->bb }}</td>
+                        <td style="width: 10%; border:0px solid black">: {{ !empty($bbPasien)?$bbPasien->berat:'' }}</td>
                     </tr>
                     <tr>
                         <td style="width: 15%; border:0px solid black">Tanggal Lahir</td>
@@ -869,6 +869,12 @@
                     <tr>
                         <td style="border:0px solid black">No. Resep</td>
                         <td style="border:0px solid black">: {{ $resepObat->no_resep }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:0px solid black">No. SEP</td>
+                        <td style="border:0px solid black">:
+                            {{ App\Vedika::getSep($resepObat->no_rawat) != null ? App\Vedika::getSep($resepObat->no_rawat)->no_sep : '' }}
+                        </td>
                     </tr>
                     <tr>
                         <td style="border:0px solid black; vertical-align:top">Alamat</td>
@@ -954,7 +960,7 @@
                             QrCode::format('svg')
                                 ->size(100)
                                 ->errorCorrection('H')
-                                ->generate($qr_dokter),
+                                ->generate($qr_dokter)
                         );
                     @endphp
                     <td style="width: 70%; border:0px solid black; text-align:center; vertical-align:top">
@@ -990,14 +996,14 @@
                         }
                     }
                 }
-                
+
                 //data PLAN
                 if (!empty($primer)) {
                     $plan = $primer->plan;
                 } else {
                     $plan = $sekunder->plan;
                 }
-                
+
                 if ($plan == 'Zona Hijau') {
                     $bg_color = 'background-color:green;';
                 } elseif ($plan == 'Zona Kuning') {
@@ -1255,7 +1261,7 @@
                     QrCode::format('svg')
                         ->size(100)
                         ->errorCorrection('H')
-                        ->generate($qr_dokter),
+                        ->generate($qr_dokter)
                 );
             @endphp
             <div>
@@ -1410,7 +1416,7 @@
                                 QrCode::format('svg')
                                     ->size(100)
                                     ->errorCorrection('H')
-                                    ->generate($qr_dokter),
+                                    ->generate($qr_dokter)
                             );
                         @endphp
                         <td style="border-left: 1px solid black; border-right: 1px solid black; padding-left:20px"

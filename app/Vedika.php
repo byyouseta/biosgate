@@ -207,6 +207,8 @@ class Vedika extends Model
         $cari = sepManual::where('noRawat', $norawat)
             ->first();
 
+        // dd($cari);
+
         return $cari;
     }
 
@@ -277,6 +279,16 @@ class Vedika extends Model
             ->where('detail_pemberian_obat.no_rawat', $norawat)
             ->where('detail_pemberian_obat.kode_brng', $kdObat)
             ->first();
+
+        if (empty($cek)) {
+            $cek = [
+                'no_rawat' => $norawat,
+                'kdObat' => $kdObat,
+                'jml' => null
+            ];
+
+            $cek = (object) $cek;
+        }
 
         return $cek;
     }

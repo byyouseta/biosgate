@@ -35,11 +35,13 @@
                                     <tr>
                                         <th class="align-middle">Nama</th>
                                         <th class="align-middle">No HP</th>
-                                        <th class="align-middle">Email</th>
+                                        {{-- <th class="align-middle">Email</th> --}}
                                         <th class="align-middle">Waktu Kejadian</th>
                                         <th class="align-middle">Tempat Kejadian</th>
-                                        <th class="align-middle">Deskripsi/th>
+                                        <th class="align-middle">Deskripsi</th>
                                         <th class="align-middle">Waktu Pelaporan</th>
+                                        <th class="align-middle">Status</th>
+                                        <th class="align-middle">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -47,11 +49,36 @@
                                         <tr>
                                             <td>{{ $summary->nama }}</td>
                                             <td>{{ $summary->no_hp }}</td>
-                                            <td>{{ $summary->email }}</td>
+                                            {{-- <td>{{ $summary->email }}</td> --}}
                                             <td>{{ $summary->waktu_kejadian }}</td>
                                             <td>{{ $summary->tempat_kejadian }}</td>
-                                            <td>{{ $summary->deskripsi }}</td>
+                                            <td>{{ substr($summary->deskripsi, 0, 25) }}</td>
                                             <td>{{ $summary->created_at }}</td>
+                                            <td>
+                                                @if ($summary->status_keluhan_id == '0')
+                                                    <span class="badge badge-danger">Pelaporan</span>
+                                                @elseif ($summary->status_keluhan_id == '1')
+                                                    <span class="badge badge-warning">Proses</span>
+                                                @elseif ($summary->status_keluhan_id == '2')
+                                                    <span class="badge badge-success">Selesai</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="col text-center">
+                                                    <div class="btn-group">
+                                                        <a class="btn btn-sm btn-success" data-toggle="tooltip"
+                                                            data-placement="bottom" title="Detail"
+                                                            href="/survei/datapengaduan/{{ Crypt::encrypt($summary->id) }}/detail">
+                                                            <i class="fas fa-check-double"></i>
+                                                        </a>
+                                                        {{-- <a class="btn btn-sm btn-danger delete-confirm @cannot('survei-delete') disabled @endcannot"
+                                                            data-toggle="tooltip" data-placement="bottom" title="Hapus"
+                                                            href="/survei/datapengaduan/{{ Crypt::encrypt($summary->id) }}/delete">
+                                                            <i class="fas fa-times-circle"></i>
+                                                        </a> --}}
+                                                    </div>
+                                                </div>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -91,7 +118,7 @@
                 "searching": true,
                 "ordering": true,
                 "order": [
-                    [6, 'desc']
+                    [5, 'desc']
                 ],
                 "info": true,
                 "autoWidth": false,

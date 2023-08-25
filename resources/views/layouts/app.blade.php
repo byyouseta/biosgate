@@ -19,6 +19,7 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    {!! RecaptchaV3::initJs() !!}
 </head>
 
 <body>

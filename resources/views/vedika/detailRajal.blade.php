@@ -341,7 +341,7 @@
                                         $qr_pasien = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $pasien->nm_pasien . "\n" . 'ID ' . $pasien->no_rkm_medis . "\n" . \Carbon\Carbon::parse($pasien->tgl_registrasi)->format('d-m-Y');
                                     @endphp
                                     <td class="text-center pt-0 pb-0">
-                                        @if (!empty($ttd_pasien))
+                                        @if (!empty($ttd_pasien->tandaTangan))
                                             <img src={{ $ttd_pasien->tandaTangan }} width="auto" height="100px" />
                                         @else
                                             {!! QrCode::size(100)->generate($qr_pasien) !!}
@@ -758,7 +758,7 @@
                                             <td class="pt-0 pb-0" style="width: 15%">No.Rawat</td>
                                             <td class="pt-0 pb-0" style="width: 60%">: {{ $resepObat->no_rawat }}</td>
                                             <td class="pt-0 pb-0" style="width: 15%">BB (Kg)</td>
-                                            <td class="pt-0 pb-0" style="width: 10%">: {{ $resepObat->bb }}</td>
+                                            <td class="pt-0 pb-0" style="width: 10%">: {{ !empty($bbPasien)?$bbPasien->berat:'' }}</td>
                                         </tr>
                                         <tr>
                                             <td class="pt-0 pb-0" style="width: 15%">Tanggal Lahir</td>
@@ -776,6 +776,12 @@
                                         <tr>
                                             <td class="pt-0 pb-0">No. Resep</td>
                                             <td class="pt-0 pb-0">: {{ $resepObat->no_resep }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="pt-0 pb-0">No. SEP</td>
+                                            <td class="pt-0 pb-0">:
+                                                {{ App\Vedika::getSep($resepObat->no_rawat) != null ? App\Vedika::getSep($resepObat->no_rawat)->no_sep : '' }}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td class="pt-0 pb-0">Alamat</td>

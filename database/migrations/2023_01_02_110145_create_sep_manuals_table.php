@@ -17,7 +17,7 @@ class CreateSepManualsTable extends Migration
             $table->bigIncrements('id');
             $table->string('noRawat', 20);
             $table->string('no_sep', 25);
-            $table->text('tandaTangan');
+            $table->text('tandaTangan')->nullable();
             $table->timestamps();
         });
     }

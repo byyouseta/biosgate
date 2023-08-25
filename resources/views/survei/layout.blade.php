@@ -49,7 +49,7 @@
                             <a href="/survei/pengaduan" class="nav-link">Form Keluhan Pasien</a>
                         </li>
                         <li class="nav-item">
-                            <a href="survei/kepuasan" class="nav-link">Form Kepuasan Pasien</a>
+                            <a href="/survei/kepuasan" class="nav-link">Form Kepuasan Pasien</a>
                         </li>
 
                     </ul>

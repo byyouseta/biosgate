@@ -141,6 +141,7 @@ class PengeluaranController extends Controller
 
         ClientController::token();
         $now = Carbon::now();
+        // $now = new Carbon('2023-07-16');
         $jam = Carbon::now()->format('H:i:s');
         // dd($now);
         $data_pengeluaran = Pengeluaran::where('status', '=', 'false')

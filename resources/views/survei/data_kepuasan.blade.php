@@ -41,6 +41,7 @@
                                         <th class="align-middle">Unit</th>
                                         <th class="align-middle">Saran</th>
                                         <th class="align-middle">Waktu Pelaporan</th>
+                                        <th class="align-middle">Akse</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -54,6 +55,17 @@
                                             <td>{{ $summary->unit }}</td>
                                             <td>{{ $summary->saran }}</td>
                                             <td>{{ $summary->created_at }}</td>
+                                            <td>
+                                                <div class="col text-center">
+                                                    <div class="btn-group">
+                                                        <a class="btn btn-sm btn-success" data-toggle="tooltip"
+                                                            data-placement="bottom" title="Detail"
+                                                            href="/survei/datakepuasan/{{ Crypt::encrypt($summary->id) }}/detail">
+                                                            <i class="fas fa-check-double"></i>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

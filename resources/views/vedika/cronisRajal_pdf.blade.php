@@ -107,8 +107,7 @@
         }
     </style>
     {{-- lembar selanjutnya Obat --}}
-    @if (!empty($resepObat))
-
+    @if ((!empty($resepObat)) || (!empty($obatJadi)) || (!@empty($obatRacik)))
         <div class="watermark">
             {{ $watermark }}
         </div>
@@ -157,7 +156,7 @@
                         <td style="width: 15%; border:0px solid black">No.Rawat</td>
                         <td style="width: 60%; border:0px solid black">: {{ $resepObat->no_rawat }}</td>
                         <td style="width: 15%; border:0px solid black">BB (Kg)</td>
-                        <td style="width: 10%; border:0px solid black">: {{ $resepObat->bb }}</td>
+                        <td style="width: 10%; border:0px solid black">: {{ !empty($bbPasien)?$bbPasien->berat:'' }}</td>
                     </tr>
                     <tr>
                         <td style="width: 15%; border:0px solid black">Tanggal Lahir</td>
@@ -175,6 +174,12 @@
                     <tr>
                         <td style="border:0px solid black">No. Resep</td>
                         <td style="border:0px solid black">: {{ $resepObat->no_resep }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:0px solid black">No. SEP</td>
+                        <td style="border:0px solid black">:
+                            {{ App\Vedika::getSep($resepObat->no_rawat) != null ? App\Vedika::getSep($resepObat->no_rawat)->no_sep : '' }}
+                        </td>
                     </tr>
                     <tr>
                         <td style="border:0px solid black; vertical-align:top">Alamat</td>
@@ -278,12 +283,12 @@
                 </tr>
             </table>
         </div>
-    @endif
-    {{-- Halaman Billing --}}
-    @if ($billing->count() > 0)
         <div style="float: none;">
             <div style="page-break-after: always;"></div>
         </div>
+    @endif
+    {{-- Halaman Billing --}}
+    @if ($billing->count() > 0)
         <div style="top: -30px">
             <div class="watermark">
                 {{ $watermark }}
@@ -611,7 +616,7 @@
                             ->generate($qr_pasien)
                     );
                 @endphp
-                @if (!empty($ttd_pasien))
+                @if (!empty($ttd_pasien->tandaTangan))
                     <td style="border: 0px solid black;width: 50%"> <img src="{{ $ttd_pasien->tandaTangan }}"
                             width="auto" height="100px"></td>
                 @else
@@ -628,12 +633,152 @@
             </tr>
         </table>
     </div>
+    <div style="float: none;">
+        <div style="page-break-after: always;"></div>
+    </div>
+
+    {{-- Minta Versi Farmasi --}}
+    @if(!empty($dataRalan->tgl_perawatan))
+        <div class="watermark">
+            {{ $watermark }}
+        </div>
+        <div>
+            <table style="width: 100%; border:0px solid black; margin-top:20px">
+                <thead>
+                    <tr>
+                        <td style="width: 15%; border:0px solid black"></td>
+                        <td style="width: 10%; border:0px solid black"></td>
+                        <td style="width: 10%; border:0px solid black"></td>
+                        <td style="width: 10%; border:0px solid black"></td>
+                        <td style="width: 10%; border:0px solid black"></td>
+                        <td style="width: 5%; border:0px solid black"></td>
+                        <td style="width: 5%; border:0px solid black"></td>
+                        <td style="width: 10%; border:0px solid black"></td>
+                        <td style="width: 10%; border:0px solid black"></td>
+                        <td style="width: 10%; border:0px solid black"></td>
+                    </tr>
+                    <tr>
+                        <td style="border:0px solid black; border-bottom:5px solid black" rowspan="5"><img
+                                src="{{ asset('image/logorsup.jpg') }}" alt="Logo RSUP" width="100">
+                        </td>
+                        <td style="border-top:0px solid black" colspan="4">
+                            <div style=" text-align:left">RSUP SURAKARTA</div>
+                        </td>
+                        <td style="border-left:0px solid black;border-top:0px solid black; vertical-align:top; padding-left:20px"
+                            colspan="3">Nama</td>
+                        <td style="border-right:0px solid black;border-top:0px solid black; vertical-align:top"
+                            colspan="2">: {{ $pasien->nm_pasien }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border:0px solid black; text-align:left" colspan="4">Jl.Prof.Dr.R.Soeharso
+                            No.28 , Surakarta,
+                            Jawa Tengah</td>
+                        <td style="border-left:0px solid black; vertical-align:top; padding-left:20px" colspan="3">
+                            No.RM</td>
+                        <td style="border-right:0px solid black; vertical-align:top" colspan="2">:
+                            {{ $pasien->no_rkm_medis }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border:0px solid black; text-align:left" colspan="4">Telp.0271-713055 / 720002
+                        </td>
+                        <td style="border-left:0px solid black; vertical-align:top; padding-left:20px" colspan="3">
+                            NIK</td>
+                        <td style="border-right:0px solid black; vertical-align:top" colspan="2">
+                            : {{ $pasien->no_ktp }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border:0px solid black; text-align:left" colspan="4">E-mail :
+                            rsupsurakarta@kemkes.go.id
+                        </td>
+                        <td style="border-left:0px solid black; vertical-align:top; padding-left:20px" colspan="3">
+                            Tanggal lahir</td>
+                        <td style="border-right:0px solid black; vertical-align:top" colspan="2">:
+                            {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d/m/Y') }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border-bottom:5px solid black; text-align:center" colspan="4"></td>
+                        <td style="border-left:0px solid black; border-bottom:5px solid black; vertical-align:top; padding-left:20px"
+                            colspan="3">
+                            Alamat
+                        </td>
+                        <td style="border-right:0px solid black; border-bottom:5px solid black;vertical-align:top"
+                            colspan="3">: {{ $pasien->alamat }}
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="10"
+                            style="font-size: 14px; text-align:center; padding-top:5px; padding-bottom:5px">CATATAN
+                            PERKEMBANGAN PASIEN
+                            TERINTERGRASI
+                        </td>
+                    </tr>
+                    <tr style="text-align: center;">
+                        <td style="border: 1px solid black">Waktu </td>
+                        <td style="border: 1px solid black">Profesi </td>
+                        <td colspan="6" style="border: 1px solid black">Catatan Kemajuan, Rencana Tindakan dan
+                            Terapi </td>
+                        <td style="border: 1px solid black">Intruksi</td>
+                        <td colspan="2" style="border: 1px solid black">Nama Terang & Tanda Tangan</td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; text-align: center; vertical-align:top; font-size: 12px">
+                            {{ $dataRalan->tgl_perawatan }}
+                            {{ $dataRalan->jam_rawat }}
+                        </td>
+                        <td style="border: 1px solid black; text-align: center; vertical-align:top;">
+                            {{ $dataRalan->bidang }}</td>
+                        <td colspan="6"
+                            style="border: 1px solid black; text-align:left; padding:5px; font-size: 12px">
+                            Subyektif : {{ $dataRalan->keluhan }} <br>
+                            Obyektif : <br>
+                            <div style="padding-left : 50px">Kesadaran : {{ $dataRalan->kesadaran }} </div>
+                            <div style="padding-left : 50px">GCS(E,V,M) : {{ $dataRalan->gcs }} </div>
+                            <div style="padding-left : 50px">Tensi : {{ $dataRalan->tensi }} </div>
+                            <div style="padding-left : 50px">Nadi : {{ $dataRalan->nadi }} </div>
+                            <div style="padding-left : 50px">Respirasi : {{ $dataRalan->respirasi }} </div>
+                            <div style="padding-left : 50px">Suhu : {{ $dataRalan->suhu_tubuh }} </div>
+                            <div style="padding-left : 50px">Berat : {{ $dataRalan->berat }} </div>
+                            <div style="padding-left : 50px">Tinggi : {{ $dataRalan->tinggi }} </div>
+                            {{ $dataRalan->pemeriksaan }} <br>
+                            Assesment : {{ $dataRalan->penilaian }} <br>
+                            Planning : {{ $dataRalan->rtl }}
+                        </td>
+                        <td style="border: 1px solid black; text-align: center; vertical-align:top;">
+                            {{ $dataRalan->instruksi }}</td>
+                        <td colspan="2"
+                            style="border: 1px solid black; text-align: center; vertical-align:top; padding-top:5px">
+                            @php
+                                $qrcode_dokter = base64_encode(
+                                    QrCode::format('svg')
+                                        ->size(100)
+                                        ->errorCorrection('H')
+                                        ->generate($dataRalan->nama)
+                                );
+                            @endphp
+                            <div>
+                                <img src="data:image/png;base64, {!! $qrcode_dokter !!}" width="80%">
+                            </div>
+                            {{ $dataRalan->nama }}
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+
+        </div>
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
+        @endif
     {{-- Lembar Selanjutnya Hasil Lab --}}
     @if (!empty($permintaanLab))
         @foreach ($permintaanLab as $index => $order)
-            <div style="float: none;">
-                <div style="page-break-after: always;"></div>
-            </div>
+
             <div class="watermark">
                 {{ $watermark }}
             </div>
@@ -829,15 +974,14 @@
                     </table>
                 @endif
             </div>
-
+            <div style="float: none;">
+                <div style="page-break-after: always;"></div>
+            </div>
         @endforeach
     @endif
     {{-- Lembar Selanjutnya Radiologi --}}
 
     @if (!empty($dataRadiologi))
-        <div style="float: none;">
-            <div style="page-break-after: always;"></div>
-        </div>
         <div class="watermark">
             {{ $watermark }}
         </div>
@@ -971,13 +1115,14 @@
                 </tr>
             </table>
         </div>
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
     @endif
 
     {{-- Lembar selanjutnya Triase IGD --}}
     @if (!empty($dataTriase))
-        <div style="float: none;">
-            <div style="page-break-after: always;"></div>
-        </div>
+
         <div class="watermark">
             {{ $watermark }}
         </div>
@@ -1268,12 +1413,12 @@
     </tbody>
     </table>
     </div>
+    <div style="float: none;">
+        <div style="page-break-after: always;"></div>
+    </div>
     @endif
     {{-- Lembar selanjutnya resume IGD --}}
     @if (!empty($resumeIgd))
-        <div style="float: none;">
-            <div style="page-break-after: always;"></div>
-        </div>
         <div class="watermark">
             {{ $watermark }}
         </div>

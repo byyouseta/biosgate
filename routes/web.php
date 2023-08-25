@@ -35,7 +35,11 @@ Auth::routes([
 ]);
 // Survei data
 Route::get('/survei/datapengaduan', 'DataSurveiController@pengaduan')->name('datasurvei.pengaduan');
+Route::get('/survei/datapengaduan/{id}/delete', 'DataSurveiController@deletePengaduan')->name('datasurvei.deletePengaduan');
+Route::get('/survei/datapengaduan/{id}/detail', 'DataSurveiController@detailPengaduan')->name('datasurvei.detailPengaduan');
+Route::post('/survei/datapengaduan/{id}/status', 'DataSurveiController@statusPengaduan')->name('datasurvei.statusPengaduan');
 Route::get('/survei/datakepuasan', 'DataSurveiController@kepuasan')->name('datasurvei.kepuasan');
+Route::get('/survei/datakepuasan/{id}/detail', 'DataSurveiController@detailKepuasan')->name('datasurvei.detailKepuasan');
 
 //BIOS V.2
 Route::get('/home', 'HomeController@index')->name('home');

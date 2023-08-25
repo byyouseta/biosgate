@@ -212,7 +212,8 @@ class VedikaController extends Controller
         $resepObat = $obat[0];
         $obatJadi = $obat[1];
         $obatRacik = $obat[2];
-        // dd($pasien, $billing, $dataTriase);
+        $bbPasien = $obat[3];
+        // dd($obat);
 
         return view('vedika.detailRajal', compact(
             'pasien',
@@ -232,6 +233,7 @@ class VedikaController extends Controller
             'resepObat',
             'obatJadi',
             'obatRacik',
+            'bbPasien',
             'dataBerkas',
             'masterBerkas',
             'pathBerkas'
@@ -311,6 +313,7 @@ class VedikaController extends Controller
         $resepObat = $obat[0];
         $obatJadi = $obat[1];
         $obatRacik = $obat[2];
+        $bbPasien = $obat[3];
 
         // dd($pasien, $billing);
 
@@ -332,6 +335,7 @@ class VedikaController extends Controller
             'resepObat' => $resepObat,
             'obatJadi' => $obatJadi,
             'obatRacik' => $obatRacik,
+            'bbPasien' => $bbPasien,
             'dataBerkas' => $dataBerkas,
             'masterBerkas' => $masterBerkas,
             'pathBerkas' => $pathBerkas
@@ -444,8 +448,10 @@ class VedikaController extends Controller
         $resepObat = $obat[0];
         $obatJadi = $obat[1];
         $obatRacik = $obat[2];
-
-        // dd($pasien, $billing);
+        $bbPasien = $obat[3];
+        //Data Pemeriksaan
+        $dataRalan = VedikaController::pemeriksaanRalan($pasien->no_rawat);
+        // dd($obat, $resepObat);
 
         $pdf = Pdf::loadView('vedika.cronisRajal_pdf', [
             'pasien' => $pasien,
@@ -465,8 +471,10 @@ class VedikaController extends Controller
             'resepObat' => $resepObat,
             'obatJadi' => $obatJadi,
             'obatRacik' => $obatRacik,
+            'bbPasien' => $bbPasien,
             'dataBerkas' => $dataBerkas,
             'masterBerkas' => $masterBerkas,
+            'dataRalan' => $dataRalan,
             'pathBerkas' => $pathBerkas
         ]);
 
@@ -543,11 +551,11 @@ class VedikaController extends Controller
 
     public function simpanSep(Request $request)
     {
-        $this->validate($request, [
-            'signed' => 'required',
-        ], [
-            'signed.required' => 'Tanda tangan pasien kosong'
-        ]);
+        // $this->validate($request, [
+        //     'signed' => 'required',
+        // ], [
+        //     'signed.required' => 'Tanda tangan pasien kosong'
+        // ]);
 
         // dd($request);
         $data = new sepManual();
@@ -594,7 +602,7 @@ class VedikaController extends Controller
             ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
             ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
             ->join('resep_obat', 'resep_obat.no_rawat', '=', 'reg_periksa.no_rawat')
-            ->join('penilaian_awal_keperawatan_ralan', 'penilaian_awal_keperawatan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
+            // ->join('penilaian_awal_keperawatan_ralan', 'penilaian_awal_keperawatan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
             ->leftJoin('kelurahan', 'kelurahan.kd_kel', '=', 'pasien.kd_kel')
             ->leftJoin('kecamatan', 'kecamatan.kd_kec', '=', 'pasien.kd_kec')
             ->leftJoin('kabupaten', 'kabupaten.kd_kab', '=', 'pasien.kd_kab')
@@ -621,13 +629,42 @@ class VedikaController extends Controller
                 'resep_obat.jam',
                 'resep_obat.tgl_peresepan',
                 'resep_obat.jam_peresepan',
-                'penilaian_awal_keperawatan_ralan.bb',
+                // 'penilaian_awal_keperawatan_ralan.bb',
                 'dokter.nm_dokter'
             )
             ->where('reg_periksa.kd_pj', '=', 'BPJ')
             ->where('reg_periksa.status_lanjut', '=', 'Ralan')
             ->where('reg_periksa.no_rawat', '=', $id)
             ->first();
+
+        // dd($pasien);
+        if (!empty($pasien)) {
+            if ($pasien->status_lanjut == 'Ralan') {
+                $bbPasien = DB::connection('mysqlkhanza')->table('pemeriksaan_ralan')
+                    ->select(
+                        'pemeriksaan_ralan.no_rawat',
+                        'pemeriksaan_ralan.berat'
+                    )
+                    ->where('pemeriksaan_ralan.no_rawat', $id)
+                    ->first();
+            } else {
+                $bbPasien = DB::connection('mysqlkhanza')->table('pemeriksaan_ranap')
+                    ->select(
+                        'pemeriksaan_ranap.no_rawat',
+                        'pemeriksaan_ranap.tgl_perawatan',
+                        'pemeriksaan_ranap.jam_rawat',
+                        'pemeriksaan_ranap.berat'
+                    )
+                    ->orderBy('pemeriksaan_ranap.tgl_perawatan', 'DESC')
+                    ->orderBy('pemeriksaan_ranap.jam_rawat', 'DESC')
+                    ->where('pemeriksaan_ranap.no_rawat', $id)
+                    ->first();
+            }
+        } else {
+            $bbPasien = null;
+        }
+
+
 
         $data = DB::connection('mysqlkhanza')->table('detail_pemberian_obat')
             ->join('resep_obat', 'resep_obat.no_rawat', '=', 'detail_pemberian_obat.no_rawat')
@@ -672,7 +709,7 @@ class VedikaController extends Controller
 
         // dd($pasien, $data, $racikan);
 
-        return array($pasien, $data, $racikan);
+        return array($pasien, $data, $racikan, $bbPasien);
 
         // return view('vedika.obat', compact('pasien', 'data'));
     }
@@ -1536,6 +1573,39 @@ class VedikaController extends Controller
         //     'data',
         //     'resume'
         // ));
+    }
+
+    public function pemeriksaanRalan($id)
+    {
+        $data = DB::connection('mysqlkhanza')->table('pemeriksaan_ralan')
+            ->join('pegawai', 'pegawai.nik', '=', 'pemeriksaan_ralan.nip')
+            ->select(
+                'pemeriksaan_ralan.no_rawat',
+                'pemeriksaan_ralan.tgl_perawatan',
+                'pemeriksaan_ralan.jam_rawat',
+                'pemeriksaan_ralan.suhu_tubuh',
+                'pemeriksaan_ralan.tensi',
+                'pemeriksaan_ralan.nadi',
+                'pemeriksaan_ralan.respirasi',
+                'pemeriksaan_ralan.tinggi',
+                'pemeriksaan_ralan.berat',
+                'pemeriksaan_ralan.spo2',
+                'pemeriksaan_ralan.gcs',
+                'pemeriksaan_ralan.kesadaran',
+                'pemeriksaan_ralan.keluhan',
+                'pemeriksaan_ralan.pemeriksaan',
+                'pemeriksaan_ralan.rtl',
+                'pemeriksaan_ralan.penilaian',
+                'pemeriksaan_ralan.instruksi',
+                'pemeriksaan_ralan.evaluasi',
+                'pemeriksaan_ralan.nip',
+                'pegawai.nama',
+                'pegawai.bidang'
+            )
+            ->where('pemeriksaan_ralan.no_rawat', '=', $id)
+            ->first();
+
+        return $data;
     }
 
     public function berkas($id)
