@@ -16,10 +16,8 @@
 
                         You are logged in!
 
-                        {{-- <h3>Akun Bayar Khanza</h3>
-                        @foreach ($data as $listbayar)
-                            <p>{{ $listbayar->nama_bayar }}, kode {{ $listbayar->kd_rek }}</p>
-                        @endforeach --}}
+                        Kemungkinan kamu sedang login dari {{ $useragent }}
+
                     </div>
                 </div>
             </div>

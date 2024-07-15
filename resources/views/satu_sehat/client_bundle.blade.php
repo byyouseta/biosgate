@@ -26,7 +26,21 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card_title">{{ Session::get('anak') }}
+                                <div class="float-right">
+                                    <form action="/satusehat/bundle" method="GET">
+                                        <div class="input-group input-group" id="tanggal" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
+                                                autocomplete="off" value="{{ $tanggal }}">
+                                            <span class="input-group-append">
+                                                <button type="submit" class="btn btn-info btn-flat btn-sm"><i
+                                                        class="fas fa-search"></i> GO!</button>
+                                            </span>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
+
                         </div>
                         <div class="card-body">
                             {{-- <div style="overflow-x:auto;"> --}}

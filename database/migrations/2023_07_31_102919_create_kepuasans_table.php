@@ -31,7 +31,8 @@ class CreateKepuasansTable extends Migration
             $table->tinyInteger('pertanyaan7');
             $table->tinyInteger('pertanyaan8');
             $table->tinyInteger('pertanyaan9');
-            $table->boolean('pertanyaan10');
+            $table->tinyInteger('pertanyaan10');
+            $table->boolean('pertanyaan11');
             $table->text('saran');
             $table->timestamps();
         });

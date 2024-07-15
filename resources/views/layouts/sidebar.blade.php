@@ -338,7 +338,7 @@
                     </ul>
                 </li>
             @endif
-            @if (Auth::user()->can('vedika-list'))
+            @if (Auth::user()->can('vedika-list') || Auth::user()->can('vedika-pengajuan-list'))
                 <li class="nav-item @if (@session('ibu') == 'Vedika') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Vedika') active @endif">
                         <i class="nav-icon fas fa-book-medical"></i>
@@ -348,24 +348,116 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="/vedika/ranap"
-                                class="nav-link @if (@session('anak') == 'Pasien Ranap') active @endif">
-                                <i class="nav-icon fas fa-procedures"></i>
+                        @can('vedika-list')
+                            <li class="nav-item">
+                                <a href="/vedika/ranap"
+                                    class="nav-link @if (@session('anak') == 'Pasien Ranap') active @endif">
+                                    <i class="nav-icon fas fa-procedures"></i>
+                                    <p>
+                                        Pasien Ranap
+                                    </p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/vedika/rajal"
+                                    class="nav-link @if (@session('anak') == 'Pasien Rajal') active @endif">
+                                    <i class="nav-icon fas fa-user-injured"></i>
+                                    <p>
+                                        Pasien Rajal/IGD
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('vedika-pengajuan-list')
+                            <li class="nav-item">
+                                <a href="/vedika/pengajuan/ranap"
+                                    class="nav-link @if (@session('anak') == 'Pengajuan Ranap') active @endif">
+                                    <i class="nav-icon fas fa-procedures"></i>
+                                    <p>
+                                        Pengajuan Ranap
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('vedika-kronis-list')
+                            <li class="nav-item">
+                                <a href="/vedika/pengajuan/kronis"
+                                    class="nav-link @if (@session('anak') == 'Pengajuan Obat Kronis') active @endif">
+                                    <i class="nav-icon fas fa-tablets"></i>
+                                    <p>
+                                        Pengajuan Obat Kronis
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('vedika-pengajuan-list')
+                            <li class="nav-item">
+                                <a href="/vedika/pengajuan/rajal"
+                                    class="nav-link @if (@session('anak') == 'Pengajuan Rajal') active @endif">
+                                    <i class="nav-icon fas fa-user-injured"></i>
+                                    <p>
+                                        Pengajuan Rajal/IGD
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('vedika-fraud-list')
+                            <li class="nav-item">
+                                <a href="/vedika/fraud/rajal"
+                                    class="nav-link @if (@session('anak') == 'Fraud Rajal/IGD') active @endif">
+                                    <i class="nav-icon fas fa-check-double"></i>
+                                    <p>
+                                        Fraud Rajal/IGD
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('vedika-klaim-compare')
+                          <li class="nav-item">
+                            <a href="/vedika/klaimcompare"
+                                class="nav-link @if (@session('anak') == 'Klaim Compare') active @endif">
+                                <i class="nav-icon far fa-copy"></i>
                                 <p>
-                                    Pasien Ranap
+                                    Klaim Compare
                                 </p>
                             </a>
                         </li>
+                        @endcan
+                    </ul>
+                </li>
+            @endif
+            @if (Auth::user()->can('berkasrm-list'))
+                <li class="nav-item @if (@session('ibu') == 'Berkas RM') menu-open @endif">
+                    <a href="#" class="nav-link @if (@session('ibu') == 'Berkas RM') active @endif">
+                        <i class="nav-icon fas fa-folder-open"></i>
+                        <p>
+                            Berkas RM
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        {{-- @can('user-list') --}}
                         <li class="nav-item">
-                            <a href="/vedika/rajal"
-                                class="nav-link @if (@session('anak') == 'Pasien Rajal') active @endif">
+                            <a href="/berkasrm/rajal"
+                                class="nav-link @if (@session('anak') == 'Rawat Jalan/IGD') active @endif">
                                 <i class="nav-icon fas fa-user-injured"></i>
                                 <p>
-                                    Pasien Rajal/IGD
+                                    Rawat Jalan/IGD
                                 </p>
                             </a>
                         </li>
+                        {{-- @endcan
+                        @can('bank-list') --}}
+                        <li class="nav-item">
+                            <a href="/berkasrm/ranap"
+                                class="nav-link @if (@session('anak') == 'Rawat Inap') active @endif">
+                                <i class="nav-icon fas fa-procedures"></i>
+                                <p>
+                                    Rawat Inap
+                                </p>
+                            </a>
+                        </li>
+                        {{-- @endcan --}}
                     </ul>
                 </li>
             @endif
@@ -486,13 +578,46 @@
             {{-- @endcan --}}
 
             @can('satu-sehat-create')
-                <li class="nav-item">
-                    <a href="/satusehat" class="nav-link @if (@session('ibu') == 'Satu Sehat') active @endif">
+                <li class="nav-item @if (@session('ibu') == 'Satu Sehat') menu-open @endif">
+                    <a href="#" class="nav-link @if (@session('ibu') == 'Satu Sehat') active @endif">
                         <i class="nav-icon fas fa-stethoscope"></i>
                         <p>
                             Satu Sehat
+                            <i class="right fas fa-angle-left"></i>
                         </p>
                     </a>
+                    <ul class="nav nav-treeview">
+                        @can('satu-sehat-create')
+                            <li class="nav-item">
+                                <a href="/satusehat" class="nav-link @if (@session('anak') == 'Rajal Satu Sehat') active @endif">
+                                    <i class="nav-icon fas fa-hand-holding-medical"></i>
+                                    <p>
+                                        Rawat Jalan
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('satu-sehat-create')
+                            <li class="nav-item">
+                                <a href="/satusehat/igd" class="nav-link @if (@session('anak') == 'IGD Satu Sehat') active @endif">
+                                    <i class="nav-icon fas fa-ambulance"></i>
+                                    <p>
+                                        IGD
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('satu-sehat-create')
+                            <li class="nav-item">
+                                <a href="/satusehat/ranap" class="nav-link @if (@session('anak') == 'Ranap Satu Sehat') active @endif">
+                                    <i class="nav-icon fas fa-procedures"></i>
+                                    <p>
+                                        Rawat Inap
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                    </ul>
                 </li>
             @endcan
             @if (Auth::user()->can('setting-list') || Auth::user()->can('schedule-list'))
@@ -530,7 +655,7 @@
                     </ul>
                 </li>
             @endif
-            @if (Auth::user()->can('user-list') || Auth::user()->can('bank-list'))
+            @if (Auth::user()->can('user-list') || Auth::user()->can('bank-list') || Auth::user()->can('vedika-periode-list'))
                 <li class="nav-item @if (@session('ibu') == 'Master Data') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Master Data') active @endif">
                         <i class="nav-icon fas fa-database"></i>
@@ -567,6 +692,17 @@
                                     <i class="nav-icon fas fa-file-medical"></i>
                                     <p>
                                         Berkas Vedika
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
+                        @can('vedika-periode-list')
+                            <li class="nav-item">
+                                <a href="/master/vedika/klaim"
+                                    class="nav-link @if (@session('anak') == 'Periode Klaim') active @endif">
+                                    <i class="nav-icon fas fa-calendar-alt"></i>
+                                    <p>
+                                        Periode Klaim
                                     </p>
                                 </a>
                             </li>

@@ -93,10 +93,13 @@ class KesehatanController extends Controller
         $data = DB::connection('mysqlkhanza')->table('kamar_inap')
             ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
             ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
-            ->select('kamar_inap.no_rawat', 'kamar_inap.tgl_masuk', 'kamar_inap.tgl_keluar', 'kamar.kelas')
-            ->whereDate('kamar_inap.tgl_masuk', '<=', $tanggal)
-            ->whereDate('kamar_inap.tgl_keluar', '>=', $tanggal)
-            ->orWhereDate('kamar_inap.tgl_keluar', '=', '0000-00-00')
+            ->select('reg_periksa.no_rawat', 'reg_periksa.tgl_registrasi', 'reg_periksa.stts', 'reg_periksa.status_lanjut', 'kamar_inap.stts_pulang', 'kamar.kelas')
+            ->whereDate('reg_periksa.tgl_registrasi', '=', $tanggal)
+            // ->whereDate('kamar_inap.tgl_keluar', '>=', $tanggal)
+            // ->orWhereDate('kamar_inap.tgl_keluar', '=', '0000-00-00')
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->where('reg_periksa.stts', '!=', 'Ranap')
+            ->where('kamar_inap.stts_pulang', '!=', 'Pindah Kamar')
             ->get();
 
         // dd($data);

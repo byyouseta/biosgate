@@ -41,7 +41,7 @@ class SatuSehatController extends Controller
     public function summary(Request $request)
     {
         session()->put('ibu', 'Satu Sehat');
-        session()->forget('anak');
+        session()->put('anak', 'Rajal Satu Sehat');
         session()->forget('cucu');
 
         if (empty($request->get('tanggal'))) {
@@ -60,7 +60,7 @@ class SatuSehatController extends Controller
         return view('satu_sehat.summary', compact('dataLog', 'errorLog'));
     }
 
-    public function bundleData()
+    public function bundleData(Request $request)
     {
         session()->put('ibu', 'Satu Sehat');
         session()->put('anak', 'Api Bundle');
@@ -70,51 +70,91 @@ class SatuSehatController extends Controller
         // SatuSehatController::getTokenSehat();
 
         // dd(Session('tokenSatuSehat'));
+        if (empty($request->tanggal)) {
+            $pasien_tanggal = Carbon::now()->format('Y-m-d');
+            $kemarin = Carbon::yesterday();
+            // $pasien_tanggal = '2022-11-25';
+            $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+                ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+                ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+                ->select(
+                    'reg_periksa.no_rkm_medis',
+                    'reg_periksa.no_rawat',
+                    'reg_periksa.tgl_registrasi',
+                    'reg_periksa.jam_reg',
+                    'reg_periksa.kd_dokter',
+                    'reg_periksa.status_lanjut',
+                    'reg_periksa.stts',
+                    'reg_periksa.kd_poli',
+                    'reg_periksa.kd_pj',
+                    'pasien.nm_pasien',
+                    'pasien.no_ktp as ktp_pasien',
+                    'pasien.tgl_lahir',
+                    'pasien.jk',
+                    'pegawai.no_ktp as ktp_dokter',
+                    'pegawai.nama as nama_dokter',
+                    'poliklinik.nm_poli',
+                    'poliklinik.kd_poli'
 
-        $pasien_tanggal = Carbon::now()->format('Y-m-d');
-        $kemarin = Carbon::yesterday();
-        // $pasien_tanggal = '2022-11-25';
-        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
-            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-            ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
-            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
-            ->select(
-                'reg_periksa.no_rkm_medis',
-                'reg_periksa.no_rawat',
-                'reg_periksa.tgl_registrasi',
-                'reg_periksa.jam_reg',
-                'reg_periksa.kd_dokter',
-                'reg_periksa.status_lanjut',
-                'reg_periksa.stts',
-                'reg_periksa.kd_poli',
-                'reg_periksa.kd_pj',
-                'pasien.nm_pasien',
-                'pasien.no_ktp as ktp_pasien',
-                'pasien.tgl_lahir',
-                'pasien.jk',
-                'pegawai.no_ktp as ktp_dokter',
-                'pegawai.nama as nama_dokter',
-                'poliklinik.nm_poli',
-                'poliklinik.kd_poli'
+                )
+                ->selectRaw("(CASE WHEN (poliklinik.kd_poli = 'u0041') THEN 'IGD' ELSE poliklinik.nm_poli END) as alias_nm_poli")
+                ->where('reg_periksa.status_lanjut', 'Ralan')
+                ->where('reg_periksa.stts', 'Sudah')
+                // ->where('poliklinik.kd_poli', '!=', 'u0041')
+                // ->orWhere('poliklinik.kd_poli', '!=', 'IGDK')
+                ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+                ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
+                ->orderBy('reg_periksa.tgl_registrasi', 'ASC')
+                ->get();
+            // dd($data, $kemarin);
+        } else {
+            // dd($request);
+            // $pasien_tanggal = Carbon::parse($request->tanggal)->format('Y-m-d');
+            $pasien_tanggal = Carbon::parse($request->tanggal)->format('Y-m-d');
+            $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+                ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+                ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+                ->select(
+                    'reg_periksa.no_rkm_medis',
+                    'reg_periksa.no_rawat',
+                    'reg_periksa.tgl_registrasi',
+                    'reg_periksa.jam_reg',
+                    'reg_periksa.kd_dokter',
+                    'reg_periksa.status_lanjut',
+                    'reg_periksa.stts',
+                    'reg_periksa.kd_poli',
+                    'reg_periksa.kd_pj',
+                    'pasien.nm_pasien',
+                    'pasien.no_ktp as ktp_pasien',
+                    'pasien.tgl_lahir',
+                    'pasien.jk',
+                    'pegawai.no_ktp as ktp_dokter',
+                    'pegawai.nama as nama_dokter',
+                    'poliklinik.nm_poli',
+                    'poliklinik.kd_poli'
 
-            )
-            ->selectRaw("(CASE WHEN (poliklinik.kd_poli = 'u0041') THEN 'IGD' ELSE poliklinik.nm_poli END) as alias_nm_poli")
-            ->where('reg_periksa.status_lanjut', 'Ralan')
-            ->where('reg_periksa.stts', 'Sudah')
-            // ->where('reg_periksa.no_rawat', '=', '2023/03/09/000107')
-            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
-            ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
-            ->orderBy('reg_periksa.tgl_registrasi', 'ASC')
-            ->get();
-        // dd($data, $kemarin);
+                )
+                ->selectRaw("(CASE WHEN (poliklinik.kd_poli = 'u0041') THEN 'IGD' ELSE poliklinik.nm_poli END) as alias_nm_poli")
+                ->where('reg_periksa.status_lanjut', 'Ralan')
+                ->where('reg_periksa.stts', 'Sudah')
+                // ->where('reg_periksa.no_rawat', '=', '2023/03/09/000107')
+                ->whereDate('reg_periksa.tgl_registrasi', $pasien_tanggal)
+                ->orderBy('reg_periksa.tgl_registrasi', 'ASC')
+                ->get();
+
+            // dd($data);
+        }
+
         $loop = 0;
 
         foreach ($data as $key => $dataPengunjung) {
             $cekLog = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->count();
             // dd($cekLog);
             // if ($dataPengunjung->no_rawat == '2023/03/09/000107') {
-            if ($cekLog == 0) {
-                $idRS = '100025586';
+            if (($cekLog == 0) && ($dataPengunjung->nm_poli != 'IGD')) {
+                $idRS = env('IDRS');
                 //Karena masih masalah diminta kirim pakai dummy dulu
                 $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
                 if ($idPasien == null) {
@@ -156,19 +196,7 @@ class SatuSehatController extends Controller
                     $diagnosaSekunder = SatuSehatController::getDiagnosisSekunderRalan($dataPengunjung->no_rawat);
                     $procedurePasien = SatuSehatController::getProcedureRalan($dataPengunjung->no_rawat);
                     $cekDiet = SatuSehatController::getDiet($dataPengunjung->no_rawat, $dataPengunjung->tgl_registrasi); //nyoba bundle composition
-
-                    //Waktu
-                    $waktuAwal = $dataPengunjung->tgl_registrasi . ' ' . $dataPengunjung->jam_reg;
-                    $waktu_mulai = new Carbon($waktuAwal);
-                    $waktuSelesai = Carbon::parse($waktuAwal)->addHour(2);
-                    $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
-                    $waktuInprogress = Carbon::parse($waktuAwal)->addHour();
-                    $formatWaktuProgress = Carbon::parse($waktuInprogress)->format('Y-m-d') . 'T' . Carbon::parse($waktuInprogress)->format('H:i:s+07:00');
-                    $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
-                    $day = Carbon::parse($waktuAwal)->dayName;
-                    $day2 = Carbon::parse($waktuAwal)->format('d F Y');
-                    $formatDay = $day . ', ' . $day2;
-                    // dd($day, $day2, $formatDay);
+                    $waktuKeperawatan = SatuSehatController::getWaktuKeperawatan($dataPengunjung->no_rawat);
 
                     //Definisi Vital
                     $vital = SatuSehatController::getVital($dataPengunjung->no_rawat);
@@ -211,11 +239,46 @@ class SatuSehatController extends Controller
                         $temperature = floatval(37);
                     }
 
+                    //Waktu
+                    $waktuAwal = $dataPengunjung->tgl_registrasi . ' ' . $dataPengunjung->jam_reg;
+                    $waktu_mulai = new Carbon($waktuAwal);
+                    // $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
+                    $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
+                    if ((!empty($waktuKeperawatan->tanggal))) {
+                        $waktuInprogress = Carbon::parse($waktuKeperawatan->tanggal);
+                        if ($waktu_mulai > $waktuInprogress) {
+                            goto WaktuProses2;
+                        }
+                    } else {
+                        WaktuProses2:
+                        $waktuInprogress = Carbon::parse($waktuAwal)->addMinute(10);
+                        // dd($dataPengunjung->no_rawat, $waktu_mulai, $waktuInprogress);
+                    }
+                    // $formatWaktuProgress = Carbon::parse($waktuInprogress)->format('Y-m-d') . 'T' . Carbon::parse($waktuInprogress)->format('H:i:s+07:00');
+                    $formatWaktuProgress = $waktuInprogress->setTimezone('UTC')->toW3cString();
+                    if ((!empty($vital->tgl_perawatan))) {
+                        $waktuSelesai = Carbon::parse($vital->tgl_perawatan . ' ' . $vital->jam_rawat);
+                        if ($waktuInprogress > $waktuSelesai) {
+                            goto WaktuSelesai2;
+                        }
+                    } else {
+                        WaktuSelesai2:
+                        $waktuSelesai = Carbon::parse($waktuAwal)->addMinute(30);
+                        // dd($dataPengunjung->no_rawat, $waktu_mulai, $waktuInprogress, $waktuSelesai);
+                    }
+                    // $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
+                    $formatWaktuSelesai = $waktuSelesai->setTimezone('UTC')->toW3cString();
+
+                    $day = Carbon::parse($waktuAwal)->dayName;
+                    $day2 = Carbon::parse($waktuAwal)->format('d F Y');
+                    $formatDay = $day . ', ' . $day2;
+                    // dd($formatWaktuMulai, $formatWaktuProgress, $formatWaktuSelesai);
+
                     //UUID
                     $uuidEncounter = Str::uuid();
                     $uuidDiagnosaPrimer = Str::uuid();
-                    $uuidCondition1 = Str::uuid();
-                    $uuidCondition2 = Str::uuid();
+                    // $uuidCondition1 = Str::uuid();
+                    // $uuidCondition2 = Str::uuid();
 
                     $uuidHeart = Str::uuid();
                     $uuidRespiratory = Str::uuid();
@@ -260,7 +323,7 @@ class SatuSehatController extends Controller
                                 ],
                                 "period" => [
                                     "start" => "$formatWaktuMulai",
-                                    "end" => "$formatWaktuProgress"
+                                    "end" => "$formatWaktuSelesai"
                                 ],
                                 "location" => [
                                     [
@@ -345,7 +408,7 @@ class SatuSehatController extends Controller
                         ];
                         //diagnosa 2
                         $diagnosis2 = [
-                            "fullUrl" => "urn:uuid:$uuidCondition2",
+                            "fullUrl" => "urn:uuid:$uuidDiagnosaSekunder",
                             "resource" => [
                                 "resourceType" => "Condition",
                                 "clinicalStatus" => [
@@ -428,7 +491,7 @@ class SatuSehatController extends Controller
                                 ],
                                 "period" => [
                                     "start" => "$formatWaktuMulai",
-                                    "end" => "$formatWaktuProgress"
+                                    "end" => "$formatWaktuSelesai"
                                 ],
                                 "location" => [
                                     [
@@ -501,7 +564,7 @@ class SatuSehatController extends Controller
 
                     //diagnosa 1
                     $diagnosis1 = [
-                        "fullUrl" => "urn:uuid:$uuidCondition1",
+                        "fullUrl" => "urn:uuid:$uuidDiagnosaPrimer",
                         "resource" => [
                             "resourceType" => "Condition",
                             "clinicalStatus" => [
@@ -576,11 +639,16 @@ class SatuSehatController extends Controller
                             "subject" => [
                                 "reference" => "Patient/$idPasien"
                             ],
+                            "performer" => [
+                                [
+                                    "reference" => "Practitioner/10004181193"
+                                ]
+                            ],
                             "encounter" => [
                                 "reference" => "urn:uuid:$uuidEncounter",
                                 "display" => "Pemeriksaan Fisik Nadi $dataPengunjung->nm_pasien di hari $formatDay"
                             ],
-                            "effectiveDateTime" => "$dataPengunjung->tgl_registrasi",
+                            "effectiveDateTime" => "$formatWaktuProgress",
                             "valueQuantity" => [
                                 "value" => $heartRate,
                                 "unit" => "beats/minute",
@@ -621,11 +689,16 @@ class SatuSehatController extends Controller
                             "subject" => [
                                 "reference" => "Patient/$idPasien"
                             ],
+                            "performer" => [
+                                [
+                                    "reference" => "Practitioner/10004181193"
+                                ]
+                            ],
                             "encounter" => [
                                 "reference" => "urn:uuid:$uuidEncounter",
                                 "display" => "Pemeriksaan Fisik Pernafasan $dataPengunjung->nm_pasien di hari $formatDay"
                             ],
-                            "effectiveDateTime" => "$dataPengunjung->tgl_registrasi",
+                            "effectiveDateTime" => "$formatWaktuProgress",
                             "valueQuantity" => [
                                 "value" => $respiratory,
                                 "unit" => "breaths/minute",
@@ -666,11 +739,16 @@ class SatuSehatController extends Controller
                             "subject" => [
                                 "reference" => "Patient/$idPasien"
                             ],
+                            "performer" => [
+                                [
+                                    "reference" => "Practitioner/10004181193"
+                                ]
+                            ],
                             "encounter" => [
                                 "reference" => "urn:uuid:$uuidEncounter",
                                 "display" => "Pemeriksaan Fisik Sistolik $dataPengunjung->nm_pasien di hari $formatDay"
                             ],
-                            "effectiveDateTime" => "$dataPengunjung->tgl_registrasi",
+                            "effectiveDateTime" => "$formatWaktuProgress",
                             "bodySite" => [
                                 "coding" => [
                                     [
@@ -734,11 +812,16 @@ class SatuSehatController extends Controller
                                 "reference" => "Patient/$idPasien",
                                 "display" => "$dataPengunjung->nm_pasien"
                             ],
+                            "performer" => [
+                                [
+                                    "reference" => "Practitioner/10004181193"
+                                ]
+                            ],
                             "encounter" => [
                                 "reference" => "urn:uuid:$uuidEncounter",
                                 "display" => "Pemeriksaan Fisik Diastolik $dataPengunjung->nm_pasien di hari $formatDay"
                             ],
-                            "effectiveDateTime" => "$dataPengunjung->tgl_registrasi",
+                            "effectiveDateTime" => "$formatWaktuProgress",
                             "bodySite" => [
                                 "coding" => [
                                     [
@@ -801,11 +884,16 @@ class SatuSehatController extends Controller
                             "subject" => [
                                 "reference" => "Patient/$idPasien"
                             ],
+                            "performer" => [
+                                [
+                                    "reference" => "Practitioner/10004181193"
+                                ]
+                            ],
                             "encounter" => [
                                 "reference" => "urn:uuid:$uuidEncounter",
                                 "display" => "Pemeriksaan Fisik Suhu $dataPengunjung->nm_pasien di hari $formatDay"
                             ],
-                            "effectiveDateTime" => "$dataPengunjung->tgl_registrasi",
+                            "effectiveDateTime" => "$formatWaktuProgress",
                             "valueQuantity" => [
                                 "value" => $temperature,
                                 "unit" => "C",
@@ -1014,7 +1102,7 @@ class SatuSehatController extends Controller
 
 
                     // if ($dataPengunjung->no_rawat == '2022/09/16/000022') {
-                    //     dd($dataBundle);
+                    // dd($dataBundle);
                     // }
 
                     SatuSehatController::getTokenSehat();
@@ -1033,40 +1121,55 @@ class SatuSehatController extends Controller
                         ]);
                     } catch (RequestException $e) {
                         // echo $e->getRequest();
-                        // echo $e->getResponse();
+                        // $status = $e->getStatusCode();
+                        // dd($status);
                         if ($e->hasResponse()) {
                             $response = $e->getResponse();
-
-                            // dd($response);
+                            // $status = $e->getStatusCode();
+                            // dd($response->getBody());
+                            // if ($response->statusCode != '200' || $response->statusCode != '201') {
+                            //     goto KirimPasienlain;
+                            // }
                             $test = json_decode($response->getBody());
+                            // dd($dataBundle, $test);
                             // dd($test->issue[0]->expression[0]);
                             // $pesan = $test->issue[0]->expression[0];
                             $errorCode = (array) $test;
 
-                            if (!empty($errorCode['issue'][0])) {
-                                $pesan = $errorCode['issue'][0]->details->text;
-                            } else {
-                                $pesan = $errorCode['fault']->faultstring;
-                                if (str_contains($pesan, 'Rate limit quota violation')) {
-                                    Session::flash('error', $pesan);
-                                    goto Selesai;
+                            if (!empty($errorCode)) {
+                                if (!empty($errorCode['issue'][0])) {
+                                    $pesan = $errorCode['issue'][0]->details->text;
+                                    if (str_contains($pesan, 'duplicate')) {
+                                        $simpan = new ResponseSatuSehat();
+                                        $simpan->noRawat = $dataPengunjung->no_rawat;
+                                        $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                                        $simpan->encounter_id = 'duplicate';
+                                        $simpan->save();
+                                    }
+                                } else {
+
+                                    $pesan = $errorCode['fault']->faultstring;
+                                    if (str_contains($pesan, 'Rate limit quota violation')) {
+                                        Session::flash('error', $pesan);
+                                        goto Selesai;
+                                    }
                                 }
+
+                                $cek = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
+                                    ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                                    ->whereDate('created_at', Carbon::now())
+                                    ->get();
+                                if ($cek->count() < 1) {
+                                    $error = new LogErrorSatuSehat();
+                                    $error->subject = 'Bundle Ralan';
+                                    $error->keterangan = $dataPengunjung->no_rawat . ' error kirim "' . $pesan . '"';
+                                    $error->save();
+                                }
+
+                                $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat";
+
+                                Session::flash('error', $message);
                             }
-
-                            $cek = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
-                                ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
-                                ->whereDate('created_at', Carbon::now())
-                                ->get();
-                            if ($cek->count() < 1) {
-                                $error = new LogErrorSatuSehat();
-                                $error->subject = 'Bundle Ralan';
-                                $error->keterangan = $dataPengunjung->no_rawat . ' error kirim' . $pesan;
-                                $error->save();
-                            }
-
-                            $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat";
-
-                            Session::flash('error', $message);
 
                             goto KirimPasienlain;
                         } else {
@@ -1078,7 +1181,7 @@ class SatuSehatController extends Controller
                         }
                     }
 
-                    // dd($response);
+                    // dd($response->getStatusCode());
 
                     $data = json_decode($response->getBody());
 
@@ -1204,6 +1307,16 @@ class SatuSehatController extends Controller
                                 }
                             }
                         }
+
+                        $cekLog = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
+                            ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                            ->whereDate('created_at', Carbon::now())
+                            ->get();
+                        if (!empty($cekLog)) {
+                            $hapus = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
+                                ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                                ->delete();
+                        }
                         //Tambah variabel loop
                         ++$loop;
                     }
@@ -1220,7 +1333,12 @@ class SatuSehatController extends Controller
         // $dataLog = ResponseSatuSehat::whereDate('created_at', Carbon::now())
         //     ->get();
         Selesai:
-        $dataLog = ResponseSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+        if (empty($request->get('tanggal'))) {
+            $dataLog = ResponseSatuSehat::whereDate('created_at', $pasien_tanggal)->get();
+        } else {
+            $dataLog = ResponseSatuSehat::whereDate('tgl_registrasi', $pasien_tanggal)
+                ->get();
+        }
         // dd($dataLog);
 
         return view('satu_sehat.client_bundle', compact('dataLog'));
@@ -1350,7 +1468,7 @@ class SatuSehatController extends Controller
                     // dd($access_token);
                     $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                     try {
-                        $response = $client->request('POST', 'fhir-r4/v1/Encounter', [
+                        $response = $client->request('POST', 'fhir-r4/pre-prod/v1/Encounter', [
                             'headers' => [
                                 'Authorization' => "Bearer {$access_token}"
                             ],
@@ -1518,7 +1636,7 @@ class SatuSehatController extends Controller
                 // dd($access_token);
                 $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                 try {
-                    $response = $client->request('POST', 'fhir-r4/v1/Composition', [
+                    $response = $client->request('POST', 'fhir-r4/pre-prod/v1/Composition', [
                         'headers' => [
                             'Authorization' => "Bearer {$access_token}"
                         ],
@@ -1566,7 +1684,7 @@ class SatuSehatController extends Controller
         // $idRS = '10080055';
         $pasien_tanggal = Carbon::now()->format('Y-m-d');
         $kemarin = Carbon::yesterday();
-        $idRS = '100025586';
+        $idRS = env('IDRS');
 
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
@@ -1811,7 +1929,7 @@ class SatuSehatController extends Controller
                                     $test = json_decode($response->getBody());
                                     $errorCode = (array) $test;
 
-                                    // dd($test);
+                                    // dd($test, 'medication1');
 
                                     if (!empty($errorCode['issue'][0])) {
                                         $pesan = $errorCode['issue'][0]->details->text;
@@ -1869,6 +1987,15 @@ class SatuSehatController extends Controller
                                 //Off ini dulu buat pakai langsung dari inisialisasi idMedication1 saja
                                 // $response1 = SatuSehatController::getMedicationId($noresep);
                                 $idMedication1 = $data->id;
+                                //Waktu Registrasi
+                                $waktuRegis = Carbon::parse($dataPengunjung->tgl_registrasi . ' ' . $dataPengunjung->jam_reg);
+                                $formatWaktuRegis = $waktuRegis->setTimezone('UTC')->toW3cString();
+                                //Waktu Request Obat
+                                $waktuRequest = Carbon::parse($getResep->tgl_permintaan . ' ' . $getResep->jam_permintaan);
+                                $formatWaktuRequest = $waktuRequest->setTimezone('UTC')->toW3cString();
+                                //Waktu Pemberian
+                                $waktuPenyerahan = Carbon::parse($getResep->tgl_penyerahan . ' ' . $getResep->jam_penyerahan);
+                                $formatWaktuPenyerahan = $waktuPenyerahan->setTimezone('UTC')->toW3cString();
 
                                 $medicationRequest = [
                                     "resourceType" => "MedicationRequest",
@@ -1909,7 +2036,7 @@ class SatuSehatController extends Controller
                                     "encounter" => [
                                         "reference" => "Encounter/$idCounter->encounter_id"
                                     ],
-                                    "authoredOn" => "$dataPengunjung->tgl_registrasi",
+                                    "authoredOn" => "$formatWaktuRegis",
                                     "requester" => [
                                         "reference" => "Practitioner/$idDokter",
                                         "display" => "$dataPengunjung->nama_dokter"
@@ -1989,8 +2116,8 @@ class SatuSehatController extends Controller
                                         //     "code" => "d"
                                         // ],
                                         "validityPeriod" => [ //optional Waktu Peresepan
-                                            "start" => "$getResep->tgl_permintaan",
-                                            "end" => "$getResep->tgl_penyerahan"
+                                            "start" => "$formatWaktuRequest",
+                                            "end" => "$formatWaktuPenyerahan"
                                         ],
                                         "numberOfRepeatsAllowed" => 0, //optional
                                         "quantity" => [ //wajib
@@ -2027,6 +2154,8 @@ class SatuSehatController extends Controller
                                     if ($e->hasResponse()) {
                                         $response = $e->getResponse();
                                         $test = json_decode($response->getBody());
+
+                                        dd($test, 'medicationRequest');
                                         $errorCode = (array) $test;
                                         if (!empty($errorCode['issue'][0])) {
                                             $pesan = $errorCode['issue'][0]->details->text;
@@ -2061,6 +2190,160 @@ class SatuSehatController extends Controller
                                 $idMedicationRequest = $data->id;
                                 if (!empty($data->id) && $data->resourceType == "MedicationRequest") {
                                     //Langsung kirim medication 1 sebagai medication2
+                                    //Wis tak perbaiki saiki gowo batch ama tanggal expire
+                                    $medication2 = [
+                                        "resourceType" => "Medication",
+                                        "meta" => [
+                                            "profile" => [
+                                                "https://fhir.kemkes.go.id/r4/StructureDefinition/Medication"
+                                            ]
+                                        ],
+                                        "identifier" => [
+                                            [
+                                                "system" => "http://sys-ids.kemkes.go.id/medication/$idRS",
+                                                "use" => "official",
+                                                "value" => "$dataListObat->no_resep"
+                                            ]
+                                        ],
+                                        "code" => [
+                                            "coding" => [ //Iki dinggo mapping obate
+                                                [
+                                                    "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                                    "code" => "$mappingObat->id_ihs",
+                                                    "display" => "$dataListObat->nama_brng"
+                                                ]
+                                            ]
+                                        ],
+                                        "status" => "active",
+                                        // "manufacturer" => [ //optional
+                                        //     "reference" => "Organization/900001"
+                                        // ],
+                                        "form" => [
+                                            "coding" => [ //Iki dinggo medication form tipe obate opo
+                                                [
+                                                    "system" => "$mappingObat->form_coding_system",
+                                                    "code" => "$mappingObat->kode_medication",
+                                                    "display" => "$mappingObat->form_display"
+                                                ]
+                                            ]
+                                        ],
+                                        // "ingredient" => [ //untuk racikan yang wajib
+                                        //     [
+                                        //         "itemCodeableConcept" => [
+                                        //             "coding" => [
+                                        //                 [
+                                        //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                        //                     "code" => "91000330",
+                                        //                     "display" => "Rifampin"
+                                        //                 ]
+                                        //             ]
+                                        //         ],
+                                        //         "isActive" => true,
+                                        //         "strength" => [
+                                        //             "numerator" => [
+                                        //                 "value" => 150,
+                                        //                 "system" => "http://unitsofmeasure.org",
+                                        //                 "code" => "mg"
+                                        //             ],
+                                        //             "denominator" => [
+                                        //                 "value" => 1,
+                                        //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+                                        //                 "code" => "TAB"
+                                        //             ]
+                                        //         ]
+                                        //     ],
+                                        //     [
+                                        //         "itemCodeableConcept" => [
+                                        //             "coding" => [
+                                        //                 [
+                                        //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                        //                     "code" => "91000328",
+                                        //                     "display" => "Isoniazid"
+                                        //                 ]
+                                        //             ]
+                                        //         ],
+                                        //         "isActive" => true,
+                                        //         "strength" => [
+                                        //             "numerator" => [
+                                        //                 "value" => 75,
+                                        //                 "system" => "http://unitsofmeasure.org",
+                                        //                 "code" => "mg"
+                                        //             ],
+                                        //             "denominator" => [
+                                        //                 "value" => 1,
+                                        //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+                                        //                 "code" => "TAB"
+                                        //             ]
+                                        //         ]
+                                        //     ],
+                                        //     [
+                                        //         "itemCodeableConcept" => [
+                                        //             "coding" => [
+                                        //                 [
+                                        //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                        //                     "code" => "91000329",
+                                        //                     "display" => "Pyrazinamide"
+                                        //                 ]
+                                        //             ]
+                                        //         ],
+                                        //         "isActive" => true,
+                                        //         "strength" => [
+                                        //             "numerator" => [
+                                        //                 "value" => 400,
+                                        //                 "system" => "http://unitsofmeasure.org",
+                                        //                 "code" => "mg"
+                                        //             ],
+                                        //             "denominator" => [
+                                        //                 "value" => 1,
+                                        //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+                                        //                 "code" => "TAB"
+                                        //             ]
+                                        //         ]
+                                        //     ],
+                                        //     [
+                                        //         "itemCodeableConcept" => [
+                                        //             "coding" => [
+                                        //                 [
+                                        //                     "system" => "http://sys-ids.kemkes.go.id/kfa",
+                                        //                     "code" => "91000288",
+                                        //                     "display" => "Ethambutol"
+                                        //                 ]
+                                        //             ]
+                                        //         ],
+                                        //         "isActive" => true,
+                                        //         "strength" => [
+                                        //             "numerator" => [
+                                        //                 "value" => 275,
+                                        //                 "system" => "http://unitsofmeasure.org",
+                                        //                 "code" => "mg"
+                                        //             ],
+                                        //             "denominator" => [
+                                        //                 "value" => 1,
+                                        //                 "system" => "http://terminology.hl7.org/CodeSystem/v3-orderableDrugForm",
+                                        //                 "code" => "TAB"
+                                        //             ]
+                                        //         ]
+                                        //     ]
+                                        // ],
+                                        "batch" => [
+                                            "lotNumber" => "-",
+                                            "expirationDate" => "$dataListObat->expire"
+                                        ],
+                                        "extension" => [ //harus bos
+                                            [
+                                                "url" => "https://fhir.kemkes.go.id/r4/StructureDefinition/MedicationType",
+                                                "valueCodeableConcept" => [
+                                                    "coding" => [
+                                                        [
+                                                            "system" => "http://terminology.kemkes.go.id/CodeSystem/medication-type",
+                                                            "code" => "NC",
+                                                            "display" => "Non-compound"
+                                                        ]
+                                                    ]
+                                                ]
+                                            ]
+                                        ]
+                                    ];
                                     //Kirim/Create Medication
                                     SatuSehatController::getTokenSehat();
                                     $access_token = Session::get('tokenSatuSehat');
@@ -2071,13 +2354,15 @@ class SatuSehatController extends Controller
                                             'headers' => [
                                                 'Authorization' => "Bearer {$access_token}"
                                             ],
-                                            'json' => $medication1
+                                            'json' => $medication2
                                         ]);
                                     } catch (BadResponseException $e) {
                                         if ($e->hasResponse()) {
                                             $response = $e->getResponse();
                                             $test = json_decode($response->getBody());
                                             $errorCode = (array) $test;
+
+                                            dd($test, 'medication2');
                                             if (!empty($errorCode['issue'][0])) {
                                                 $pesan = $errorCode['issue'][0]->details->text;
 
@@ -2115,10 +2400,12 @@ class SatuSehatController extends Controller
                                     //Waktu
                                     $waktuAwal = $getResep->tgl_permintaan . ' ' . $getResep->jam_permintaan;
                                     $waktu_mulai = new Carbon($waktuAwal);
-                                    $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
+                                    // $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
+                                    $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
                                     $waktuSelesai = $getResep->tgl_penyerahan . ' ' . $getResep->jam_penyerahan;
                                     $waktu_selesai = new Carbon($waktuSelesai);
-                                    $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
+                                    // $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
+                                    $formatWaktuSelesai = $waktu_selesai->setTimezone('UTC')->toW3cString();
                                     //Cek Obat yang diberikan
                                     $obatPasien = SatuSehatController::obatDiberikan($getResep->no_rawat, $dataListObat->kode_brng);
 
@@ -2251,6 +2538,8 @@ class SatuSehatController extends Controller
                                                 $response = $e->getResponse();
                                                 $test = json_decode($response->getBody());
                                                 $errorCode = (array) $test;
+
+                                                dd($test, 'medication dispance');
                                                 if (!empty($errorCode['issue'][0])) {
                                                     $pesan = $errorCode['issue'][0]->details->text;
 
@@ -2795,6 +3084,9 @@ class SatuSehatController extends Controller
                     foreach ($periksaLab as $PeriksaLab) {
                         //ambil data mapping Loinc
                         $mappingLoinc = SatuSehatController::getLoinc($PeriksaLab->kd_jenis_prw);
+                        $waktuPerawatan = $PeriksaLab->tgl_periksa . ' ' . $PeriksaLab->jam;
+                        $waktu_perawatan = new Carbon($waktuPerawatan);
+                        $formatWaktuPerawatan = $waktu_perawatan->setTimezone('UTC')->toW3cString();
 
                         // dd($mappingLoinc);
 
@@ -2830,7 +3122,7 @@ class SatuSehatController extends Controller
                                     "reference" => "Encounter/$idCounter->encounter_id",
                                     "display" => "Permintaan $PeriksaLab->nm_perawatan pada $PeriksaLab->tgl_periksa pukul $PeriksaLab->jam WIB"
                                 ],
-                                "occurrenceDateTime" => $PeriksaLab->tgl_periksa . "T" . $PeriksaLab->jam . "+07:00",
+                                "occurrenceDateTime" => $formatWaktuPerawatan,
                                 "requester" => [
                                     "reference" => "Practitioner/$dokterPerujuk",
                                     "display" => "$cekLab->nama_dokter"
@@ -2898,6 +3190,10 @@ class SatuSehatController extends Controller
 
                                 //ambil kode spesimen
                                 $mapingSpecimen = SatuSehatController::getSpecimen($mappingLoinc->kd_loinc);
+                                //Waktu Sampel
+                                $waktuSampel = $cekLab->tgl_sampel . ' ' . $cekLab->jam_sampel;
+                                $waktu_sampel = new Carbon($waktuPerawatan);
+                                $formatWaktuSampel = $waktu_sampel->setTimezone('UTC')->toW3cString();
 
                                 $Specimen = [
                                     "resourceType" => "Specimen",
@@ -2941,7 +3237,7 @@ class SatuSehatController extends Controller
                                             "reference" => "ServiceRequest/$idServiceRequest"
                                         ]
                                     ],
-                                    "receivedTime" => $cekLab->tgl_sampel . "T" . $cekLab->jam_sampel . "+07:00"
+                                    "receivedTime" => $formatWaktuSampel
                                 ];
 
                                 //Kirim/Create Specimen
@@ -3013,6 +3309,10 @@ class SatuSehatController extends Controller
                                                 //dah diatas ya dicek
 
                                                 $dataHasil = SatuSehatController::getTemplateLoinc($DetailLab->id_template);
+                                                //Waktu Hasil
+                                                $waktuHasil = $DetailLab->tgl_periksa . ' ' . $DetailLab->jam;
+                                                $waktu_hasil = new Carbon($waktuHasil);
+                                                $formatWaktuHasil = $waktu_hasil->setTimezone('UTC')->toW3cString();
 
                                                 if (!empty($dataHasil)) {
                                                     // dd($dataHasil);
@@ -3059,7 +3359,7 @@ class SatuSehatController extends Controller
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
                                                                 "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -3123,7 +3423,7 @@ class SatuSehatController extends Controller
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
                                                                 "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -3185,7 +3485,7 @@ class SatuSehatController extends Controller
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
                                                                 "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -3254,7 +3554,7 @@ class SatuSehatController extends Controller
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
                                                                 "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -3311,7 +3611,7 @@ class SatuSehatController extends Controller
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
                                                             "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                            "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                            "issued" => $formatWaktuHasil,
                                                             "performer" => [
                                                                 [
                                                                     "reference" => "Practitioner/10006926841"
@@ -3407,7 +3707,7 @@ class SatuSehatController extends Controller
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
                                                             "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                            "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                            "issued" => $formatWaktuHasil,
                                                             "performer" => [
                                                                 [
                                                                     "reference" => "Practitioner/10006926841"
@@ -3484,6 +3784,10 @@ class SatuSehatController extends Controller
                                                 //dah diatas ya dicek
 
                                                 $dataHasil = SatuSehatController::getLoinc($DetailLab->kd_jenis_prw);
+                                                //Waktu Hasil
+                                                $waktuHasil = $DetailLab->tgl_periksa . ' ' . $DetailLab->jam;
+                                                $waktu_hasil = new Carbon($waktuHasil);
+                                                $formatWaktuHasil = $waktu_hasil->setTimezone('UTC')->toW3cString();
 
                                                 if (!empty($dataHasil)) {
                                                     if ($dataHasil->tipe_hasil_pemeriksaan == "Nominal") { //Answer List diperlukan
@@ -3529,7 +3833,7 @@ class SatuSehatController extends Controller
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
                                                                 "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -3593,7 +3897,7 @@ class SatuSehatController extends Controller
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
                                                                 "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -3655,7 +3959,7 @@ class SatuSehatController extends Controller
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
                                                                 "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -3724,7 +4028,7 @@ class SatuSehatController extends Controller
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
                                                                 "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -3781,7 +4085,7 @@ class SatuSehatController extends Controller
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
                                                             "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                            "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                            "issued" => $formatWaktuHasil,
                                                             "performer" => [
                                                                 [
                                                                     "reference" => "Practitioner/10006926841"
@@ -3839,7 +4143,6 @@ class SatuSehatController extends Controller
                                                             // ]
                                                         ];
                                                     } elseif ($dataHasil->tipe_hasil_pemeriksaan == "Narative") { //
-                                                        // dd($DetailLab, "test", $dataHasil, is_string($DetailLab->nilai), is_numeric($DetailLab->nilai), empty($DetailLab->nilai));
 
                                                         $Observation = [
                                                             "resourceType" => "Observation",
@@ -3877,7 +4180,7 @@ class SatuSehatController extends Controller
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
                                                             "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                            "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                            "issued" => $formatWaktuHasil,
                                                             "performer" => [
                                                                 [
                                                                     "reference" => "Practitioner/10006926841"
@@ -4169,15 +4472,44 @@ class SatuSehatController extends Controller
                 $idDokter = SatuSehatController::practitioner($pengunjung->ktp_dokter);
                 $idPasien = SatuSehatController::patientSehat($pengunjung->ktp_pasien);
                 $idLokasi = SatuSehatController::getIdPoli($pengunjung->kd_poli);
+                $waktuPermintaan = SatuSehatController::getWaktuLab($pengunjung->no_rawat);
 
-                if ((!empty($idPasien)) && (!empty($idDokter))) {
+                if ((!empty($idPasien)) && (!empty($idDokter)) && (!empty($waktuPermintaan))) {
                     //Waktu
-                    $waktuAwal = $pengunjung->tgl_registrasi . ' ' . $pengunjung->jam_reg;
+                    // $waktuAwal = $pengunjung->tgl_registrasi . ' ' . $pengunjung->jam_reg;
+                    // $waktu_mulai = new Carbon($waktuAwal);
+                    // $waktuSelesai = Carbon::parse($waktuAwal)->addHour(2);
+                    // $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
+                    // $waktuInprogress = Carbon::parse($waktuAwal)->addHour();
+                    // $formatWaktuProgress = Carbon::parse($waktuInprogress)->format('Y-m-d') . 'T' . Carbon::parse($waktuInprogress)->format('H:i:s+07:00');
+
+                    //Waktu
+                    // dd($waktuPermintaan);
+                    $waktuAwal = $waktuPermintaan->tgl_permintaan . ' ' . $waktuPermintaan->jam_permintaan;
                     $waktu_mulai = new Carbon($waktuAwal);
-                    $waktuSelesai = Carbon::parse($waktuAwal)->addHour(2);
-                    $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
-                    $waktuInprogress = Carbon::parse($waktuAwal)->addHour();
-                    $formatWaktuProgress = Carbon::parse($waktuInprogress)->format('Y-m-d') . 'T' . Carbon::parse($waktuInprogress)->format('H:i:s+07:00');
+                    // $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
+                    $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
+
+                    if (!empty($waktuPermintaan->tgl_sampel) && ($waktuPermintaan->tgl_hasil != '0000-00-00')) {
+                        $waktuInprogress = Carbon::parse("$waktuPermintaan->tgl_sampel $waktuPermintaan->jam_sampel");
+                    } else {
+                        $waktuInprogress = Carbon::parse($waktuAwal)->addMinute(10);
+                        // dd($dataPengunjung->no_rawat, $waktu_mulai, $waktuInprogress);
+                    }
+                    // $formatWaktuProgress = Carbon::parse($waktuInprogress)->format('Y-m-d') . 'T' . Carbon::parse($waktuInprogress)->format('H:i:s+07:00');
+                    $formatWaktuProgress = $waktuInprogress->setTimezone('UTC')->toW3cString();
+
+                    if (!empty($waktuPermintaan->tgl_hasil) && ($waktuPermintaan->tgl_hasil != '0000-00-00')) {
+                        // dd($waktuPermintaan->tgl_hasil);
+                        $waktuSelesai = Carbon::parse($waktuPermintaan->tgl_hasil . ' ' . $waktuPermintaan->jam_hasil);
+                    } else {
+                        $waktuSelesai = Carbon::parse($waktuAwal)->addMinute(30);
+                        // dd($dataPengunjung->no_rawat, $waktu_mulai, $waktuInprogress, $waktuSelesai);
+                    }
+                    // $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
+                    $formatWaktuSelesai = $waktuSelesai->setTimezone('UTC')->toW3cString();
+
+                    // dd($waktuAwal, $waktuSelesai, $formatWaktuSelesai);
 
                     $dataEncounter = [
                         "resourceType" => "Encounter",
@@ -4232,7 +4564,7 @@ class SatuSehatController extends Controller
                                 "status" => "arrived",
                                 "period" => [
                                     "start" => "$formatWaktuMulai",
-                                    "end" => "$formatWaktuProgress"
+                                    "end" => "$formatWaktuSelesai"
                                 ]
                             ]
                         ],
@@ -4263,7 +4595,7 @@ class SatuSehatController extends Controller
 
                             // dd($response);
                             $test = json_decode($response->getBody());
-                            dd($test, $pengunjung);
+                            dd($test, $test->issue[0]->details->text, $pengunjung, $dataEncounter);
                         }
                         $message = "Error Kirim Encounter No Rawat" . $pengunjung->no_rawat;
 
@@ -4517,7 +4849,7 @@ class SatuSehatController extends Controller
                                     Session::flash('error', $message);
 
                                     // return redirect()->back()->withInput();
-                                    $dataLog = ResponseLabSatuSehat::all();
+                                    $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
 
                                     // dd($dataLog);
 
@@ -5006,7 +5338,7 @@ class SatuSehatController extends Controller
                                                         Session::flash('error', $message);
 
                                                         // return redirect()->back()->withInput();
-                                                        $dataLog = ResponseLabSatuSehat::all();
+                                                        $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
 
                                                         // dd($dataLog);
 
@@ -5476,7 +5808,7 @@ class SatuSehatController extends Controller
                                                         Session::flash('error', $message);
 
                                                         // return redirect()->back()->withInput();
-                                                        $dataLog = ResponseLabSatuSehat::all();
+                                                        $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
 
                                                         // dd($dataLog);
 
@@ -5634,7 +5966,7 @@ class SatuSehatController extends Controller
                                         Session::flash('error', $message);
 
                                         // return redirect()->back()->withInput();
-                                        $dataLog = ResponseLabSatuSehat::all();
+                                        $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
 
                                         // dd($dataLog);
 
@@ -5720,7 +6052,7 @@ class SatuSehatController extends Controller
         // dd(Session::get('tokenSatuSehat'));
     }
 
-    public function patientSehat($id)
+    public static function patientSehat($id)
     {
         // $nik = $id;
 
@@ -5816,7 +6148,7 @@ class SatuSehatController extends Controller
         }
     }
 
-    public function practitioner($id)
+    public static function practitioner($id)
     {
         // $nik = $id;
         if (is_numeric($id)) {
@@ -5906,7 +6238,7 @@ class SatuSehatController extends Controller
         }
     }
 
-    public function getIdPoli($id)
+    public static function getIdPoli($id)
     {
         $data = DB::connection('mysqlkhanza')->table('fhir_poliklinik')
             ->select(
@@ -5919,10 +6251,17 @@ class SatuSehatController extends Controller
         if (!empty($data)) {
             return $data->id_ihs;
         } else {
-            $error = new LogErrorSatuSehat();
-            $error->subject = 'Lokasi';
-            $error->keterangan = $id . ' tidak ditemukan di Satu Sehat';
-            $error->save();
+            $cekdata = LogErrorSatuSehat::where('subject', "Lokasi")
+                ->where('keterangan', 'like', "%$id")
+                ->whereDate('created_at', Carbon::now())
+                ->get();
+
+            if (empty($cekdata)) {
+                $error = new LogErrorSatuSehat();
+                $error->subject = 'Lokasi';
+                $error->keterangan = $id . ' tidak ditemukan di Satu Sehat';
+                $error->save();
+            }
 
             return null;
         }
@@ -5943,14 +6282,38 @@ class SatuSehatController extends Controller
             ->where('diagnosa_pasien.status', 'Ralan')
             ->where('diagnosa_pasien.prioritas', '1')
             ->first();
-        // dd($data);
+        // dd($data->kd_penyakit);
 
         if (!empty($data)) {
+            //cek jika kd pengakit = kontrol /z09.8
+            // dd($data->kd_penyakit);
+            if (stripos($data->kd_penyakit, "Z09") !== false) {
+                $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+                    ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+                    ->select(
+                        'diagnosa_pasien.no_rawat',
+                        'diagnosa_pasien.kd_penyakit',
+                        'diagnosa_pasien.status',
+                        'diagnosa_pasien.prioritas',
+                        'penyakit.nm_penyakit'
+                    )
+                    ->where('diagnosa_pasien.no_rawat', $id)
+                    ->where('diagnosa_pasien.status', 'Ralan')
+                    ->where('diagnosa_pasien.prioritas', '2')
+                    ->first();
+
+                // dd($data, $id);
+            }
+
             $cek = LogErrorSatuSehat::where('subject', 'Diagnosa Primer Pasien')
                 ->where('keterangan', 'like', "%$id%")
                 ->delete();
 
-            return $data;
+            if (!empty($data2))
+                return $data2;
+            else {
+                return $data;
+            }
         } else {
             $cek = LogErrorSatuSehat::where('subject', 'Diagnosa Primer Pasien')
                 ->where('keterangan', 'like', "%$id%")
@@ -5983,12 +6346,53 @@ class SatuSehatController extends Controller
             )
             ->where('diagnosa_pasien.no_rawat', $id)
             ->where('diagnosa_pasien.status', 'Ralan')
-            ->where('diagnosa_pasien.prioritas', '2')
+            ->where('diagnosa_pasien.prioritas', '1')
             ->first();
         // dd($data);
 
         if (!empty($data)) {
-            return $data;
+            if ($data->kd_penyakit != "Z09.8") {
+                // dd('masuk', $data->kd_penyakit);
+                $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+                    ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+                    ->select(
+                        'diagnosa_pasien.no_rawat',
+                        'diagnosa_pasien.kd_penyakit',
+                        'diagnosa_pasien.status',
+                        'diagnosa_pasien.prioritas',
+                        'penyakit.nm_penyakit'
+                    )
+                    ->where('diagnosa_pasien.no_rawat', $id)
+                    ->where('diagnosa_pasien.status', 'Ralan')
+                    ->where('diagnosa_pasien.prioritas', '2')
+                    ->first();
+
+                if (!empty($data2)) {
+                    return $data2;
+                } else {
+                    return null;
+                }
+            } else {
+                $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+                    ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+                    ->select(
+                        'diagnosa_pasien.no_rawat',
+                        'diagnosa_pasien.kd_penyakit',
+                        'diagnosa_pasien.status',
+                        'diagnosa_pasien.prioritas',
+                        'penyakit.nm_penyakit'
+                    )
+                    ->where('diagnosa_pasien.no_rawat', $id)
+                    ->where('diagnosa_pasien.status', 'Ralan')
+                    ->where('diagnosa_pasien.prioritas', '3')
+                    ->first();
+
+                if (!empty($data2)) {
+                    return $data2;
+                } else {
+                    return null;
+                }
+            }
         } else {
             return null;
         }
@@ -5997,10 +6401,11 @@ class SatuSehatController extends Controller
     public function getVital($id)
     {
         $data = DB::connection('mysqlkhanza')->table('pemeriksaan_ralan')
-            // ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
             ->select(
                 'pemeriksaan_ralan.no_rawat',
                 'pemeriksaan_ralan.suhu_tubuh',
+                'pemeriksaan_ralan.tgl_perawatan',
+                'pemeriksaan_ralan.jam_rawat',
                 'pemeriksaan_ralan.tensi',
                 'pemeriksaan_ralan.nadi',
                 'pemeriksaan_ralan.respirasi'
@@ -6088,6 +6493,7 @@ class SatuSehatController extends Controller
                 'resep_dokter.no_resep',
                 'resep_dokter.kode_brng',
                 'databarang.nama_brng',
+                'databarang.expire',
                 'resep_dokter.jml',
                 'resep_dokter.aturan_pakai'
             )
@@ -6278,10 +6684,12 @@ class SatuSehatController extends Controller
         }
     }
 
-    public function getEncounterId($no_rawat)
+    public static function getEncounterId($no_rawat)
     {
         $data = ResponseSatuSehat::where('noRawat', $no_rawat)
             ->first();
+
+        // dd($data);
 
         if (!empty($data)) {
             return $data;
@@ -6412,6 +6820,68 @@ class SatuSehatController extends Controller
             $error->keterangan = 'kode loinc ' . $id . ' tidak memiliki mapping Specimen';
             $error->save();
 
+            return null;
+        }
+    }
+
+    public function getWaktuKeperawatan($id)
+    {
+        $data = DB::connection('mysqlkhanza')->table('penilaian_awal_keperawatan_ralan')
+            ->select(
+                'penilaian_awal_keperawatan_ralan.no_rawat',
+                'penilaian_awal_keperawatan_ralan.tanggal',
+                'penilaian_awal_keperawatan_ralan.nip'
+            )
+            ->where('penilaian_awal_keperawatan_ralan.no_rawat', "$id")
+            ->first();
+
+        if (!empty($data)) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public function getWaktuPemeriksaan($id)
+    {
+        $data = DB::connection('mysqlkhanza')->table('pemeriksaan_ralan')
+            ->select(
+                'pemeriksaan_ralan.no_rawat',
+                'pemeriksaan_ralan.tgl_perawatan',
+                'pemeriksaan_ralan.jam_rawat',
+                'pemeriksaan_ralan.nip'
+            )
+            ->where('pemeriksaan_ralan.no_rawat', "$id")
+            ->first();
+
+        if (!empty($data)) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public function getWaktuLab($id)
+    {
+        $data = DB::connection('mysqlkhanza')->table('permintaan_lab')
+            ->select(
+                'permintaan_lab.no_rawat',
+                'permintaan_lab.tgl_permintaan',
+                'permintaan_lab.jam_permintaan',
+                'permintaan_lab.tgl_sampel',
+                'permintaan_lab.jam_sampel',
+                'permintaan_lab.tgl_hasil',
+                'permintaan_lab.jam_hasil',
+                'permintaan_lab.dokter_perujuk',
+                'permintaan_lab.status'
+            )
+            ->where('permintaan_lab.no_rawat', "$id")
+            ->where('permintaan_lab.status', "ralan")
+            ->first();
+
+        if (!empty($data)) {
+            return $data;
+        } else {
             return null;
         }
     }

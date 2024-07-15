@@ -26,8 +26,6 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            {{-- <div class="card_title">Data Pasien Covid</div> --}}
-                            {{-- <div class="float-right"> --}}
                             <div class="form-group row">
                                 <div class="col-sm-9 mt-2">
                                     <label>Data Pasien Rajal/IGD</label>
@@ -50,7 +48,6 @@
                                     </form>
                                 </div>
                             </div>
-                            {{-- </div> --}}
                         </div>
                         <div class="card-body">
                             <div>
@@ -66,16 +63,29 @@
                                             <th class="align-middle">Nama Poli</th>
                                             {{-- <th class="align-middle">Dokter</th> --}}
                                             {{-- <th class="align-middle">D.U</th> --}}
-                                            <th class="align-middle">Berkas</th>
+                                            <th class="align-middle">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($data as $data)
                                             @if (\App\PelaporanCovid::cekLapor($data->no_rawat) == 0)
                                                 <tr>
+                                                    @php
+                                                        $dataSep = App\Vedika::getSep($data->no_rawat);
+                                                        $getManualSep = App\Vedika::getHapusSep($data->no_rawat);
+                                                        // dd($noSep);
+                                                    @endphp
                                                     {{-- <td>{{ $data->no_rkm_medis }}</td> --}}
-                                                    <td>{{ App\Vedika::getSep($data->no_rawat) != null ? App\Vedika::getSep($data->no_rawat)->no_sep : '' }}
-                                                        @if (App\Vedika::getSep($data->no_rawat) == null && Auth::user()->can('vedika-upload'))
+                                                    <td>{{ $dataSep != null ? $dataSep->no_sep : '' }}
+                                                        @if ($getManualSep != null)
+                                                            <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/hapusSep"
+                                                                class="btn btn-sm" data-toggle="tooltip"
+                                                                data-placement="bottom" title="Hapus SEP">
+                                                                <span class="badge bg-danger"><i
+                                                                        class="fas fa-ban"></i></span>
+                                                            </a>
+                                                        @endif
+                                                        @if ($dataSep == null && Auth::user()->can('vedika-upload'))
                                                             <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/sepmanual"
                                                                 class="btn btn-sm " data-toggle="tooltip"
                                                                 data-placement="bottom" title="Input no SEP"
@@ -105,8 +115,50 @@
                                                     </td> --}}
                                                     <td>
                                                         <div class="col text-center">
-
-                                                            <a class="btn btn-sm {{ App\Vedika::cekBilling($data->no_rawat) > 0 ? '' : 'disabled' }}"
+                                                            @php
+                                                                $statusVerif = App\VedikaVerif::cekVerif($data->no_rawat, 'Rajal');
+                                                                if (!empty($dataSep)) {
+                                                                    $cekKlaim = App\Vedika::cekEklaim($dataSep->no_sep);
+                                                                }
+                                                                $statusPengajuan = App\DataPengajuanKlaim::cekPengajuan($data->no_rawat, 'Rawat Jalan');
+                                                                $cekDiagnosa = App\Vedika::getDiagnosa($data->no_rawat, 'Ralan');
+                                                            @endphp
+                                                            @can('vedika-upload')
+                                                                @if (!empty($statusVerif))
+                                                                    @if ($statusVerif->status == 0)
+                                                                        <span class="badge badge-warning" data-toggle="tooltip"
+                                                                            data-placement="bottom"
+                                                                            title="Periksa Verifikasi"><i
+                                                                                class="fas fa-exclamation-triangle"></i> </span>
+                                                                    @elseif ($statusVerif->status == 1)
+                                                                        <span class="badge badge-success" data-toggle="tooltip"
+                                                                            data-placement="bottom"
+                                                                            title="Verifikasi Selesai"><i
+                                                                                class="fas fa-check-circle"></i></span>
+                                                                    @endif
+                                                                @endif
+                                                                @if (!empty($cekKlaim) && $cekKlaim == true)
+                                                                    <span class="badge bg-lime" data-toggle="tooltip"
+                                                                        data-placement="bottom" title="Berkas ditemukan">Eklaim
+                                                                        <i class="fas fa-check-circle"></i></span>
+                                                                @endif
+                                                                @if (!empty($cekDiagnosa))
+                                                                    <span class="badge bg-purple" data-toggle="tooltip"
+                                                                        data-placement="bottom" title="Berkas ditemukan">Diag
+                                                                        <i class="fas fa-check-circle"></i></span>
+                                                                @endif
+                                                            @endcan
+                                                            @if (!empty($statusPengajuan))
+                                                                <span class="badge badge-success"><i
+                                                                        class="fas fa-paper-plane"></i>
+                                                                    {{ \Carbon\Carbon::parse($statusPengajuan->periodeKlaim->periode)->format('F Y') }}
+                                                                    <span>
+                                                                    @else
+                                                                        <span class="badge badge-danger"><i
+                                                                                class="fas fa-paper-plane"></i>Belum
+                                                                            diajukan</span>
+                                                            @endif
+                                                            {{-- <a class="btn btn-sm {{ App\Vedika::cekBilling($data->no_rawat) > 0 ? '' : 'disabled' }}"
                                                                 data-toggle="tooltip" data-placement="bottom"
                                                                 title="Billing" target="_blank">
                                                                 <span class="badge badge-success">Billing</span>
@@ -124,8 +176,8 @@
                                                             </a>
                                                             <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/obat"
                                                                 class="btn btn-sm {{ App\Vedika::cekObat($data->no_rawat) > 0 ? '' : 'disabled' }}"
-                                                                data-toggle="tooltip" data-placement="bottom" title="Obat"
-                                                                target="_blank">
+                                                                data-toggle="tooltip" data-placement="bottom"
+                                                                title="Obat" target="_blank">
                                                                 <span class="badge bg-orange">Obat</span>
                                                             </a>
                                                             @if ($data->nm_poli == 'IGD')
@@ -153,7 +205,7 @@
                                                                 data-placement="bottom" title="Berkas Lainnya"
                                                                 target="_blank">
                                                                 <span class="badge badge-info">Lain-lain</span>
-                                                            </a>
+                                                            </a> --}}
 
                                                         </div>
                                                     </td>
@@ -232,7 +284,7 @@
                 // autoWidth: true,
                 // responsive: false,
                 // scrollY: '500px',
-                // scrollX: true,
+                 scrollX: true,
                 // fixedHeader: true,
                 initComplete: function() {
                     var api = this.api();

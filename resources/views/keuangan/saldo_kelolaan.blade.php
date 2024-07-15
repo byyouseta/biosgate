@@ -71,8 +71,8 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <button class="btn btn-primary btn-sm @cannot('bios-saldo-create') disabled @endcannot"
-                                data-toggle="modal" data-target="#modal-default">
+                            <button class="btn btn-primary btn-sm "
+                                data-toggle="modal" data-target="#modal-default" @cannot('bios-saldo-create') disabled @endcannot>
                                 <i class="fa fa-plus-circle"></i> Tambah</a>
                             </button>
                         </div>
@@ -112,13 +112,13 @@
                                                 <div class="col text-center">
                                                     <div class="btn-group">
                                                         <a href="/saldo/kelolaan/{{ Crypt::encrypt($data->id) }}/edit"
-                                                            class="btn btn-warning btn-sm @cannot('bios-saldo-edit') disabled @endcannot"
-                                                            data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                                            class="btn btn-warning btn-sm "
+                                                            data-toggle="tooltip" data-placement="bottom" title="Edit" @cannot('bios-saldo-edit') disabled @endcannot>
                                                             <i class="fas fa-pen"></i>
                                                         </a>
                                                         <a href="/saldo/kelolaan/{{ Crypt::encrypt($data->id) }}/delete"
-                                                            class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif @cannot('bios-saldo-delete') disabled @endcannot"
-                                                            data-toggle="tooltip" data-placement="bottom" title="Delete">
+                                                            class="btn btn-danger btn-sm delete-confirm "
+                                                            data-toggle="tooltip" data-placement="bottom" title="Delete" @if ($data->status == 1) disabled @endif @cannot('bios-saldo-delete') disabled @endcannot>
                                                             <i class="fas fa-ban"></i>
                                                         </a>
                                                     </div>

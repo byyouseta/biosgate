@@ -7,6 +7,9 @@ use App\SaldoAwal;
 use App\ScheduleUpdate;
 use App\Setting;
 use Carbon\Carbon;
+use DateInterval;
+use DatePeriod;
+use DateTime;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
@@ -246,6 +249,7 @@ class ClientController extends Controller
     {
         session()->put('ibu', 'Client Layanan Kesehatan Harian');
         session()->forget('anak');
+        set_time_limit(0);
 
         ClientController::token();
 
@@ -253,9 +257,18 @@ class ClientController extends Controller
 
         $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
 
-        // $tanggal = '2023-08-12';
+        // $tanggal = '2024-06-17';
 
-        // dd($tanggal);
+        // $begin = new DateTime('2024-04-05');
+        // $end = new DateTime('2024-04-15');
+
+        // $interval = DateInterval::createFromDateString('1 day');
+        // $period = new DatePeriod($begin, $interval, $end);
+
+        // foreach ($period as $dt) {
+        //     echo $dt;
+        // $tanggal = $dt->format('Y-m-d');
+        //     dd($tanggal);
 
         //data Inap Tanggal sesuai tanggal
         $cekRawatInap = LogResponseBios::where('tanggal', $tanggal)
@@ -266,6 +279,7 @@ class ClientController extends Controller
         } elseif (($cekRawatInap->status_terkirim == false)) {
             ClientController::sendRawatInap($tanggal);
         }
+        // }
 
         //data IGD sesuai tanggal
         $cekIgd = LogResponseBios::where('tanggal', $tanggal)
@@ -367,6 +381,7 @@ class ClientController extends Controller
         } elseif ($cekFarmasi->status_terkirim == false) {
             ClientController::sendFarmasi($tanggal);
         }
+        // }
 
         $dataLog = LogResponseBios::where('tanggal', $tanggal)
             ->where('periode', 'Harian')

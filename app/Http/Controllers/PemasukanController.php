@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Calculation\MathTrig\Sum;
 
 class PemasukanController extends Controller
 {
@@ -184,70 +185,88 @@ class PemasukanController extends Controller
 
         ClientController::token();
         $now = Carbon::now();
-        // $now = new Carbon('2023-07-12');
+        // $now = Carbon::create('2024-06-17');
+        // dd($now, $now->format('Y-m-d') . " 12:00", $now->yesterday());
         $jam = Carbon::now()->format('H:i:s');
 
         $data_pemasukan = Pemasukan::where('status', '=', 'false')
             ->whereDate('tgl_transaksi', '<', $now)
             ->get();
 
-
-        //Jika data pemasukan pada hari kemarin tidak ada maka input otomatis
         $cekPemasukanKemarin = Pemasukan::whereDate('tgl_transaksi', $now->yesterday())
+        // $cekPemasukanKemarin = Pemasukan::whereDate('tgl_transaksi', $now)
             ->get();
-        if ($cekPemasukanKemarin->count() == 0) {
-            $simpan = new Pemasukan();
-            $simpan->tgl_transaksi = $now->yesterday();
-            $simpan->kd_akun = 424111;
-            $simpan->jumlah = 0;
-            $simpan->status = false;
-            $simpan->save();
-        }
+        if ($now < $now->format('Y-m-d') . " 12:00") {
+            // dd('kurang');
+            //Menarik data pemasukan Rajal dan Ranap dari SIMKES
+            if ($cekPemasukanKemarin->count() == 0) {
+                $dataPemasukanKemarin = PemasukanController::getPemasukanSim($now->yesterday());
+                // $dataPemasukanKemarin = PemasukanController::getPemasukanSim($now);
+                $simpan = new Pemasukan();
+                // $simpan->tgl_transaksi = $now->yesterday();
+                $simpan->tgl_transaksi = $now;
+                $simpan->kd_akun = 424111;
+                $simpan->jumlah = $dataPemasukanKemarin;
+                $simpan->status = false;
+                $simpan->save();
+            }
+        } else {
+            // dd('lebih');
+            //Jika data pemasukan pada hari kemarin tidak ada maka input otomatis
+            if ($cekPemasukanKemarin->count() == 0) {
+                $simpan = new Pemasukan();
+                $simpan->tgl_transaksi = $now->yesterday();
+                // $simpan->tgl_transaksi = $now;
+                $simpan->kd_akun = 424111;
+                $simpan->jumlah = 0;
+                $simpan->status = false;
+                $simpan->save();
+            }
 
-        // dd($data_pemasukan);
-        if ($data_pemasukan->count() > 0) {
+
             // dd($data_pemasukan);
-            // $schedule = ScheduleUpdate::all();
-            // foreach ($schedule as $jadwal) {
-            //     if (($jam >= $jadwal->waktu_mulai) and ($jam <= $jadwal->waktu_selesai)) {
-            foreach ($data_pemasukan as $data) {
+            if ($data_pemasukan->count() > 0) {
+                // dd($data_pemasukan);
+                // $schedule = ScheduleUpdate::all();
+                // foreach ($schedule as $jadwal) {
+                //     if (($jam >= $jadwal->waktu_mulai) and ($jam <= $jadwal->waktu_selesai)) {
+                foreach ($data_pemasukan as $data) {
 
-                // $tgl_transaksi = Carbon::parse($data->tgl_transaksi)->format('Y/m/d');
-                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
-                $response = $client->request('POST', 'ws/keuangan/akuntansi/penerimaan', [
-                    'headers' => [
-                        'token' => session('tokenBios'),
-                    ],
-                    'form_params' => [
-                        'kd_akun' => $data->kd_akun,
-                        'jumlah' => $data->jumlah,
-                        'tgl_transaksi' => $data->tgl_transaksi,
-                    ]
-                ]);
+                    // $tgl_transaksi = Carbon::parse($data->tgl_transaksi)->format('Y/m/d');
+                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url_bios')]);
+                    $response = $client->request('POST', 'ws/keuangan/akuntansi/penerimaan', [
+                        'headers' => [
+                            'token' => session('tokenBios'),
+                        ],
+                        'form_params' => [
+                            'kd_akun' => $data->kd_akun,
+                            'jumlah' => $data->jumlah,
+                            'tgl_transaksi' => $data->tgl_transaksi,
+                        ]
+                    ]);
 
-                if ($response->getStatusCode() == 200) {
-                    $datajson = json_decode($response->getBody());
+                    if ($response->getStatusCode() == 200) {
+                        $datajson = json_decode($response->getBody());
 
-                    // dd($datajson);
+                        // dd($datajson);
 
-                    if ($datajson->status != 'MSG20003') {
-                        Session::flash('error', $datajson->message);
+                        if ($datajson->status != 'MSG20003') {
+                            Session::flash('error', $datajson->message);
 
-                        return view('keuangan.client_pemasukan');
+                            return view('keuangan.client_pemasukan');
+                        } else {
+                            Session::flash('sukses', "$datajson->status, $datajson->message");
+
+                            $update = Pemasukan::find($data->id);
+                            $update->status = true;
+                            $update->save();
+                        }
                     } else {
-                        Session::flash('sukses', "$datajson->status, $datajson->message");
-
-                        $update = Pemasukan::find($data->id);
-                        $update->status = true;
-                        $update->save();
+                        Session::flash('error', 'Pengiriman gagal status pengiriman ' . $response->getStatusCode());
+                        goto Selesai;
                     }
-                } else {
-                    Session::flash('error', 'Pengiriman gagal status pengiriman ' . $response->getStatusCode());
-                    goto Selesai;
                 }
             }
-            //     }
-            // }
         }
         Selesai:
         $tgl_mulai = new Carbon('first day of this month');
@@ -263,6 +282,39 @@ class PemasukanController extends Controller
 
 
         return view('keuangan.client_pemasukan', compact('data'));
+    }
+
+    public static function getPemasukanSim($tanggal)
+    {
+        $dataRajal = DB::connection('mysqlkhanza')->table('nota_jalan')
+            ->join('detail_nota_jalan', 'detail_nota_jalan.no_rawat', '=', 'nota_jalan.no_rawat')
+            ->select(
+                'nota_jalan.no_rawat',
+                'nota_jalan.tanggal',
+                'nota_jalan.jam',
+                'nota_jalan.no_nota',
+                'detail_nota_jalan.nama_bayar',
+                'detail_nota_jalan.besar_bayar'
+            )
+            ->where('nota_jalan.tanggal', $tanggal)
+            ->sum('detail_nota_jalan.besar_bayar');
+
+        $dataRanap = DB::connection('mysqlkhanza')->table('nota_inap')
+            ->join('detail_nota_inap', 'detail_nota_inap.no_rawat', '=', 'nota_inap.no_rawat')
+            ->select(
+                'nota_inap.no_rawat',
+                'nota_inap.tanggal',
+                'nota_inap.jam',
+                'nota_inap.no_nota',
+                'detail_nota_inap.nama_bayar',
+                'detail_nota_inap.besar_bayar'
+            )
+            ->where('nota_inap.tanggal', $tanggal)
+            ->sum('detail_nota_inap.besar_bayar');
+
+        // dd($dataRajal, $dataRanap);
+
+        return ($dataRajal + $dataRanap);
     }
 
     //Ambil Rekap

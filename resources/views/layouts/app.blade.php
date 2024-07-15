@@ -13,12 +13,29 @@
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
 
-    <!-- Fonts -->
+    {{-- <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
 
-    <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="{{ asset('template/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="{{ asset('template/plugins/toastr/toastr.min.css') }}"> --}}
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="{{ asset('template/plugins/fontawesome-free/css/all.min.css') }}">
+    <!-- SweetAlert2 -->
+    <link rel="stylesheet" href="{{ asset('template/plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css') }}">
+    <!-- Toastr -->
+    <link rel="stylesheet" href="{{ asset('template/plugins/toastr/toastr.min.css') }}">
+
+    {{-- <!-- Styles -->
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{ asset('template/dist/css/adminlte.min.css') }}">
+
     {!! RecaptchaV3::initJs() !!}
 </head>
 
@@ -83,6 +100,88 @@
             @yield('content')
         </main>
     </div>
+
+    <!-- jQuery -->
+    <script src="{{ asset('template/plugins/jquery/jquery.min.js') }}"></script>
+    <!-- Bootstrap 4 -->
+    <script src="{{ asset('template/plugins/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
+    <!-- SweetAlert2 -->
+    <script src="{{ asset('template/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
+    <!-- Toastr -->
+    <script src="{{ asset('template/plugins/toastr/toastr.min.js') }}"></script>
+    <!-- AdminLTE App -->
+    <script src="{{ asset('template/dist/js/adminlte.min.js') }}"></script>
+
+    {{-- Session Sweet Alert --}}
+    @if (session()->has('sukses'))
+        <script>
+            // swal.fire({
+            //     title: "{{ __('Sukses!') }}",
+            //     text: "{{ Session::get('sukses') }}",
+            //     icon: "success",
+            // });
+            // Pakai Toast
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            toastr.success("{{ Session::get('sukses') }}");
+        </script>
+    @endif
+
+    @if (session()->has('sukses2'))
+        <script>
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000,
+                timerProgressBar: false,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+            })
+
+            Toast.fire({
+                icon: 'success',
+                title: "{{ Session::get('sukses2') }}"
+            })
+        </script>
+    @endif
+
+    @if (session()->has('error'))
+        <script>
+            // swal.fire({
+            //     title: "{{ __('Error!') }}",
+            //     text: "{{ Session::get('error') }}",
+            //     type: "error",
+            //     icon: "warning",
+            // });
+            toastr.error("{{ Session::get('error') }}");
+        </script>
+    @endif
+
+    @if ($errors->any())
+        <script>
+            // swal.fire({
+            //     title: "{{ __('Error dalam pengisian form!') }}",
+            //     text: "{{ implode(' ', $errors->all()) }}",
+            //     type: "error",
+            //     icon: "warning",
+            // });
+            // Pakai toastr
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000
+            });
+            toastr.error("Kesalahan dalam pengisian data. {{ implode(' ', $errors->all()) }}");
+        </script>
+    @endif
 </body>
 
 </html>

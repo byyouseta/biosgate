@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\KepuasanExport;
 use App\Kepuasan;
 use App\Pengaduan;
 use Carbon\Carbon;
@@ -9,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Lunaweb\RecaptchaV3\Facades\RecaptchaV3;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SurveiController extends Controller
 {
@@ -214,13 +216,14 @@ class SurveiController extends Controller
             'pertanyaan1' => 'required',
             'pertanyaan2' => 'required',
             'pertanyaan3' => 'required',
-            'pertanyaan4' => 'required_if:penjamin,1',
+            'pertanyaan4' => 'required_if:penjamin,3',
             'pertanyaan5' => 'required',
             'pertanyaan6' => 'required',
             'pertanyaan7' => 'required',
             'pertanyaan8' => 'required',
             'pertanyaan9' => 'required',
             'pertanyaan10' => 'required',
+            'pertanyaan11' => 'required',
             'saran' => 'required',
             'g-recaptcha-response' => 'required|recaptchav3:kepuasan,0.5'
         ]);
@@ -244,6 +247,7 @@ class SurveiController extends Controller
         $simpan->pertanyaan8 = $request->pertanyaan8;
         $simpan->pertanyaan9 = $request->pertanyaan9;
         $simpan->pertanyaan10 = $request->pertanyaan10;
+        $simpan->pertanyaan11 = $request->pertanyaan11;
         $simpan->saran = $request->saran;
         $simpan->save();
 

@@ -11,7 +11,7 @@
 |
 */
 
-use App\Http\Controllers\SepController;
+
 
 Route::get('/', function () {
     // return view('home');
@@ -28,6 +28,9 @@ Route::post('/survei/pengaduan/periksa', 'SurveiController@periksaTiket')->name(
 Route::get('/survei/kepuasan', 'SurveiController@kepuasan')->name('survei.kepuasan');
 Route::post('/survei/kepuasan/store', 'SurveiController@simpan')->name('survei.simpan');
 
+//viewerRadiologi
+Route::get('/viewer/{id}', 'RedirectController@viewerRadiologi')->name('viewerRadiologi');
+
 Auth::routes([
     'register' => false, // Registration Routes...
     'reset' => false, // Password Reset Routes...
@@ -35,10 +38,12 @@ Auth::routes([
 ]);
 // Survei data
 Route::get('/survei/datapengaduan', 'DataSurveiController@pengaduan')->name('datasurvei.pengaduan');
+Route::get('/survei/datapengaduan/exportExcel', 'DataSurveiController@exportPengaduan')->name('datasurvei.pengaduan_export');
 Route::get('/survei/datapengaduan/{id}/delete', 'DataSurveiController@deletePengaduan')->name('datasurvei.deletePengaduan');
 Route::get('/survei/datapengaduan/{id}/detail', 'DataSurveiController@detailPengaduan')->name('datasurvei.detailPengaduan');
 Route::post('/survei/datapengaduan/{id}/status', 'DataSurveiController@statusPengaduan')->name('datasurvei.statusPengaduan');
 Route::get('/survei/datakepuasan', 'DataSurveiController@kepuasan')->name('datasurvei.kepuasan');
+Route::get('/survei/datakepuasan/{id}/exportExcel', 'DataSurveiController@exportKepuasan')->name('datasurvei.kepuasan_export');
 Route::get('/survei/datakepuasan/{id}/detail', 'DataSurveiController@detailKepuasan')->name('datasurvei.detailKepuasan');
 
 //BIOS V.2
@@ -160,6 +165,7 @@ Route::post('/getSubinstalasi', 'KankerController@getSubinstalasi')->name('getSu
 Route::get('/geticd10', 'KankerController@geticd10')->name('geticd10');
 Route::get('/testicd', 'KankerController@test')->name('kanker.test');
 
+//Kanker
 Route::get('/kanker/ranap', 'KankerController@pasien')->name('kanker.pasien');
 Route::get('/kanker/rajal', 'KankerController@rajal')->name('kanker.rajal');
 Route::get('/kanker/addranap/{id}', 'KankerController@addranap')->name('kanker.addranap');
@@ -171,36 +177,80 @@ Route::get('/kanker/{id}/delete', 'KankerController@delete')->name('kanker.delet
 Route::get('/kanker/terlapor', 'KankerController@terlapor')->name('kanker.terlapor');
 Route::get('/kanker/referensi', 'KankerController@referensi')->name('kanker.referensi');
 
+//Berkas RM
+Route::get('/berkasrm/rajal', 'BerkasRmController@rajal')->name('berkasrm.rajal');
+Route::get('/berkasrm/ranap', 'BerkasRmController@ranap')->name('berkasrm.ranap');
+Route::get('/berkasrm/berkas/{id}/kewajiban', 'BerkasRmController@kewajiban')->name('berkasrm.berkaskewajiban');
+Route::post('/berkasrm/hakkewajiban/store', 'BerkasRmController@hakkewajibanStore')->name('berkasrm.hakkewajibanStore');
+Route::post('/berkasrm/hakkewajiban/edit', 'BerkasRmController@hakkewajibanEdit')->name('berkasrm.hakkewajibanEdit');
+Route::get('/berkasrm/hakkewajiban/{id}/delete', 'BerkasRmController@delete')->name('berkasrm.hakKewajibanDelete');
+Route::get('/berkasrm/hakkewajiban/{id}/print', 'BerkasRmController@hakKewajibanPdf')->name('berkasrm.hakKewajibanPdf');
+
+Route::get('/berkasrm/berkas/{id}/generalconsent', 'BerkasRmController@generalConsent')->name('berkasrm.generalConsent');
+Route::post('/berkasrm/generalconsent/store', 'BerkasRmController@generalStore')->name('berkasrm.generalStore');
+Route::post('/berkasrm/generalconsent/edit', 'BerkasRmController@generalEdit')->name('berkasrm.generalEdit');
+Route::get('/berkasrm/generalconsent/{id}/delete', 'BerkasRmController@generalDelete')->name('berkasrm.generalDelete');
+Route::get('/berkasrm/generalconsent/{id}/print', 'BerkasRmController@generalPdf')->name('berkasrm.generalPdf');
 //VEDIKA
 Route::get('/vedika/rajal', 'VedikaController@rajal')->name('vedika.rajal');
 Route::get('/vedika/rajal/{id}/detail', 'VedikaController@detailRajal')->name('vedika.detailRajal');
 Route::get('/vedika/rajal/{id}/detailpdf', 'VedikaController@detailRajalPdf')->name('vedika.detailRajalPdf');
 Route::get('/vedika/rajal/{id}/cronispdf', 'VedikaController@cronisRajalPdf')->name('vedika.cronisRajalPdf');
-Route::get('/vedika/rajal/{id}/billing', 'VedikaController@billingRajal')->name('vedika.billingRajal');
-Route::get('/vedika/rajal/{id}/lab', 'VedikaController@labRajal')->name('vedika.labRajal');
-Route::get('/vedika/rajal/{id}/radiologi', 'VedikaController@radioRajal')->name('vedika.radioRajal');
-Route::get('/vedika/rajal/{id}/obat', 'VedikaController@obatRajal')->name('vedika.obatRajal');
-Route::get('/vedika/rajal/{id}/triase', 'VedikaController@triase')->name('vedika.triase');
-Route::get('/vedika/rajal/{id}/ringkasanIgd', 'VedikaController@ringkasanIgd')->name('vedika.ringkasanIgd');
-Route::get('/vedika/rajal/{id}/buktiPelayanan', 'VedikaController@buktiPelayanan')->name('vedika.buktiPelayanan');
+// Route::get('/vedika/rajal/{id}/billing', 'VedikaController@billingRajal')->name('vedika.billingRajal');
+// Route::get('/vedika/rajal/{id}/lab', 'VedikaController@labRajal')->name('vedika.labRajal');
+// Route::get('/vedika/rajal/{id}/radiologi', 'VedikaController@radioRajal')->name('vedika.radioRajal');
+// Route::get('/vedika/rajal/{id}/obat', 'VedikaController@obatRajal')->name('vedika.obatRajal');
+// Route::get('/vedika/rajal/{id}/triase', 'VedikaController@triase')->name('vedika.triase');
+// Route::get('/vedika/rajal/{id}/ringkasanIgd', 'VedikaController@ringkasanIgd')->name('vedika.ringkasanIgd');
+// Route::get('/vedika/rajal/{id}/buktiPelayanan', 'VedikaController@buktiPelayanan')->name('vedika.buktiPelayanan');
 Route::get('/vedika/rajal/{id}/berkas', 'VedikaController@berkas')->name('vedika.berkas');
 
 Route::get('/vedika/rajal/{id}/sepmanual', 'VedikaController@sepManual')->name('vedika.sepManual');
+Route::get('/vedika/rajal/{id}/hapusSep', 'VedikaController@hapusSepManual')->name('vedika.hapusSepManual');
 Route::post('/vedika/rajal/simpansep', 'VedikaController@simpanSep')->name('vedika.simpanSep');
 
 Route::get('/vedika/ranap', 'VedikaController@ranap')->name('vedika.ranap');
+Route::get('/vedika/ranap/{id}/detail', 'VedikaController@detailRanap')->name('vedika.detailRanap');
 Route::get('/vedika/ranap/{id}/billing', 'VedikaController@billingRanap')->name('vedika.billingRanap');
 Route::get('/vedika/ranap/{id}/lab', 'VedikaController@labRanap')->name('vedika.labRanap');
 Route::get('/vedika/ranap/{id}/radiologi', 'VedikaController@radioRanap')->name('vedika.radioRanap');
 Route::get('/vedika/ranap/{id}/obat', 'VedikaController@obatRanap')->name('vedika.obatRanap');
 Route::get('/vedika/ranap/{id}/berkas', 'VedikaController@berkasRanap')->name('vedika.berkasRanap');
 
+Route::get('/vedika/obatkronis', 'VedikaController@pasienkronis')->name('vedika.pasienkronis');
+Route::get('/vedika/obatkronis/{id}/detail', 'VedikaController@detailCronis')->name('vedika.detailCronis');
+
+Route::post('/vedika/verifikasi', 'VedikaController@simpanVerif')->name('vedika.simpanVerif');
+Route::post('/vedika/verifikasi/{id}', 'VedikaController@updateVerif')->name('vedika.updateVerif');
 Route::post('/vedika/berkas/store', 'VedikaController@berkasUpload')->name('vedika.berkasUpload');
 // Route::post('/vedika/berkas/store', 'VedikaController@berkasStore')->name('vedika.berkasStore');
 Route::get('/vedika/berkas/{id}/delete', 'VedikaController@berkasDelete')->name('vedika.berkasDelete');
 Route::get('/vedika/berkas/{id}/view', 'VedikaController@berkasShow')->name('vedika.berkasShow');
 
-Route::get('/sep', 'SepController@index')->name('sep.index');
+Route::post('/vedika/pengajuan', 'KlaimController@pengajuan')->name('vedika.pengajuan');
+Route::post('/vedika/pengajuankronis', 'KlaimController@pengajuanKronis')->name('vedika.pengajuanKronis');
+Route::post('/vedika/pengajuan/{id}/update', 'KlaimController@updatePengajuan')->name('vedika.updatePengajuan');
+Route::post('/vedika/pengajuankronis/{id}/update', 'KlaimController@updatePengajuanKronis')->name('vedika.updatePengajuanKronis');
+Route::get('/vedika/pengajuan/{id}/delete', 'KlaimController@deletePengajuan')->name('vedika.deletePengajuan');
+Route::get('/vedika/pengajuankronis/{id}/delete', 'KlaimController@deletePengajuanKronis')->name('vedika.deletePengajuanKronis');
+Route::get('/vedika/pengajuan/rajal', 'KlaimController@daftarRajal')->name('vedika.daftarRajal');
+Route::get('/vedika/pengajuan/kronis', 'KlaimController@daftarRajalKronis')->name('vedika.daftarRajalKronis');
+Route::get('/vedika/pengajuan/ranap', 'KlaimController@daftarRanap')->name('vedika.daftarRanap');
+Route::get('/vedika/fraud/rajal', 'FraudController@rajal')->name('vedika.fraudRajal');
+Route::get('/vedika/fraud/{id}/{idd}/store', 'FraudController@store')->name('vedika.fraudStore');
+Route::get('/vedika/fraud/{id}/delete', 'FraudController@delete')->name('vedika.fraudDelete');
+Route::get('/vedika/fraud/{id}/detail', 'FraudController@detailRajal')->name('vedika.fraudDetailRajal');
+Route::post('/vedika/fraud/{id}/store', 'FraudController@storeRajal')->name('vedika.fraudStoreRajal');
+Route::get('/vedika/fraud/{id}/export', 'FraudController@exportRajal')->name('vedika.exportRajal');
+Route::get('/vedika/klaimcompare', 'KlaimCompareController@index')->name('vedika.klaimcompare');
+Route::post('/vedika/klaimcompare/import', 'KlaimCompareController@import_excel')->name('vedika.klaimcompare.import');
+Route::get('/vedika/klaimcompare/template', 'KlaimCompareController@template')->name('vedika.klaimcompare.template');
+
+Route::get('/vedika/eklaim/{id}/printout', 'EklaimController@getStatus')->name('eklaim.status');
+
+Route::get('/sep', 'SepController@getSep')->name('sep.getSep');
+Route::get('/sep2', 'SepController@getJmlSep')->name('sep.getJmlSep');
+Route::get('/coba', 'SepController@coba')->name('sep.coba');
 
 //IBS OPERASI
 Route::get('/operasi/booking', 'OperasiController@index')->name('operasi.index');
@@ -225,6 +275,15 @@ Route::get('/satusehat/composition', 'SatuSehatController@sendComposition')->nam
 Route::get('/satusehat/medication', 'SatuSehatController@sendMedication')->name('satuSehat.medication');
 Route::get('/satusehat/lab', 'SatuSehatController@sendLab')->name('satuSehat.sendLab');
 Route::get('/satusehat/labbundle', 'SatuSehatController@bundleLab')->name('satuSehat.bundleLab');
+Route::get('/satusehat/radiologi', 'RadiologiController@index')->name('satuSehat.radiologi');
+
+Route::get('/satusehat/igd', 'IgdSehatController@index')->name('satuSehatIgd.index');
+Route::get('/satusehat/igd/encounter', 'IgdSehatController@sendEncounter')->name('satuSehatIgd.sendEncounter');
+Route::get('/satusehat/igd/encounterupdate', 'IgdSehatController@closeEncounter')->name('satuSehatIgd.closeEncounter');
+
+Route::get('/satusehat/ranap', 'RanapSehatController@index')->name('satuSehatRanap.index');
+Route::get('/satusehat/ranap/encounter', 'RanapSehatController@sendEncounter')->name('satuSehatRanap.sendEncounter');
+Route::get('/satusehat/ranap/encounterupdate', 'RanapSehatController@closeEncounter')->name('satuSehatRanap.closeEncounter');
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
@@ -264,6 +323,12 @@ Route::get('/master/vedika/edit/{id}', 'VedikaController@edit')->name('vedika.ed
 Route::post('/master/vedika/update/{id}', 'VedikaController@update')->name('vedika.update');
 Route::get('/master/vedika/delete/{id}', 'VedikaController@delete')->name('vedika.delete');
 
+Route::get('/master/vedika/klaim', 'KlaimController@index')->name('vedika.klaim');
+Route::post('/master/vedika/klaim', 'KlaimController@store')->name('vedika.klaimstore');
+Route::get('/master/vedika/klaim/{id}/delete', 'KlaimController@delete')->name('vedika.klaimdelete');
+Route::get('/master/vedika/klaim/{id}/edit', 'KlaimController@edit')->name('vedika.klaimedit');
+Route::post('/master/vedika/klaim/{id}/update', 'KlaimController@update')->name('vedika.klaimupdate');
+
 Route::get('/permission', 'PermissionController@index')->name('permission.index');
 Route::post('/permission/store', 'PermissionController@store')->name('permission.store');
 Route::get('/permission/edit/{id}', 'PermissionController@edit')->name('permission.edit');
@@ -275,3 +340,14 @@ Route::resource('roles', 'RoleController');
 Route::get('/profil', 'UserController@profile')->name('user.profile');
 Route::post('/profil/update', 'UserController@profileupdate')->name('user.profileupdate');
 Route::post('/profil/password', 'UserController@password')->name('user.password');
+
+Route::get('/clear-cache', function () {
+    $exitCode = Artisan::call('optimize:clear');
+    return redirect('/login');
+});
+
+//Clear Config cache:
+Route::get('/config-cache', function () {
+    $exitCode = Artisan::call('config:cache');
+    return '<h1>Clear Config cleared</h1>';
+});

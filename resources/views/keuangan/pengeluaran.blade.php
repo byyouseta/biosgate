@@ -72,8 +72,8 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <button class="btn btn-primary btn-sm @cannot('bios-pengeluaran-create') disabled @endcannot"
-                                data-toggle="modal" data-target="#modal-default">
+                            <button class="btn btn-primary btn-sm "
+                                data-toggle="modal" data-target="#modal-default" @cannot('bios-pengeluaran-create') disabled @endcannot>
                                 <i class="fa fa-plus-circle"></i> Tambah</a>
                             </button>
 
@@ -82,8 +82,8 @@
                                         class="fas fa-file-download"></i> Download
                                     Template </a>
                                 <button
-                                    class="btn btn-success btn-sm float-right @cannot('bios-pemasukan-create') disabled @endcannot"
-                                    data-toggle="modal" data-target="#modal-import">
+                                    class="btn btn-success btn-sm float-right "
+                                    data-toggle="modal" data-target="#modal-import" @cannot('bios-pemasukan-create') disabled @endcannot>
                                     <i class="fas fa-file-upload"></i> Import</a>
                                 </button>
                             </div>
@@ -117,13 +117,13 @@
                                                 <div class="col text-center">
                                                     <div class="btn-group">
                                                         <a href="/pengeluaran/edit/{{ Crypt::encrypt($data->id) }}"
-                                                            class="btn btn-warning btn-sm @cannot('bios-pengeluaran-edit') disabled @endcannot"
-                                                            data-toggle="tooltip" data-placement="bottom" title="Edit">
+                                                            class="btn btn-warning btn-sm "
+                                                            data-toggle="tooltip" data-placement="bottom" title="Edit" @cannot('bios-pengeluaran-edit') disabled @endcannot>
                                                             <i class="fas fa-pen"></i>
                                                         </a>
                                                         <a href="/pengeluaran/delete/{{ Crypt::encrypt($data->id) }}"
-                                                            class="btn btn-danger btn-sm delete-confirm @if ($data->status == 1) disabled @endif @cannot('bios-pengeluaran-delete') disabled @endcannot"
-                                                            data-toggle="tooltip" data-placement="bottom" title="Delete">
+                                                            class="btn btn-danger btn-sm delete-confirm "
+                                                            data-toggle="tooltip" data-placement="bottom" title="Delete" @if ($data->status == 1) disabled @endif @cannot('bios-pengeluaran-delete') disabled @endcannot>
                                                             <i class="fas fa-ban"></i>
                                                         </a>
                                                     </div>

@@ -37,6 +37,8 @@
                                     Lab</a>
                                 <a href="/satusehat/labbundle" class="btn btn-sm btn-primary" target="_blank">Api
                                     Lab (MCU/CL)</a>
+                                <a href="/satusehat/radiologi" class="btn btn-sm btn-primary" target="_blank">Api
+                                    Radiologi</a>
                                 <div class="float-right">
                                     <form action="/satusehat" method="GET">
                                         <div class="input-group input-group" id="tanggal" data-target-input="nearest">

@@ -477,20 +477,52 @@
                                     </div>
                                 </div>
                                 <div class="col-md-12 mt-3">
+                                    <label>10. Bagaimana pendapat Bapak/Ibu tentang pelayanan perparkiran?
+                                    </label>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" value="1"
+                                            name="pertanyaan10" id="9tidak_mudah"
+                                            {{ $data->pertanyaan10 == '1' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="9tidak_mudah">Buruk</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" value="2"
+                                            name="pertanyaan10" id="9kurang_mudah"
+                                            {{ $data->pertanyaan10 == '2' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="9kurang_mudah">Cukup</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" value="3"
+                                            name="pertanyaan10" id="9mudah"
+                                            {{ $data->pertanyaan10 == '3' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="9mudah">Baik</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" value="4"
+                                            name="pertanyaan10" id="9sangat_mudah"
+                                            {{ $data->pertanyaan10 == '4' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="9sangat_mudah">Sangat baik</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mt-3">
                                     <label>Apakah Bapak/Ibu bersedia merekomendasikan RSUP Surakarta kepada teman dan
                                         kerabat?</label>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" value="1"
-                                            name="pertanyaan10" id="ya"
-                                            {{ $data->pertanyaan10 == '1' ? 'checked' : '' }}>
+                                            name="pertanyaan11" id="ya"
+                                            {{ $data->pertanyaan11 == '1' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="ya">Ya</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" value="0"
-                                            name="pertanyaan10" id="tidak"
-                                            {{ $data->pertanyaan10 == '2' ? 'checked' : '' }}>
+                                            name="pertanyaan11" id="tidak"
+                                            {{ $data->pertanyaan11 == '2' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="tidak">Tidak</label>
                                     </div>
                                 </div>

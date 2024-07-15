@@ -184,14 +184,29 @@ class Vedika extends Model
         return $data;
     }
 
+    public static function getPegawai($id)
+    {
+        $cari = DB::connection('mysqlkhanza')->table('pegawai')
+            ->select(
+                'pegawai.nik',
+                'pegawai.nama'
+            )
+            ->where('pegawai.nik', '=', $id)
+            ->first();
+
+        return $cari;
+    }
+
     public static function getSep($norawat)
     {
         $cari = DB::connection('mysqlkhanza')->table('bridging_sep')
             ->select(
                 'bridging_sep.no_sep',
-                'bridging_sep.no_rawat'
+                'bridging_sep.no_rawat',
+                'bridging_sep.tglpulang'
             )
             ->where('bridging_sep.no_rawat', '=', $norawat)
+            ->orderBy('bridging_sep.tglpulang', 'DESC')
             ->first();
 
         if (empty($cari)) {
@@ -200,6 +215,18 @@ class Vedika extends Model
         }
 
         return $cari;
+    }
+
+    public static function getHapusSep($norawat)
+    {
+        $cari = sepManual::where('noRawat', $norawat)
+            ->first();
+
+        if (!empty($cari)) {
+            return $cari;
+        } else {
+            return null;
+        }
     }
 
     public static function getTtd($norawat)
@@ -226,7 +253,74 @@ class Vedika extends Model
             ->where('diagnosa_pasien.status', '=', $status)
             ->first();
 
+        // dd($cari);
+
         return $cari;
+    }
+
+    public static function getDiagnosaAll($norawat, $status)
+    {
+        $cari = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            ->select(
+                'diagnosa_pasien.kd_penyakit',
+                'diagnosa_pasien.status',
+                'diagnosa_pasien.no_rawat',
+                'penyakit.nm_penyakit'
+            )
+            ->where('diagnosa_pasien.no_rawat', '=', $norawat)
+            ->where('diagnosa_pasien.status', '=', $status)
+            ->get();
+
+
+        if ($cari) {
+            $data = [];
+            foreach ($cari as $list) {
+                array_push($data, $list->kd_penyakit);
+            }
+            // dd($data);
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public static function getWaktuKeluar($norawat)
+    {
+        $cari = DB::connection('mysqlkhanza')->table('kamar_inap')
+            ->select(
+                'kamar_inap.no_rawat',
+                'kamar_inap.tgl_keluar',
+                'kamar_inap.jam_keluar',
+                DB::raw("CONCAT(kamar_inap.tgl_keluar,' ',kamar_inap.jam_keluar) AS waktuKeluar")
+            )
+            ->where('kamar_inap.no_rawat', '=', $norawat)
+            ->orderBy('waktuKeluar', 'DESC')
+            ->first();
+
+        if ($cari) {
+            return $cari->waktuKeluar;
+        } else {
+            return null;
+        }
+    }
+
+    public static function getDpjp($norawat)
+    {
+        $cari = DB::connection('mysqlkhanza')->table('dpjp_ranap')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'dpjp_ranap.kd_dokter')
+            ->select(
+                'dpjp_ranap.no_rawat',
+                'dokter.nm_dokter'
+            )
+            ->where('dpjp_ranap.no_rawat', '=', $norawat)
+            ->first();
+
+        if ($cari) {
+            return $cari->nm_dokter;
+        } else {
+            return null;
+        }
     }
 
     public static function aturanObatJadi($norawat, $kdObat)
@@ -248,7 +342,7 @@ class Vedika extends Model
         }
     }
 
-    public static function getRacikan($norawat, $noracik)
+    public static function getRacikan($norawat, $jam)
     {
         $cek = DB::connection('mysqlkhanza')->table('detail_obat_racikan')
             ->join('databarang', 'databarang.kode_brng', '=', 'detail_obat_racikan.kode_brng')
@@ -256,10 +350,11 @@ class Vedika extends Model
                 'detail_obat_racikan.no_rawat',
                 'detail_obat_racikan.no_racik',
                 'detail_obat_racikan.kode_brng',
+                'detail_obat_racikan.jam',
                 'databarang.nama_brng'
             )
             ->where('detail_obat_racikan.no_rawat', $norawat)
-            ->where('detail_obat_racikan.no_racik', $noracik)
+            ->where('detail_obat_racikan.jam', $jam)
             ->orderBy('detail_obat_racikan.kode_brng', 'DESC')
             ->get();
 
@@ -268,16 +363,18 @@ class Vedika extends Model
         return $cek;
     }
 
-    public static function getJmlRacikan($norawat, $kdObat)
+    public static function getJmlRacikan($norawat, $kdObat, $jam)
     {
         $cek = DB::connection('mysqlkhanza')->table('detail_pemberian_obat')
             ->select(
                 'detail_pemberian_obat.no_rawat',
                 'detail_pemberian_obat.kode_brng',
+                'detail_pemberian_obat.jam',
                 'detail_pemberian_obat.jml'
             )
             ->where('detail_pemberian_obat.no_rawat', $norawat)
             ->where('detail_pemberian_obat.kode_brng', $kdObat)
+            ->where('detail_pemberian_obat.jam', $jam)
             ->first();
 
         if (empty($cek)) {
@@ -291,5 +388,55 @@ class Vedika extends Model
         }
 
         return $cek;
+    }
+
+    public static function cekEklaim($noSep)
+    {
+        $cek = DB::connection('mysqlkhanza')->table('inacbg_klaim_baru2')
+            ->select(
+                'inacbg_klaim_baru2.no_rawat',
+                'inacbg_klaim_baru2.no_sep'
+            )
+            ->where('inacbg_klaim_baru2.no_sep', $noSep)
+            ->first();
+
+        // dd($cek);
+
+        if (empty($cek)) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static function getRadioDokter($norawat, $jam)
+    {
+        $dokterRad =  DB::connection('mysqlkhanza')->table('kamar_inap')
+            ->join('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
+            ->join('periksa_radiologi', 'periksa_radiologi.no_rawat', '=', 'kamar_inap.no_rawat')
+            ->leftJoin('dokter', 'dokter.kd_dokter', '=', 'periksa_radiologi.kd_dokter')
+            ->leftJoin('bangsal', 'bangsal.kd_bangsal', '=', 'kamar.kd_bangsal')
+            ->select(
+                'kamar_inap.no_rawat',
+                'kamar_inap.kd_kamar',
+                'bangsal.nm_bangsal',
+                'periksa_radiologi.tgl_periksa',
+                'periksa_radiologi.jam',
+                'periksa_radiologi.status',
+                'periksa_radiologi.kd_dokter',
+                'dokter.nm_dokter'
+            )
+            ->where('kamar_inap.no_rawat', '=', $norawat)
+            // ->where('periksa_radiologi.jam', '=', $jam)
+            ->where('periksa_radiologi.status', '=', 'Ranap')
+            ->first();
+
+        // dd($dokterRad);
+
+        if (empty($dokterRad)) {
+            return null;
+        } else {
+            return $dokterRad;
+        }
     }
 }

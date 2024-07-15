@@ -69,7 +69,7 @@ return [
             'host' => '10.10.28.10',
             'port' => 2882,
             'username' => 'dataserver',
-            'password' => '@j4j4rSur4k4rt4#',
+            'password' => '#S4turnus&Jup1t3rMX*',
             // 'privateKey' => 'path/to/or/contents/of/privatekey',
             'root' => '/var/www/html/webappz/berkasrawat',
             'visibility' => 'public',

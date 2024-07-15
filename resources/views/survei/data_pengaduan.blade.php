@@ -26,11 +26,17 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card_title">{{ Session::get('anak') }}
+                                <div class="float-right">
+                                    <a href="/survei/datapengaduan/exportExcel" class="btn btn-success btn-sm"
+                                        target="_blank">EXPORT
+                                        EXCEL</a>
+                                </div>
                             </div>
                         </div>
                         <div class="card-body">
                             {{-- <div style="overflow-x:auto;"> --}}
-                            <table class="table table-bordered table-hover table-sm display nowrap" id="example2">
+                            <table class="table table-bordered table-hover table-sm display nowrap" id="example"
+                                style="width:100%">
                                 <thead>
                                     <tr>
                                         <th class="align-middle">Nama</th>
@@ -112,32 +118,34 @@
     <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
     <script>
         $(function() {
-            $('#example2').DataTable({
+            // $('#example2').DataTable({
+            //     "paging": true,
+            //     "lengthChange": false,
+            //     "searching": true,
+            //     "ordering": true,
+            //     "order": [
+            //         [5, 'desc']
+            //     ],
+            //     "info": true,
+            //     "autoWidth": false,
+            //     "responsive": false,
+            //     "scrollY": false,
+            //     "scrollX": true,
+            //     "buttons": ["copy", "excel", "pdf", "colvis"]
+            // }).buttons().container().appendTo('#example2_wrapper .col-md-6:eq(0)');
+            $('#example').DataTable({
                 "paging": true,
                 "lengthChange": true,
                 "searching": true,
                 "ordering": true,
                 "order": [
-                    [5, 'desc']
-                ],
-                "info": true,
-                "autoWidth": false,
-                "responsive": false,
-                "scrollY": false,
-                "scrollX": true,
-            });
-            $('#example').DataTable({
-                "paging": false,
-                "lengthChange": false,
-                "searching": false,
-                "ordering": false,
-                "order": [
                     [6, 'desc']
                 ],
                 "info": false,
-                "autoWidth": false,
+                "autoWidth": true,
+                "fixedHeader": true,
                 "responsive": false,
-                "scrollY": "300px",
+                // "scrollY": "300px",
                 "scrollX": false,
             });
         });

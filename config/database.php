@@ -90,6 +90,15 @@ return [
             'password'  => env('DB_PASSWORD_SIMADAM'),
         ],
 
+        'mysqlpayroll' => [
+            'driver'    => env('DB_CONNECTION_PAYROLL'),
+            'host'      => env('DB_HOST_PAYROLL'),
+            'port'      => env('DB_PORT_PAYROLL'),
+            'database'  => env('DB_DATABASE_PAYROLL'),
+            'username'  => env('DB_USERNAME_PAYROLL'),
+            'password'  => env('DB_PASSWORD_PAYROLL'),
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),

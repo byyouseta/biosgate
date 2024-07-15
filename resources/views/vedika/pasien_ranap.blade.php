@@ -15,10 +15,12 @@
         <div class="container-fluid">
             <div class="row">
                 @php
-                    if (!empty(Request::get('tanggal'))) {
-                        $tanggal = Request::get('tanggal');
+                    if (!empty(Request::get('tanggalMulai')) && !empty(Request::get('tanggalSelesai'))) {
+                        $tanggalMulai = Request::get('tanggalMulai');
+                        $tanggalSelesai = Request::get('tanggalSelesai');
                     } else {
-                        $tanggal = \Carbon\Carbon::now()->format('Y-m-d');
+                        $tanggalMulai = \Carbon\Carbon::now()->format('Y-m-d');
+                        $tanggalSelesai = \Carbon\Carbon::now()->format('Y-m-d');
                     }
                 @endphp
                 <div class="col-12">
@@ -32,10 +34,14 @@
                                 </div>
                                 <div class="col-sm-3">
                                     <form action="/vedika/ranap" method="GET">
-                                        <div class="input-group input-group" id="tanggal" data-target-input="nearest">
+                                        <div class="input-group input-group" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
-                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
-                                                autocomplete="off" value="{{ $tanggal }}">
+                                                id="tanggalMulai" data-target="#tanggalMulai" data-toggle="datetimepicker"
+                                                name="tanggalMulai" autocomplete="off" value="{{ $tanggalMulai }}">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                id='tanggalSelesai' data-target="#tanggalSelesai"
+                                                data-toggle="datetimepicker" name="tanggalSelesai" autocomplete="off"
+                                                value="{{ $tanggalSelesai }}">
                                             <span class="input-group-append">
                                                 <button type="submit" class="btn btn-info btn-flat btn-sm"><i
                                                         class="fas fa-search"></i> Tampilkan</button>
@@ -48,37 +54,66 @@
                         </div>
                         <div class="card-body">
                             <div>
-                                <table class="table table-bordered table-hover" id="example2">
+                                <table class="table table-bordered table-hover table-sm" id="example2">
                                     <thead>
                                         <tr>
-                                            <th class="align-middle">No.RM</th>
+                                            <th class="align-middle">No.Rawat / No.RM</th>
                                             <th class="align-middle">No.SEP</th>
+                                            <th class="align-middle">No.Kartu</th>
                                             <th class="align-middle">Nama Pasien</th>
                                             <th class="align-middle">Alamat</th>
                                             <th class="align-middle">Tgl Registrasi</th>
                                             {{-- <th class="align-middle">Nama Poli</th> --}}
                                             <th class="align-middle">DPJP</th>
-                                            <th class="align-middle">No.Kartu</th>
-                                            <th class="align-middle">D.U</th>
-                                            <th class="align-middle">Berkas</th>
+                                            {{-- <th class="align-middle">D.U</th> --}}
+                                            <th class="align-middle">Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($data as $data)
                                             @if (\App\PelaporanCovid::cekLapor($data->no_rawat) == 0)
+                                                @php
+                                                    $dataSep = App\Vedika::getSep($data->no_rawat);
+                                                    $getManualSep = App\Vedika::getHapusSep($data->no_rawat);
+                                                    // dd($noSep);
+                                                @endphp
                                                 <tr>
-                                                    <td>{{ $data->no_rkm_medis }}</td>
-                                                    <td>{{ App\Vedika::getSep($data->no_rawat) != null ? App\Vedika::getSep($data->no_rawat)->no_sep : '' }}
+                                                    <td>{{ $data->no_rawat }}, {{ $data->no_rkm_medis }}</td>
+                                                    <td>{{ $dataSep != null ? $dataSep->no_sep : '' }}
+                                                        @if ($getManualSep != null)
+                                                            <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/hapusSep"
+                                                                class="btn btn-sm" data-toggle="tooltip"
+                                                                data-placement="bottom" title="Hapus SEP">
+                                                                <span class="badge bg-danger"><i
+                                                                        class="fas fa-ban"></i></span>
+                                                            </a>
+                                                        @endif
+                                                        @if ($dataSep == null && Auth::user()->can('vedika-upload'))
+                                                            <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/sepmanual"
+                                                                class="btn btn-sm " data-toggle="tooltip"
+                                                                data-placement="bottom" title="Input no SEP"
+                                                                target="_blank">
+                                                                <span class="badge badge-primary">Tambah <i
+                                                                        class="fas fa-pen-nib"></i></span></a>
+                                                        @endif
                                                     </td>
+                                                    <td>{{ $data->no_peserta }}</td>
                                                     <td>{{ $data->nm_pasien }}, {{ $data->umurdaftar }}
                                                         {{ $data->sttsumur }},
-                                                        {{ $data->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}</td>
-                                                    <td>{{ $data->almt_pj }}</td>
+                                                        {{ $data->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}
+                                                        <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/detail"
+                                                            class="btn btn-sm " data-toggle="tooltip"
+                                                            data-placement="bottom" title="Detail Informasi"
+                                                            target="_blank">
+                                                            <span class="badge badge-info"><i
+                                                                    class="fas fa-search"></i></span></a>
+                                                    </td>
+                                                    <td>{{ $data->alamat }}</td>
                                                     <td>{{ $data->tgl_registrasi }} {{ $data->jam_reg }}</td>
                                                     {{-- <td>{{ $data->nm_poli }}</td> --}}
                                                     <td>{{ $data->nm_dokter }}</td>
-                                                    <td>{{ $data->no_peserta }}</td>
-                                                    <td>{{ App\Vedika::getDiagnosa($data->no_rawat, 'Ranap') != null ? App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->kd_penyakit . '-' . App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->nm_penyakit : '' }}
+
+                                                    {{-- <td>{{ App\Vedika::getDiagnosa($data->no_rawat, 'Ranap') != null ? App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->kd_penyakit . '-' . App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->nm_penyakit : '' }}
                                                     </td>
                                                     <td>
                                                         <div class="col text-center">
@@ -114,6 +149,63 @@
                                                             </a>
 
                                                         </div>
+                                                    </td> --}}
+                                                    <td>
+                                                        <div class="col text-center">
+                                                            @php
+                                                                $statusVerif = App\VedikaVerif::cekVerif(
+                                                                    $data->no_rawat,
+                                                                    'Ranap'
+                                                                );
+                                                                if (!empty($dataSep->no_sep)) {
+                                                                    $cekKlaim = App\Vedika::cekEklaim($dataSep->no_sep);
+                                                                } elseif (!empty($dataSep->noSep)) {
+                                                                    $cekKlaim = App\Vedika::cekEklaim($dataSep->noSep);
+                                                                }
+                                                                $statusPengajuan = App\DataPengajuanKlaim::cekPengajuan(
+                                                                    $data->no_rawat,
+                                                                    'Rawat Inap'
+                                                                );
+                                                                $cekDiagnosa = App\Vedika::getDiagnosa(
+                                                                    $data->no_rawat,
+                                                                    'Ranap'
+                                                                );
+                                                            @endphp
+                                                            @can('vedika-upload')
+                                                                @if (!empty($statusVerif))
+                                                                    @if ($statusVerif->status == 0)
+                                                                        <span class="badge badge-warning" data-toggle="tooltip"
+                                                                            data-placement="bottom"
+                                                                            title="Periksa Verifikasi"><i
+                                                                                class="fas fa-exclamation-triangle"></i> </span>
+                                                                    @elseif ($statusVerif->status == 1)
+                                                                        <span class="badge badge-success" data-toggle="tooltip"
+                                                                            data-placement="bottom"
+                                                                            title="Verifikasi Selesai"><i
+                                                                                class="fas fa-check-circle"></i></span>
+                                                                    @endif
+                                                                @endif
+                                                                @if (!empty($cekKlaim) && $cekKlaim == true)
+                                                                    <span class="badge bg-lime" data-toggle="tooltip"
+                                                                        data-placement="bottom" title="Berkas ditemukan">Eklaim
+                                                                        <i class="fas fa-check-circle"></i></span>
+                                                                @endif
+                                                                @if (!empty($cekDiagnosa))
+                                                                    <span class="badge bg-purple" data-toggle="tooltip"
+                                                                        data-placement="bottom" title="Berkas ditemukan">Diag
+                                                                        <i class="fas fa-check-circle"></i></span>
+                                                                @endif
+                                                            @endcan
+                                                            @if (!empty($statusPengajuan))
+                                                                <span class="badge badge-success"><i
+                                                                        class="fas fa-paper-plane"></i>
+                                                                    {{ \Carbon\Carbon::parse($statusPengajuan->periodeKlaim->periode)->format('F Y') }}
+                                                                    <span>
+                                                                    @else
+                                                                        <span class="badge badge-danger"><i
+                                                                                class="fas fa-paper-plane"></i>Belum
+                                                                            diajukan</span>
+                                                            @endif
                                                     </td>
                                                 </tr>
                                             @endif
@@ -150,24 +242,80 @@
     <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
     <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
     <script>
-        $(function() {
-            $('#example2').DataTable({
-                "paging": true,
-                "lengthChange": false,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "responsive": false,
-                "scrollY": "500px",
-                "scrollX": true,
-                "oLanguage": {
-                    "sSearch": "Cari:"
-                }
+        $(document).ready(function() {
+            // Setup - add a text input to each footer cell
+            $('#example2 thead tr')
+                .clone(true)
+                .addClass('filters')
+                .appendTo('#example2 thead');
+
+            var table = $('#example2').DataTable({
+                orderCellsTop: true,
+                // paging: true,
+                // lengthChange: true,
+                // searching: false,
+                // ordering: true,
+                // info: true,
+                autoWidth: true,
+                // responsive: false,
+                // scrollY: '500px',
+                scrollX: true,
+                fixedHeader: true,
+                initComplete: function() {
+                    var api = this.api();
+
+                    // For each column
+                    api
+                        .columns()
+                        .eq(0)
+                        .each(function(colIdx) {
+                            // Set the header cell to contain the input element
+                            var cell = $('.filters th').eq(
+                                $(api.column(colIdx).header()).index()
+                            );
+                            var title = $(cell).text();
+                            $(cell).html('<input type="text" placeholder="' + title + '" />');
+
+                            // On every keypress in this input
+                            $(
+                                    'input',
+                                    $('.filters th').eq($(api.column(colIdx).header()).index())
+                                )
+                                .off('keyup change')
+                                .on('change', function(e) {
+                                    // Get the search value
+                                    $(this).attr('title', $(this).val());
+                                    var regexr =
+                                        '({search})'; //$(this).parents('th').find('select').val();
+
+                                    var cursorPosition = this.selectionStart;
+                                    // Search the column for that value
+                                    api
+                                        .column(colIdx)
+                                        .search(
+                                            this.value != '' ?
+                                            regexr.replace('{search}', '(((' + this.value +
+                                                ')))') :
+                                            '',
+                                            this.value != '',
+                                            this.value == ''
+                                        )
+                                        .draw();
+                                })
+                                .on('keyup', function(e) {
+                                    e.stopPropagation();
+
+                                    $(this).trigger('change');
+                                    $(this)
+                                        .focus()[0]
+                                        .setSelectionRange(cursorPosition, cursorPosition);
+                                });
+                        });
+                },
             });
         });
         //Date picker
-        $('#tanggal').datetimepicker({
+        $('#tanggalMulai,#tanggalSelesai').datetimepicker({
             format: 'YYYY-MM-DD'
         });
     </script>

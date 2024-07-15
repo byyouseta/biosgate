@@ -38,4 +38,19 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function hakKewajiban()
+    {
+        return $this->hasMany('App\HakKewajibanPasien');
+    }
+
+    public function general()
+    {
+        return $this->hasMany('App\GeneralConsent');
+    }
+
+    public function verifKlaim()
+    {
+        return $this->hasMany('App\VedikaVerif');
+    }
 }
