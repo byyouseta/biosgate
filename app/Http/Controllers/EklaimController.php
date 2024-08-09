@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 class EklaimController extends Controller
 {
@@ -172,22 +174,28 @@ class EklaimController extends Controller
         // variable data adalah base64 dari file pdf
 
         // dd($msg['response']['data']);
-        // dd($response);
-        $pdf = base64_decode($msg["data"]);
-        // hasilnya adalah berupa binary string $pdf, untuk disimpan:
-        file_put_contents("klaim.pdf", $pdf);
-        // dd($pdf);
+        // dd($msg['metadata']['message']);
+        if (!empty($msg["data"])) {
+            $pdf = base64_decode($msg["data"]);
+            // hasilnya adalah berupa binary string $pdf, untuk disimpan:
+            file_put_contents("klaim.pdf", $pdf);
+            // dd($pdf);
 
-        // atau untuk ditampilkan dengan perintah:
-        header("Content-type:application/pdf");
-        header("Content-Disposition:inline;filename=sep_$sep.pdf");
+            // atau untuk ditampilkan dengan perintah:
+            header("Content-type:application/pdf");
+            header("Content-Disposition:inline;filename=sep_$sep.pdf");
 
-        // Tested and works fine. If you want the file to download instead, replace
-        //     Content-Disposition: inline
-        // with
-        //     Content-Disposition: attachment
+            // Tested and works fine. If you want the file to download instead, replace
+            //     Content-Disposition: inline
+            // with
+            //     Content-Disposition: attachment
 
-        echo $pdf;
+            echo $pdf;
+        } else {
+            Session::flash('error', $msg['metadata']['message']);
+            // return redirect()->back();
+            echo "<script>window.close();</script>";
+        }
     }
 
     public static function getDetail($sep)

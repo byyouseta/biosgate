@@ -1447,7 +1447,7 @@ class IgdSehatController extends Controller
 
                             // dd($response);
                             $test = json_decode($response->getBody());
-                            dd($test, 'suhu');
+                            // dd($test, 'suhu', $noRawat);
                         }
 
                         $message = "Gagal kirim vital sign Suhu pasien IGD " . $noRawat;

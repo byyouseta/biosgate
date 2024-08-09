@@ -237,11 +237,17 @@ Route::get('/vedika/pengajuan/rajal', 'KlaimController@daftarRajal')->name('vedi
 Route::get('/vedika/pengajuan/kronis', 'KlaimController@daftarRajalKronis')->name('vedika.daftarRajalKronis');
 Route::get('/vedika/pengajuan/ranap', 'KlaimController@daftarRanap')->name('vedika.daftarRanap');
 Route::get('/vedika/fraud/rajal', 'FraudController@rajal')->name('vedika.fraudRajal');
+Route::get('/vedika/fraud/ranap', 'FraudController@ranap')->name('vedika.fraudRanap');
 Route::get('/vedika/fraud/{id}/{idd}/store', 'FraudController@store')->name('vedika.fraudStore');
+Route::get('/vedika/fraud/{id}/{idd}/storeranap', 'FraudController@storeranap')->name('vedika.fraudStoreRanap');
 Route::get('/vedika/fraud/{id}/delete', 'FraudController@delete')->name('vedika.fraudDelete');
+Route::get('/vedika/fraud/{id}/deleteranap', 'FraudController@deleteranap')->name('vedika.fraudDeleteRanap');
 Route::get('/vedika/fraud/{id}/detail', 'FraudController@detailRajal')->name('vedika.fraudDetailRajal');
+Route::get('/vedika/fraud/{id}/detailranap', 'FraudController@detailRanap')->name('vedika.fraudDetailRanap');
 Route::post('/vedika/fraud/{id}/store', 'FraudController@storeRajal')->name('vedika.fraudStoreRajal');
+Route::post('/vedika/fraud/{id}/storeranap', 'FraudController@storeDetailRanap')->name('vedika.fraudStoreDetailRanap');
 Route::get('/vedika/fraud/{id}/export', 'FraudController@exportRajal')->name('vedika.exportRajal');
+Route::get('/vedika/fraud/{id}/exportranap', 'FraudController@exportRanap')->name('vedika.exportRanap');
 Route::get('/vedika/klaimcompare', 'KlaimCompareController@index')->name('vedika.klaimcompare');
 Route::post('/vedika/klaimcompare/import', 'KlaimCompareController@import_excel')->name('vedika.klaimcompare.import');
 Route::get('/vedika/klaimcompare/template', 'KlaimCompareController@template')->name('vedika.klaimcompare.template');
@@ -266,16 +272,44 @@ Route::get('/pesan/deletesession', 'WaController@deleteSession')->name('wa.delet
 Route::get('/pesan/kirim', 'WaController@kirimPesan')->name('wa.kirimPesan');
 Route::post('/pesan/kirim', 'WaController@kirim')->name('wa.kirim');
 
-//SATU SEHAT
+//Tarif SIMRS
+Route::get('/tarifsimrs/rajal', 'TarifSimController@rajal')->name('tarifsim.rajal');
+Route::get('/tarifsimrs/rajal/exportexcel', 'TarifSimController@exportRajal')->name('tarifsim.exportRajal');
+Route::get('/tarifsimrs/rajal/template', 'TarifSimController@templateImportRajal')->name('tarifsim.templateImportRajal');
+Route::post('/tarifsimrs/rajal/importexcel', 'TarifSimController@importRajal')->name('tarifsim.importRajal');
 
+Route::get('/tarifsimrs/ranap', 'TarifSimController@ranap')->name('tarifsim.ranap');
+Route::get('/tarifsimrs/ranap/exportexcel', 'TarifSimController@exportRanap')->name('tarifsim.exportRanap');
+Route::get('/tarifsimrs/ranap/template', 'TarifSimController@templateImportRanap')->name('tarifsim.templateImportRanap');
+Route::post('/tarifsimrs/ranap/importexcel', 'TarifSimController@importRanap')->name('tarifsim.importRanap');
+
+Route::get('/tarifsimrs/lab', 'TarifSimController@lab')->name('tarifsim.lab');
+Route::get('/tarifsimrs/lab/exportexcel', 'TarifSimController@exportLab')->name('tarifsim.exportLab');
+Route::get('/tarifsimrs/lab/template', 'TarifSimController@templateImportLab')->name('tarifsim.templateImportLab');
+Route::post('/tarifsimrs/lab/importexcel', 'TarifSimController@importLab')->name('tarifsim.importLab');
+
+Route::get('/tarifsimrs/radiologi', 'TarifSimController@radiologi')->name('tarifsim.radio');
+Route::get('/tarifsimrs/radiologi/exportexcel', 'TarifSimController@exportRadiologi')->name('tarifsim.exportRadio');
+Route::get('/tarifsimrs/radiologi/template', 'TarifSimController@templateImportRadiologi')->name('tarifsim.templateImportRadio');
+Route::post('/tarifsimrs/radiologi/importexcel', 'TarifSimController@importRadiologi')->name('tarifsim.importRadio');
+
+Route::get('/tarifsimrs/operasi', 'TarifSimController@operasi')->name('tarifsim.operasi');
+Route::get('/tarifsimrs/operasi/exportexcel', 'TarifSimController@exportOperasi')->name('tarifsim.exportOperasi');
+Route::get('/tarifsimrs/operasi/template', 'TarifSimController@templateImportOperasi')->name('tarifsim.templateImportOperasi');
+Route::post('/tarifsimrs/operasi/importexcel', 'TarifSimController@importOperasi')->name('tarifsim.importOperasi');
+
+//SATU SEHAT
 Route::get('/satusehat', 'SatuSehatController@summary')->name('satuSehat.summary');
 Route::get('/satusehat/bundle', 'SatuSehatController@bundleData')->name('satuSehat.bundleData');
-Route::get('/satusehat/encounter', 'SatuSehatController@sendEncounter')->name('satuSehat.encounter');
+Route::get('/satusehat/{id}/encounter', 'SatuSehatController@sendSingleEncounter')->name('satuSehat.singleEncounter');
 Route::get('/satusehat/composition', 'SatuSehatController@sendComposition')->name('satuSehat.composition');
 Route::get('/satusehat/medication', 'SatuSehatController@sendMedication')->name('satuSehat.medication');
 Route::get('/satusehat/lab', 'SatuSehatController@sendLab')->name('satuSehat.sendLab');
 Route::get('/satusehat/labbundle', 'SatuSehatController@bundleLab')->name('satuSehat.bundleLab');
 Route::get('/satusehat/radiologi', 'RadiologiController@index')->name('satuSehat.radiologi');
+Route::get('/satusehat/cek', 'SatuSehatController@checkRajal')->name('satuSehat.checkRajal');
+Route::get('/satusehat/cek/{id}/detail', 'SatuSehatController@checkRajalDetail')->name('satuSehat.checkRajalDetail');
+Route::get('/satusehat/cek/{id}/send', 'SatuSehatController@sendSingleBundle')->name('satuSehat.checkRajalSend');
 
 Route::get('/satusehat/igd', 'IgdSehatController@index')->name('satuSehatIgd.index');
 Route::get('/satusehat/igd/encounter', 'IgdSehatController@sendEncounter')->name('satuSehatIgd.sendEncounter');
@@ -284,6 +318,8 @@ Route::get('/satusehat/igd/encounterupdate', 'IgdSehatController@closeEncounter'
 Route::get('/satusehat/ranap', 'RanapSehatController@index')->name('satuSehatRanap.index');
 Route::get('/satusehat/ranap/encounter', 'RanapSehatController@sendEncounter')->name('satuSehatRanap.sendEncounter');
 Route::get('/satusehat/ranap/encounterupdate', 'RanapSehatController@closeEncounter')->name('satuSehatRanap.closeEncounter');
+
+Route::get('/satusehat/kfa', 'KfaController@cari')->name('satuSehat.kfa');
 
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');

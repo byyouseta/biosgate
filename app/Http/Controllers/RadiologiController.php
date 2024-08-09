@@ -21,8 +21,8 @@ class RadiologiController extends Controller
     public function index(Request $request)
     {
         session()->put('ibu', 'Satu Sehat');
-        session()->put('anak', 'Api Radiologi');
-        session()->forget('cucu');
+        session()->put('anak', 'Rajal Satu Sehat');
+        session()->put('cucu', 'API Radiologi');
         set_time_limit(0);
 
         if (empty($request->get('tanggal'))) {

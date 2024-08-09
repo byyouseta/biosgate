@@ -10,4 +10,16 @@ class ResponseSatuSehat extends Model
         'noRawat', 'tgl_registrasi', 'encounter_id', 'condition_id', 'condition2_id', 'heart_id', 'respiratory_id', 'systol_id', 'diastol_id', 'temperature_id',
         'procedure_id', 'composition_id'
     ];
+
+    public static function getEncounter($norawat)
+    {
+        $cek = ResponseSatuSehat::where('noRawat', $norawat)
+            ->first();
+
+        if ($cek) {
+            return $cek;
+        } else {
+            return null;
+        }
+    }
 }

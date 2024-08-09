@@ -8,10 +8,12 @@
 <!-- Tempusdominus|Datetime Bootstrap 4 -->
 <link rel="stylesheet"
     href="{{ asset('template/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
+
 @endsection
 
 @section('content')
 <section class="content">
+
     <div class="container-fluid">
         <div class="row">
             @php
@@ -693,24 +695,36 @@
                     <div class="card-header">Billing</div>
                     @if ($billing->count() > 0)
                     <div class="card-body">
-                        <table class="table table-borderless mb-0">
+                        <table class="table table-borderless mb-3">
                             <tr>
-                                <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
-                                        alt="Logo RSUP" width="100">
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
                                 </td>
-                                <td class="pt-0 pb-0 text-center align-middle ">
-                                    <h3 class="pt-0 pb-0">RSUP SURAKARTA</h3>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
                                 </td>
-                                <td style="width:20%" rowspan="3"></td>
                             </tr>
                             <tr>
-                                <td class="text-center align-middle py-0">
-                                    Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-center align-middle py-0">
-                                    Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17"> (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    https://web.rsupsurakarta.co.id
                                 </td>
                             </tr>
 
@@ -812,7 +826,154 @@
                     @endif
                 </div>
                 {{-- End Billing --}}
+                {{-- Data SPRI --}}
+                @if($spri)
+                <div class="card">
+                    <div class="card-header">Surat Perintah Rawat Inap</div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-3">
+                            <tr>
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
+                                </td>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17"> (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    https://web.rsupsurakarta.co.id
+                                </td>
+                            </tr>
 
+                        </table>
+                        <div class="progress progress-xs mt-0 pt-0">
+                            <div class="progress-bar progress-bar bg-black" role="progressbar" aria-valuenow="100"
+                                aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                            </div>
+                        </div>
+                        <table class="table table-borderless table-sm ml-3">
+                            <thead>
+                                <tr>
+                                    <th class="align-middle text-center pb-1" colspan="7">
+                                        <h5><b><u>SURAT PERINTAH RAWAT INAP</u></b></h5>
+                                        <div style="margin-top: -5pt">No : {{ $spri->no_rawat }}</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="width: 20%">Pasien dikirim dari</td>
+                                    <td>: {{ $pasien->nm_poli }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Hari/ Tanggal/ Jam</td>
+                                    <td>: {{ $spri->tanggal }} {{ $spri->jam }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Nama Pasien</td>
+                                    <td>: {{ $pasien->nm_pasien }}</td>
+                                </tr>
+                                <tr>
+                                    <td>No. RM</td>
+                                    <td>: {{ $pasien->no_rkm_medis }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Diagnosa Kerja</td>
+                                    <td>: {{ $spri->diagnosa }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Indikasi Rawat</td>
+                                    <td>: {{ $spri->catatan }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Tindakan yang akan dilakukan
+                                        dan alternatifnya</td>
+                                    <td>: {{ $spri->tindakan }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Perkiraan hasil yang</td>
+                                    <td>: {{ $spri->perkiraan_hasil }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Cara Bayar</td>
+                                    <td>: {{ $pasien->png_jawab }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Perkiraan biaya yang</td>
+                                    <td>: {{ $spri->perkiraan_biaya }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Bangsal / Ruang / Kelas</td>
+                                    <td>: {{ $spri->kd_kamar }} {{ $spri->nm_bangsal }}</td>
+                                </tr>
+                                <tr>
+                                    <td>Nama DPJP pasien</td>
+                                    <td class="mb-3">: {{ $spri->nm_dokter }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Informasi rencana perawatan hasil yang diharapkan dapat berubah
+                                        selama perawatan rawat inap sesuai dengan
+                                        perkembangan kondisi pasien.</td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                        <table class="table table-borderless table-sm">
+                            <tr>
+                                <td style="width: 70%"></td>
+                                <td class="text-center">
+                                    Surakarta,
+                                    {{ \Carbon\Carbon::parse($spri->tanggal)->format('d-m-Y') }}<br>
+                                    Dokter Pengirim
+                                </td>
+                            </tr>
+                            <tr>
+                                @php
+                                $qr_dokter =
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                elektronik oleh' .
+                                "\n" .
+                                $spri->nm_dokter .
+                                "\n" .
+                                'ID ' .
+                                $spri->kd_dokter .
+                                "\n" .
+                                \Carbon\Carbon::parse($spri->tanggal)->format('d-m-Y');
+
+                                @endphp
+                                <td style="width: 70%"></td>
+                                <td class="text-center pt-0 pb-0"> {!! QrCode::size(100)->generate($qr_dokter)
+                                    !!}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td class="text-center"> ({{ $spri->nm_dokter }}) </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                @endif
+                {{-- End SPRI --}}
                 {{-- Data Lab --}}
                 @if ($hasilLab != null)
                 @if ($hasilLab->count() > 0)
@@ -855,23 +1016,38 @@
                                 id="custom-tabs-lap-{{ $order->noorder }}" role="tabpanel"
                                 aria-labelledby="#custom-tabs-lap-{{ $order->noorder }}">
 
-                                <table class="table table-borderless mb-0">
+                                <table class="table table-borderless mb-3">
                                     <tr>
-                                        <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
-                                                alt="Logo RSUP" width="100"></td>
-                                        <td class="pt-0 pb-0 text-center align-middle ">
-                                            <h3 class="pt-0 pb-0">RSUP SURAKARTA</h3>
+                                        <td class="align-top" style="width:60%" rowspan="4"><img
+                                                src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                                width="350">
                                         </td>
-                                        <td style="width:20%" rowspan="3"></td>
+                                        <td class="pt-1 pb-0 align-middle"
+                                            style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                            <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                                Kesehatan</div>
+                                            <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                            Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                            (0271)
+                                            713055
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                width="17">
+                                            https://web.rsupsurakarta.co.id
                                         </td>
                                     </tr>
 
@@ -1115,13 +1291,14 @@
 
                             @endphp
                             @if (!empty($dataRadiologiRajal))
-                            @foreach ($dataRadiologiRajal as $detailRadioRajal)
+                            @foreach ($dataRadiologiRajal as $nourut => $detailRadioRajal)
                             <li class="nav-item">
                                 @php
-                                $tab = \Carbon\Carbon::parse(
-                                "$detailRadioRajal->tgl_hasil $detailRadioRajal->jam_hasil"
-                                )->format('YmdHis');
-
+                                // dd($dokterRadiologiRajal[$nourut]->tanggal);
+                                $tgl_hasil = $dokterRadiologiRajal[$nourut]->tgl_periksa;
+                                $jam_hasil = $dokterRadiologiRajal[$nourut]->jam;
+                                $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
+                                // dd($tab);
                                 @endphp
                                 <a class="nav-link {{ $index == 0 ? 'active' : '' }}" id="custom-tabs-four-home-tab"
                                     data-toggle="pill" href="#custom-tabs-lap-{{ $tab }}" role="tab"
@@ -1154,34 +1331,50 @@
                             @if (!empty($dataRadiologiRajal))
                             @foreach ($dataRadiologiRajal as $urutan => $radioRajal)
                             @php
-                            $tanggal = "$radioRajal->tgl_hasil $radioRajal->jam_hasil";
-                            $tab = \Carbon\Carbon::parse("$tanggal")->format('YmdHis');
+                            $tgl_hasil = $dokterRadiologiRajal[$urutan]->tgl_periksa;
+                            $jam_hasil = $dokterRadiologiRajal[$urutan]->jam;
+                            $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
 
                             @endphp
                             <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
                                 id="custom-tabs-lap-{{ $tab }}" role="tabpanel"
                                 aria-labelledby="#custom-tabs-lap-{{ $tab }}">
 
-                                <table class="table table-borderless mb-0">
+                                <table class="table table-borderless mb-3">
                                     <tr>
-                                        <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
-                                                alt="Logo RSUP" width="100">
+                                        <td class="align-top" style="width:60%" rowspan="4"><img
+                                                src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                                width="350">
                                         </td>
-                                        <td class="pt-0 pb-0 text-center align-middle ">
-                                            <h3 class="pt-0 pb-0">RSUP SURAKARTA</h3>
+                                        <td class="pt-1 pb-0 align-middle"
+                                            style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                            <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                                Kesehatan</div>
+                                            <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                            </div>
                                         </td>
-                                        <td style="width:20%" rowspan="3"></td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                            Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                            (0271)
+                                            713055
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                width="17">
+                                            https://web.rsupsurakarta.co.id
+                                        </td>
+                                    </tr>
+
                                 </table>
                                 <div class="progress progress-xs mt-0 pt-0">
                                     <div class="progress-bar progress-bar bg-black" role="progressbar"
@@ -1212,7 +1405,7 @@
                                             <td class="pt-0 pb-0">: {{ $pasien->nm_pasien }}</td>
                                             <td class="pt-0 pb-0">Dokter Pengirim</td>
                                             <td class="pt-0 pb-0">:
-                                                {{ !empty($pasien->nm_dokter) ? $pasien->nm_dokter : '' }}
+                                                {{ !empty($radioRajal->nm_dokter) ? $radioRajal->nm_dokter : '' }}
                                             </td>
 
                                         </tr>
@@ -1235,7 +1428,7 @@
                                             <td class="pt-0 pb-0">Alamat</td>
                                             <td class="pt-0 pb-0">: {{ $radioRajal->alamat }}</td>
                                             <td class="pt-0 pb-0">Jam Pemeriksaan</td>
-                                            <td class="pt-0 pb-0">: {{ $radioRajal->jam_hasil }}</td>
+                                            <td class="pt-0 pb-0">: {{ $dokterRadiologiRajal[$urutan]->jam }}</td>
 
                                         </tr>
                                         <tr>
@@ -1246,7 +1439,8 @@
                                         </tr>
                                         <tr>
                                             <td class="pt-0 pb-0">Pemeriksaan</td>
-                                            <td class="pt-0 pb-0">: {{ $radioRajal->nm_perawatan }}</td>
+                                            <td class="pt-0 pb-0">: {{ $dokterRadiologiRajal[$urutan]->nm_perawatan }}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td class="pt-0 pb-0">Hasil Pemeriksaan</td>
@@ -1328,24 +1522,37 @@
                                 );
                                 @endphp
 
-                                <table class="table table-borderless mb-0">
+                                <table class="table table-borderless mb-3">
                                     <tr>
-                                        <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
-                                                alt="Logo RSUP" width="100">
+                                        <td class="align-top" style="width:60%" rowspan="4"><img
+                                                src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                                width="350">
                                         </td>
-                                        <td class="pt-0 pb-0 text-center align-middle ">
-                                            <h3 class="pt-0 pb-0">RSUP SURAKARTA</h3>
+                                        <td class="pt-1 pb-0 align-middle"
+                                            style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                            <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                                Kesehatan</div>
+                                            <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                            </div>
                                         </td>
-                                        <td style="width:20%" rowspan="3"></td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                            Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                            (0271) 713055
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                width="17">
+                                            https://web.rsupsurakarta.co.id
                                         </td>
                                     </tr>
 
@@ -1353,7 +1560,6 @@
                                 <div class="progress progress-xs mt-0 pt-0">
                                     <div class="progress-bar progress-bar bg-black" role="progressbar"
                                         aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" style="width: 100%">
-
                                     </div>
                                 </div>
                                 <table class="table table-borderless py-0">
@@ -1380,7 +1586,6 @@
                                             <td class="pt-0 pb-0">Dokter Pengirim</td>
                                             <td class="pt-0 pb-0">:
                                                 {{ !empty($order->nm_dokter) ? $order->nm_dokter : '' }}</td>
-
                                         </tr>
                                         <tr>
                                             <td class="pt-0 pb-0">JK/Umur</td>
@@ -1730,7 +1935,453 @@
                 @endforeach
                 @endif --}}
                 {{-- End data Obat --}}
+                {{-- data Triase IGD --}}
+                @if (!empty($dataTriase))
+                <div class="card">
+                    <div class="card-header">Data Triase</div>
+                    <div class="card-body">
+                        @php
+                        for ($i = 1; $i <= 5; $i++) { foreach ($skala[$i] as $dataPemeriksaan) { if ($dataPemeriksaan->
+                            nama_pemeriksaan == 'ASSESMENT TRIASE') {
+                            $urgensi = $dataPemeriksaan->pengkajian_skala;
+                            }
+                            }
+                            }
+                            if (!empty($primer)) {
+                            $plan = $primer->plan;
+                            } elseif (!empty($sekunder)) {
+                            $plan = $sekunder->plan;
+                            } else {
+                            $plan = null;
+                            }
 
+                            if ($plan == 'Zona Hijau') {
+                            $bg_color = 'bg-success';
+                            } elseif ($plan == 'Zona Kuning') {
+                            $bg_color = 'bg-warning';
+                            } elseif ($plan == 'Zona Merah') {
+                            $bg_color = 'bg-danger';
+                            } else {
+                            $bg_color = '';
+                            }
+                            @endphp
+
+                            <table class="table table-bordered mb-0">
+                                <thead>
+                                    <tr>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                        <td class="pt-0 pb-0 border border-dark" style="width: 10%"></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="border border-dark"><img src="{{ asset('image/logorsup.jpg') }}"
+                                                alt="Logo RSUP" width="100">
+                                        </td>
+                                        <td class="pt-0 pb-0 text-center align-middle border border-dark" colspan="6">
+                                            <div style="font-size: 30px">RSUP SURAKARTA</div>
+                                            Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah <br>
+                                            Telp.0271-713055 / 720002 <br>
+                                            E-mail : rsupsurakarta@kemkes.go.id
+                                        </td>
+                                        <td colspan="5" rowspan="2" class="border border-dark">
+                                            <div class="row">
+                                                <div class="col-4">No.RM / NIK</div>
+                                                <div class="col-8">: {{ $dataTriase->no_rkm_medis }} /
+                                                    {{ $dataTriase->no_ktp }}
+                                                </div>
+                                                <div class="col-4">Nama</div>
+                                                <div class="col-8">: {{ $dataTriase->nm_pasien }}
+                                                    ({{ $dataTriase->jk }})
+                                                </div>
+                                                <div class="col-4">Tanggal Lahir</div>
+                                                <div class="col-8">:
+                                                    {{ \Carbon\Carbon::parse($dataTriase->tgl_lahir)->format('d-m-Y') }}
+                                                </div>
+                                                <div class="col-4">Alamat</div>
+                                                <div class="col-8">: {{ $dataTriase->alamat }}</div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center align-middle py-0 {{ $bg_color }} border border-dark"
+                                            colspan="7">
+                                            TRIASE PASIEN GAWAT DARURAT
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-center align-middle py-0 border border-dark" colspan="10">
+                                            Triase dilakukan segera setelah pasien datang dan sebelum pasien/
+                                            keluarga
+                                            mendaftar
+                                            di TPP IGD
+                                        </td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class="py-0 pl-5 border border-dark" colspan="5">
+                                            Tanggal Kunjungan :
+                                            {{ \Carbon\Carbon::parse($dataTriase->tgl_kunjungan)->format('d-m-Y') }}
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="5">
+                                            Pukul :
+                                            {{ \Carbon\Carbon::parse($dataTriase->tgl_kunjungan)->format('H:i:s') }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            Cara Datang
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            {{ $dataTriase->cara_masuk }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            Macam Kasus
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            {{ $dataTriase->macam_kasus }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 text-center table-primary border border-dark" colspan="3">
+                                            KETERANGAN
+                                        </td>
+                                        <td class="py-0 text-center table-primary border border-dark" colspan="7">
+                                            {{ $primer != null ? 'TRIASE PRIMER' : 'TRIASE SEKUNDER' }}
+                                        </td>
+                                    </tr>
+                                    @if (!empty($primer))
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            KELUHAN UTAMA
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            {{ $primer->keluhan_utama }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            TANDA VITAL
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            Suhu (C) : {{ $dataTriase->suhu }}, Nyeri :
+                                            {{ $dataTriase->nyeri }},
+                                            Tensi :
+                                            {{ $dataTriase->tekanan_darah }}, Nadi(/menit) :
+                                            {{ $dataTriase->nadi }},
+                                            Saturasi
+                                            O2(%) : {{ $dataTriase->saturasi_o2 }}, Respirasi(/menit) :
+                                            {{ $dataTriase->pernapasan }}
+                                        </td>
+
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            KEBUTUHAN KHUSUS
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            {{ !empty($primer->kebutuhan_khusus) ? $primer->kebutuhan_khusus : '' }}
+                                        </td>
+                                    </tr>
+                                    @else
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            ANAMNESA SINGKAT
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            {{ !empty($sekunder->anamnesa_singkat) ? $sekunder->anamnesa_singkat : '' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            TANDA VITAL
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            Suhu (C) : {{ $dataTriase->suhu }}, Nyeri :
+                                            {{ $dataTriase->nyeri }},
+                                            Tensi :
+                                            {{ $dataTriase->tekanan_darah }}, Nadi(/menit) :
+                                            {{ $dataTriase->nadi }},
+                                            Saturasi
+                                            O2(%) : {{ $dataTriase->saturasi_o2 }}, Respirasi(/menit) :
+                                            {{ $dataTriase->pernapasan }}
+                                        </td>
+                                    </tr>
+                                    @endif
+                                    <tr>
+                                        <td class="py-0 text-center table-primary border border-dark" colspan="3">
+                                            PEMERIKSAAN
+                                        </td>
+                                        <td class="py-0 text-center {{ $bg_color }} border border-dark" colspan="7">
+                                            URGENSI
+                                            @php
+                                            $pemeriksaan = '';
+                                            @endphp
+                                            @for ($i = 1; $i <= 5; $i++) @foreach ($skala[$i] as $dataPemeriksaan)
+                                                @if($dataPemeriksaan->nama_pemeriksaan != $pemeriksaan)
+                                                @php
+                                                $pemeriksaan = $dataPemeriksaan->nama_pemeriksaan;
+                                                @endphp
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            {{ $dataPemeriksaan->nama_pemeriksaan }}
+                                        </td>
+                                        <td class="py-0 {{ $bg_color }} border border-dark" colspan="7">
+                                            {{ $dataPemeriksaan->pengkajian_skala }}
+                                            @else
+                                            , {{ $dataPemeriksaan->pengkajian_skala }}
+                                            @endif
+                                            @endforeach
+                                            @endfor
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            PLAN
+                                        </td>
+                                        <td class="py-0 {{ $bg_color }} border border-dark" colspan="7">
+                                            {{ $primer != null ? $primer->plan : '' }}
+                                            {{ $sekunder != null ? $sekunder->plan : '' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+
+                                        </td>
+                                        <td class="py-0 text-center table-primary border border-dark" colspan="7">
+                                            {{ $primer != null ? 'Petugas Triase Primer' : 'Petugas Triase Sekunder' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            Tanggal & Jam
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            {{ $primer != null ?
+                                            \Carbon\Carbon::parse($primer->tanggaltriase)->format('d-m-Y H:i:s') : '' }}
+                                            {{ $sekunder != null ?
+                                            \Carbon\Carbon::parse($sekunder->tanggaltriase)->format('d-m-Y H:i:s') : ''
+                                            }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            Catatan
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            {{ $primer != null ? $primer->catatan : '' }}
+                                            {{ $sekunder != null ? $sekunder->catatan : '' }}
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="py-0 border border-dark" colspan="3">
+                                            Dokter/Petugas Jaga IGD
+                                        </td>
+                                        <td class="py-0 border border-dark" colspan="7">
+                                            @php
+                                            if (!empty($primer)) {
+                                            $nip_petugas = $primer->nip;
+                                            $nama_petugas = $primer->nama;
+                                            $tanggal_hasil =
+                                            \Carbon\Carbon::parse($primer->tanggaltriase)->format('d-m-Y');
+                                            } elseif (!empty($sekunder)) {
+                                            $nip_petugas = $sekunder->nip;
+                                            $nama_petugas = $sekunder->nama;
+                                            $tanggal_hasil =
+                                            \Carbon\Carbon::parse($sekunder->tanggaltriase)->format('d-m-Y');
+                                            } else {
+                                            $nip_petugas = null;
+                                            $nama_petugas = null;
+                                            $tanggal_hasil = null;
+                                            }
+                                            $qr_petugas =
+                                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani
+                                            secara elektronik oleh' .
+                                            "\n" .
+                                            $nama_petugas .
+                                            "\n" .
+                                            'ID ' .
+                                            $nip_petugas .
+                                            "\n" .
+                                            $tanggal_hasil;
+                                            @endphp
+                                            <div>
+                                                {{ $primer != null ? $primer->nama : '' }}
+                                                {{ $sekunder != null ? $sekunder->nama : '' }}
+                                                <div class="float-right pt-3 pb-3">{!!
+                                                    QrCode::size(100)->generate($qr_petugas) !!}</div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                    </div>
+                </div>
+                @endif
+                {{-- End Data Triase --}}
+                {{-- Data Ringkasan IGD --}}
+                @if (!empty($resumeIgd))
+                <div class="card">
+                    <div class="card-header">Ringkasan Pasien IGD</div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <thead>
+                                <tr>
+                                    <td style="width:3%" class="pr-0 align-middle"><img
+                                            src="{{ asset('image/logorsup.jpg') }}" alt="Logo RSUP" width="30"
+                                            class="px-0 py-0">
+                                    </td>
+                                    <td class="pt-2 pb-0 pl-1 align-middle">
+                                        <h5 class="px-0 py-0">RSUP SURAKARTA</h5>
+                                    </td>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table class="table table-bordered mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="pt-0 pb-0 text-center align-middle border border-dark" rowspan="5"
+                                        style="width: 40%">
+                                        <h4>RINGKASAN PASIEN<br> GAWAT DARURAT</h4>
+                                    </th>
+                                    <th class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0"
+                                        style="width: 10%">No. RM
+                                    </th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-0">:
+                                        {{ $dataRingkasan->no_rkm_medis }}</th>
+                                </tr>
+                                <tr>
+                                    <th class="pt-0 pb-0 border-0">NIK </th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-0 border-top-0">
+                                        : {{ $dataRingkasan->no_ktp }}</th>
+                                </tr>
+                                <tr>
+                                    <th class="pt-0 pb-0 border-0">Nama Pasien </th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-0 border-top-0">
+                                        : {{ $dataRingkasan->nm_pasien }}</th>
+                                </tr>
+                                <tr>
+                                    <th class="pt-0 pb-0 border-0">Tanggal Lahir </th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-0 border-top-0">
+                                        : {{ $dataRingkasan->tgl_lahir }}</th>
+                                </tr>
+                                <tr>
+                                    <th class="pt-0 pb-0 border border-dark border-right-0 border-top-0">Alamat</th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-top-0">:
+                                        {{ $dataRingkasan->alamat }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="border border-dark border-bottom-0 border-top-0" colspan="3">
+                                        <b>Waktu
+                                            Kedatangan</b> Tanggal :
+                                        {{ \Carbon\Carbon::parse($dataRingkasan->tgl_registrasi)->format('d-m-Y') }}
+                                        Jam :
+                                        {{ $dataRingkasan->jam_reg }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-dark border-bottom-0 border-top-0" colspan="3">
+                                        <b>Diagnosis:</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pl-5 border border-dark border-bottom-0 border-top-0" colspan="3">
+                                        {{ $dataRingkasan->diagnosis }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-dark border-bottom-0 border-top-0" colspan="3">
+                                        <b>Kondisi Pada Saat Keluar:</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pl-5 border border-dark border-bottom-0 border-top-0" colspan="3">
+                                        {{ $resumeIgd->kondisi_pulang }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-dark border-bottom-0 border-top-0" colspan="3">
+                                        <b>Tindak
+                                            Lanjut:</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pl-5 border border-dark border-bottom-0 border-top-0" colspan="3">
+                                        {{ $resumeIgd->tindak_lanjut }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-dark border-bottom-0 border-top-0" colspan="3"><b>Obat
+                                            yang dibawa pulang:</b></td>
+                                </tr>
+                                @php
+                                $obat = explode("\n", $resumeIgd->obat_pulang);
+                                @endphp
+                                @foreach ($obat as $obatPulang)
+                                <tr>
+                                    <td class="pl-5 pt-0 pb-0 border border-dark border-bottom-0 border-top-0"
+                                        colspan="3">
+                                        {{ $obatPulang }}</td>
+                                </tr>
+                                @endforeach
+                                <tr>
+                                    <td class="border border-dark border-bottom-0 border-top-0" colspan="3">
+                                        <b>Edukasi:</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pl-5 pt-0 pb-0 border border-dark border-bottom-0 border-top-0"
+                                        colspan="3">
+                                        {{ $resumeIgd->edukasi }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-dark border-bottom-0 border-top-0" colspan="3">Waktu
+                                        Selesai Pelayanan IGD Tanggal:
+                                        {{ \Carbon\Carbon::parse($resumeIgd->tgl_selesai)->format('d-m-Y') }} Jam:
+                                        {{ \Carbon\Carbon::parse($resumeIgd->tgl_selesai)->format('H:i:s') }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-dark border-bottom-0 border-top-0" colspan="3">Tanda
+                                        Tangan Dokter</td>
+                                </tr>
+                                <tr>
+                                    @php
+                                    $qr_dokter =
+                                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                    elektronik oleh' .
+                                    "\n" .
+                                    $dataRingkasan->nm_dokter .
+                                    "\n" .
+                                    'ID ' .
+                                    $dataRingkasan->kd_dokter .
+                                    "\n" .
+                                    \Carbon\Carbon::parse($resumeIgd->tgl_selesai)->format('d-m-Y');
+                                    @endphp
+                                    <td class="pt-0 pb-0 pl-5 border border-dark border-bottom-0 border-top-0"
+                                        colspan="3">
+                                        {!! QrCode::size(100)->generate($qr_dokter) !!} </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-dark border-top-0" colspan="3">Nama :
+                                        {{ $dataRingkasan->nm_dokter }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                @endif
+                {{-- End Ringksan IGD --}}
                 {{-- Pasien Operasi --}}
 
                 {{-- Data Operasi Multi Tab --}}
@@ -1758,33 +2409,44 @@
                                 id="custom-tabs-lap-{{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('YmdHis') }}"
                                 role="tabpanel"
                                 aria-labelledby="#custom-tabs-lap-{{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('YmdHis') }}">
+                                <table class="table table-borderless mb-3">
+                                    <tr>
+                                        <td class="align-top" style="width:60%" rowspan="4"><img
+                                                src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                                width="350">
+                                        </td>
+                                        <td class="pt-1 pb-0 align-middle"
+                                            style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                            <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                                Kesehatan</div>
+                                            <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                            Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                            (0271)
+                                            713055
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                width="17">
+                                            https://web.rsupsurakarta.co.id
+                                        </td>
+                                    </tr>
+
+                                </table>
                                 <table class="table table-borderless mb-0">
                                     <thead>
-                                        <tr>
-                                            <td style="width:10%" rowspan="4"><img
-                                                    src="{{ asset('image/logorsup.jpg') }}" alt="Logo RSUP" width="100">
-                                            </td>
-                                            <td class="pt-0 pb-0 align-middle" colspan='2'>
-                                                <h4 class="pt-0 pb-0">RSUP SURAKARTA</h4>
-                                            </td>
-                                            <td style="width:50%" rowspan="4" colspan="3"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-middle py-0" colspan='2'>
-                                                Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-middle py-0" colspan='2'>
-                                                Telp.0271-713055 / 720002
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="align-middle py-0 border border-dark border-top-0 border-left-0 border-right-0"
-                                                colspan='2'>
-                                                E-mail : rsupsurakarta@kemkes.go.id
-                                            </td>
-                                        </tr>
                                         <tr>
                                             <td class="align-middle py-0 border border-dark border-top-5 border-left-0 border-right-0"
                                                 colspan="6">
@@ -2292,6 +2954,435 @@
                 @endif
                 {{-- End hasil operasi multi --}}
                 {{-- End of laporan Operasi --}}
+                {{-- Data Resume Ranap --}}
+                @if($resumeRanap1)
+                <style>
+                    /* pre {
+                        white-space: pre-wrap !important;
+                    } */
+
+                    pre {
+                        font-family: 'Source Sans Pro';
+                        font-size: 12pt;
+                        /* white-space: pre-wrap !important; */
+                        /* white-space: break-spaces !important; */
+                        padding: 0;
+                        margin: 0;
+                    }
+
+                    .tab1 {
+                        tab-size: 2;
+                    }
+                </style>
+
+                <div class="card">
+                    <div class="card-header">Resume Medis Pasien</div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-3">
+                            <tr>
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
+                                </td>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="telepon" width="17"> (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="website" width="17">
+                                    https://web.rsupsurakarta.co.id
+                                </td>
+                            </tr>
+
+                        </table>
+                        <div class="progress progress-xs mt-0 pt-0">
+                            <div class="progress-bar progress-bar bg-black" role="progressbar" aria-valuenow="100"
+                                aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                            </div>
+                        </div>
+                        <table class="table table-borderless">
+                            <thead>
+                                <tr>
+                                    <th class="align-middle text-center pb-1" colspan="2">
+                                        <h5><b>RESUME MEDIS PASIEN</b></h5>
+
+                                    </th>
+                                </tr>
+                            </thead>
+                        </table>
+                        <hr style="height:2px;border-width:0;color:gray;background-color:gray; margin-top:-2pt">
+                        <table class="table table-borderless" style="margin-left: 5pt; margin-right:10pt">
+                            <tbody>
+                                <tr>
+                                    <td class="align-middle py-0" style="width: 15%">Nama Pasien</td>
+                                    <td class="align-middle py-0" style="width: 35%">: {{ $pasien->nm_pasien }}</td>
+                                    <td class="align-middle py-0" style="width: 15%">No. Rekam Medis</td>
+                                    <td class="align-middle py-0" style="width: 35%">: {{ $pasien->no_rkm_medis }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">Umur</td>
+                                    <td class="align-middle py-0">: {{
+                                        \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y
+                                        Th %m Bl') }}</td>
+                                    <td class="align-middle py-0">Jenis Kelamin</td>
+                                    <td class="align-middle py-0">: {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">Tgl Lahir</td>
+                                    <td class="align-middle py-0">: {{
+                                        \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
+                                    <td class="align-middle py-0">Tanggal Masuk</td>
+                                    <td class="align-middle py-0">: {{
+                                        \Carbon\Carbon::parse($resumeRanap2->first()->waktu_masuk_ranap)->format('d-m-Y')
+                                        }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">Alamat</td>
+                                    <td class="align-middle py-0">: {{ $pasien->alamat }}</td>
+                                    <td class="align-middle py-0">Tanggal Keluar</td>
+                                    <td class="align-middle py-0">: {{
+                                        \Carbon\Carbon::parse($resumeRanap2->last()->waktu_keluar_ranap)->format('d-m-Y')
+                                        }}</td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0"></td>
+                                    <td class="align-middle py-0"></td>
+                                    <td class="align-middle py-0">Ruang</td>
+                                    <td class="align-middle py-0">: {{ $resumeRanap2->last()->kd_kamar }} {{
+                                        $resumeRanap2->last()->nm_bangsal }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <hr style="height:2px;border-width:0;color:gray;background-color:gray; margin-top:5pt">
+                        <table class="table table-borderless" style="margin-left: 5pt; margin-right:10pt">
+                            <tbody>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Keluhan Utama Riwayat Penyakit</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->keluhan_utama }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Diagnosis Masuk</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->diagnosa_awal }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Indikasi Dirawat </td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->alasan }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Alergi</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->alergi }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Pemeriksaan Fisik</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        <pre>{{ $resumeRanap1->pemeriksaan_fisik }}</pre>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Pemeriksaan Penunjang Radiologi
+                                    </td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        <pre>{{ $resumeRanap1->pemeriksaan_penunjang }}</pre>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Pemeriksaan Penunjang Laboratorium
+                                    </td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->hasil_laborat }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Obat-obatan Selama Perawatan</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->obat_di_rs }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Tindakan/Operasi Selama Perawatan
+                                    </td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->tindakan_dan_operasi }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Diagnosa Utama</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->diagnosa_utama }}
+                                        <div class="float-right">
+                                            {{ $resumeRanap3->where('prioritas','=',1)->first()?
+                                            '('.$resumeRanap3->where('prioritas','=',1)->first()->kd_penyakit.')':'(............)'
+                                            }}
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Diagnosa Sekunder</td>
+                                    <td class="align-top py-0" colspan="2"></td>
+                                </tr>
+                                @if($resumeRanap1->diagnosa_sekunder)
+                                <tr>
+                                    <td class="align-top py-0" colspan="3">1. {{ $resumeRanap1->diagnosa_sekunder
+                                        }}
+                                        <div class="float-right">
+                                            {{ $resumeRanap3->where('prioritas','=',2)->first()?
+                                            '('.$resumeRanap3->where('prioritas','=',2)->first()->kd_penyakit.')':'(............)'
+                                            }}
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+                                @if($resumeRanap1->diagnosa_sekunder2)
+                                <tr>
+                                    <td class="align-top py-0" colspan="3">2. {{ $resumeRanap1->diagnosa_sekunder2
+                                        }}
+                                        <div class="float-right">
+                                            {{ $resumeRanap3->where('prioritas','=',3)->first()?
+                                            '('.$resumeRanap3->where('prioritas','=',3)->first()->kd_penyakit.')':'(............)'
+                                            }}
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+                                @if($resumeRanap1->diagnosa_sekunder3)
+                                <tr>
+                                    <td class="align-top py-0" colspan="3">3. {{ $resumeRanap1->diagnosa_sekunder3
+                                        }}
+                                        <div class="float-right">
+                                            {{ $resumeRanap3->where('prioritas','=',4)->first()?
+                                            '('.$resumeRanap3->where('prioritas','=',4)->first()->kd_penyakit.')':'(............)'
+                                            }}
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+                                @if($resumeRanap1->diagnosa_sekunder4)
+                                <tr>
+                                    <td class="align-top py-0" colspan="3">4. {{ $resumeRanap1->diagnosa_sekunder4
+                                        }}
+                                        <div class="float-right">
+                                            (............)
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Prosedur/Tindakan Utama</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->prosedur_utama }}
+                                        <div class="float-right">
+                                            <div class="float-right">
+                                                {{ $resumeRanap4->where('prioritas','=',1)->first()?
+                                                '('.$resumeRanap4->where('prioritas','=',1)->first()->kode.')':'(............)'
+                                                }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" colspan="3">Prosedur/Tindakan Sekunder</td>
+                                </tr>
+                                @if($resumeRanap1->prosedur_sekunder)
+                                <tr>
+                                    <td class="align-top py-0" colspan="3">1. {{ $resumeRanap1->prosedur_sekunder
+                                        }}
+                                        <div class="float-right">
+                                            <div class="float-right">
+                                                {{ $resumeRanap4->where('prioritas','=',2)->first()?
+                                                '('.$resumeRanap4->where('prioritas','=',2)->first()->kode.')':'(............)'
+                                                }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+                                @if($resumeRanap1->prosedur_sekunder2)
+                                <tr>
+                                    <td class="align-top py-0" colspan="3">2. {{ $resumeRanap1->prosedur_sekunder2
+                                        }}
+                                        <div class="float-right">
+                                            <div class="float-right">
+                                                <div class="float-right">
+                                                    {{ $resumeRanap4->where('prioritas','=',3)->first()?
+                                                    '('.$resumeRanap4->where('prioritas','=',3)->first()->kode.')':'(............)'
+                                                    }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+                                @if($resumeRanap1->prosedur_sekunder3)
+                                <tr>
+                                    <td class="align-top py-0" colspan="3">3. {{ $resumeRanap1->prosedur_sekunder3
+                                        }}
+                                        <div class="float-right">
+                                            <div class="float-right">
+                                                @if ($resumeRanap4->where('prioritas','>',3)->first())
+                                                @php
+                                                $dataProsedurLainnya = $resumeRanap4->where('prioritas','>',3);
+                                                $last = $dataProsedurLainnya->count();
+                                                echo '(';
+                                                foreach( $dataProsedurLainnya as $itemProsedur ) {
+                                                if( $itemProsedur->kode == $resumeRanap4->last()->kode) {
+                                                echo "$itemProsedur->kode";
+                                                }else{
+                                                echo "$itemProsedur->kode, ";
+                                                }
+                                                }
+                                                echo ')';
+                                                @endphp
+                                                @else
+                                                (............)
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endif
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Diet Selama Perawatan</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->diet }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Keadaan Pulang</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->keadaan }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Cara Keluar</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->cara_keluar }}
+                                        {{ $resumeRanap1->ket_keluar }}
+                                        <br>
+                                        <pre class="tab1">TD : {{ $resumeRanap1->td }} mmHg     HR : {{ $resumeRanap1->hr }} x/menit   RR : {{
+                                        $resumeRanap1->rr }} x/menit   Suhu : {{ $resumeRanap1->suhu }} &#8451;</pre>
+
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Hasil Lab Yang Belum Selesai
+                                        (Pending)</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->lab_belum }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Obat-obatan waktu pulang</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->obat_pulang }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">PERAWATAN SELANJUTNYA</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->dilanjutkan }}
+                                        {{ $resumeRanap1->ket_dilanjutkan }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">Tanggal Kontrol</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->kontrol }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-top py-0" style="width: 20%">EDUKASI PASIEN</td>
+                                    <td class="align-top py-0" style="width: 2%">:</td>
+                                    <td class="align-top py-0" style="width: 78%">
+                                        {{ $resumeRanap1->edukasi }}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <table class="table table-borderless table-sm mt-5">
+                            <tr>
+                                <td style="width: 50%; text-align:center;">
+                                    Surakarta,
+                                    {{ \Carbon\Carbon::now()->locale('id')->format('d F Y') }}<br>
+                                    Dokter Penanggung Jawab Pelayanan
+                                </td>
+                                <td class="text-center align-bottom">
+                                    Pasien / Keluarga
+                                </td>
+                            </tr>
+                            <tr>
+                                @php
+                                $qr_dokter =
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                elektronik oleh' .
+                                "\n" .
+                                $resumeRanap1->nm_dokter .
+                                "\n" .
+                                'ID ' .
+                                $resumeRanap1->kd_dokter .
+                                "\n" .
+                                \Carbon\Carbon::now()->format('d-m-Y');
+
+                                @endphp
+
+                                <td class="text-center pt-0 pb-0"> {!! QrCode::size(100)->generate($qr_dokter)
+                                    !!}
+                                </td>
+                                <td style="width: 50%"></td>
+                            </tr>
+                            <tr>
+
+                                <td class="text-center"> ({{ $resumeRanap1->nm_dokter }}) </td>
+                                <td class="text-center">(....................)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                @endif
+                {{-- End Resume Ranap --}}
                 {{-- Data Dokumen Tambahan --}}
                 <div class="card">
                     <div class="card-header">
@@ -2723,6 +3814,8 @@ $dataSep = App\Vedika::getSep($pasien->no_rawat);
 <!-- Tempusdominus Bootstrap 4 -->
 <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
 <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+<!-- bs-custom-file-input -->
+<script src="{{ asset('template/plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
 <script>
     $(function() {
             $('#example2').DataTable({
@@ -2751,6 +3844,9 @@ $dataSep = App\Vedika::getSep($pasien->no_rawat);
         //Date picker
         $('#tanggal').datetimepicker({
             format: 'YYYY-MM-DD'
+        });
+        $(function() {
+            bsCustomFileInput.init();
         });
 </script>
 @endsection

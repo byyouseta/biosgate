@@ -475,24 +475,37 @@
                     <div class="card-header">Billing</div>
                     @if ($billing->count() > 0)
                     <div class="card-body">
-                        <table class="table table-borderless mb-0">
+                        <table class="table table-borderless mb-3">
                             <tr>
-                                <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
-                                        alt="Logo RSUP" width="100">
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
                                 </td>
-                                <td class="pt-0 pb-0 text-center align-middle ">
-                                    <h3 class="pt-0 pb-0">RSUP SURAKARTA</h3>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
                                 </td>
-                                <td style="width:20%" rowspan="3"></td>
                             </tr>
                             <tr>
-                                <td class="text-center align-middle py-0">
-                                    Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-center align-middle py-0">
-                                    Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                    (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    https://web.rsupsurakarta.co.id
                                 </td>
                             </tr>
 
@@ -594,24 +607,37 @@
                     <div class="card-header">Surat Bukti Pelayanan Kesehatan</div>
 
                     <div class="card-body">
-                        <table class="table table-borderless mb-0">
+                        <table class="table table-borderless mb-3">
                             <tr>
-                                <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
-                                        alt="Logo RSUP" width="100">
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
                                 </td>
-                                <td class="pt-0 pb-0 text-center align-middle ">
-                                    <h3 class="pt-0 pb-0">RSUP SURAKARTA</h3>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
                                 </td>
-                                <td style="width:20%" rowspan="3"></td>
                             </tr>
                             <tr>
-                                <td class="text-center align-middle py-0">
-                                    Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-center align-middle py-0">
-                                    Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                    (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    https://web.rsupsurakarta.co.id
                                 </td>
                             </tr>
 
@@ -846,23 +872,38 @@
                                 id="custom-tabs-lap-{{ $order->noorder }}" role="tabpanel"
                                 aria-labelledby="#custom-tabs-lap-{{ $order->noorder }}">
 
-                                <table class="table table-borderless mb-0">
+                                <table class="table table-borderless mb-3">
                                     <tr>
-                                        <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
-                                                alt="Logo RSUP" width="100"></td>
-                                        <td class="pt-0 pb-0 text-center align-middle ">
-                                            <h3 class="pt-0 pb-0">RSUP SURAKARTA</h3>
+                                        <td class="align-top" style="width:60%" rowspan="4"><img
+                                                src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                                width="350">
                                         </td>
-                                        <td style="width:20%" rowspan="3"></td>
+                                        <td class="pt-1 pb-0 align-middle"
+                                            style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                            <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                                Kesehatan</div>
+                                            <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                            </div>
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                            Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                            (0271)
+                                            713055
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                width="17">
+                                            https://web.rsupsurakarta.co.id
                                         </td>
                                     </tr>
 
@@ -1093,11 +1134,18 @@
                             $index = 0;
                             @endphp
                             @if (!empty($dataRadiologiRajal))
-                            @foreach ($dataRadiologiRajal as $detailRadioRajal)
+                            @foreach ($dataRadiologiRajal as $nourut => $detailRadioRajal)
                             <li class="nav-item">
+                                @php
+                                // dd($dokterRadiologiRajal[$nourut]->tanggal);
+                                $tgl_hasil = $dokterRadiologiRajal[$nourut]->tgl_periksa;
+                                $jam_hasil = $dokterRadiologiRajal[$nourut]->jam;
+                                $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
+                                // dd($tab);
+                                @endphp
                                 <a class="nav-link {{ $index == 0 ? 'active' : '' }}" id="custom-tabs-four-home-tab"
-                                    data-toggle="pill" href="#custom-tabs-lap-{{ $detailRadioRajal->noorder }}"
-                                    role="tab" aria-controls="custom-tabs-four-home" aria-selected="true"> Hasil
+                                    data-toggle="pill" href="#custom-tabs-lap-{{ $tab }}" role="tab"
+                                    aria-controls="custom-tabs-four-home" aria-selected="true"> Hasil
                                     Radiologi {{ $detailRadioRajal->noorder }}</a>
                             </li>
                             @php
@@ -1113,30 +1161,51 @@
                             $index2 = 0;
                             @endphp
                             @foreach ($dataRadiologiRajal as $urutan => $radioRajal)
-                            <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
-                                id="custom-tabs-lap-{{ $radioRajal->noorder }}" role="tabpanel"
-                                aria-labelledby="#custom-tabs-lap-{{ $radioRajal->noorder }}">
+                            @php
+                            $tgl_hasil = $dokterRadiologiRajal[$urutan]->tgl_periksa;
+                            $jam_hasil = $dokterRadiologiRajal[$urutan]->jam;
+                            $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
 
-                                <table class="table table-borderless mb-0">
+                            @endphp
+                            <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
+                                id="custom-tabs-lap-{{ $tab }}" role="tabpanel"
+                                aria-labelledby="#custom-tabs-lap-{{ $tab }}">
+
+                                <table class="table table-borderless mb-3">
                                     <tr>
-                                        <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
-                                                alt="Logo RSUP" width="100">
+                                        <td class="align-top" style="width:60%" rowspan="4"><img
+                                                src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                                width="350">
                                         </td>
-                                        <td class="pt-0 pb-0 text-center align-middle ">
-                                            <h3 class="pt-0 pb-0">RSUP SURAKARTA</h3>
+                                        <td class="pt-1 pb-0 align-middle"
+                                            style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                            <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                                Kesehatan</div>
+                                            <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                            </div>
                                         </td>
-                                        <td style="width:20%" rowspan="3"></td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                            Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                         </td>
                                     </tr>
                                     <tr>
-                                        <td class="text-center align-middle py-0">
-                                            Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                            (0271)
+                                            713055
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td class="align-middle py-0">
+                                            <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                width="17">
+                                            https://web.rsupsurakarta.co.id
+                                        </td>
+                                    </tr>
+
                                 </table>
                                 <div class="progress progress-xs mt-0 pt-0">
                                     <div class="progress-bar progress-bar bg-black" role="progressbar"
@@ -1158,13 +1227,17 @@
                                             <td class="pt-0 pb-0">: {{ $pasien->no_rkm_medis }}</td>
                                             <td class="pt-0 pb-0">Penanggung Jawab</td>
                                             <td class="pt-0 pb-0">:
-                                                {{ $dokterRadiologiRajal[$urutan]->nm_dokter }}</td>
+                                                {{ !empty($dokterRadiologiRajal[$urutan]->nm_dokter) ?
+                                                $dokterRadiologiRajal[$urutan]->nm_dokter : '' }}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td class="pt-0 pb-0">Nama Pasien</td>
                                             <td class="pt-0 pb-0">: {{ $pasien->nm_pasien }}</td>
                                             <td class="pt-0 pb-0">Dokter Pengirim</td>
-                                            <td class="pt-0 pb-0">: {{ $pasien->nm_dokter }}</td>
+                                            <td class="pt-0 pb-0">:
+                                                {{ !empty($radioRajal->nm_dokter) ? $radioRajal->nm_dokter : '' }}
+                                            </td>
 
                                         </tr>
                                         <tr>
@@ -1186,7 +1259,7 @@
                                             <td class="pt-0 pb-0">Alamat</td>
                                             <td class="pt-0 pb-0">: {{ $radioRajal->alamat }}</td>
                                             <td class="pt-0 pb-0">Jam Pemeriksaan</td>
-                                            <td class="pt-0 pb-0">: {{ $radioRajal->jam_hasil }}</td>
+                                            <td class="pt-0 pb-0">: {{ $dokterRadiologiRajal[$urutan]->jam }}</td>
 
                                         </tr>
                                         <tr>
@@ -1197,7 +1270,8 @@
                                         </tr>
                                         <tr>
                                             <td class="pt-0 pb-0">Pemeriksaan</td>
-                                            <td class="pt-0 pb-0">: {{ $radioRajal->nm_perawatan }}</td>
+                                            <td class="pt-0 pb-0">: {{ $dokterRadiologiRajal[$urutan]->nm_perawatan }}
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td class="pt-0 pb-0">Hasil Pemeriksaan</td>
@@ -1205,16 +1279,18 @@
                                     </tbody>
 
                                 </table>
+                                @if (!empty($hasilRadiologiRajal[$urutan]->hasil))
                                 @php
                                 $paragraphs = explode("\n", $hasilRadiologiRajal[$urutan]->hasil);
                                 $tinggi = 25 * count($paragraphs);
                                 @endphp
+                                @endif
                                 <table class="table table-bordered">
                                     <tbody class="border border-dark">
                                         <tr>
                                             <textarea class="form-control" readonly
                                                 style="
-                                            min-height: {{ $tinggi }}px;
+                                            min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
                                             resize: none;
                                             overflow-y:hidden;
                                             border:1px solid black;
@@ -1224,6 +1300,7 @@
                                     </tbody>
 
                                 </table>
+                                @if (!empty($dokterRadiologiRajal[$urutan]->nm_dokter))
                                 <table class="table table-borderless mt-1">
                                     <tr>
                                         <td class="text-center pt-0 pb-0" style="width: 70%"></td>
@@ -1258,6 +1335,7 @@
                                         </td>
                                     </tr>
                                 </table>
+                                @endif
                             </div>
                             @php
                             ++$index2;
@@ -1275,24 +1353,37 @@
                 <div class="card">
                     <div class="card-header">Obat</div>
                     <div class="card-body">
-                        <table class="table table-borderless mb-0">
+                        <table class="table table-borderless mb-3">
                             <tr>
-                                <td style="width:20%" rowspan="3"><img src="{{ asset('image/logorsup.jpg') }}"
-                                        alt="Logo RSUP" width="100">
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
                                 </td>
-                                <td class="pt-0 pb-0 text-center align-middle ">
-                                    <h3 class="pt-0 pb-0">RSUP SURAKARTA</h3>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
                                 </td>
-                                <td style="width:20%" rowspan="3"></td>
                             </tr>
                             <tr>
-                                <td class="text-center align-middle py-0">
-                                    Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                 </td>
                             </tr>
                             <tr>
-                                <td class="text-center align-middle py-0">
-                                    Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                    (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    https://web.rsupsurakarta.co.id
                                 </td>
                             </tr>
 
@@ -1934,33 +2025,43 @@
                 <div class="card">
                     <div class="card-header">Laporan Operasi</div>
                     <div class="card-body">
+                        <table class="table table-borderless mb-3">
+                            <tr>
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
+                                </td>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                    (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    https://web.rsupsurakarta.co.id
+                                </td>
+                            </tr>
+
+                        </table>
                         <table class="table table-borderless mb-0">
                             <thead>
-                                <tr>
-                                    <td style="width:10%" rowspan="4"><img src="{{ asset('image/logorsup.jpg') }}"
-                                            alt="Logo RSUP" width="100">
-                                    </td>
-                                    <td class="pt-0 pb-0 align-middle" colspan='2'>
-                                        <h4 class="pt-0 pb-0">RSUP SURAKARTA</h4>
-                                    </td>
-                                    <td style="width:50%" rowspan="4" colspan="3"></td>
-                                </tr>
-                                <tr>
-                                    <td class="align-middle py-0" colspan='2'>
-                                        Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="align-middle py-0" colspan='2'>
-                                        Telp.0271-713055 / 720002
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="align-middle py-0 border border-dark border-top-0 border-left-0 border-right-0"
-                                        colspan='2'>
-                                        E-mail : rsupsurakarta@kemkes.go.id
-                                    </td>
-                                </tr>
                                 <tr>
                                     <td class="align-middle py-0 border border-dark border-top-5 border-left-0 border-right-0"
                                         colspan="6">
@@ -3646,6 +3747,8 @@ $dataSep = App\Vedika::getSep($pasien->no_rawat);
 <!-- Tempusdominus Bootstrap 4 -->
 <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
 <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+<!-- bs-custom-file-input -->
+<script src="{{ asset('template/plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
 <script>
     $(function() {
             $('#example2').DataTable({
@@ -3674,6 +3777,9 @@ $dataSep = App\Vedika::getSep($pasien->no_rawat);
         //Date picker
         $('#tanggal').datetimepicker({
             format: 'YYYY-MM-DD'
+        });
+        $(function() {
+            bsCustomFileInput.init();
         });
 </script>
 @endsection

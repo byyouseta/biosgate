@@ -19,6 +19,8 @@ use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Env;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -42,7 +44,7 @@ class SatuSehatController extends Controller
     {
         session()->put('ibu', 'Satu Sehat');
         session()->put('anak', 'Rajal Satu Sehat');
-        session()->forget('cucu');
+        session()->put('cucu', 'Summary');
 
         if (empty($request->get('tanggal'))) {
             $tanggal = Carbon::now();
@@ -60,11 +62,177 @@ class SatuSehatController extends Controller
         return view('satu_sehat.summary', compact('dataLog', 'errorLog'));
     }
 
+    public function checkRajal(Request $request)
+    {
+        session()->put('ibu', 'Satu Sehat');
+        session()->put('anak', 'Rajal Satu Sehat');
+        session()->put('cucu', 'Summary Check');
+
+        if (empty($request->get('tanggal'))) {
+            $tanggal = Carbon::now();
+        } else {
+            $tanggal = new Carbon($request->get('tanggal'));
+        }
+
+        $dataLog = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.kd_dokter',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.stts',
+                'reg_periksa.kd_poli',
+                'reg_periksa.kd_pj',
+                'pasien.nm_pasien',
+                'pasien.no_ktp as ktp_pasien',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pegawai.no_ktp as ktp_dokter',
+                'pegawai.nama as nama_dokter',
+                'poliklinik.nm_poli',
+                'poliklinik.kd_poli'
+            )
+            ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->where('poliklinik.nm_poli', 'not like', '%IGD%')
+            ->where('reg_periksa.tgl_registrasi', $tanggal)
+            ->orderBy('reg_periksa.no_rkm_medis', 'ASC')
+            ->get();
+
+        return view('satu_sehat.summary_rajal', compact('dataLog'));
+    }
+
+    public function checkRajalDetail($id)
+    {
+        session()->put('ibu', 'Satu Sehat');
+        session()->put('anak', 'Rajal Satu Sehat');
+        session()->put('cucu', 'Summary Check');
+
+        $id = Crypt::decrypt($id);
+        // $id = '2023/06/14/000055';
+
+        $dataPasien = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->join('penjab', 'penjab.kd_pj', '=', 'reg_periksa.kd_pj')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.kd_dokter',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.stts',
+                'reg_periksa.kd_poli',
+                'reg_periksa.kd_pj',
+                'penjab.nama_perusahaan',
+                'pasien.nm_pasien',
+                'pasien.no_ktp as ktp_pasien',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pasien.no_peserta',
+                'pegawai.no_ktp as ktp_dokter',
+                'pegawai.nama as nama_dokter',
+                'poliklinik.nm_poli',
+                'poliklinik.kd_poli'
+            )
+            ->where('reg_periksa.no_rawat', $id)
+            ->orderBy('reg_periksa.no_rkm_medis', 'ASC')
+            ->first();
+
+        if (strlen($dataPasien->ktp_pasien) > 3) {
+            $idSatu = PasienSehat::where('nik', $dataPasien->ktp_pasien)->first();
+        } else {
+            $idSatu = null;
+        }
+
+        if (strlen($dataPasien->ktp_dokter) > 3) {
+            $idSatuPraktisi = PraktisiSehat::where('nik', $dataPasien->ktp_dokter)->first();
+        } else {
+            $idSatuPraktisi = null;
+        }
+
+        $cekDiagnosa = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            ->select(
+                'diagnosa_pasien.no_rawat',
+                'diagnosa_pasien.kd_penyakit',
+                'diagnosa_pasien.status',
+                'diagnosa_pasien.prioritas',
+                'penyakit.nm_penyakit'
+            )
+            ->where('diagnosa_pasien.status', 'Ralan')
+            ->where('diagnosa_pasien.no_rawat', $id)
+            ->get();
+
+        $cekPoliklinik = DB::connection('mysqlkhanza')->table('fhir_poliklinik')
+            ->where('kd_poli', $dataPasien->kd_poli)
+            ->first();
+
+        $logUser = LogErrorSatuSehat::where('subject', 'Pasien')
+            ->where(function ($query)  use ($id, $dataPasien) {
+                $query->where('keterangan', 'like', "%$id%")
+                    ->orWhere('keterangan', 'like', "%$dataPasien->no_rkm_medis%")
+                    ->orWhere('keterangan', 'like', "%$dataPasien->ktp_pasien%");
+            })
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        $logPraktisi = LogErrorSatuSehat::where('subject', 'Praktitioner')
+            ->where(function ($query)  use ($id, $dataPasien) {
+                $query->where('keterangan', 'like', "%$id%")
+                    ->orWhere('keterangan', 'like', "%$dataPasien->nama_dokter%")
+                    ->orWhere('keterangan', 'like', "%$dataPasien->ktp_dokter%");
+            })
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        $logDiagnosa = LogErrorSatuSehat::where('subject', 'like', '%Diagnosa%')
+            ->where(function ($query)  use ($id, $dataPasien) {
+                $query->where('keterangan', 'like', "%$id%")
+                    ->orWhere('keterangan', 'like', "%$dataPasien->no_rkm_medis%")
+                    ->orWhere('keterangan', 'like', "%$dataPasien->ktp_pasien%");
+            })
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        $logPoliklinik = LogErrorSatuSehat::where('subject', 'Lokasi')
+            ->where('keterangan', 'like', "%$dataPasien->kd_poli%")
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        $logOther = LogErrorSatuSehat::where('keterangan', 'like', "%$dataPasien->no_rkm_medis%")
+            ->orWhere('keterangan', 'like', "%$dataPasien->no_rawat%")
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        // dd($cekDiagnosa);
+
+
+        return view('satu_sehat.check_error', compact(
+            'dataPasien',
+            'idSatu',
+            'idSatuPraktisi',
+            'logPraktisi',
+            'logDiagnosa',
+            'cekDiagnosa',
+            'cekPoliklinik',
+            'logPoliklinik',
+            'logOther',
+            'logUser'
+        ));
+    }
+
     public function bundleData(Request $request)
     {
         session()->put('ibu', 'Satu Sehat');
-        session()->put('anak', 'Api Bundle');
-        session()->forget('cucu');
+        session()->put('anak', 'Rajal Satu Sehat');
+        session()->put('cucu', 'API Bundle');
         set_time_limit(0);
 
         // SatuSehatController::getTokenSehat();
@@ -1344,14 +1512,1122 @@ class SatuSehatController extends Controller
         return view('satu_sehat.client_bundle', compact('dataLog'));
     }
 
-    public function sendEncounter()
+    public function sendSingleBundle($norawat)
+    {
+        $norawat = Crypt::decrypt($norawat);
+
+        $dataPengunjung = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.kd_dokter',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.stts',
+                'reg_periksa.kd_poli',
+                'reg_periksa.kd_pj',
+                'pasien.nm_pasien',
+                'pasien.no_ktp as ktp_pasien',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pegawai.no_ktp as ktp_dokter',
+                'pegawai.nama as nama_dokter',
+                'poliklinik.nm_poli',
+                'poliklinik.kd_poli'
+
+            )
+            ->where('reg_periksa.no_rawat', $norawat)
+            ->first();
+
+        $cekLog = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->count();
+        if (($cekLog == 0) && ($dataPengunjung->nm_poli != 'IGD')) {
+            $idRS = env('IDRS');
+            //Karena masih masalah diminta kirim pakai dummy dulu
+            $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
+            if ($idPasien == null) {
+                $cek = LogErrorSatuSehat::where('subject', 'Pasien')
+                    ->where('keterangan', 'like', '%' . $dataPengunjung->no_rkm_medis . '%')
+                    ->whereDate('created_at', Carbon::now())
+                    ->get();
+
+                if ($cek->count() == 0) {
+                    $error = new LogErrorSatuSehat();
+                    $error->subject = 'Pasien';
+                    $error->keterangan =  ' cek NIK Pasien no RM ' . $dataPengunjung->no_rkm_medis;
+                    $error->save();
+                }
+            }
+            $idDokter = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
+            if ($idDokter == null) {
+                $cek = LogErrorSatuSehat::where('subject', 'Praktitioner')
+                    ->where('keterangan', 'like', '%' . $dataPengunjung->nama_dokter . '%')
+                    ->whereDate('created_at', Carbon::now())
+                    ->get();
+
+                if ($cek->count() == 0) {
+                    $error = new LogErrorSatuSehat();
+                    $error->subject = 'Praktitioner';
+                    $error->keterangan = $dataPengunjung->nama_dokter . ' tidak ditemukan';
+                    $error->save();
+                }
+            }
+            $idLokasi = SatuSehatController::getIdPoli($dataPengunjung->kd_poli);
+            $diagnosaPrimer = SatuSehatController::getDiagnosisPrimerRalan($dataPengunjung->no_rawat);
+
+            // dd($dataPengunjung->no_rawat, $idPasien, $idDokter, $idLokasi, $diagnosaPrimer);
+
+            if ((!empty($idPasien)) && (!empty($idDokter)) && (!empty($diagnosaPrimer)) && (!empty($idLokasi))) {
+
+                $diagnosaSekunder = SatuSehatController::getDiagnosisSekunderRalan($dataPengunjung->no_rawat);
+                $procedurePasien = SatuSehatController::getProcedureRalan($dataPengunjung->no_rawat);
+                $cekDiet = SatuSehatController::getDiet($dataPengunjung->no_rawat, $dataPengunjung->tgl_registrasi); //nyoba bundle composition
+                $waktuKeperawatan = SatuSehatController::getWaktuKeperawatan($dataPengunjung->no_rawat);
+
+                //Definisi Vital
+                $vital = SatuSehatController::getVital($dataPengunjung->no_rawat);
+                if (!empty($vital)) {
+                    if ($vital->nadi != '-') {
+                        $heartRate = floatval($vital->nadi);
+                    } else {
+                        $heartRate = floatval(80);
+                    }
+
+                    if ($vital->respirasi != '-') {
+                        $respiratory = floatval($vital->respirasi);
+                    } else {
+                        $respiratory = floatval(20);
+                    }
+                    if ($vital->tensi != '-') {
+                        $darah = explode('/', $vital->tensi);
+                        $sistole = floatval($darah[0]);
+                        if (!empty($darah[1])) {
+                            $diastole = floatval($darah[1]);
+                        } else {
+                            $diastole = floatval(80);
+                        }
+                    } else {
+                        $sistole = floatval(120);
+                        $diastole = floatval(80);
+                    }
+
+                    if ($vital->suhu_tubuh != '-') {
+                        $temperature = floatval($vital->suhu_tubuh);
+                    } else {
+                        $temperature = floatval(37);
+                    }
+                } else {
+                    $heartRate = floatval(80);
+                    $sistole = floatval(120);
+                    $diastole = floatval(80);
+                    $respiratory = floatval(20);
+                    $temperature = floatval(37);
+                }
+
+                //Waktu
+                $waktuAwal = $dataPengunjung->tgl_registrasi . ' ' . $dataPengunjung->jam_reg;
+                $waktu_mulai = new Carbon($waktuAwal);
+                $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
+                if ((!empty($waktuKeperawatan->tanggal))) {
+                    $waktuInprogress = Carbon::parse($waktuKeperawatan->tanggal);
+                    if ($waktu_mulai > $waktuInprogress) {
+                        goto WaktuProses2;
+                    }
+                } else {
+                    WaktuProses2:
+                    $waktuInprogress = Carbon::parse($waktuAwal)->addMinute(10);
+                }
+                $formatWaktuProgress = $waktuInprogress->setTimezone('UTC')->toW3cString();
+                if ((!empty($vital->tgl_perawatan))) {
+                    $waktuSelesai = Carbon::parse($vital->tgl_perawatan . ' ' . $vital->jam_rawat);
+                    if ($waktuInprogress > $waktuSelesai) {
+                        goto WaktuSelesai2;
+                    }
+                } else {
+                    WaktuSelesai2:
+                    $waktuSelesai = Carbon::parse($waktuAwal)->addMinute(30);
+                }
+                $formatWaktuSelesai = $waktuSelesai->setTimezone('UTC')->toW3cString();
+
+                $day = Carbon::parse($waktuAwal)->dayName;
+                $day2 = Carbon::parse($waktuAwal)->format('d F Y');
+                $formatDay = $day . ', ' . $day2;
+
+                //UUID
+                $uuidEncounter = Str::uuid();
+                $uuidDiagnosaPrimer = Str::uuid();
+
+                $uuidHeart = Str::uuid();
+                $uuidRespiratory = Str::uuid();
+                $uuidSistol = Str::uuid();
+                $uuidDiastol = Str::uuid();
+                $uuidTemperature = Str::uuid();
+                if ($diagnosaSekunder != null) {
+                    $uuidDiagnosaSekunder = Str::uuid();
+                    //encounter 2 diagnosa
+                    $Encounter1 = [
+                        "fullUrl" => "urn:uuid:$uuidEncounter",
+                        "resource" => [
+                            "resourceType" => "Encounter",
+                            "status" => "finished", //awal finished diganti in-progress
+                            "class" => [
+                                "system" => "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                                "code" => "AMB",
+                                "display" => "ambulatory"
+                            ],
+                            "subject" => [
+                                "reference" => "Patient/$idPasien",
+                                "display" => "$dataPengunjung->nm_pasien"
+                            ],
+                            "participant" => [
+                                [
+                                    "type" => [
+                                        [
+                                            "coding" => [
+                                                [
+                                                    "system" => "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                                                    "code" => "ATND",
+                                                    "display" => "attender"
+                                                ]
+                                            ]
+                                        ]
+                                    ],
+                                    "individual" => [
+                                        "reference" => "Practitioner/$idDokter",
+                                        "display" => "$dataPengunjung->nama_dokter"
+                                    ]
+                                ]
+                            ],
+                            "period" => [
+                                "start" => "$formatWaktuMulai",
+                                "end" => "$formatWaktuSelesai"
+                            ],
+                            "location" => [
+                                [
+                                    "location" => [
+                                        "reference" => "Location/$idLokasi",
+                                        "display" => "$dataPengunjung->nm_poli"
+                                    ]
+                                ]
+                            ],
+                            "diagnosis" => [
+                                [
+                                    "condition" => [
+                                        "reference" => "urn:uuid:$uuidDiagnosaPrimer",
+                                        "display" => "$diagnosaPrimer->nm_penyakit"
+                                    ],
+                                    "use" => [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://terminology.hl7.org/CodeSystem/diagnosis-role",
+                                                "code" => "DD",
+                                                "display" => "Discharge diagnosis"
+                                            ]
+                                        ]
+                                    ],
+                                    "rank" => 1
+                                ],
+                                [
+                                    "condition" => [
+                                        "reference" => "urn:uuid:$uuidDiagnosaSekunder",
+                                        "display" => "$diagnosaSekunder->nm_penyakit"
+                                    ],
+                                    "use" => [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://terminology.hl7.org/CodeSystem/diagnosis-role",
+                                                "code" => "DD",
+                                                "display" => "Discharge diagnosis"
+                                            ]
+                                        ]
+                                    ],
+                                    "rank" => 2
+                                ]
+
+                            ],
+                            "statusHistory" => [
+                                [
+                                    "status" => "arrived",
+                                    "period" => [
+                                        "start" => "$formatWaktuMulai",
+                                        "end" => "$formatWaktuProgress"
+                                    ]
+                                ],
+                                [
+                                    "status" => "in-progress",
+                                    "period" => [
+                                        "start" => "$formatWaktuProgress",
+                                        "end" => "$formatWaktuSelesai"
+                                    ]
+                                ],
+                                [
+                                    "status" => "finished",
+                                    "period" => [
+                                        "start" => "$formatWaktuSelesai",
+                                        "end" => "$formatWaktuSelesai"
+                                    ]
+                                ]
+                            ],
+                            "serviceProvider" => [
+                                "reference" => "Organization/$idRS"
+                            ],
+                            "identifier" => [
+                                [
+                                    "system" => "http://sys-ids.kemkes.go.id/encounter/$idRS",
+                                    "value" => "$dataPengunjung->no_rawat"
+                                ]
+                            ]
+                        ],
+                        "request" => [
+                            "method" => "POST",
+                            "url" => "Encounter"
+                        ]
+                    ];
+                    //diagnosa 2
+                    $diagnosis2 = [
+                        "fullUrl" => "urn:uuid:$uuidDiagnosaSekunder",
+                        "resource" => [
+                            "resourceType" => "Condition",
+                            "clinicalStatus" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                                        "code" => "active",
+                                        "display" => "Active"
+                                    ]
+                                ]
+                            ],
+                            "category" => [
+                                [
+                                    "coding" => [
+                                        [
+                                            "system" => "http://terminology.hl7.org/CodeSystem/condition-category",
+                                            "code" => "encounter-diagnosis",
+                                            "display" => "Encounter Diagnosis"
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            "code" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://hl7.org/fhir/sid/icd-10",
+                                        "code" => "$diagnosaSekunder->kd_penyakit",
+                                        "display" => "$diagnosaSekunder->nm_penyakit"
+                                    ]
+                                ]
+                            ],
+                            "subject" => [
+                                "reference" => "Patient/$idPasien",
+                                "display" => "$dataPengunjung->nm_pasien"
+                            ],
+                            "encounter" => [
+                                "reference" => "urn:uuid:$uuidEncounter",
+                                "display" => "Kunjungan $dataPengunjung->nm_pasien di hari $formatDay"
+                            ]
+                        ],
+                        "request" => [
+                            "method" => "POST",
+                            "url" => "Condition"
+                        ]
+                    ];
+                } else {
+                    //Ecounter 1 diagnosa
+                    $Encounter2 = [
+                        "fullUrl" => "urn:uuid:$uuidEncounter",
+                        "resource" => [
+                            "resourceType" => "Encounter",
+                            "status" => "finished", //coba diganti in-progress dari finished
+                            "class" => [
+                                "system" => "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                                "code" => "AMB",
+                                "display" => "ambulatory"
+                            ],
+                            "subject" => [
+                                "reference" => "Patient/$idPasien",
+                                "display" => "$dataPengunjung->nm_pasien"
+                            ],
+                            "participant" => [
+                                [
+                                    "type" => [
+                                        [
+                                            "coding" => [
+                                                [
+                                                    "system" => "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                                                    "code" => "ATND",
+                                                    "display" => "attender"
+                                                ]
+                                            ]
+                                        ]
+                                    ],
+                                    "individual" => [
+                                        "reference" => "Practitioner/$idDokter",
+                                        "display" => "$dataPengunjung->nama_dokter"
+                                    ]
+                                ]
+                            ],
+                            "period" => [
+                                "start" => "$formatWaktuMulai",
+                                "end" => "$formatWaktuSelesai"
+                            ],
+                            "location" => [
+                                [
+                                    "location" => [
+                                        "reference" => "Location/$idLokasi",
+                                        "display" => "$dataPengunjung->nm_poli"
+                                    ]
+                                ]
+                            ],
+                            "diagnosis" => [
+                                [
+                                    "condition" => [
+                                        "reference" => "urn:uuid:$uuidDiagnosaPrimer",
+                                        "display" => "$diagnosaPrimer->nm_penyakit"
+                                    ],
+                                    "use" => [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://terminology.hl7.org/CodeSystem/diagnosis-role",
+                                                "code" => "DD",
+                                                "display" => "Discharge diagnosis"
+                                            ]
+                                        ]
+                                    ],
+                                    "rank" => 1
+                                ]
+                            ],
+                            "statusHistory" => [
+                                [
+                                    "status" => "arrived",
+                                    "period" => [
+                                        "start" => "$formatWaktuMulai",
+                                        "end" => "$formatWaktuProgress"
+                                    ]
+                                ],
+                                [
+                                    "status" => "in-progress",
+                                    "period" => [
+                                        "start" => "$formatWaktuProgress",
+                                        "end" => "$formatWaktuSelesai"
+                                    ]
+                                ],
+                                [
+                                    "status" => "finished",
+                                    "period" => [
+                                        "start" => "$formatWaktuSelesai",
+                                        "end" => "$formatWaktuSelesai"
+                                    ]
+                                ]
+                            ],
+                            "serviceProvider" => [
+                                "reference" => "Organization/$idRS"
+                            ],
+                            "identifier" => [
+                                [
+                                    "system" => "http://sys-ids.kemkes.go.id/encounter/$idRS",
+                                    "value" => "$dataPengunjung->no_rawat"
+                                ]
+                            ]
+                        ],
+                        "request" => [
+                            "method" => "POST",
+                            "url" => "Encounter"
+                        ]
+                    ];
+                }
+
+                //diagnosa 1
+                $diagnosis1 = [
+                    "fullUrl" => "urn:uuid:$uuidDiagnosaPrimer",
+                    "resource" => [
+                        "resourceType" => "Condition",
+                        "clinicalStatus" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://terminology.hl7.org/CodeSystem/condition-clinical",
+                                    "code" => "active",
+                                    "display" => "Active"
+                                ]
+                            ]
+                        ],
+                        "category" => [
+                            [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/condition-category",
+                                        "code" => "encounter-diagnosis",
+                                        "display" => "Encounter Diagnosis"
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "code" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://hl7.org/fhir/sid/icd-10",
+                                    "code" => "$diagnosaPrimer->kd_penyakit",
+                                    "display" => "$diagnosaPrimer->nm_penyakit"
+                                ]
+                            ]
+                        ],
+                        "subject" => [
+                            "reference" => "Patient/$idPasien",
+                            "display" => "$dataPengunjung->nm_pasien"
+                        ],
+                        "encounter" => [
+                            "reference" => "urn:uuid:$uuidEncounter",
+                            "display" => "Kunjungan $dataPengunjung->nm_pasien di hari $formatDay"
+                        ]
+                    ],
+                    "request" => [
+                        "method" => "POST",
+                        "url" => "Condition"
+                    ]
+                ];
+
+                $vital1 = [
+                    "fullUrl" => "urn:uuid:$uuidHeart",
+                    "resource" => [
+                        "resourceType" => "Observation",
+                        "status" => "final",
+                        "category" => [
+                            [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                        "code" => "vital-signs",
+                                        "display" => "Vital Signs"
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "code" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://loinc.org",
+                                    "code" => "8867-4",
+                                    "display" => "Heart rate"
+                                ]
+                            ]
+                        ],
+                        "subject" => [
+                            "reference" => "Patient/$idPasien"
+                        ],
+                        "performer" => [
+                            [
+                                "reference" => "Practitioner/10004181193"
+                            ]
+                        ],
+                        "encounter" => [
+                            "reference" => "urn:uuid:$uuidEncounter",
+                            "display" => "Pemeriksaan Fisik Nadi $dataPengunjung->nm_pasien di hari $formatDay"
+                        ],
+                        "effectiveDateTime" => "$formatWaktuProgress",
+                        "valueQuantity" => [
+                            "value" => $heartRate,
+                            "unit" => "beats/minute",
+                            "system" => "http://unitsofmeasure.org",
+                            "code" => "/min"
+                        ]
+                    ],
+                    "request" => [
+                        "method" => "POST",
+                        "url" => "Observation"
+                    ]
+                ];
+                $vital2 = [
+                    "fullUrl" => "urn:uuid:$uuidRespiratory",
+                    "resource" => [
+                        "resourceType" => "Observation",
+                        "status" => "final",
+                        "category" => [
+                            [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                        "code" => "vital-signs",
+                                        "display" => "Vital Signs"
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "code" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://loinc.org",
+                                    "code" => "9279-1",
+                                    "display" => "Respiratory rate"
+                                ]
+                            ]
+                        ],
+                        "subject" => [
+                            "reference" => "Patient/$idPasien"
+                        ],
+                        "performer" => [
+                            [
+                                "reference" => "Practitioner/10004181193"
+                            ]
+                        ],
+                        "encounter" => [
+                            "reference" => "urn:uuid:$uuidEncounter",
+                            "display" => "Pemeriksaan Fisik Pernafasan $dataPengunjung->nm_pasien di hari $formatDay"
+                        ],
+                        "effectiveDateTime" => "$formatWaktuProgress",
+                        "valueQuantity" => [
+                            "value" => $respiratory,
+                            "unit" => "breaths/minute",
+                            "system" => "http://unitsofmeasure.org",
+                            "code" => "/min"
+                        ]
+                    ],
+                    "request" => [
+                        "method" => "POST",
+                        "url" => "Observation"
+                    ]
+                ];
+                $vital3 = [
+                    "fullUrl" => "urn:uuid:$uuidSistol",
+                    "resource" => [
+                        "resourceType" => "Observation",
+                        "status" => "final",
+                        "category" => [
+                            [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                        "code" => "vital-signs",
+                                        "display" => "Vital Signs"
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "code" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://loinc.org",
+                                    "code" => "8480-6",
+                                    "display" => "Systolic blood pressure"
+                                ]
+                            ]
+                        ],
+                        "subject" => [
+                            "reference" => "Patient/$idPasien"
+                        ],
+                        "performer" => [
+                            [
+                                "reference" => "Practitioner/10004181193"
+                            ]
+                        ],
+                        "encounter" => [
+                            "reference" => "urn:uuid:$uuidEncounter",
+                            "display" => "Pemeriksaan Fisik Sistolik $dataPengunjung->nm_pasien di hari $formatDay"
+                        ],
+                        "effectiveDateTime" => "$formatWaktuProgress",
+                        "bodySite" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://snomed.info/sct",
+                                    "code" => "368209003",
+                                    "display" => "Right arm"
+                                ]
+                            ]
+                        ],
+                        "valueQuantity" => [
+                            "value" => $sistole,
+                            "unit" => "mm[Hg]",
+                            "system" => "http://unitsofmeasure.org",
+                            "code" => "mm[Hg]"
+                        ]
+                    ],
+                    "request" => [
+                        "method" => "POST",
+                        "url" => "Observation"
+                    ]
+                ];
+                $vital4 = [
+                    "fullUrl" => "urn:uuid:$uuidDiastol",
+                    "resource" => [
+                        "resourceType" => "Observation",
+                        "status" => "final",
+                        "category" => [
+                            [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                        "code" => "vital-signs",
+                                        "display" => "Vital Signs"
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "code" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://loinc.org",
+                                    "code" => "8462-4",
+                                    "display" => "Diastolic blood pressure"
+                                ]
+                            ]
+                        ],
+                        "subject" => [
+                            "reference" => "Patient/$idPasien",
+                            "display" => "$dataPengunjung->nm_pasien"
+                        ],
+                        "performer" => [
+                            [
+                                "reference" => "Practitioner/10004181193"
+                            ]
+                        ],
+                        "encounter" => [
+                            "reference" => "urn:uuid:$uuidEncounter",
+                            "display" => "Pemeriksaan Fisik Diastolik $dataPengunjung->nm_pasien di hari $formatDay"
+                        ],
+                        "effectiveDateTime" => "$formatWaktuProgress",
+                        "bodySite" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://snomed.info/sct",
+                                    "code" => "368209003",
+                                    "display" => "Right arm"
+                                ]
+                            ]
+                        ],
+                        "valueQuantity" => [
+                            "value" => $diastole,
+                            "unit" => "mm[Hg]",
+                            "system" => "http://unitsofmeasure.org",
+                            "code" => "mm[Hg]"
+                        ]
+                    ],
+                    "request" => [
+                        "method" => "POST",
+                        "url" => "Observation"
+                    ]
+                ];
+                $vital5 = [
+                    "fullUrl" => "urn:uuid:$uuidTemperature",
+                    "resource" => [
+                        "resourceType" => "Observation",
+                        "status" => "final",
+                        "category" => [
+                            [
+                                "coding" => [
+                                    [
+                                        "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                        "code" => "vital-signs",
+                                        "display" => "Vital Signs"
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "code" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://loinc.org",
+                                    "code" => "8310-5",
+                                    "display" => "Body temperature"
+                                ]
+                            ]
+                        ],
+                        "subject" => [
+                            "reference" => "Patient/$idPasien"
+                        ],
+                        "performer" => [
+                            [
+                                "reference" => "Practitioner/10004181193"
+                            ]
+                        ],
+                        "encounter" => [
+                            "reference" => "urn:uuid:$uuidEncounter",
+                            "display" => "Pemeriksaan Fisik Suhu $dataPengunjung->nm_pasien di hari $formatDay"
+                        ],
+                        "effectiveDateTime" => "$formatWaktuProgress",
+                        "valueQuantity" => [
+                            "value" => $temperature,
+                            "unit" => "C",
+                            "system" => "http://unitsofmeasure.org",
+                            "code" => "Cel"
+                        ]
+                    ],
+                    "request" => [
+                        "method" => "POST",
+                        "url" => "Observation"
+                    ]
+                ];
+                if ($procedurePasien != null) {
+                    $uuidProcedure = Str::uuid();
+
+                    $procedure = [
+                        "fullUrl" => "urn:uuid:$uuidProcedure",
+                        "resource" => [
+                            "resourceType" => "Procedure",
+                            "status" => "completed",
+                            "category" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://snomed.info/sct",
+                                        "code" => "103693007",
+                                        "display" => "Diagnostic procedure"
+                                    ]
+                                ],
+                                "text" => "Diagnostic procedure"
+                            ],
+                            "code" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://hl7.org/fhir/sid/icd-9-cm",
+                                        "code" => "$procedurePasien->kode",
+                                        "display" => "$procedurePasien->deskripsi_panjang"
+                                    ]
+                                ]
+                            ],
+                            "subject" => [
+                                "reference" => "Patient/$idPasien",
+                                "display" => "$dataPengunjung->nm_pasien"
+                            ],
+                            "encounter" => [
+                                "reference" => "urn:uuid:$uuidEncounter",
+                                "display" => "Tindakan yang dilakukan kepada pasien $dataPengunjung->nm_pasien pada $formatDay"
+                            ],
+                            "performedPeriod" => [
+                                "start" => "$formatWaktuProgress",
+                                "end" => "$formatWaktuSelesai"
+                            ],
+                            "performer" => [
+                                [
+                                    "actor" => [
+                                        "reference" => "Practitioner/$idDokter",
+                                        "display" => "$dataPengunjung->nama_dokter"
+                                    ]
+                                ]
+                            ],
+                            "reasonCode" => [
+                                [
+                                    "coding" => [
+                                        [
+                                            "system" => "http://hl7.org/fhir/sid/icd-10",
+                                            "code" => "$diagnosaPrimer->kd_penyakit",
+                                            "display" => "$diagnosaPrimer->nm_penyakit"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ],
+                        "request" => [
+                            "method" => "POST",
+                            "url" => "Procedure"
+                        ]
+                    ];
+                }
+                if ($cekDiet != null) {
+                    $uuidComposition = Str::uuid();
+
+                    $compositionData = [
+                        "fullUrl" => "urn:uuid:$uuidComposition",
+                        "resource" => [
+                            "resourceType" => "Composition",
+                            "identifier" => [
+                                "system" => "http://sys-ids.kemkes.go.id/composition/$idRS",
+                                "value" => "$dataPengunjung->no_rawat"
+                            ],
+                            "status" => "final",
+                            "type" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://loinc.org",
+                                        "code" => "18842-5",
+                                        "display" => "Discharge summary"
+                                    ]
+                                ]
+                            ],
+                            "category" => [
+                                [
+                                    "coding" => [
+                                        [
+                                            "system" => "http://loinc.org",
+                                            "code" => "LP173421-1",
+                                            "display" => "Report"
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            "subject" => [
+                                "reference" => "Patient/$idPasien",
+                                "display" => "$dataPengunjung->nm_pasien"
+                            ],
+                            "encounter" => [
+                                "reference" => "urn:uuid:$uuidEncounter",
+                                "display" => "Kunjungan $dataPengunjung->nm_pasien di hari $formatDay"
+                            ],
+                            "date" => "$dataPengunjung->tgl_registrasi",
+                            "author" => [
+                                [
+                                    "reference" => "Practitioner/$idDokter",
+                                    "display" => "$dataPengunjung->nama_dokter"
+                                ]
+                            ],
+                            "title" => "Resume Medis Rawat Jalan",
+                            "custodian" => [
+                                "reference" => "Organization/$idRS"
+                            ],
+                            "section" => [
+                                [
+                                    "code" => [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://loinc.org",
+                                                "code" => "42344-2",
+                                                "display" => "Discharge diet (narrative)"
+                                            ]
+                                        ]
+                                    ],
+                                    "text" => [
+                                        "status" => "additional",
+                                        "div" => "$cekDiet->monitoring_evaluasi"
+                                    ]
+                                ]
+                            ],
+                        ],
+                        "request" => [
+                            "method" => "POST",
+                            "url" => "Composition"
+                        ]
+                    ];
+                }
+                if ((!empty($diagnosaSekunder)) && (!empty($procedurePasien)) && (!empty($cekDiet))) {
+                    $dataBundle = [$Encounter1, $diagnosis1, $diagnosis2, $vital1, $vital2, $vital3, $vital4, $vital5, $procedure, $compositionData];
+                } elseif ((!empty($diagnosaSekunder)) && (!empty($procedurePasien)) && (empty($cekDiet))) {
+                    $dataBundle = [$Encounter1, $diagnosis1, $diagnosis2, $vital1, $vital2, $vital3, $vital4, $vital5, $procedure];
+                } elseif ((!empty($diagnosaSekunder)) && (empty($procedurePasien)) && (!empty($cekDiet))) {
+                    $dataBundle = [$Encounter1, $diagnosis1, $diagnosis2, $vital1, $vital2, $vital3, $vital4, $vital5, $compositionData];
+                } elseif ((!empty($diagnosaSekunder)) && (empty($procedurePasien)) && (empty($cekDiet))) {
+                    $dataBundle = [$Encounter1, $diagnosis1, $diagnosis2, $vital1, $vital2, $vital3, $vital4, $vital5];
+                } elseif ((empty($diagnosaSekunder)) && (!empty($procedurePasien)) && (!empty($cekDiet))) {
+                    $dataBundle = [$Encounter2, $diagnosis1, $vital1, $vital2, $vital3, $vital4, $vital5, $procedure, $compositionData];
+                } elseif ((empty($diagnosaSekunder)) && (!empty($procedurePasien)) && (empty($cekDiet))) {
+                    $dataBundle = [$Encounter2, $diagnosis1, $vital1, $vital2, $vital3, $vital4, $vital5, $procedure];
+                } elseif ((empty($diagnosaSekunder)) && (empty($procedurePasien)) && (!empty($cekDiet))) {
+                    $dataBundle = [$Encounter2, $diagnosis1, $vital1, $vital2, $vital3, $vital4, $vital5, $compositionData];
+                } else {
+                    $dataBundle = [$Encounter2, $diagnosis1, $vital1, $vital2, $vital3, $vital4, $vital5];
+                }
+
+                SatuSehatController::getTokenSehat();
+                $access_token = Session::get('tokenSatuSehat');
+                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                try {
+                    $response = $client->request('POST', 'fhir-r4/v1', [
+                        'headers' => [
+                            'Authorization' => "Bearer {$access_token}"
+                        ],
+                        'json' => [
+                            "resourceType" => "Bundle",
+                            "type" => "transaction",
+                            "entry" => $dataBundle
+                        ]
+                    ]);
+                } catch (RequestException $e) {
+                    if ($e->hasResponse()) {
+                        $response = $e->getResponse();
+                        $test = json_decode($response->getBody());
+                        $errorCode = (array) $test;
+
+                        if (!empty($errorCode)) {
+                            if (!empty($errorCode['issue'][0])) {
+                                $pesan = $errorCode['issue'][0]->details->text;
+                                if (str_contains($pesan, 'duplicate')) {
+                                    $simpan = new ResponseSatuSehat();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                                    $simpan->encounter_id = 'duplicate';
+                                    $simpan->save();
+                                }
+                            } else {
+
+                                $pesan = $errorCode['fault']->faultstring;
+                                if (str_contains($pesan, 'Rate limit quota violation')) {
+                                    Session::flash('error', $pesan);
+                                }
+                            }
+
+                            $cek = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
+                                ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                                ->whereDate('created_at', Carbon::now())
+                                ->get();
+                            if ($cek->count() < 1) {
+                                $error = new LogErrorSatuSehat();
+                                $error->subject = 'Bundle Ralan';
+                                $error->keterangan = $dataPengunjung->no_rawat . ' error kirim "' . $pesan . '"';
+                                $error->save();
+                            }
+
+                            $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat";
+                            Session::flash('error', $message);
+                        }
+                    } else {
+                        $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat, no response!";
+                        Session::flash('error', $message);
+                    }
+                }
+
+                $data = json_decode($response->getBody());
+
+                if (!empty($data->entry)) {
+                    foreach ($data->entry as $index => $dataRespone) {
+                        foreach ($dataRespone as $dataPoint) {
+                            // dd($dataPoint);
+                            if (!empty($diagnosaSekunder)) {
+                                if (($index == 0) and ($dataPoint->resourceType == 'Encounter')) {
+                                    $simpan = new ResponseSatuSehat();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                                    $simpan->encounter_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 1) and ($dataPoint->resourceType == 'Condition')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->condition_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 2) and ($dataPoint->resourceType == 'Condition')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->condition2_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 3) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->heart_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 4) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->respiratory_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 5) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->systol_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 6) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->diastol_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 7) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->temperature_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 8) and ($dataPoint->resourceType == 'Procedure')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->procedure_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 8) and ($dataPoint->resourceType == 'Composition')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->composition_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 9) and ($dataPoint->resourceType == 'Composition')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->composition_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                }
+                            } else {
+                                if (($index == 0) and ($dataPoint->resourceType == 'Encounter')) {
+                                    $simpan = new ResponseSatuSehat();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                                    $simpan->encounter_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 1) and ($dataPoint->resourceType == 'Condition')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->condition_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 2) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->heart_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 3) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->respiratory_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 4) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->systol_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 5) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->diastol_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 6) and ($dataPoint->resourceType == 'Observation')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->temperature_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 7) and ($dataPoint->resourceType == 'Procedure')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->procedure_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 7) and ($dataPoint->resourceType == 'Composition')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->composition_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                } elseif (($index == 8) and ($dataPoint->resourceType == 'Composition')) {
+                                    $simpan = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->first();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->composition_id = $dataPoint->resourceID;
+                                    $simpan->save();
+                                }
+                            }
+                        }
+                    }
+
+                    $cekLog = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
+                        ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                        ->whereDate('created_at', Carbon::now())
+                        ->get();
+                    if (!empty($cekLog)) {
+                        $hapus = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
+                            ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                            ->delete();
+                    }
+                    $message = "Data bundle Pengunjung $dataPengunjung->no_rawat, berhasil dikirim";
+                    Session::flash('sukses', $message);
+                }
+            } else {
+                $message = "Cek kembali data IdSehat Pasien, idDokter, diagnosa, dan idPoli Pasien";
+                Session::flash('error', $message);
+            }
+        } else {
+            $message = "Data pasien ini sudah memiliki id encounter";
+            Session::flash('error', $message);
+        }
+
+        return redirect()->back();
+    }
+
+    public function sendSingleEncounter($norawat)
     {
         session()->put('ibu', 'Satu Sehat');
         session()->put('anak', 'Api Composition');
         session()->forget('cucu');
         set_time_limit(0);
 
-        $pasien_tanggal = '2022-09-13';
+        // $pasien_tanggal = '2022-09-13';
+        $norawat = Crypt::decrypt($norawat);
+        // dd($norawat);
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
@@ -1374,9 +2650,9 @@ class SatuSehatController extends Controller
                 'pegawai.nama as nama_dokter',
                 'poliklinik.nm_poli'
             )
-            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+            ->where('reg_periksa.no_rawat', $norawat)
             ->where('reg_periksa.status_lanjut', 'Ralan')
-            ->where('reg_periksa.stts', 'Sudah')
+            // ->where('reg_periksa.stts', 'Sudah')
             ->get();
         // dd($data);
 
@@ -1384,19 +2660,47 @@ class SatuSehatController extends Controller
             $cekLog = ResponseSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->count();
 
             if ($cekLog == 0) {
-                $idRS = '10080055';
+                $idRS = env('IDRS');
                 $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
                 $idDokter = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
                 $idLokasi = SatuSehatController::getIdPoli($dataPengunjung->kd_poli);
 
                 if ((!empty($idPasien)) && (!empty($idDokter))) {
                     //Waktu
+                    //Waktu
                     $waktuAwal = $dataPengunjung->tgl_registrasi . ' ' . $dataPengunjung->jam_reg;
                     $waktu_mulai = new Carbon($waktuAwal);
-                    $waktuSelesai = Carbon::parse($waktuAwal)->addHour(2);
-                    $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
-                    $waktuInprogress = Carbon::parse($waktuAwal)->addHour();
-                    $formatWaktuProgress = Carbon::parse($waktuInprogress)->format('Y-m-d') . 'T' . Carbon::parse($waktuInprogress)->format('H:i:s+07:00');
+                    $waktuKeperawatan = SatuSehatController::getWaktuKeperawatan($dataPengunjung->no_rawat);
+
+                    //Definisi Vital
+                    $vital = SatuSehatController::getVital($dataPengunjung->no_rawat);
+                    // dd($vital);
+                    // $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
+                    $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
+                    if ((!empty($waktuKeperawatan->tanggal))) {
+                        $waktuInprogress = Carbon::parse($waktuKeperawatan->tanggal);
+                        if ($waktu_mulai > $waktuInprogress) {
+                            goto WaktuProses2;
+                        }
+                    } else {
+                        WaktuProses2:
+                        $waktuInprogress = Carbon::parse($waktuAwal)->addMinute(10);
+                        // dd($dataPengunjung->no_rawat, $waktu_mulai, $waktuInprogress);
+                    }
+                    // $formatWaktuProgress = Carbon::parse($waktuInprogress)->format('Y-m-d') . 'T' . Carbon::parse($waktuInprogress)->format('H:i:s+07:00');
+                    $formatWaktuProgress = $waktuInprogress->setTimezone('UTC')->toW3cString();
+                    if ((!empty($vital->tgl_perawatan))) {
+                        $waktuSelesai = Carbon::parse($vital->tgl_perawatan . ' ' . $vital->jam_rawat);
+                        if ($waktuInprogress > $waktuSelesai) {
+                            goto WaktuSelesai2;
+                        }
+                    } else {
+                        WaktuSelesai2:
+                        $waktuSelesai = Carbon::parse($waktuAwal)->addMinute(30);
+                        // dd($dataPengunjung->no_rawat, $waktu_mulai, $waktuInprogress, $waktuSelesai);
+                    }
+                    // $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
+                    $formatWaktuSelesai = $waktuSelesai->setTimezone('UTC')->toW3cString();
 
                     $dataEncounter = [
                         "resourceType" => "Encounter",
@@ -1413,7 +2717,7 @@ class SatuSehatController extends Controller
                             "display" => "ambulatory"
                         ],
                         "subject" => [
-                            "reference" => "Patient/100000030009",
+                            "reference" => "Patient/$idPasien",
                             "display" => "$dataPengunjung->nm_pasien"
                         ],
                         "participant" => [
@@ -1468,13 +2772,13 @@ class SatuSehatController extends Controller
                     // dd($access_token);
                     $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                     try {
-                        $response = $client->request('POST', 'fhir-r4/pre-prod/v1/Encounter', [
+                        $response = $client->request('POST', 'fhir-r4/v1/Encounter', [
                             'headers' => [
                                 'Authorization' => "Bearer {$access_token}"
                             ],
                             'json' => $dataEncounter
                         ]);
-                    } catch (ClientException $e) {
+                    } catch (BadResponseException $e) {
                         // echo $e->getRequest();
                         // echo $e->getResponse();
                         if ($e->hasResponse()) {
@@ -1482,7 +2786,7 @@ class SatuSehatController extends Controller
 
                             // dd($response);
                             $test = json_decode($response->getBody());
-                            dd($test);
+                            dd($test, 'error');
                         }
 
                         $message = "";
@@ -1496,17 +2800,30 @@ class SatuSehatController extends Controller
 
                     $data = json_decode($response->getBody());
 
-                    dd($data);
+                    // dd($data, $dataEncounter);
+                    if ($data->id) {
+                        $simpan = new ResponseSatuSehat();
+                        $simpan->noRawat = $dataPengunjung->no_rawat;
+                        $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                        $simpan->encounter_id = $data->id;
+                        $simpan->save();
+
+                        Session::flash('sukses', 'Data encounter berhasil dikirim');
+                    }
                 }
+            } else {
+                Session::flash('error', 'Data encounter sudah pernah dikirim');
             }
         }
+
+        return redirect()->back();
     }
 
     public function sendComposition()
     {
         session()->put('ibu', 'Satu Sehat');
-        session()->put('anak', 'Api Composition');
-        session()->forget('cucu');
+        session()->put('anak', 'Rajal Satu Sehat');
+        session()->put('cucu', 'API Composition');
         set_time_limit(0);
 
         $pasien_tanggal = '2023-04-28';
@@ -1673,47 +2990,76 @@ class SatuSehatController extends Controller
         dd('Selesai');
     }
 
-    public function sendMedication()
+    public function sendMedication(Request $request)
     {
         session()->put('ibu', 'Satu Sehat');
-        session()->put('anak', 'Api Medication');
-        session()->forget('cucu');
+        session()->put('anak', 'Rajal Satu Sehat');
+        session()->put('cucu', 'API Medication');
         set_time_limit(0);
 
-        // $pasien_tanggal = '2022-11-25';
-        // $idRS = '10080055';
-        $pasien_tanggal = Carbon::now()->format('Y-m-d');
-        $kemarin = Carbon::yesterday();
-        $idRS = env('IDRS');
+        if (empty($request->get('tanggal'))) {
+            $pasien_tanggal = Carbon::now()->format('Y-m-d');
+            $kemarin = Carbon::yesterday();
 
-        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
-            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-            ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
-            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
-            ->select(
-                'reg_periksa.no_rkm_medis',
-                'reg_periksa.no_rawat',
-                'reg_periksa.tgl_registrasi',
-                'reg_periksa.jam_reg',
-                'reg_periksa.kd_dokter',
-                'reg_periksa.status_lanjut',
-                'reg_periksa.stts',
-                'reg_periksa.kd_poli',
-                'reg_periksa.kd_pj',
-                'pasien.nm_pasien',
-                'pasien.no_ktp as ktp_pasien',
-                'pasien.tgl_lahir',
-                'pasien.jk',
-                'pegawai.no_ktp as ktp_dokter',
-                'pegawai.nama as nama_dokter',
-                'poliklinik.nm_poli'
-            )
-            ->where('reg_periksa.status_lanjut', 'Ralan')
-            ->where('reg_periksa.stts', 'Sudah')
-            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
-            ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
-            ->get();
-        // dd($data);
+            $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+                ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+                ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+                ->select(
+                    'reg_periksa.no_rkm_medis',
+                    'reg_periksa.no_rawat',
+                    'reg_periksa.tgl_registrasi',
+                    'reg_periksa.jam_reg',
+                    'reg_periksa.kd_dokter',
+                    'reg_periksa.status_lanjut',
+                    'reg_periksa.stts',
+                    'reg_periksa.kd_poli',
+                    'reg_periksa.kd_pj',
+                    'pasien.nm_pasien',
+                    'pasien.no_ktp as ktp_pasien',
+                    'pasien.tgl_lahir',
+                    'pasien.jk',
+                    'pegawai.no_ktp as ktp_dokter',
+                    'pegawai.nama as nama_dokter',
+                    'poliklinik.nm_poli'
+                )
+                ->where('reg_periksa.status_lanjut', 'Ralan')
+                ->where('reg_periksa.stts', 'Sudah')
+                ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+                ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
+                ->get();
+        } else {
+            $pasien_tanggal = new Carbon($request->get('tanggal'));
+
+            $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+                ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+                ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+                ->select(
+                    'reg_periksa.no_rkm_medis',
+                    'reg_periksa.no_rawat',
+                    'reg_periksa.tgl_registrasi',
+                    'reg_periksa.jam_reg',
+                    'reg_periksa.kd_dokter',
+                    'reg_periksa.status_lanjut',
+                    'reg_periksa.stts',
+                    'reg_periksa.kd_poli',
+                    'reg_periksa.kd_pj',
+                    'pasien.nm_pasien',
+                    'pasien.no_ktp as ktp_pasien',
+                    'pasien.tgl_lahir',
+                    'pasien.jk',
+                    'pegawai.no_ktp as ktp_dokter',
+                    'pegawai.nama as nama_dokter',
+                    'poliklinik.nm_poli'
+                )
+                ->where('reg_periksa.status_lanjut', 'Ralan')
+                ->where('reg_periksa.stts', 'Sudah')
+                ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+                ->get();
+        }
+        // $pasien_tanggal = Carbon::now()->format('Y-m-d');
+        $idRS = env('IDRS');
         $antrian = 0;
 
         foreach ($data as $key => $dataPengunjung) {
@@ -2539,7 +3885,7 @@ class SatuSehatController extends Controller
                                                 $test = json_decode($response->getBody());
                                                 $errorCode = (array) $test;
 
-                                                dd($test, 'medication dispance');
+                                                dd($test, 'medication dispance', $medicationDispense);
                                                 if (!empty($errorCode['issue'][0])) {
                                                     $pesan = $errorCode['issue'][0]->details->text;
 
@@ -2991,14 +4337,14 @@ class SatuSehatController extends Controller
     public function sendLab()
     {
         session()->put('ibu', 'Satu Sehat');
-        session()->put('anak', 'Api Poli Rujuk Lab');
-        session()->forget('cucu');
+        session()->put('anak', 'Rajal Satu Sehat');
+        session()->put('cucu', 'API Lab');
         set_time_limit(0);
 
         // $pasien_tanggal = '2022-11-25';
         $pasien_tanggal = Carbon::now()->format('Y-m-d');
         $kemarin = Carbon::yesterday();
-        $idRS = '100025586';
+        $idRS = Env('IDRS');
 
         $dataPengunjung = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
@@ -4417,16 +5763,23 @@ class SatuSehatController extends Controller
         return view('satu_sehat.client_rujuklab', compact('dataLog'));
     }
 
-    public function bundleLab()
+    public function bundleLab(Request $request)
     {
         session()->put('ibu', 'Satu Sehat');
-        session()->put('anak', 'Api Lab dan MCU');
-        session()->forget('cucu');
+        session()->put('anak', 'Rajal Satu Sehat');
+        session()->put('cucu', 'API Lab/MCU/CL');
         set_time_limit(0);
 
-        // $pasien_tanggal = '2022-11-25';
-        $pasien_tanggal = Carbon::now()->format('Y-m-d');
-        $idRS = '100025586';
+        if (empty($request->get('tanggal'))) {
+            $pasien_tanggal = Carbon::now();
+        } else {
+            $pasien_tanggal = new Carbon($request->get('tanggal'));
+        }
+
+        // $pasien_tanggal = Carbon::now()->format('Y-m-d');
+        $idRS = env('IDRS');
+
+        // dd($pasien_tanggal);
 
         $dataPengunjung = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
@@ -4450,9 +5803,9 @@ class SatuSehatController extends Controller
                 'pegawai.nama as nama_dokter',
                 'poliklinik.nm_poli'
             )
-            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+            ->whereDate('reg_periksa.tgl_registrasi', $pasien_tanggal)
             ->where('reg_periksa.status_lanjut', 'Ralan')
-            ->where('reg_periksa.stts', 'Sudah')
+            // ->where('reg_periksa.stts', 'Sudah')
             ->where(function ($q) {
                 $q->where('reg_periksa.kd_poli', '=', 'mcu')
                     ->orWhere('reg_periksa.kd_poli', '=', 'lab');
@@ -4465,10 +5818,6 @@ class SatuSehatController extends Controller
             $cekLog = ResponseSatuSehat::where('noRawat', $pengunjung->no_rawat)->count();
 
             if ($cekLog == 0) {
-                // $idRS = '10080055';
-
-                // $idPasien = 'P02478375538';
-                // $idDokter = '10009880728';
                 $idDokter = SatuSehatController::practitioner($pengunjung->ktp_dokter);
                 $idPasien = SatuSehatController::patientSehat($pengunjung->ktp_pasien);
                 $idLokasi = SatuSehatController::getIdPoli($pengunjung->kd_poli);
@@ -4599,14 +5948,11 @@ class SatuSehatController extends Controller
                         }
                         $message = "Error Kirim Encounter No Rawat" . $pengunjung->no_rawat;
 
+                        dd($message);
+
                         Session::flash('error', $message);
 
-                        // return redirect()->back()->withInput();
-                        $dataLog = ResponseLabSatuSehat::all();
-
-                        // dd($dataLog);
-
-                        return view('satu_sehat.client_rujuklab', compact('dataLog'));
+                        goto KirimEncounterLainnya;
                     }
 
                     // dd($response);
@@ -4622,6 +5968,8 @@ class SatuSehatController extends Controller
                     $simpan->save();
                 }
             }
+
+            KirimEncounterLainnya:
         }
 
         //Mengirim data Lab nya
@@ -4648,15 +5996,17 @@ class SatuSehatController extends Controller
                 ->first();
 
             $idCounter = SatuSehatController::getEncounterId($pasienLab->no_rawat);
+            $idDokter = SatuSehatController::practitioner($pasienLab->ktp_dokter);
+            $idPasien = SatuSehatController::patientSehat($pasienLab->ktp_pasien);
 
             if ((!empty($cekLab)) && (!empty($idCounter))) {
                 //Cek apakah sudah pernah kirim data
                 $cekResponseLab = ResponseLabSatuSehat::where('noOrder', $cekLab->noorder)->first();
 
                 if (empty($cekResponseLab)) {
-                    // $dokterPerujuk = SatuSehatController::practitioner($cekLab->ktp_dokter);
-                    $idPasien = "P02478375538";
-                    $dokterPerujuk = "10009880728";
+                    $dokterPerujuk = SatuSehatController::practitioner($cekLab->ktp_dokter);
+                    // $idPasien = "P02478375538";
+                    // $dokterPerujuk = "10009880728";
                     //cek data periksa lab
                     $periksaLab = DB::connection('mysqlkhanza')->table('periksa_lab')
                         ->join('jns_perawatan_lab', 'jns_perawatan_lab.kd_jenis_prw', '=', 'periksa_lab.kd_jenis_prw')
@@ -4673,15 +6023,19 @@ class SatuSehatController extends Controller
                         ->get();
                     // dd($pasienLab, $cekLab, $idCounter->encounter_id, $cekLab->dokter_perujuk, $dokterPerujuk);
                     // dd($periksaLab);
-
+                    $loop = 0;
                     foreach ($periksaLab as $PeriksaLab) {
                         //ambil data mapping Loinc
                         $mappingLoinc = SatuSehatController::getLoinc($PeriksaLab->kd_jenis_prw);
+                        $waktuPeriksaLab = new Carbon("$PeriksaLab->tgl_periksa $PeriksaLab->jam");
+                        $formatPeriksaLab = $waktuPeriksaLab->setTimezone('UTC')->toW3cString();
+                        $waktuSampel = new Carbon("$cekLab->tgl_sampel $cekLab->jam_sampel");
+                        $formatWaktuSampel = $waktuSampel->setTimezone('UTC')->toW3cString();
 
-                        // dd($mappingLoinc);
+                        // dd($PeriksaLab->tgl_periksa, $PeriksaLab->jam, $formatPeriksaLab);
 
                         //Cek apakah sudah ada mapping belum
-                        if (!empty($mappingLoinc)) {
+                        if (!empty($mappingLoinc) && $loop <= 10) {
                             // dd($mappingLoinc);
                             //data JSON
                             $ServiceRequest = [
@@ -4712,18 +6066,18 @@ class SatuSehatController extends Controller
                                     "reference" => "Encounter/$idCounter->encounter_id",
                                     "display" => "Permintaan $PeriksaLab->nm_perawatan pada $PeriksaLab->tgl_periksa pukul $PeriksaLab->jam WIB"
                                 ],
-                                "occurrenceDateTime" => $PeriksaLab->tgl_periksa . "T" . $PeriksaLab->jam . "+07:00",
+                                "occurrenceDateTime" => $formatPeriksaLab,
                                 "requester" => [
                                     "reference" => "Practitioner/$dokterPerujuk",
                                     "display" => "$cekLab->nama_dokter"
-                                ]
-                                // ,
-                                // "performer" => [
-                                //     [
-                                //         "reference" => "Practitioner/N10000005",
-                                //         "display" => "Fatma"
-                                //     ]
-                                // ],
+                                ],
+                                "performer" => [
+                                    [
+                                        "reference" => "Practitioner/$idDokter"
+                                        // ,
+                                        // "display" => "Fatma"
+                                    ]
+                                ],
                                 // "reasonCode" => [
                                 //     [
                                 //         "text" => "Periksa Keseimbangan Elektrolit"
@@ -4751,19 +6105,14 @@ class SatuSehatController extends Controller
                                     $response = $e->getResponse();
                                     $test = json_decode($response->getBody());
 
-                                    // dd($test);
+                                    dd($test);
                                 }
 
                                 $message = "Error Kirim Service Request $PeriksaLab->kd_jenis_prw $PeriksaLab->no_rawat";
 
                                 Session::flash('error', $message);
 
-                                // return redirect()->back()->withInput();
-                                $dataLog = ResponseLabSatuSehat::all();
-
-                                // dd($dataLog);
-
-                                return view('satu_sehat.client_rujuklab', compact('dataLog'));
+                                goto KirimPasienLain;
                             }
 
                             $data = json_decode($response->getBody());
@@ -4823,7 +6172,7 @@ class SatuSehatController extends Controller
                                             "reference" => "ServiceRequest/$idServiceRequest"
                                         ]
                                     ],
-                                    "receivedTime" => $cekLab->tgl_sampel . "T" . $cekLab->jam_sampel . "+07:00"
+                                    "receivedTime" => $formatWaktuSampel
                                 ];
 
                                 //Kirim/Create Specimen
@@ -4848,12 +6197,7 @@ class SatuSehatController extends Controller
 
                                     Session::flash('error', $message);
 
-                                    // return redirect()->back()->withInput();
-                                    $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
-
-                                    // dd($dataLog);
-
-                                    return view('satu_sehat.client_rujuklab', compact('dataLog'));
+                                    goto KirimPasienLain;
                                 }
 
                                 $responseSpecimen = json_decode($response->getBody());
@@ -4940,8 +6284,8 @@ class SatuSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "effectiveDateTime" => "$formatPeriksaLab",
+                                                                "issued" => $formatPeriksaLab,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -5004,8 +6348,8 @@ class SatuSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "effectiveDateTime" => "$formatPeriksaLab",
+                                                                "issued" => $formatPeriksaLab,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -5066,8 +6410,8 @@ class SatuSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "effectiveDateTime" => "$formatPeriksaLab",
+                                                                "issued" => $formatPeriksaLab,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -5135,8 +6479,8 @@ class SatuSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "effectiveDateTime" => "$formatPeriksaLab",
+                                                                "issued" => $formatPeriksaLab,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -5192,8 +6536,8 @@ class SatuSehatController extends Controller
                                                             "encounter" => [
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
-                                                            "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                            "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                            "effectiveDateTime" => "$formatPeriksaLab",
+                                                            "issued" => $formatPeriksaLab,
                                                             "performer" => [
                                                                 [
                                                                     "reference" => "Practitioner/10006926841"
@@ -5288,8 +6632,8 @@ class SatuSehatController extends Controller
                                                             "encounter" => [
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
-                                                            "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                            "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                            "effectiveDateTime" => "$formatPeriksaLab",
+                                                            "issued" => $formatPeriksaLab,
                                                             "performer" => [
                                                                 [
                                                                     "reference" => "Practitioner/10006926841"
@@ -5337,12 +6681,7 @@ class SatuSehatController extends Controller
 
                                                         Session::flash('error', $message);
 
-                                                        // return redirect()->back()->withInput();
-                                                        $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
-
-                                                        // dd($dataLog);
-
-                                                        return view('satu_sehat.client_rujuklab', compact('dataLog'));
+                                                        goto Selesai;
                                                     }
 
                                                     $responseObservation = json_decode($response->getBody());
@@ -5410,8 +6749,8 @@ class SatuSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "effectiveDateTime" => "$formatPeriksaLab",
+                                                                "issued" => $formatPeriksaLab,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -5474,8 +6813,8 @@ class SatuSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "effectiveDateTime" => "$formatPeriksaLab",
+                                                                "issued" => $formatPeriksaLab,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -5536,8 +6875,8 @@ class SatuSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "effectiveDateTime" => "$formatPeriksaLab",
+                                                                "issued" => $formatPeriksaLab,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -5605,8 +6944,8 @@ class SatuSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                                "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                                "effectiveDateTime" => "$formatPeriksaLab",
+                                                                "issued" => $formatPeriksaLab,
                                                                 "performer" => [
                                                                     [
                                                                         "reference" => "Practitioner/10006926841"
@@ -5662,8 +7001,8 @@ class SatuSehatController extends Controller
                                                             "encounter" => [
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
-                                                            "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                            "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                            "effectiveDateTime" => "$formatPeriksaLab",
+                                                            "issued" => $formatPeriksaLab,
                                                             "performer" => [
                                                                 [
                                                                     "reference" => "Practitioner/10006926841"
@@ -5758,8 +7097,8 @@ class SatuSehatController extends Controller
                                                             "encounter" => [
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
-                                                            "effectiveDateTime" => "$DetailLab->tgl_periksa",
-                                                            "issued" => $DetailLab->tgl_periksa . "T" . $DetailLab->jam . "+07:00",
+                                                            "effectiveDateTime" => "$formatPeriksaLab",
+                                                            "issued" => $formatPeriksaLab,
                                                             "performer" => [
                                                                 [
                                                                     "reference" => "Practitioner/10006926841"
@@ -5807,12 +7146,7 @@ class SatuSehatController extends Controller
 
                                                         Session::flash('error', $message);
 
-                                                        // return redirect()->back()->withInput();
-                                                        $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
-
-                                                        // dd($dataLog);
-
-                                                        return view('satu_sehat.client_rujuklab', compact('dataLog'));
+                                                        goto KirimPasienLain;
                                                     }
 
                                                     $responseObservation = json_decode($response->getBody());
@@ -5897,8 +7231,8 @@ class SatuSehatController extends Controller
                                         "encounter" => [
                                             "reference" => "Encounter/$idCounter->encounter_id"
                                         ],
-                                        "effectiveDateTime" => $PeriksaLab->tgl_periksa . "T" . $PeriksaLab->jam . "+07:00",
-                                        "issued" => $PeriksaLab->tgl_periksa . "T" . $PeriksaLab->jam . "+07:00",
+                                        "effectiveDateTime" => $formatPeriksaLab,
+                                        "issued" => $formatPeriksaLab,
                                         "performer" => [
                                             [
                                                 "reference" => "Practitioner/10006926841"
@@ -5958,19 +7292,14 @@ class SatuSehatController extends Controller
 
                                             // dd($response);
                                             $test = json_decode($response->getBody());
-                                            // dd($test);
+                                            dd($test);
                                         }
 
                                         $message = "Error Kirim Report lab id service request " . $idServiceRequest;
 
                                         Session::flash('error', $message);
 
-                                        // return redirect()->back()->withInput();
-                                        $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
-
-                                        // dd($dataLog);
-
-                                        return view('satu_sehat.client_rujuklab', compact('dataLog'));
+                                        goto KirimPasienLain;
                                     }
 
                                     $responseReport = json_decode($response->getBody());
@@ -5980,16 +7309,21 @@ class SatuSehatController extends Controller
                                         $update = ResponseLabSatuSehat::where('serviceRequest_id', $idServiceRequest)->first();
                                         $update->report_id = $responseReport->id;
                                         $update->save();
+
+                                        ++$loop;
                                     }
                                 }
                             }
                         }
+
+                        KirimPasienLain:
                     }
                 }
             }
         }
 
-        $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', new Carbon($pasien_tanggal))->get();
+        Selesai:
+        $dataLog = ResponseLabSatuSehat::whereDate('tgl_registrasi', $pasien_tanggal)->get();
 
         // dd($dataLog);
 
@@ -6409,6 +7743,23 @@ class SatuSehatController extends Controller
                 'pemeriksaan_ralan.tensi',
                 'pemeriksaan_ralan.nadi',
                 'pemeriksaan_ralan.respirasi'
+            )
+            ->where('pemeriksaan_ralan.no_rawat', $id)
+            ->first();
+
+        return $data;
+    }
+
+    public function getVitalMcu($id)
+    {
+        $data = DB::connection('mysqlkhanza')->table('penilaian_mcu')
+            ->select(
+                'penilaian_mcu.no_rawat',
+                'penilaian_mcu.suhu',
+                'penilaian_mcu.tanggal',
+                'penilaian_mcu.td',
+                'penilaian_mcu.nadi',
+                'penilaian_mcu.rr'
             )
             ->where('pemeriksaan_ralan.no_rawat', $id)
             ->first();

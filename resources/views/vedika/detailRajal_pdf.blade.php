@@ -113,7 +113,7 @@
             <div class="watermark">
                 {{ $watermark }}
             </div>
-            <table style="width: 100%">
+            {{-- <table style="width: 100%">
                 <tr>
                     <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}" alt="Logo RSUP"
                             width="100">
@@ -135,7 +135,8 @@
                         <center>Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id</center>
                     </td>
                 </tr>
-            </table>
+            </table> --}}
+            <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP" >
         </div>
         <div>
             <hr class='new4' />
@@ -238,29 +239,7 @@
         <div class="watermark">
             {{ $watermark }}
         </div>
-        <table style="width: 100%">
-            <tr>
-                <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}" alt="Logo RSUP"
-                        width="100">
-                </td>
-                <td>
-                    <h2>
-                        <center>RSUP SURAKARTA</center>
-                    </h2>
-                </td>
-                <td style="width:20%" rowspan="3"></td>
-            </tr>
-            <tr>
-                <td>
-                    <center> Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah</center>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <center>Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id</center>
-                </td>
-            </tr>
-        </table>
+        <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP" >
         <hr class='new4' />
         <table style="border: 0px solid black; width:100%">
             <tr>
@@ -469,29 +448,7 @@
                 {{ $watermark }}
             </div>
             <div>
-                <table style="width: 100%">
-                    <tr>
-                        <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}"
-                                alt="Logo RSUP" width="100">
-                        </td>
-                        <td>
-                            <h2>
-                                <center>RSUP SURAKARTA</center>
-                            </h2>
-                        </td>
-                        <td style="width:20%" rowspan="3"></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <center> Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah</center>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <center>Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id</center>
-                        </td>
-                    </tr>
-                </table>
+                <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP" >
                 <hr class='new4' />
                 <table style="width: 100%; border: 0px solid black">
                     <thead>
@@ -685,29 +642,7 @@
                 {{ $watermark }}
             </div>
             <div>
-                <table style="width: 100%">
-                    <tr>
-                        <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}"
-                                alt="Logo RSUP" width="100">
-                        </td>
-                        <td>
-                            <h2>
-                                <center>RSUP SURAKARTA</center>
-                            </h2>
-                        </td>
-                        <td style="width:20%" rowspan="3"></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <center> Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah</center>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <center>Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id</center>
-                        </td>
-                    </tr>
-                </table>
+                <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP" >
                 <hr class='new4' />
                 <table style="border: 0px solid black; width:100%">
                     <thead>
@@ -733,14 +668,17 @@
                             <td style="border: 0px solid black; vertical-align:top">Nama Pasien</td>
                             <td style="border: 0px solid black; vertical-align:top">: {{ $pasien->nm_pasien }}</td>
                             <td style="border: 0px solid black; vertical-align:top">Dokter Pengirim</td>
-                            <td style="border: 0px solid black; vertical-align:top">: {{ $pasien->nm_dokter }}</td>
+                            <td style="border: 0px solid black; vertical-align:top">: {{ !empty($orderRadio->nm_dokter) ?
+                                $orderRadio->nm_dokter : '' }}</td>
 
                         </tr>
                         <tr>
                             <td style="border: 0px solid black;">JK/Umur</td>
                             <td style="border: 0px solid black;">:
                                 {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }} /
-                                {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($orderRadio->tgl_hasil))->format('%y Th %m Bl %d Hr') }}
+                                {{
+                                \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($orderRadio->tgl_hasil))
+                                ->format('%y Th %m Bl %d Hr') }}
                             </td>
                             <td style="border: 0px solid black;">Tgl.Pemeriksaan</td>
                             <td style="border: 0px solid black;">:
@@ -753,7 +691,8 @@
                             <td style="border: 0px solid black; text-align:justify; padding-right:10px">:
                                 {{ $orderRadio->alamat }}</td>
                             <td style="border: 0px solid black;vertical-align:top">Jam Pemeriksaan</td>
-                            <td style="border: 0px solid black;vertical-align:top">: {{ $orderRadio->jam_hasil }}</td>
+                            <td style="border: 0px solid black;vertical-align:top">: {{ $dokterRadiologiRajal[$urutan]->jam }}
+                            </td>
 
                         </tr>
                         <tr>
@@ -764,7 +703,7 @@
                         </tr>
                         <tr>
                             <td style="border: 0px solid black;">Pemeriksaan</td>
-                            <td style="border: 0px solid black;">: {{ $orderRadio->nm_perawatan }}</td>
+                            <td style="border: 0px solid black;">: {{ $dokterRadiologiRajal[$urutan]->nm_perawatan }}</td>
                         </tr>
                         <tr>
                             <td style="border: 0px solid black;" colspan="4">Hasil Pemeriksaan</td>
@@ -772,19 +711,19 @@
                     </tbody>
                 </table>
                 @php
-                    $paragraphs = explode("\n", $dokterRadiologiRajal[$urutan]->hasil);
-                    $tinggi = 25 * count($paragraphs);
+                $paragraphs = explode("\n", $hasilRadiologiRajal[$urutan]->hasil);
+                $tinggi = 25 * count($paragraphs);
                 @endphp
                 <table style="width: 100%;">
                     <tr>
                         <textarea class="form-control" readonly
                             style="
-                    min-height: {{ $tinggi }}px;
-                    resize: none;
-                    overflow-y:hidden;
-                    border:1px solid black;
-                    background-color: white;
-                ">{{ $dokterRadiologiRajal[$urutan]->hasil != null ? $dokterRadiologiRajal[$urutan]->hasil : '' }}</textarea>
+                            min-height: {{ $tinggi }}px;
+                            resize: none;
+                            overflow-y:hidden;
+                            border:1px solid black;
+                            background-color: white;
+                        ">{{ $hasilRadiologiRajal[$urutan]->hasil != null ? $hasilRadiologiRajal[$urutan]->hasil : '' }}</textarea>
                     </tr>
                 </table>
                 <table style="width: 100%; text-align:center">
@@ -831,29 +770,7 @@
                 {{ $watermark }}
             </div>
             <div>
-                <table style="width: 100%">
-                    <tr>
-                        <td style="width:20%" rowspan="3"><img src="{{ public_path('image/logorsup.jpg') }}"
-                                alt="Logo RSUP" width="100">
-                        </td>
-                        <td>
-                            <h2>
-                                <center>RSUP SURAKARTA</center>
-                            </h2>
-                        </td>
-                        <td style="width:20%" rowspan="3"></td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <center> Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah</center>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <center>Telp.0271-713055 / 720002, E-mail : rsupsurakarta@kemkes.go.id</center>
-                        </td>
-                    </tr>
-                </table>
+                <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP" >
                 <hr class='new4' />
                 <table style="width: 100%">
                     <tbody>
