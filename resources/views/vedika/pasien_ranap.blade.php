@@ -73,7 +73,7 @@
                                         @foreach ($data as $data)
                                             @if (\App\PelaporanCovid::cekLapor($data->no_rawat) == 0)
                                                 @php
-                                                    $dataSep = App\Vedika::getSep($data->no_rawat);
+                                                    $dataSep = App\Vedika::getSep($data->no_rawat, 1);
                                                     $getManualSep = App\Vedika::getHapusSep($data->no_rawat);
                                                     // dd($noSep);
                                                 @endphp
@@ -112,44 +112,6 @@
                                                     <td>{{ $data->tgl_registrasi }} {{ $data->jam_reg }}</td>
                                                     {{-- <td>{{ $data->nm_poli }}</td> --}}
                                                     <td>{{ $data->nm_dokter }}</td>
-
-                                                    {{-- <td>{{ App\Vedika::getDiagnosa($data->no_rawat, 'Ranap') != null ? App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->kd_penyakit . '-' . App\Vedika::getDiagnosa($data->no_rawat, 'Ranap')->nm_penyakit : '' }}
-                                                    </td>
-                                                    <td>
-                                                        <div class="col text-center">
-                                                            <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/billing"
-                                                                class="btn btn-sm {{ App\Vedika::cekBilling($data->no_rawat) > 0 ? '' : 'disabled' }}"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="Billing" target="_blank">
-                                                                <span class="badge badge-success">Billing</span>
-                                                            </a>
-                                                            <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/lab"
-                                                                class="btn btn-sm {{ App\Vedika::cekLab($data->no_rawat) > 0 ? '' : 'disabled' }}"
-                                                                data-toggle="tooltip" data-placement="bottom" title="Lab"
-                                                                target="_blank">
-                                                                <span class="badge badge-danger">Lab</span>
-                                                            </a>
-                                                            <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/radiologi"
-                                                                class="btn btn-sm {{ App\Vedika::cekrad($data->no_rawat) > 0 ? '' : 'disabled' }}"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="Radiologi" target="_blank">
-                                                                <span class="badge badge-warning">Radiologi</span>
-                                                            </a>
-                                                            <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/obat"
-                                                                class="btn btn-sm {{ App\Vedika::cekObat($data->no_rawat) > 0 ? '' : 'disabled' }}"
-                                                                data-toggle="tooltip" data-placement="bottom" title="Obat"
-                                                                target="_blank">
-                                                                <span class="badge bg-orange">Obat</span>
-                                                            </a>
-                                                            <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/berkas"
-                                                                class="btn btn-sm" data-toggle="tooltip"
-                                                                data-placement="bottom" title="Berkas Lainnya"
-                                                                target="_blank">
-                                                                <span class="badge badge-info">Lain-lain</span>
-                                                            </a>
-
-                                                        </div>
-                                                    </td> --}}
                                                     <td>
                                                         <div class="col text-center">
                                                             @php

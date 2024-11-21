@@ -11,7 +11,7 @@
 |
 */
 
-
+use Illuminate\Support\Facades\File;
 
 Route::get('/', function () {
     // return view('home');
@@ -186,6 +186,16 @@ Route::post('/berkasrm/hakkewajiban/edit', 'BerkasRmController@hakkewajibanEdit'
 Route::get('/berkasrm/hakkewajiban/{id}/delete', 'BerkasRmController@delete')->name('berkasrm.hakKewajibanDelete');
 Route::get('/berkasrm/hakkewajiban/{id}/print', 'BerkasRmController@hakKewajibanPdf')->name('berkasrm.hakKewajibanPdf');
 
+//MCU
+Route::get('/berkasrm/{id}/penilaianralan', 'PenilaianMcuController@index')->name('berkasrm.penilaianralan');
+Route::get('/berkasrm/{id}/soapie', 'PenilaianMcuController@soapie')->name('berkasrm.soapie');
+Route::post('/berkasrm/soapie', 'PenilaianMcuController@soapieStore')->name('berkasrm.soapieStore');
+Route::get('/berkasrm/soapie/{id}/edit', 'PenilaianMcuController@soapieEdit')->name('berkasrm.soapieEdit');
+Route::get('/berkasrm/soapie/{id}/delete', 'PenilaianMcuController@soapieDelete')->name('berkasrm.soapieDelete');
+Route::post('/berkasrm/soapie/update', 'PenilaianMcuController@soapieUpdate')->name('berkasrm.soapieUpdate');
+Route::post('/berkasrm/penilaianralan', 'PenilaianMcuController@store')->name('berkasrm.penilaianralanStore');
+Route::post('/berkasrm/penilaianralan/update', 'PenilaianMcuController@update')->name('berkasrm.penilaianralanUpdate');
+
 Route::get('/berkasrm/berkas/{id}/generalconsent', 'BerkasRmController@generalConsent')->name('berkasrm.generalConsent');
 Route::post('/berkasrm/generalconsent/store', 'BerkasRmController@generalStore')->name('berkasrm.generalStore');
 Route::post('/berkasrm/generalconsent/edit', 'BerkasRmController@generalEdit')->name('berkasrm.generalEdit');
@@ -195,6 +205,7 @@ Route::get('/berkasrm/generalconsent/{id}/print', 'BerkasRmController@generalPdf
 Route::get('/vedika/rajal', 'VedikaController@rajal')->name('vedika.rajal');
 Route::get('/vedika/rajal/{id}/detail', 'VedikaController@detailRajal')->name('vedika.detailRajal');
 Route::get('/vedika/rajal/{id}/detailpdf', 'VedikaController@detailRajalPdf')->name('vedika.detailRajalPdf');
+Route::get('/vedika/rajal/{id}/downloadpdf', 'VedikaController@downloadRajalPdf')->name('vedika.downloadRajalPdf');
 Route::get('/vedika/rajal/{id}/cronispdf', 'VedikaController@cronisRajalPdf')->name('vedika.cronisRajalPdf');
 // Route::get('/vedika/rajal/{id}/billing', 'VedikaController@billingRajal')->name('vedika.billingRajal');
 // Route::get('/vedika/rajal/{id}/lab', 'VedikaController@labRajal')->name('vedika.labRajal');
@@ -211,6 +222,9 @@ Route::post('/vedika/rajal/simpansep', 'VedikaController@simpanSep')->name('vedi
 
 Route::get('/vedika/ranap', 'VedikaController@ranap')->name('vedika.ranap');
 Route::get('/vedika/ranap/{id}/detail', 'VedikaController@detailRanap')->name('vedika.detailRanap');
+Route::get('/vedika/ranap/{id}/detailpdf', 'VedikaController@detailRanapPdf')->name('vedika.detailRanapPdf');
+Route::get('/vedika/ranap/{id}/downloadpdf', 'VedikaController@downloadRanapPdf')->name('vedika.downloadRanapPdf');
+Route::get('/vedika/ranap/{id}/viewgabungpdf', 'VedikaController@viewGabungPdf')->name('vedika.viewGabungPdf');
 Route::get('/vedika/ranap/{id}/billing', 'VedikaController@billingRanap')->name('vedika.billingRanap');
 Route::get('/vedika/ranap/{id}/lab', 'VedikaController@labRanap')->name('vedika.labRanap');
 Route::get('/vedika/ranap/{id}/radiologi', 'VedikaController@radioRanap')->name('vedika.radioRanap');
@@ -236,6 +250,12 @@ Route::get('/vedika/pengajuankronis/{id}/delete', 'KlaimController@deletePengaju
 Route::get('/vedika/pengajuan/rajal', 'KlaimController@daftarRajal')->name('vedika.daftarRajal');
 Route::get('/vedika/pengajuan/kronis', 'KlaimController@daftarRajalKronis')->name('vedika.daftarRajalKronis');
 Route::get('/vedika/pengajuan/ranap', 'KlaimController@daftarRanap')->name('vedika.daftarRanap');
+
+Route::get('/vedika/pengajuan/{periode}/gabungberkasall', 'VedikaController@gabungBerkasAll')->name('vedika.gabungberkasall');
+Route::get('/vedika/pengajuan/{periode}/makezipranap', 'VedikaController@generateZipRanap')->name('vedika.makezipranap');
+Route::get('/vedika/pengajuan/{periode}/makeziprajal', 'VedikaController@generateZipRajal')->name('vedika.makeziprajal');
+Route::get('/vedika/pengajuan/{jenis}/{periode}/downloadzip', 'VedikaController@downloadZip')->name('vedika.downloadzip');
+
 Route::get('/vedika/fraud/rajal', 'FraudController@rajal')->name('vedika.fraudRajal');
 Route::get('/vedika/fraud/ranap', 'FraudController@ranap')->name('vedika.fraudRanap');
 Route::get('/vedika/fraud/{id}/{idd}/store', 'FraudController@store')->name('vedika.fraudStore');
@@ -251,19 +271,35 @@ Route::get('/vedika/fraud/{id}/exportranap', 'FraudController@exportRanap')->nam
 Route::get('/vedika/klaimcompare', 'KlaimCompareController@index')->name('vedika.klaimcompare');
 Route::post('/vedika/klaimcompare/import', 'KlaimCompareController@import_excel')->name('vedika.klaimcompare.import');
 Route::get('/vedika/klaimcompare/template', 'KlaimCompareController@template')->name('vedika.klaimcompare.template');
+Route::post('/vedika/klaimcompare/ambilresponevklaim', 'KlaimCompareController@ambilResponeVklaim')->name('vedika.klaimcompare.ambilRespone');
 
 Route::get('/vedika/eklaim/{id}/printout', 'EklaimController@getStatus')->name('eklaim.status');
 
 Route::get('/sep', 'SepController@getSep')->name('sep.getSep');
-Route::get('/sep2', 'SepController@getJmlSep')->name('sep.getJmlSep');
-Route::get('/coba', 'SepController@coba')->name('sep.coba');
+// Route::get('/sep2', 'SepController@getJmlSep')->name('sep.getJmlSep');
+// Route::get('/coba', 'SepController@coba')->name('sep.coba');
+
+// Route::get('/show-log', function () {
+//     $logFile = storage_path('logs/laravel.log');
+//     if (File::exists($logFile)) {
+//         $logs = File::get($logFile);
+//         return nl2br($logs); // Menampilkan log dengan format yang rapi di browser
+//     }
+//     return "Log file tidak ditemukan.";
+// });
+
+// Route::get('/phpinfo', function () {
+//     if (!in_array(request()->ip(), ['192.168.1.208', 'your-allowed-ip'])) {
+//         abort(403, 'Unauthorized access');
+//     }
+//     phpinfo();
+// });
 
 //IBS OPERASI
 Route::get('/operasi/booking', 'OperasiController@index')->name('operasi.index');
 Route::post('/operasi/booking', 'OperasiController@simpan')->name('operasi.index');
 Route::get('/operasi/{id}/booking', 'OperasiController@booking')->name('operasi.index');
 Route::get('/operasi/jadwal', 'OperasiController@jadwal')->name('operasi.jadwal');
-
 
 //COBA WHATSAPP API BAILEY
 Route::get('/pesan', 'WaController@index')->name('wa.index');
@@ -312,11 +348,11 @@ Route::get('/satusehat/cek/{id}/detail', 'SatuSehatController@checkRajalDetail')
 Route::get('/satusehat/cek/{id}/send', 'SatuSehatController@sendSingleBundle')->name('satuSehat.checkRajalSend');
 
 Route::get('/satusehat/igd', 'IgdSehatController@index')->name('satuSehatIgd.index');
-Route::get('/satusehat/igd/encounter', 'IgdSehatController@sendEncounter')->name('satuSehatIgd.sendEncounter');
+Route::get('/satusehat/igd/kirimencounter', 'IgdSehatController@sendEncounter')->name('satuSehatIgd.sendEncounter');
 Route::get('/satusehat/igd/encounterupdate', 'IgdSehatController@closeEncounter')->name('satuSehatIgd.closeEncounter');
 
 Route::get('/satusehat/ranap', 'RanapSehatController@index')->name('satuSehatRanap.index');
-Route::get('/satusehat/ranap/encounter', 'RanapSehatController@sendEncounter')->name('satuSehatRanap.sendEncounter');
+Route::get('/satusehat/ranap/kirimencounter', 'RanapSehatController@sendEncounter')->name('satuSehatRanap.sendEncounter');
 Route::get('/satusehat/ranap/encounterupdate', 'RanapSehatController@closeEncounter')->name('satuSehatRanap.closeEncounter');
 
 Route::get('/satusehat/kfa', 'KfaController@cari')->name('satuSehat.kfa');
@@ -377,13 +413,17 @@ Route::get('/profil', 'UserController@profile')->name('user.profile');
 Route::post('/profil/update', 'UserController@profileupdate')->name('user.profileupdate');
 Route::post('/profil/password', 'UserController@password')->name('user.password');
 
-Route::get('/clear-cache', function () {
-    $exitCode = Artisan::call('optimize:clear');
-    return redirect('/login');
-});
+//SSO
+Route::get('sso/redirect', 'SSOController@redirectToSSOServer')->name('sso.redirect');
+Route::get('sso/callback', 'SSOController@handleSSOCallback')->name('sso.callback');
 
-//Clear Config cache:
-Route::get('/config-cache', function () {
-    $exitCode = Artisan::call('config:cache');
-    return '<h1>Clear Config cleared</h1>';
-});
+// Route::get('/clear-cache', function () {
+//     $exitCode = Artisan::call('optimize:clear');
+//     return redirect('/login');
+// });
+
+// //Clear Config cache:
+// Route::get('/config-cache', function () {
+//     $exitCode = Artisan::call('config:cache');
+//     return '<h1>Clear Config cleared</h1>';
+// });

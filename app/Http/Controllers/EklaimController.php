@@ -19,9 +19,10 @@ class EklaimController extends Controller
 
         /// make binary representasion of $key
         $key = hex2bin($key);
+        // dd($key);
         /// check key length, must be 256 bit or 32 bytes
         if (mb_strlen($key, "8bit") !== 32) {
-            throw new Exception("Needs a 256-bit key!");
+            throw new \Exception("Needs a 256-bit key!");
         }
         /// create initialization vector
         $iv_size = openssl_cipher_iv_length("aes-256-cbc");
@@ -43,6 +44,7 @@ class EklaimController extends Controller
         ), 0, 10, "8bit");
         /// combine all, encode, and format
         $encoded = chunk_split(base64_encode($signature . $iv . $encrypted));
+        // dd($encoded);
         return $encoded;
     }
 
@@ -53,7 +55,7 @@ class EklaimController extends Controller
         $key = hex2bin($strkey);
         /// check key length, must be 256 bit or 32 bytes
         if (mb_strlen($key, "8bit") !== 32) {
-            throw new Exception("Needs a 256-bit key!");
+            throw new \Exception("Needs a 256-bit key!");
         }
         /// calculate iv size
         $iv_size = openssl_cipher_iv_length("aes-256-cbc");
@@ -103,6 +105,7 @@ class EklaimController extends Controller
     {
         // contoh encryption key, bukan aktual
         $key = env('KEY_EKLAIM');
+        // dd($key);
         // $sep = '0171R0230124V000487';
         // json query
         $json_request =
@@ -203,12 +206,14 @@ class EklaimController extends Controller
 
         // contoh encryption key, bukan aktual
         $key = env('KEY_EKLAIM');
-        // $sep = '0171R0230124V000487';
+        // dd($key, 'kene');
+        // $sep = '0171R0230324V000017';
         // json query
         $json_klaim =
             [
                 "metadata" => [
                     "method" => "get_claim_data"
+                    // "method" => "get_claim_status"
                 ],
                 "data" => [
                     "nomor_sep" => "$sep"
@@ -248,6 +253,7 @@ class EklaimController extends Controller
         $msg = json_decode($response, true);
         // variable data adalah base64 dari file pdf
 
+        // dd($msg);
         // dd($msg['response']['data']);
         // dd($msg['metadata']['code']);
         if (!empty($msg['response']['data'])) {

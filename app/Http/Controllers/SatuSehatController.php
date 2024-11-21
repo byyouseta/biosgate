@@ -78,6 +78,7 @@ class SatuSehatController extends Controller
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
             ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->join('penjab', 'penjab.kd_pj', '=', 'reg_periksa.kd_pj')
             ->select(
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.no_rawat',
@@ -88,6 +89,7 @@ class SatuSehatController extends Controller
                 'reg_periksa.stts',
                 'reg_periksa.kd_poli',
                 'reg_periksa.kd_pj',
+                'penjab.png_jawab',
                 'pasien.nm_pasien',
                 'pasien.no_ktp as ktp_pasien',
                 'pasien.tgl_lahir',
@@ -98,7 +100,8 @@ class SatuSehatController extends Controller
                 'poliklinik.kd_poli'
             )
             ->where('reg_periksa.status_lanjut', 'Ralan')
-            ->where('poliklinik.nm_poli', 'not like', '%IGD%')
+            // ->where('poliklinik.nm_poli', 'not like', '%IGD%')
+            ->whereNotIn('poliklinik.nm_poli', ['IGD', 'Farmasi', 'Farmasi 2', 'Radiologi', 'LABORATORIUM'])
             ->where('reg_periksa.tgl_registrasi', $tanggal)
             ->orderBy('reg_periksa.no_rkm_medis', 'ASC')
             ->get();
@@ -268,11 +271,16 @@ class SatuSehatController extends Controller
                 )
                 ->selectRaw("(CASE WHEN (poliklinik.kd_poli = 'u0041') THEN 'IGD' ELSE poliklinik.nm_poli END) as alias_nm_poli")
                 ->where('reg_periksa.status_lanjut', 'Ralan')
-                ->where('reg_periksa.stts', 'Sudah')
-                // ->where('poliklinik.kd_poli', '!=', 'u0041')
-                // ->orWhere('poliklinik.kd_poli', '!=', 'IGDK')
-                ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
-                ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
+                // ->where('reg_periksa.stts', 'Sudah')
+                // // ->where('poliklinik.kd_poli', '!=', 'u0041')
+                // // ->orWhere('poliklinik.kd_poli', '!=', 'IGDK')
+                // ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+                // ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
+                ->whereIn('reg_periksa.stts', ['Sudah', 'Dirujuk', 'Berkas Lengkap']) // Menggunakan whereIn untuk beberapa kondisi
+                ->where(function ($query) use ($pasien_tanggal, $kemarin) {
+                    $query->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+                        ->orWhere('reg_periksa.tgl_registrasi', $kemarin);
+                })
                 ->orderBy('reg_periksa.tgl_registrasi', 'ASC')
                 ->get();
             // dd($data, $kemarin);
@@ -306,7 +314,8 @@ class SatuSehatController extends Controller
                 )
                 ->selectRaw("(CASE WHEN (poliklinik.kd_poli = 'u0041') THEN 'IGD' ELSE poliklinik.nm_poli END) as alias_nm_poli")
                 ->where('reg_periksa.status_lanjut', 'Ralan')
-                ->where('reg_periksa.stts', 'Sudah')
+                // ->where('reg_periksa.stts', 'Sudah')
+                ->whereIn('reg_periksa.stts', ['Sudah', 'Dirujuk', 'Berkas Lengkap'])
                 // ->where('reg_periksa.no_rawat', '=', '2023/03/09/000107')
                 ->whereDate('reg_periksa.tgl_registrasi', $pasien_tanggal)
                 ->orderBy('reg_periksa.tgl_registrasi', 'ASC')
@@ -1583,6 +1592,7 @@ class SatuSehatController extends Controller
             if ((!empty($idPasien)) && (!empty($idDokter)) && (!empty($diagnosaPrimer)) && (!empty($idLokasi))) {
 
                 $diagnosaSekunder = SatuSehatController::getDiagnosisSekunderRalan($dataPengunjung->no_rawat);
+                // dd($diagnosaSekunder);
                 $procedurePasien = SatuSehatController::getProcedureRalan($dataPengunjung->no_rawat);
                 $cekDiet = SatuSehatController::getDiet($dataPengunjung->no_rawat, $dataPengunjung->tgl_registrasi); //nyoba bundle composition
                 $waktuKeperawatan = SatuSehatController::getWaktuKeperawatan($dataPengunjung->no_rawat);
@@ -1628,9 +1638,9 @@ class SatuSehatController extends Controller
                 }
 
                 //Waktu
+                $waktuAwal = $waktuInprogress = $waktuSelesai = null;
                 $waktuAwal = $dataPengunjung->tgl_registrasi . ' ' . $dataPengunjung->jam_reg;
                 $waktu_mulai = new Carbon($waktuAwal);
-                $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
                 if ((!empty($waktuKeperawatan->tanggal))) {
                     $waktuInprogress = Carbon::parse($waktuKeperawatan->tanggal);
                     if ($waktu_mulai > $waktuInprogress) {
@@ -1640,16 +1650,22 @@ class SatuSehatController extends Controller
                     WaktuProses2:
                     $waktuInprogress = Carbon::parse($waktuAwal)->addMinute(10);
                 }
-                $formatWaktuProgress = $waktuInprogress->setTimezone('UTC')->toW3cString();
+
                 if ((!empty($vital->tgl_perawatan))) {
                     $waktuSelesai = Carbon::parse($vital->tgl_perawatan . ' ' . $vital->jam_rawat);
                     if ($waktuInprogress > $waktuSelesai) {
+
                         goto WaktuSelesai2;
                     }
                 } else {
                     WaktuSelesai2:
                     $waktuSelesai = Carbon::parse($waktuAwal)->addMinute(30);
                 }
+                // dd($waktu_mulai, $waktuInprogress, $waktuSelesai);
+                $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
+
+                $formatWaktuProgress = $waktuInprogress->setTimezone('UTC')->toW3cString();
+
                 $formatWaktuSelesai = $waktuSelesai->setTimezone('UTC')->toW3cString();
 
                 $day = Carbon::parse($waktuAwal)->dayName;
@@ -2434,6 +2450,7 @@ class SatuSehatController extends Controller
                         $response = $e->getResponse();
                         $test = json_decode($response->getBody());
                         $errorCode = (array) $test;
+                        dd($test, $dataBundle);
 
                         if (!empty($errorCode)) {
                             if (!empty($errorCode['issue'][0])) {
@@ -2786,10 +2803,17 @@ class SatuSehatController extends Controller
 
                             // dd($response);
                             $test = json_decode($response->getBody());
-                            dd($test, 'error');
+                            // dd($test->issue[0]->code, 'error2');
+                            if (!empty($test->issue[0]->code == 'duplicate')) {
+                                $simpan = new ResponseSatuSehat();
+                                $simpan->noRawat = $dataPengunjung->no_rawat;
+                                $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                                $simpan->encounter_id = 'duplicate encounter';
+                                $simpan->save();
+                            }
                         }
 
-                        $message = "";
+                        $message = $test->issue[0]->code;
 
                         Session::flash('error', $message);
 
@@ -5858,7 +5882,13 @@ class SatuSehatController extends Controller
                     // $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
                     $formatWaktuSelesai = $waktuSelesai->setTimezone('UTC')->toW3cString();
 
-                    // dd($waktuAwal, $waktuSelesai, $formatWaktuSelesai);
+                    if ($waktuAwal > $waktuSelesai) {
+                        $waktuAwal = $pengunjung->tgl_registrasi . ' ' . $pengunjung->jam_reg;
+                        $waktu_mulai = new Carbon($waktuAwal);
+                        $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
+                    }
+
+                    // dd($waktuAwal, $waktuSelesai, $formatWaktuMulai, $formatWaktuSelesai);
 
                     $dataEncounter = [
                         "resourceType" => "Encounter",
@@ -5944,11 +5974,11 @@ class SatuSehatController extends Controller
 
                             // dd($response);
                             $test = json_decode($response->getBody());
-                            dd($test, $test->issue[0]->details->text, $pengunjung, $dataEncounter);
+                            // dd($test, $test->issue[0]->details->text, $pengunjung, $dataEncounter);
                         }
                         $message = "Error Kirim Encounter No Rawat" . $pengunjung->no_rawat;
 
-                        dd($message);
+                        // dd($message);
 
                         Session::flash('error', $message);
 
@@ -7682,7 +7712,8 @@ class SatuSehatController extends Controller
             ->where('diagnosa_pasien.status', 'Ralan')
             ->where('diagnosa_pasien.prioritas', '1')
             ->first();
-        // dd($data);
+
+        $diagnosaExclude = ['z88.8'];
 
         if (!empty($data)) {
             if ($data->kd_penyakit != "Z09.8") {
@@ -7698,14 +7729,27 @@ class SatuSehatController extends Controller
                     )
                     ->where('diagnosa_pasien.no_rawat', $id)
                     ->where('diagnosa_pasien.status', 'Ralan')
-                    ->where('diagnosa_pasien.prioritas', '2')
-                    ->first();
+                    // ->where('diagnosa_pasien.prioritas', '2')
+                    ->orderBy('prioritas', 'ASC')
+                    ->skip(1)  // Melewatkan 5 baris pertama
+                    ->limit(10)
+                    ->get();
 
-                if (!empty($data2)) {
-                    return $data2;
-                } else {
-                    return null;
+                // dd($data2);
+                foreach ($data2 as $list) {
+                    if (in_array($list->kd_penyakit, $diagnosaExclude)) {
+                        goto next;
+                    } else {
+                        return $list;
+                    }
+                    next:
                 }
+
+                // if (!empty($data2)) {
+                //     return $data2;
+                // } else {
+                return null;
+                // }
             } else {
                 $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
                     ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
@@ -7718,14 +7762,27 @@ class SatuSehatController extends Controller
                     )
                     ->where('diagnosa_pasien.no_rawat', $id)
                     ->where('diagnosa_pasien.status', 'Ralan')
-                    ->where('diagnosa_pasien.prioritas', '3')
-                    ->first();
+                    // ->where('diagnosa_pasien.prioritas', '3')
+                    ->orderBy('prioritas', 'ASC')
+                    ->skip(2)  // Melewatkan 5 baris pertama
+                    ->limit(10)
+                    ->get();
 
-                if (!empty($data2)) {
-                    return $data2;
-                } else {
-                    return null;
+                // dd($data2);
+                foreach ($data2 as $list) {
+                    if (in_array($list->kd_penyakit, $diagnosaExclude)) {
+                        goto next2;
+                    } else {
+                        return $list;
+                    }
+                    next2:
                 }
+
+                // if (!empty($data2)) {
+                //     return $data2;
+                // } else {
+                return null;
+                // }
             }
         } else {
             return null;

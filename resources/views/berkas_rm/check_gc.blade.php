@@ -4,16 +4,27 @@
     <link rel="stylesheet" type="text/css"
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.css">
 
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    {{-- <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <link type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css"
         rel="stylesheet">
     <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script type="text/javascript" src="//keith-wood.name/js/jquery.signature.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="//keith-wood.name/css/jquery.signature.css">
+    <link rel="stylesheet" type="text/css" href="//keith-wood.name/css/jquery.signature.css"> --}}
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+    <script type="text/javascript" src="{{ asset('template/plugins/jquery-tandatangan/js/jquery.signature.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('template/plugins/jquery-tandatangan/js/jquery.ui.touch-punch.min.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ asset('template/plugins/jquery-tandatangan/css/jquery.signature.css') }}">
     <!-- Tempusdominus|Datetime Bootstrap 4 -->
     <link rel="stylesheet"
         href="{{ asset('template/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
+         <!-- Select2 -->
+    <link rel="stylesheet" href="{{ asset('template/plugins/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('template/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css') }}">
     <style>
         .kbw-signature {
             width: 100%;
@@ -41,30 +52,30 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="no_hp">Nomor RM</label>
-                                        <input type="text" class="form-control" name="noRm"
+                                        <label for="no_rm">Nomor RM</label>
+                                        <input type="text" class="form-control" name="noRm" id="no_rm"
                                             value="{{ $data->no_rkm_medis }}" readonly>
                                     </div>
                                     <div class="form-group">
-                                        <label for="no_hp">NIK</label>
-                                        <input type="text" class="form-control" name="nik"
+                                        <label for="nik">NIK</label>
+                                        <input type="text" class="form-control" name="nik" id="nik"
                                             value="{{ $data->ktp_pasien }}" readonly>
                                     </div>
                                     <div class="form-group">
-                                        <label for="no_hp">Nama Pasien</label>
-                                        <input type="text" class="form-control" name="nama"
+                                        <label for="nama">Nama Pasien</label>
+                                        <input type="text" class="form-control" name="nama" id="nama"
                                             value="{{ $data->nm_pasien }}" readonly>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="no_hp">Tanggal Lahir</label>
-                                        <input type="text" class="form-control" name="tglLahir"
+                                        <label for="tglLahir">Tanggal Lahir</label>
+                                        <input type="text" class="form-control" name="tglLahir" id="tglLahir"
                                             value="{{ $data->tgl_lahir }}" readonly>
                                     </div>
                                     <div class="form-group">
-                                        <label for="no_hp">Alamat</label>
-                                        <input type="text" class="form-control" name="alamat"
+                                        <label for="alamat">Alamat</label>
+                                        <input type="text" class="form-control" name="alamat" id="alamat"
                                             value="{{ $data->alamat }}" readonly>
                                     </div>
                                 </div>
@@ -73,7 +84,7 @@
                     </div>
                 </div>
                 <div class="col-12 col-sm-12">
-                    <form action="/berkasrm/generalconsent/store" method="POST">
+                    <form action="/berkasrm/generalconsent/store" method="POST" id="myForm">
                         @csrf
                         <div class="card card-primary card-outline card-outline-tabs">
                             <div class="card-header p-0 border-bottom-0">
@@ -440,42 +451,17 @@
                                                 <tr>
                                                     <td width='20%' class='align-middle pl-5'>Tanggal Lahir/Umur</td>
                                                     <td>
-                                                        {{-- <input type="text" class="form-control datetimepicker-input"
-                                                            name="tglLahirPj" id="tanggalLahirPj"
-                                                            data-target="#tanggalLahirPj" data-toggle="datetimepicker"
-                                                            name="tanggal" autocomplete="off" required> --}}
-                                                        {{-- <div class="input-group input-group" data-target-input="nearest">
-                                                            <input type="text"
-                                                                class="form-control datetimepicker-input"
-                                                                id="tanggalLahirPj" data-target="#tanggalLahirPj"
-                                                                data-toggle="datetimepicker" name="tanggalLahirPj"
-                                                                autocomplete="off">
-
-                                                            <span class="input-group-append">
-                                                                <button type="button"
-                                                                    class="btn btn-info btn-flat btn-sm"><i
-                                                                        class="fas fa-calendar-alt"></i></button>
-                                                            </span>
-                                                        </div> --}}
-                                                        <div class="input-group date" id="tanggalLahirPj"
-                                                            data-target-input="nearest">
-                                                            <input type="text"
-                                                                class="form-control datetimepicker-input"
-                                                                id="tanggalLahirPj" data-target="#tanggalLahirPj"
-                                                                data-toggle="datetimepicker" name="tanggalLahirPj"
-                                                                autocomplete="off" />
-                                                            <div class="input-group-append" data-target="#tanggalLahirPj"
-                                                                data-toggle="datetimepicker">
-                                                                <div class="input-group-text"><i
-                                                                        class="fa fa-calendar"></i>
-                                                                </div>
+                                                        <div class="input-group date" data-target-input="nearest">
+                                                            <input type="text" class="form-control datetimepicker-input" id="tanggalLahirPj" data-target="#tanggalLahirPj"
+                                                                data-toggle="datetimepicker" name="tanggalLahirPj" autocomplete="off" onchange="hitungUsia()" />
+                                                            <div class="input-group-append" data-target="#tanggalLahirPj" data-toggle="datetimepicker">
+                                                                <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                                             </div>
                                                         </div>
                                                     </td>
                                                     <td width='20%'>
                                                         <div class="input-group">
-                                                            <input type="number" class="form-control" name="umurPj"
-                                                                placeholder="Umur PJ" step="1" required>
+                                                            <input type="text" class="form-control" name="umurPj" id="usia" placeholder="Umur PJ" step="1" required readonly>
                                                             <div class="input-group-prepend">
                                                                 <span class="input-group-text">Tahun</span>
                                                             </div>
@@ -528,7 +514,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td></td>
-                                                    <td> <select name='dpjp' class="form-control" required>
+                                                    <td> <select name='dpjp' class="form-control select2" required>
                                                             <option value="">Pilih</option>
                                                             @foreach ($dokter as $listDokter)
                                                                 <option value="{{ $listDokter->nm_dokter }}">
@@ -567,7 +553,7 @@
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="informan">Pemberi Informasi</label>
-                                                    <input type="text" class="form-control" name="informan"
+                                                    <input type="text" class="form-control" name="informan" id="informan"
                                                         value="{{ Auth::user()->name }}" readonly>
                                                 </div>
                                                 <div class="form-group">
@@ -579,7 +565,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-6">
-                                                <label class="" for="">Tanda tangan</label>
+                                                <label for="sig">Tanda tangan</label>
                                                 <br />
                                                 <div id="sig"></div>
                                                 <br />
@@ -614,11 +600,14 @@
             $("#signature64").val('');
         });
     </script>
+
 @endsection
 @section('plugin')
     <!-- Tempusdominus Bootstrap 4 -->
     <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
     <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+    <!-- Select2 -->
+    <script src="{{ asset('template/plugins/select2/js/select2.full.min.js') }}"></script>
     <script>
         // Listen for click on toggle checkbox
         $('#select-all').click(function(event) {
@@ -637,7 +626,9 @@
         $('#tanggalLahirPj').datetimepicker({
             format: 'YYYY-MM-DD'
         });
-        // jQuery implementation
+
+        //Initialize Select2 Elements
+        $('.select2').select2();
 
         $(function() {
             var $src = $('#hal1'),
@@ -646,5 +637,29 @@
                 $dst.val($src.val());
             });
         });
+
+    </script>
+    <script>
+        function hitungUsia() {
+            // Ambil nilai dari input tanggal lahir
+            var tanggalLahir = document.getElementById('tanggalLahirPj').value;
+            if (tanggalLahir) {
+                // Konversi string tanggal lahir ke objek Date
+                var dob = new Date(tanggalLahir);
+                var today = new Date();
+
+                // Hitung selisih tahun
+                var age = today.getFullYear() - dob.getFullYear();
+
+                // Cek apakah bulan dan tanggal ulang tahun sudah lewat tahun ini
+                var monthDiff = today.getMonth() - dob.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+
+                // Set nilai usia ke input usia
+                document.getElementById('usia').value = age;
+            }
+        }
     </script>
 @endsection

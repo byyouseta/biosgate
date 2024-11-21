@@ -8,6 +8,7 @@
     <!-- Tempusdominus|Datetime Bootstrap 4 -->
     <link rel="stylesheet"
         href="{{ asset('template/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
+
 @endsection
 
 @section('content')
@@ -17,8 +18,10 @@
                 @php
                     if (!empty(Request::get('tanggal'))) {
                         $tanggal = Request::get('tanggal');
+                        $tanggalSelesai = Request::get('tanggalSelesai');
                     } else {
                         $tanggal = \Carbon\Carbon::now()->format('Y-m-d');
+                        $tanggalSelesai = \Carbon\Carbon::now()->format('Y-m-d');
                     }
                 @endphp
                 <div class="col-12">
@@ -36,8 +39,17 @@
                                             <i class="fas fa-file-upload"></i> Import</a>
                                         </button>
                                     </div>
+                                    <div class="btn-group">
+                                        {{-- <a href="/vedika/klaimcompare/template" class="btn btn-sm  btn-default"><i
+                                                class="fas fa-file-download"></i> Ambil Respon Vklaim </a> --}}
+                                        <button class="btn btn-info btn-sm " data-toggle="modal"
+                                            data-target="#modal-ambil-respon"
+                                            @cannot('vedika-klaim-compare') disabled @endcannot>
+                                            <i class="fas fa-cloud-download-alt"></i> Ambil Respon Vklaim</a>
+                                        </button>
+                                    </div>
                                 </div>
-                                <div class="col-sm-4">
+                                <div class="col-sm-4 mt-2">
 
                                 </div>
                                 <div class="col-sm-3">
@@ -46,6 +58,9 @@
                                             <input type="text" class="form-control datetimepicker-input"
                                                 id="tanggalMulai" data-target="#tanggalMulai" data-toggle="datetimepicker"
                                                 name="tanggal" autocomplete="off" value="{{ $tanggal }}">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                id="tanggalSelesai" data-target="#tanggalSelesai" data-toggle="datetimepicker"
+                                                name="tanggalSelesai" autocomplete="off" value="{{ $tanggalSelesai }}">
                                             <span class="input-group-append">
                                                 <button type="submit" class="btn btn-info btn-flat btn-sm"><i
                                                         class="fas fa-search"></i> Tampilkan</button>
@@ -56,26 +71,31 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div>
-                                <table class="table table-bordered table-sm" id="example" style="width:100%">
+                            {{-- <div style="width:100%; overflow:auto;"> --}}
+                                <table class="table table-bordered table-sm" id="example">
                                     <thead>
                                         <tr>
                                             <th class="align-middle">No.SEP</th>
-                                            <th class="align-middle">No.Rawat</th>
+                                            <th class="align-middle">No.Rawat/No.RM</th>
                                             <th class="align-middle">Nama Pasien</th>
                                             <th class="align-middle">Tgl Registrasi</th>
                                             <th class="align-middle">Tgl Keluar</th>
                                             <th class="align-middle">DPJP</th>
                                             <th class="align-middle">Diagnosa</th>
+                                            <th class="align-middle">Procedure</th>
                                             <th class="align-middle">Biil RS</th>
+                                            <th class="align-middle">Bill tanpa Kronis</th>
                                             <th class="align-middle">Cair</th>
+                                            <th class="align-middle">Pending</th>
                                             <th class="align-middle">Status</th>
+                                            <th class="align-middle">Pengajuan</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         @foreach ($data as $data)
                                             <tr>
                                                 @php
+                                                    $no_sep = null;
                                                     if ($data->no_sep) {
                                                         $no_sep = $data->no_sep;
                                                     } elseif (!empty(\App\Vedika::getHapusSep($data->no_rawat))) {
@@ -85,7 +105,7 @@
                                                     }
                                                 @endphp
                                                 <td>{{ $no_sep }} </td>
-                                                <td>{{ $data->no_rawat }}</td>
+                                                <td>{{ $data->no_rawat }}, {{ $data->no_rkm_medis }}</td>
                                                 <td>{{ $data->nm_pasien }}, {{ $data->umurdaftar }}
                                                     {{ $data->sttsumur }},
                                                     {{ $data->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}
@@ -111,26 +131,53 @@
                                                     @if ($data->status_lanjut == 'Ralan')
                                                         {{ $data->tgl_registrasi }}
                                                     @elseif($data->status_lanjut == 'Ranap')
-                                                        {{ \App\Vedika::getWaktuKeluar($data->no_rawat) }}
+                                                        {{-- {{ \App\Vedika::getWaktuKeluar($data->no_rawat) }} --}}
+                                                        @php
+                                                            $waktu = \App\Vedika::getWaktuDokter($data->no_rawat);
+                                                        @endphp
+                                                        {{ $waktu?$waktu->waktuKeluar:'-' }}
                                                     @endif
                                                 </td>
                                                 <td>
                                                     @if ($data->status_lanjut == 'Ralan')
                                                         {{ $data->nm_dokter }}
                                                     @elseif($data->status_lanjut == 'Ranap')
-                                                        {{ \App\Vedika::getDpjp($data->no_rawat) }}
+                                                        {{-- {{ \App\Vedika::getDpjp($data->no_rawat) }} --}}
+                                                        {{ $waktu?$waktu->nm_dokter:'-' }}
                                                     @endif
                                                 </td>
                                                 @php
                                                     $bill = \App\KlaimCair::getBill($data->no_rawat);
                                                     if ($no_sep) {
                                                         $cair = \App\KlaimCair::getCair($no_sep);
+                                                        if(empty($cair)){
+                                                            $pending = \App\KlaimPending::getPending($no_sep);
+                                                            if($pending){
+                                                                $cair = $pending->biaya_disetujui;
+                                                            }
+                                                        }else{
+                                                            $pending = (object) [];
+                                                            $pending->status = 'Cair';
+                                                        }
+                                                        $kronis = \App\KlaimCair::getObatKronis($data->no_rawat);
+                                                        $billKronis = $bill - $kronis;
                                                     }
 
                                                     $diag = \App\Vedika::getDiagnosaAll(
                                                         $data->no_rawat,
                                                         $data->status_lanjut
                                                     );
+
+                                                    $procedure = \App\Vedika::getProcedure($data->no_rawat,$data->status_lanjut);
+                                                    if( $data->status_lanjut == 'Ralan'){
+                                                        $jenis_rawat = 'Rawat Jalan';
+                                                    }else{
+                                                        $jenis_rawat = 'Rawat Inap';
+                                                    }
+                                                    $statusPengajuan = null;
+                                                    if (strlen($no_sep)>5) {
+                                                        $statusPengajuan = App\DataPengajuanKlaim::cekPengajuanSEP($no_sep);
+                                                    }
                                                 @endphp
                                                 <td>
                                                     @if ($diag)
@@ -139,24 +186,40 @@
                                                         @endforeach
                                                     @endif
                                                 </td>
-                                                <td class="text-right">{{ $bill }}</td>
+                                                <td>
+                                                    @if ($procedure)
+                                                        @foreach ($procedure as $listPro)
+                                                            {{ $listPro }},
+                                                        @endforeach
+                                                    @endif
+                                                </td>
+                                                <td class="text-right">{{ number_format($bill,0,'.',',') }}</td>
+                                                <td class="text-right">{{ number_format($billKronis,0,'.',',') }}</td>
                                                 <td class="text-right">
-                                                    @if ($cair > $bill)
+                                                    {{ $cair >= 0 ? number_format($cair,0,'.',',') : '-' }}
+                                                    @if ($cair > $billKronis)
                                                         <span class="badge badge-success"><i
                                                                 class="fas fa-arrow-up"></i></span>
-                                                    @elseif($cair < $bill && $cair != null)
+                                                    @elseif($cair < $billKronis && $cair != null)
                                                         <span class="badge badge-danger"><i
                                                                 class="fas fa-arrow-down"></i></span>
                                                     @endif
-                                                    {{ $cair ? $cair : '-' }}
                                                 </td>
+                                                <td>{{ $pending?$pending->status:'-' }} </td>
                                                 <td>{{ $data->status_lanjut }} </td>
+                                                <td>@if ($statusPengajuan)
+                                                    <span class="badge badge-success">
+                                                        {{ \Carbon\Carbon::parse($statusPengajuan->periodeKlaim->periode)->format('F Y') }}</span>
+                                                    @else
+                                                    <span class="badge badge-danger">Belum diajukan</span>
+                                                    @endif
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                 </table>
 
-                            </div>
+                            {{-- </div> --}}
                         </div>
                     </div>
                 </div>
@@ -209,6 +272,73 @@
         </div>
         <!-- /.modal-dialog -->
     </div>
+    <div class="modal fade" id="modal-ambil-respon">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <form method="POST" action="/vedika/klaimcompare/ambilresponevklaim">
+                    @csrf
+                    <div class="modal-header">
+                        <h4 class="modal-title">Ambil Respon Vklaim</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- text input -->
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="bulanTarik">Periode Bulan</label>
+                                    <div class="input-group">
+                                    <input type="text" class="form-control datetimepicker-input"
+                                                id="periodeBulan" data-target="#periodeBulan" data-toggle="datetimepicker"
+                                                name="periodeBulan" autocomplete="off" value="{{ $tanggal }}" required>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text"><i class="far fa-calendar-check"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            {{-- <div class="col-sm-6">
+                                <div class="form-group">
+                                    <label for="jenis">Jenis Pelayanan</label>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="jenis" value="1" id="jenisRanap">
+                                    <label class="form-check-label" for="jenisRanap">Rawat Inap</label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="jenis" value="2" id="jenisRajal">
+                                    <label class="form-check-label" for="jenisRajal">Rawat Jalan</label>
+                                  </div>
+                                </div>
+                            </div> --}}
+                            <div class="col-sm-12">
+                                <div class="form-group">
+                                    <label for="jenis">Status Klaim</label>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="status" value="2" id="pending" required>
+                                    <label class="form-check-label" for="pending">Pending Verifikasi</label>
+                                  </div>
+                                  <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="status" value="3" id="klaim" required>
+                                    <label class="form-check-label" for="klaim">Klaim</label>
+                                  </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Tutup</button>
+                        <button type="Submit" class="btn btn-primary">Ambil</button>
+                    </div>
+                </form>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
 @endsection
 @section('plugin')
     <script src="{{ asset('template/plugins/datatables/jquery.dataTables.min.js') }}"></script>
@@ -231,24 +361,65 @@
     <script src="{{ asset('template/plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
 
     <script>
-        $(function() {
+        var tglMulai = "<?php echo $tanggal; ?>";
+        var tglSelesai = "<?php echo $tanggalSelesai; ?>";
+        var namaFile = 'Data Compare '+tglMulai+ ' sampai '+tglSelesai;
+        // $(function() {
+        //     $('#example').DataTable({
+        //         "paging": true,
+        //         "lengthChange": false,
+        //         "searching": true,
+        //         "ordering": true,
+        //         "info": true,
+        //         "autoWidth": true,
+        //         "responsive": true,
+        //         "scrollY": true,
+        //         "scrollX": true,
+        //         "buttons": ["excel", "pdf", "print", "pageLength"]
+        //     }).buttons().container().appendTo('#example_wrapper .col-md-6:eq(0)');
+
+        //     // Menambahkan margin pada pagination melalui jQuery
+        //     $('#example_wrapper .dataTables_paginate').css('margin-top', '14px');
+        // });
+        $(document).ready(function() {
             $('#example').DataTable({
                 "paging": true,
                 "lengthChange": false,
                 "searching": true,
                 "ordering": true,
                 "info": true,
-                "autoWidth": false,
+                "autoWidth": true,
                 "responsive": true,
-                "scrollY": true,
-                "scrollX": true,
-                "buttons": ["excel", "pdf", "print", "pageLength"]
+                scrollX: true,
+                buttons: [
+                    {
+                        extend: 'excelHtml5',
+                        text: 'Excel',
+                        filename: namaFile, // Nama file untuk Excel
+                    },
+                    {
+                        extend: 'pdfHtml5',
+                        text: 'PDF',
+                        filename: namaFile, // Nama file untuk PDF
+                    },
+                    {
+                        extend: 'print',
+                        text: 'Print'
+                    },
+                    'pageLength'
+                ]
             }).buttons().container().appendTo('#example_wrapper .col-md-6:eq(0)');
 
+            // Menambahkan margin pada pagination melalui jQuery
+            $('#example_wrapper .dataTables_paginate').css('margin-top', '14px');
+                // tambahkan opsi lain jika perlu
         });
         //Date picker
         $('#tanggalMulai,#tanggalSelesai').datetimepicker({
             format: 'YYYY-MM-DD'
+        });
+        $('#periodeBulan').datetimepicker({
+            format: 'YYYY-MM'
         });
         $(function() {
             bsCustomFileInput.init();

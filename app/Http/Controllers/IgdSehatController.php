@@ -111,11 +111,11 @@ class IgdSehatController extends Controller
                     'poliklinik.kd_poli'
 
                 )
-                ->selectRaw("(CASE WHEN (poliklinik.kd_poli = 'u0041') THEN 'IGD' ELSE poliklinik.nm_poli END) as alias_nm_poli")
+                // ->selectRaw("(CASE WHEN (poliklinik.kd_poli = 'u0041') THEN 'IGD' ELSE poliklinik.nm_poli END) as alias_nm_poli")
                 ->where('poliklinik.nm_poli', 'like', '%IGD%')
                 // ->where('reg_periksa.stts', 'Sudah')
                 // ->where('reg_periksa.no_rawat', '=', '2023/03/09/000107')
-                ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
+                ->whereDate('reg_periksa.tgl_registrasi', $pasien_tanggal)
                 ->orderBy('reg_periksa.tgl_registrasi', 'ASC')
                 ->get();
         }
@@ -251,7 +251,7 @@ class IgdSehatController extends Controller
                     if ($e->hasResponse()) {
                         $response = $e->getResponse();
 
-                        // dd($response);
+                        dd($response);
                         $test = json_decode($response->getBody());
                         dd($test, $dataEncounter);
                     }
@@ -310,11 +310,32 @@ class IgdSehatController extends Controller
                 ->where('reg_periksa.no_rawat', $dataTerkirim->noRawat)
                 ->first();
 
-            // if (empty($cekPulang->status_lanjut)) {
-            //     dd($cekPulang, $dataTerkirim->noRawat);
-            // }
-            if ($cekPulang->status_lanjut == 'Ralan') {
-                if ($cekPulang->status_bayar == 'Sudah Bayar') {
+            if ($cekPulang) {
+                if ($cekPulang->status_lanjut == 'Ralan') {
+                    if ($cekPulang->status_bayar == 'Sudah Bayar') {
+                        if ($dataTerkirim->triase_transportasi == null) {
+                            IgdSehatController::sendTransportasiKedatangan($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
+                        }
+                        if ($dataTerkirim->triase_kondisi == null) {
+                            IgdSehatController::sendTiaseKondisi($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
+                        }
+                        if ($dataTerkirim->asesmen_nyeri == null) {
+                            IgdSehatController::sendAssesmenNyeri($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
+                        }
+                        if ($dataTerkirim->asesmen_nadi == null) {
+                            IgdSehatController::sendVitalSign($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
+                        }
+                        if ($dataTerkirim->kondisi_stabil == null) {
+                            IgdSehatController::sendUpdateKepulangan($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
+                        }
+                        if ($dataTerkirim->kondisi_stabil != null) {
+                            $update = ResponseIgdSatuSehat::where('noRawat', $dataTerkirim->noRawat)->first();
+                            $update->cara_keluar = 'IGD Pulang';
+                            $update->save();
+                        };
+                    }
+                } elseif ($cekPulang->status_lanjut == 'Ranap') {
+
                     if ($dataTerkirim->triase_transportasi == null) {
                         IgdSehatController::sendTransportasiKedatangan($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
                     }
@@ -327,37 +348,15 @@ class IgdSehatController extends Controller
                     if ($dataTerkirim->asesmen_nadi == null) {
                         IgdSehatController::sendVitalSign($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
                     }
-                    if ($dataTerkirim->kondisi_stabil == null) {
-                        IgdSehatController::sendUpdateKepulangan($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
+                    if ($dataTerkirim->service_request == null) {
+                        IgdSehatController::sendServiceRequest($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
                     }
-                    if ($dataTerkirim->kondisi_stabil != null) {
+                    if ($dataTerkirim->service_request != null) {
                         $update = ResponseIgdSatuSehat::where('noRawat', $dataTerkirim->noRawat)->first();
-                        $update->cara_keluar = 'IGD Pulang';
+                        $update->cara_keluar = 'Rujuk Ranap';
                         $update->save();
                     };
                 }
-            } elseif ($cekPulang->status_lanjut == 'Ranap') {
-
-                if ($dataTerkirim->triase_transportasi == null) {
-                    IgdSehatController::sendTransportasiKedatangan($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
-                }
-                if ($dataTerkirim->triase_kondisi == null) {
-                    IgdSehatController::sendTiaseKondisi($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
-                }
-                if ($dataTerkirim->asesmen_nyeri == null) {
-                    IgdSehatController::sendAssesmenNyeri($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
-                }
-                if ($dataTerkirim->asesmen_nadi == null) {
-                    IgdSehatController::sendVitalSign($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
-                }
-                if ($dataTerkirim->service_request == null) {
-                    IgdSehatController::sendServiceRequest($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
-                }
-                if ($dataTerkirim->service_request != null) {
-                    $update = ResponseIgdSatuSehat::where('noRawat', $dataTerkirim->noRawat)->first();
-                    $update->cara_keluar = 'Rujuk Ranap';
-                    $update->save();
-                };
             }
         }
         // $data = IgdSehatController::sendTransportasiKedatangan();

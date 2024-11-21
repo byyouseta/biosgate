@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Imports\KlaimCairImport;
 use App\KlaimCair;
+use App\KlaimPending;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,11 +23,14 @@ class KlaimCompareController extends Controller
         session()->put('ibu', 'Vedika');
         session()->put('anak', 'Klaim Compare');
         session()->forget('cucu');
+        set_time_limit(0);
 
         if (isset($request->tanggal)) {
             $tanggal = $request->tanggal;
+            $tanggalSelesai = $request->tanggalSelesai;
         } else {
             $tanggal = Carbon::now()->format('Y-m-d');
+            $tanggalSelesai = Carbon::now()->format('Y-m-d');
         }
 
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
@@ -57,7 +61,8 @@ class KlaimCompareController extends Controller
                 'dokter.nm_dokter'
             )
             ->where('reg_periksa.kd_pj', '=', 'BPJ')
-            ->whereDate('reg_periksa.tgl_registrasi', '=', $tanggal)
+            // ->whereDate('reg_periksa.tgl_registrasi', '=', $tanggal)
+            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggal, $tanggalSelesai])
             ->where('reg_periksa.stts', '!=', 'Batal')
             ->get();
 
@@ -131,5 +136,134 @@ class KlaimCompareController extends Controller
         ];
 
         return response()->download($file, 'template_klaim_cair.xlsx', $headers);
+    }
+
+    public function ambilResponeVklaim(Request $request)
+    {
+        $request->validate([
+            'periodeBulan' => 'required|date', // Validasi tanggal (wajib diisi dan harus berupa tanggal yang valid)
+            'status' => 'required',   // Validasi radio button (wajib dipilih)
+        ]);
+
+        $carbonDate = Carbon::parse($request->periodeBulan . '-01');
+        $jumlahHari = $carbonDate->daysInMonth;
+
+        if ($request->status == 2) { //Untuk data pending
+            for ($i = 1; $i <= $jumlahHari; $i++) {
+                // Untuk data Ranap
+                $ambil = SepController::getStatusKlaim("$request->periodeBulan-$i", "1", $request->status);
+                if ($ambil) {
+                    //Untuk data pending
+                    foreach ($ambil as $responseAmbil) {
+                        $cekKlaim = KlaimPending::where('no_sep', $responseAmbil->noSEP)->first();
+                        if ($cekKlaim) {
+                            $cekKlaim->status = $responseAmbil->status;
+                            $cekKlaim->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
+                            $cekKlaim->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
+                            $cekKlaim->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
+                            $cekKlaim->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                        } else {
+                            $new = new KlaimPending;
+                            $new->no_sep = $responseAmbil->noSEP;
+                            $new->tgl_sep = $responseAmbil->tglSep;
+                            $new->tgl_pulang = $responseAmbil->tglPulang;
+                            $new->kelas_rawat = $responseAmbil->kelasRawat;
+                            $new->poli = $responseAmbil->poli;
+                            $new->status = $responseAmbil->status;
+                            $new->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
+                            $new->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
+                            $new->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
+                            $new->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                            $new->jenis_rawat = 'RI';
+                            $new->save();
+                        }
+                    }
+                }
+                // Untuk data Rajal
+                $ambil = SepController::getStatusKlaim("$request->periodeBulan-$i", "2", $request->status);
+                if ($ambil) {
+                    // dd($ambil, 'Rajal');
+                    foreach ($ambil as $responseAmbil) {
+                        $cekKlaim = KlaimPending::where('no_sep', $responseAmbil->noSEP)->first();
+                        if ($cekKlaim) {
+                            $cekKlaim->status = $responseAmbil->status;
+                            $cekKlaim->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
+                            $cekKlaim->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
+                            $cekKlaim->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
+                            $cekKlaim->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                        } else {
+                            $new = new KlaimPending;
+                            $new->no_sep = $responseAmbil->noSEP;
+                            $new->tgl_sep = $responseAmbil->tglSep;
+                            $new->tgl_pulang = $responseAmbil->tglPulang;
+                            $new->kelas_rawat = $responseAmbil->kelasRawat;
+                            $new->poli = $responseAmbil->poli;
+                            $new->status = $responseAmbil->status;
+                            $new->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
+                            $new->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
+                            $new->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
+                            $new->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                            $new->jenis_rawat = 'RJ';
+                            $new->save();
+                        }
+                    }
+                }
+            }
+        } elseif ($request->status == 3) { //Untuk data Cair
+            // dd($request, $jumlahHari);
+            for ($i = 1; $i <= $jumlahHari; $i++) {
+                // Untuk data Ranap
+                $ambil = SepController::getStatusKlaim("$request->periodeBulan-$i", "1", $request->status);
+                if ($ambil) {
+                    //Untuk data pending
+                    foreach ($ambil as $responseAmbil) {
+                        // dd($responseAmbil, 'Rajal');
+                        $cekKlaim = KlaimCair::where('no_sep', $responseAmbil->noSEP)->first();
+                        if ($cekKlaim) {
+                            $cekKlaim->riil = $responseAmbil->biaya->byTarifRS;
+                            $cekKlaim->diajukan = $responseAmbil->biaya->byPengajuan;
+                            $cekKlaim->disetujui = $responseAmbil->biaya->bySetujui;
+                        } else {
+                            $new = new KlaimCair();
+                            $new->no_sep = $responseAmbil->noSEP;
+                            $new->tgl_verif = $responseAmbil->tglSep;
+                            $new->diajukan = $responseAmbil->biaya->byPengajuan;
+                            $new->riil = $responseAmbil->biaya->byTarifRS;
+                            $new->disetujui = $responseAmbil->biaya->bySetujui;
+                            $new->jenis_rawat = 'RI';
+                            $new->save();
+                        }
+                    }
+                }
+                // Untuk data Rajal
+                $ambil = SepController::getStatusKlaim("$request->periodeBulan-$i", "2", $request->status);
+                if ($ambil) {
+                    foreach ($ambil as $responseAmbil) {
+                        // dd($responseAmbil, 'Rajal');
+                        $cekKlaim = KlaimPending::where('no_sep', $responseAmbil->noSEP)->first();
+                        if ($cekKlaim) {
+                            $cekKlaim->riil = $responseAmbil->biaya->byTarifRS;
+                            $cekKlaim->diajukan = $responseAmbil->biaya->byPengajuan;
+                            $cekKlaim->disetujui = $responseAmbil->biaya->bySetujui;
+                        } else {
+                            $new = new KlaimCair();
+                            $new->no_sep = $responseAmbil->noSEP;
+                            $new->tgl_verif = $responseAmbil->tglSep;
+                            $new->diajukan = $responseAmbil->biaya->byPengajuan;
+                            $new->riil = $responseAmbil->biaya->byTarifRS;
+                            $new->disetujui = $responseAmbil->biaya->bySetujui;
+                            $new->jenis_rawat = 'RJ';
+                            $new->save();
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($ambil) {
+            Session::flash('sukses', 'Data berhasil diambil');
+        }
+
+        return redirect()->back();
     }
 }

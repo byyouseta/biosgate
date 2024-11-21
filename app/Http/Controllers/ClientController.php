@@ -247,8 +247,9 @@ class ClientController extends Controller
 
     public function kesehatan()
     {
-        session()->put('ibu', 'Client Layanan Kesehatan Harian');
-        session()->forget('anak');
+        session()->put('ibu', 'BIOS facelift');
+        session()->put('anak', 'Layanan Kesehatan Harian');
+        session()->put('cucu', 'Client Layanan Kesehatan Harian');
         set_time_limit(0);
 
         ClientController::token();
@@ -257,7 +258,7 @@ class ClientController extends Controller
 
         $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
 
-        // $tanggal = '2024-06-17';
+        // $tanggal = '2024-08-17';
 
         // $begin = new DateTime('2024-04-05');
         // $end = new DateTime('2024-04-15');
@@ -394,8 +395,9 @@ class ClientController extends Controller
 
     public function statistik()
     {
-        session()->put('ibu', 'Client Data Statistik');
-        session()->forget('anak');
+        session()->put('ibu', 'BIOS Facelift');
+        session()->put('anak', 'Data Statistik');
+        session()->put('cucu', 'Client Data Statistik');
 
         ClientController::token();
 

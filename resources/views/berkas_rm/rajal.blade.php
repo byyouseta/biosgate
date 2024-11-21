@@ -61,7 +61,6 @@
                                     <tbody>
                                         @foreach ($data as $dataPasien)
                                             <tr>
-
                                                 <td>
                                                     <div class="btn-group text-center">
                                                         <button type="button"
@@ -88,10 +87,14 @@
                                                                 href="/berkasrm/berkas/{{ Crypt::encrypt($dataPasien->no_rawat) }}/generalconsent"
                                                                 target="_blank">Berkas
                                                                 General Consent </a>
-                                                            {{-- <a class="dropdown-item" href="#">Something else
-                                                                    here</a>
-                                                                <div class="dropdown-divider"></div>
-                                                                <a class="dropdown-item" href="#">Separated link</a> --}}
+                                                            <div class="dropdown-divider"></div>
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('berkasrm.penilaianralan', Crypt::encrypt($dataPasien->no_rawat)) }}"
+                                                                target="_blank">Penilaian Awal
+                                                                Keperawatan Umum</a>
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('berkasrm.soapie', Crypt::encrypt($dataPasien->no_rawat)) }}"
+                                                                target="_blank">SOAPIE</a>
                                                         </div>
                                                     </div>
                                                 </td>
@@ -104,7 +107,6 @@
                                                             target="_blank">
                                                             <span class="badge badge-info"><i
                                                                     class="fas fa-search"></i></span></a> --}}
-
                                                 </td>
                                                 <td>{{ $dataPasien->tgl_registrasi }} {{ $dataPasien->jam_reg }}</td>
                                                 <td>{{ $dataPasien->nm_poli }}</td>
@@ -182,8 +184,8 @@
                 // info: true,
                 // autoWidth: true,
                 // responsive: false,
-                // scrollY: '500px',
-                // scrollX: true,
+                scrollY: '500px',
+                scrollX: true,
                 // fixedHeader: true,
                 initComplete: function() {
                     var api = this.api();

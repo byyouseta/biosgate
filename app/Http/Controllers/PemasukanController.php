@@ -185,16 +185,16 @@ class PemasukanController extends Controller
 
         ClientController::token();
         $now = Carbon::now();
-        // $now = Carbon::create('2024-06-17');
+        // $now = Carbon::create('2024-08-17');
         // dd($now, $now->format('Y-m-d') . " 12:00", $now->yesterday());
-        $jam = Carbon::now()->format('H:i:s');
+        // $jam = Carbon::now()->format('H:i:s');
 
         $data_pemasukan = Pemasukan::where('status', '=', 'false')
             ->whereDate('tgl_transaksi', '<', $now)
             ->get();
 
         $cekPemasukanKemarin = Pemasukan::whereDate('tgl_transaksi', $now->yesterday())
-        // $cekPemasukanKemarin = Pemasukan::whereDate('tgl_transaksi', $now)
+            // $cekPemasukanKemarin = Pemasukan::whereDate('tgl_transaksi', $now)
             ->get();
         if ($now < $now->format('Y-m-d') . " 12:00") {
             // dd('kurang');
@@ -203,8 +203,8 @@ class PemasukanController extends Controller
                 $dataPemasukanKemarin = PemasukanController::getPemasukanSim($now->yesterday());
                 // $dataPemasukanKemarin = PemasukanController::getPemasukanSim($now);
                 $simpan = new Pemasukan();
-                // $simpan->tgl_transaksi = $now->yesterday();
-                $simpan->tgl_transaksi = $now;
+                $simpan->tgl_transaksi = $now->yesterday();
+                // $simpan->tgl_transaksi = $now;
                 $simpan->kd_akun = 424111;
                 $simpan->jumlah = $dataPemasukanKemarin;
                 $simpan->status = false;

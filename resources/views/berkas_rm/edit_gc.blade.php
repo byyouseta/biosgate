@@ -448,30 +448,13 @@
                                                 <tr>
                                                     <td width='20%' class='align-middle pl-5'>Tanggal Lahir/Umur</td>
                                                     <td>
-                                                        {{-- <input type="text" class="form-control datetimepicker-input"
-                                                            name="tglLahirPj" id="tanggalLahirPj"
-                                                            data-target="#tanggalLahirPj" data-toggle="datetimepicker"
-                                                            name="tanggal" autocomplete="off" required> --}}
-                                                        {{-- <div class="input-group input-group" data-target-input="nearest">
-                                                            <input type="text"
-                                                                class="form-control datetimepicker-input"
-                                                                id="tanggalLahirPj" data-target="#tanggalLahirPj"
-                                                                data-toggle="datetimepicker" name="tanggalLahirPj"
-                                                                autocomplete="off">
-
-                                                            <span class="input-group-append">
-                                                                <button type="button"
-                                                                    class="btn btn-info btn-flat btn-sm"><i
-                                                                        class="fas fa-calendar-alt"></i></button>
-                                                            </span>
-                                                        </div> --}}
-                                                        <div class="input-group date" id="tanggalLahirPj"
+                                                        <div class="input-group date"
                                                             data-target-input="nearest">
                                                             <input type="text"
                                                                 class="form-control datetimepicker-input"
                                                                 value={{ $berkas->tglLahirPj }} id="tanggalLahirPj"
                                                                 data-target="#tanggalLahirPj" data-toggle="datetimepicker"
-                                                                name="tanggalLahirPj" autocomplete="off" />
+                                                                name="tanggalLahirPj" autocomplete="off" onchange="hitungUsia()"/>
                                                             <div class="input-group-append" data-target="#tanggalLahirPj"
                                                                 data-toggle="datetimepicker">
                                                                 <div class="input-group-text"><i
@@ -482,9 +465,9 @@
                                                     </td>
                                                     <td width='20%'>
                                                         <div class="input-group">
-                                                            <input type="number" class="form-control" name="umurPj"
+                                                            <input type="number" class="form-control" name="umurPj" id="usia"
                                                                 value={{ $berkas->umurPj }} placeholder="Umur PJ"
-                                                                step="1" required>
+                                                                step="1" required readonly>
                                                             <div class="input-group-prepend">
                                                                 <span class="input-group-text">Tahun</span>
                                                             </div>
@@ -664,5 +647,27 @@
                 $dst.val($src.val());
             });
         });
+
+        function hitungUsia() {
+            // Ambil nilai dari input tanggal lahir
+            var tanggalLahir = document.getElementById('tanggalLahirPj').value;
+            if (tanggalLahir) {
+                // Konversi string tanggal lahir ke objek Date
+                var dob = new Date(tanggalLahir);
+                var today = new Date();
+
+                // Hitung selisih tahun
+                var age = today.getFullYear() - dob.getFullYear();
+
+                // Cek apakah bulan dan tanggal ulang tahun sudah lewat tahun ini
+                var monthDiff = today.getMonth() - dob.getMonth();
+                if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+                    age--;
+                }
+
+                // Set nilai usia ke input usia
+                document.getElementById('usia').value = age;
+            }
+        }
     </script>
 @endsection

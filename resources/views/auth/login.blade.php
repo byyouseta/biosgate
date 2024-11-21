@@ -57,6 +57,8 @@
                                     </div>
                                 </div>
                             </div>
+
+
                             {!! RecaptchaV3::field('login') !!}
                             <div class="form-group row mb-0">
                                 <div class="col-md-8 offset-md-4">
@@ -72,6 +74,15 @@
                                 </div>
                             </div>
                         </form>
+                        <hr>
+                        <div class="form-group row ">
+                            <div class="col-md-6 offset-md-4 ">
+                                <!-- Tombol untuk SSO -->
+                                <a href="{{ route('sso.redirect') }}" class="btn btn-primary">
+                                    Login with SSO
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

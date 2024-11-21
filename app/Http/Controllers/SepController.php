@@ -251,10 +251,11 @@ class SepController extends Controller
 
         // dd($consid, $tStamp, $encodedSignature, $signature);
 
-        $client = new \GuzzleHttp\Client(['base_uri' => 'https://apijkn-dev.bpjs-kesehatan.go.id/antreanrs/']);
+        // $client = new \GuzzleHttp\Client(['base_uri' => 'https://apijkn-dev.bpjs-kesehatan.go.id/antreanrs/']);
+        $client = new \GuzzleHttp\Client(['base_uri' => 'https://apijkn.bpjs-kesehatan.go.id/vclaim-rest/']);
 
         try {
-            $response = $client->request("GET", "dashboard/waktutunggu/bulan/05/tahun/2023/waktu/rs", [
+            $response = $client->request("GET", "Monitoring/Klaim/Tanggal/2024-07-29/JnsPelayanan/2/Status/2", [
                 'headers' => [
                     'X-cons-id' => $consid,
                     'X-timestamp' => $tStamp,
@@ -273,7 +274,7 @@ class SepController extends Controller
 
         $dataResponse = json_decode($response->getBody());
 
-        dd($dataResponse);
+        // dd($dataResponse);
 
         $kunci = $consid . $secretKey . $tStamp;
         $nilairespon = $dataResponse->response;
@@ -283,6 +284,58 @@ class SepController extends Controller
         dd($objek);
 
         return $objek;
+    }
+
+    public static function getStatusKlaim($tanggal, $jenis, $status)
+    {
+        $consid = env('CONS_ID');
+        $secretKey = env('SECRETKEY');
+        $userKey = env('USERKEY');
+        // Computes the timestamp
+        date_default_timezone_set('UTC');
+        $tStamp = strval(time() - strtotime('1970-01-01 00:00:00'));
+        // Computes the signature by hashing the salt with the secret key as the key
+        $signature = hash_hmac('sha256', $consid . "&" . $tStamp, $secretKey, true);
+
+        // base64 encode�
+        $encodedSignature = base64_encode($signature);
+
+        // urlencode�
+        $client = new \GuzzleHttp\Client(['base_uri' => 'https://apijkn.bpjs-kesehatan.go.id/vclaim-rest/']);
+
+        try {
+            $response = $client->request("GET", "Monitoring/Klaim/Tanggal/$tanggal/JnsPelayanan/$jenis/Status/$status", [
+                'headers' => [
+                    'X-cons-id' => $consid,
+                    'X-timestamp' => $tStamp,
+                    'X-signature' => $encodedSignature,
+                    'user_key' => $userKey,
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+
+                dd($test);
+            }
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        // dd($dataResponse);
+
+        $kunci = $consid . $secretKey . $tStamp;
+        $nilairespon = $dataResponse->response;
+        $hasilakhir = SepController::decompress(SepController::stringDecrypt($kunci, $nilairespon));
+        $objek = json_decode($hasilakhir);
+
+        // dd($objek);
+        if ($objek) {
+            return $objek->klaim;
+        } else {
+            return null;
+        }
     }
 
     public static function stringDecrypt($key, $string)

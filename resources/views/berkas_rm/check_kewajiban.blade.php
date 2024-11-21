@@ -4,13 +4,13 @@
     <link rel="stylesheet" type="text/css"
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.css">
 
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <link type="text/css" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css"
-        rel="stylesheet">
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="//keith-wood.name/js/jquery.signature.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <link type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/south-street/jquery-ui.css" rel="stylesheet">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="//keith-wood.name/css/jquery.signature.css">
+    <script type="text/javascript" src="{{ asset('template/plugins/jquery-tandatangan/js/jquery.signature.min.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('template/plugins/jquery-tandatangan/js/jquery.ui.touch-punch.min.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ asset('template/plugins/jquery-tandatangan/css/jquery.signature.css') }}">
 
     <style>
         .kbw-signature {
@@ -89,8 +89,7 @@
                                     <li class="nav-item">
                                         <a class="nav-link active" id="custom-tabs-tandatangan-tab" data-toggle="pill"
                                             href="#custom-tabs-four-tandatangan" role="tab"
-                                            aria-controls="custom-tabs-four-tandatangan" aria-selected="false">TANDA
-                                            TANGAN</a>
+                                            aria-controls="custom-tabs-four-tandatangan" aria-selected="false">TANDA TANGAN</a>
                                     </li>
                                     <li class="pt-0 px-0 text-right">
                                         <div class="card-tools">
@@ -109,7 +108,7 @@
                                         <table class="table table-bordered table-sm">
                                             <thead>
                                                 <tr class="text-center">
-                                                    <th style="width:5%">No </th>
+                                                    <th style="width:5%">No</th>
                                                     <th>Hak Pasien dan Keluarganya</th>
                                                     <th style="width:10%">
                                                         <div class="custom-control custom-checkbox">

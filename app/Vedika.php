@@ -197,15 +197,17 @@ class Vedika extends Model
         return $cari;
     }
 
-    public static function getSep($norawat)
+    public static function getSep($norawat, $pelayanan)
     {
         $cari = DB::connection('mysqlkhanza')->table('bridging_sep')
             ->select(
                 'bridging_sep.no_sep',
                 'bridging_sep.no_rawat',
+                'bridging_sep.jnspelayanan',
                 'bridging_sep.tglpulang'
             )
             ->where('bridging_sep.no_rawat', '=', $norawat)
+            ->where('bridging_sep.jnspelayanan', '=', $pelayanan)
             ->orderBy('bridging_sep.tglpulang', 'DESC')
             ->first();
 
@@ -285,6 +287,32 @@ class Vedika extends Model
         }
     }
 
+    public static function getProcedure($norawat, $status)
+    {
+        $prosedur = DB::connection('mysqlkhanza')->table('prosedur_pasien')
+            ->join('icd9', 'icd9.kode', '=', 'prosedur_pasien.kode')
+            ->select(
+                'prosedur_pasien.no_rawat',
+                'prosedur_pasien.kode',
+                'prosedur_pasien.status',
+                'icd9.deskripsi_panjang'
+            )
+            ->where('prosedur_pasien.status', '=', $status)
+            ->where('prosedur_pasien.no_rawat', '=', $norawat)
+            ->get();
+
+        if ($prosedur) {
+            $data = [];
+            foreach ($prosedur as $list) {
+                array_push($data, $list->kode);
+            }
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+
     public static function getWaktuKeluar($norawat)
     {
         $cari = DB::connection('mysqlkhanza')->table('kamar_inap')
@@ -318,6 +346,29 @@ class Vedika extends Model
 
         if ($cari) {
             return $cari->nm_dokter;
+        } else {
+            return null;
+        }
+    }
+
+    public static function getWaktuDokter($norawat)
+    {
+        $cari = DB::connection('mysqlkhanza')->table('kamar_inap')
+            ->leftJoin('dpjp_ranap', 'dpjp_ranap.no_rawat', '=', 'kamar_inap.no_rawat')
+            ->leftJoin('dokter', 'dokter.kd_dokter', '=', 'dpjp_ranap.kd_dokter')
+            ->select(
+                'kamar_inap.no_rawat',
+                'kamar_inap.tgl_keluar',
+                'kamar_inap.jam_keluar',
+                DB::raw("CONCAT(kamar_inap.tgl_keluar, ' ', kamar_inap.jam_keluar) AS waktuKeluar"),
+                'dokter.nm_dokter'
+            )
+            ->where('kamar_inap.no_rawat', '=', $norawat)
+            ->orderBy('waktuKeluar', 'DESC')
+            ->first();
+
+        if ($cari) {
+            return $cari;
         } else {
             return null;
         }
@@ -437,6 +488,19 @@ class Vedika extends Model
             return null;
         } else {
             return $dokterRad;
+        }
+    }
+
+    public static function getBookingOperasi($norawat)
+    {
+        $cek = DB::connection('mysqlkhanza')->table('booking_jadwal_operasi')
+            ->where('booking_jadwal_operasi.no_rawat', '=', $norawat)
+            ->first();
+
+        if ($cek) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

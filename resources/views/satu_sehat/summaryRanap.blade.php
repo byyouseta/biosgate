@@ -26,7 +26,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card_title">Summary data terkirim
-                                <a href="/satusehat/ranap/encounter" class="btn btn-sm btn-primary"
+                                <a href="/satusehat/ranap/kirimencounter" class="btn btn-sm btn-primary"
                                     target="_blank">Encounter</a>
                                 <a href="/satusehat/ranap/encounterupdate" class="btn btn-sm btn-primary"
                                     target="_blank">Update

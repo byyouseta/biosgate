@@ -162,8 +162,8 @@
                 <tr>
                     <td style="border:0px solid black">No. SEP</td>
                     <td style="border:0px solid black">:
-                        {{ App\Vedika::getSep($resepObat->no_rawat) != null ?
-                        App\Vedika::getSep($resepObat->no_rawat)->no_sep : '' }}
+                        {{ App\Vedika::getSep($resepObat->no_rawat,2) != null ?
+                        App\Vedika::getSep($resepObat->no_rawat,2)->no_sep : '' }}
                     </td>
                 </tr>
                 <tr>
