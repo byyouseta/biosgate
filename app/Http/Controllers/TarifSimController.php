@@ -38,6 +38,7 @@ class TarifSimController extends Controller
             ->join('kategori_perawatan', 'kategori_perawatan.kd_kategori', '=', 'jns_perawatan.kd_kategori')
             ->join('penjab', 'penjab.kd_pj', '=', 'jns_perawatan.kd_pj')
             ->join('poliklinik', 'poliklinik.kd_poli', '=', 'jns_perawatan.kd_poli')
+            ->leftJoin('jns_perawatan_detail', 'jns_perawatan_detail.kd_jenis_prw', '=', 'jns_perawatan.kd_jenis_prw')
             ->select(
                 'jns_perawatan.kd_jenis_prw',
                 'jns_perawatan.nm_perawatan',
@@ -54,6 +55,8 @@ class TarifSimController extends Controller
                 'jns_perawatan.kd_pj',
                 'jns_perawatan.kd_poli',
                 'jns_perawatan.status',
+                'jns_perawatan_detail.kptl',
+                'jns_perawatan_detail.keterangan',
                 'kategori_perawatan.nm_kategori',
                 'penjab.png_jawab',
                 'poliklinik.nm_poli'
@@ -137,6 +140,29 @@ class TarifSimController extends Controller
                         'status' => $listData['status'] == 1 ? '1' : '0'
                     ]);
                 }
+
+                // Cek apakah data sudah ada di tabel jns_perawatan_lab_detail
+                $cekDetail = DB::connection('mysqlkhanzadummy')->table('jns_perawatan_detail')
+                    ->where('kd_jenis_prw', $listData['kode_jenis_perawatan'])
+                    ->first();
+
+                if (empty($cekDetail)) {
+                    // Jika tidak ada, simpan data baru
+                    DB::connection('mysqlkhanzadummy')->table('jns_perawatan_detail')->insert([
+                        'kd_jenis_prw' => $listData['kode_jenis_perawatan'],
+                        'kptl' => $listData['kptl'] ?? null,
+                        'keterangan' => $listData['keterangan'] ?? null
+                    ]);
+                } else {
+                    // Jika sudah ada, update data yang ada
+                    DB::connection('mysqlkhanzadummy')->table('jns_perawatan_detail')
+                        ->where('kd_jenis_prw', $listData['kode_jenis_perawatan'])
+                        ->update([
+                            // Tambahkan kolom yang perlu di-update di sini, jika ada
+                            'kptl' => $listData['kptl'] ?? null,
+                            'keterangan' => $listData['keterangan'] ?? null
+                        ]);
+                }
             }
 
 
@@ -177,6 +203,7 @@ class TarifSimController extends Controller
             ->join('kategori_perawatan', 'kategori_perawatan.kd_kategori', '=', 'jns_perawatan_inap.kd_kategori')
             ->join('penjab', 'penjab.kd_pj', '=', 'jns_perawatan_inap.kd_pj')
             ->join('bangsal', 'bangsal.kd_bangsal', '=', 'jns_perawatan_inap.kd_bangsal')
+            ->leftJoin('jns_perawatan_inap_detail', 'jns_perawatan_inap_detail.kd_jenis_prw', '=', 'jns_perawatan_inap.kd_jenis_prw')
             ->select(
                 'jns_perawatan_inap.kd_jenis_prw',
                 'jns_perawatan_inap.nm_perawatan',
@@ -196,6 +223,7 @@ class TarifSimController extends Controller
                 'jns_perawatan_inap.kelas',
                 'kategori_perawatan.nm_kategori',
                 'penjab.png_jawab',
+                'jns_perawatan_inap_detail.kptl',
                 'bangsal.nm_bangsal'
             )
             ->where('jns_perawatan_inap.status', '=', '1')
@@ -279,6 +307,27 @@ class TarifSimController extends Controller
                         'kelas' => $listData['kelas']
                     ]);
                 }
+
+                // Cek apakah data sudah ada di tabel jns_perawatan_lab_detail
+                $cekDetail = DB::connection('mysqlkhanzadummy')->table('jns_perawatan_inap_detail')
+                    ->where('kd_jenis_prw', $listData['kode_jenis_perawatan'])
+                    ->first();
+
+                if (empty($cekDetail)) {
+                    // Jika tidak ada, simpan data baru
+                    DB::connection('mysqlkhanzadummy')->table('jns_perawatan_inap_detail')->insert([
+                        'kd_jenis_prw' => $listData['kode_jenis_perawatan'],
+                        'kptl' => $listData['kptl'] ?? null,
+                    ]);
+                } else {
+                    // Jika sudah ada, update data yang ada
+                    DB::connection('mysqlkhanzadummy')->table('jns_perawatan_inap_detail')
+                        ->where('kd_jenis_prw', $listData['kode_jenis_perawatan'])
+                        ->update([
+                            // Tambahkan kolom yang perlu di-update di sini, jika ada
+                            'kptl' => $listData['kptl'] ?? null,
+                        ]);
+                }
             }
 
 
@@ -317,6 +366,7 @@ class TarifSimController extends Controller
 
         $data = DB::connection('mysqlkhanzadummy')->table('jns_perawatan_lab')
             ->join('penjab', 'penjab.kd_pj', '=', 'jns_perawatan_lab.kd_pj')
+            ->leftJoin('jns_perawatan_lab_detail', 'jns_perawatan_lab_detail.kd_jenis_prw', '=', 'jns_perawatan_lab.kd_jenis_prw')
             ->select(
                 'jns_perawatan_lab.kd_jenis_prw',
                 'jns_perawatan_lab.nm_perawatan',
@@ -332,6 +382,8 @@ class TarifSimController extends Controller
                 'jns_perawatan_lab.status',
                 'jns_perawatan_lab.kelas',
                 'jns_perawatan_lab.kategori',
+                'jns_perawatan_lab_detail.kptl',
+                'jns_perawatan_lab_detail.keterangan',
                 'penjab.png_jawab'
             )
             ->where('jns_perawatan_lab.status', '=', '1')
@@ -411,6 +463,29 @@ class TarifSimController extends Controller
                         'kategori' => $listData['kategori']
                     ]);
                 }
+
+                // Cek apakah data sudah ada di tabel jns_perawatan_lab_detail
+                $cekDetail = DB::connection('mysqlkhanzadummy')->table('jns_perawatan_lab_detail')
+                    ->where('kd_jenis_prw', $listData['kode_periksa'])
+                    ->first();
+
+                if (empty($cekDetail)) {
+                    // Jika tidak ada, simpan data baru
+                    DB::connection('mysqlkhanzadummy')->table('jns_perawatan_lab_detail')->insert([
+                        'kd_jenis_prw' => $listData['kode_periksa'],
+                        'kptl' => $listData['kptl'] ?? null,
+                        'keterangan' => $listData['keterangan'] ?? null
+                    ]);
+                } else {
+                    // Jika sudah ada, update data yang ada
+                    DB::connection('mysqlkhanzadummy')->table('jns_perawatan_lab_detail')
+                        ->where('kd_jenis_prw', $listData['kode_periksa'])
+                        ->update([
+                            // Tambahkan kolom yang perlu di-update di sini, jika ada
+                            'kptl' => $listData['kptl'] ?? null,
+                            'keterangan' => $listData['keterangan'] ?? null
+                        ]);
+                }
             }
 
 
@@ -449,6 +524,7 @@ class TarifSimController extends Controller
 
         $data = DB::connection('mysqlkhanzadummy')->table('jns_perawatan_radiologi')
             ->join('penjab', 'penjab.kd_pj', '=', 'jns_perawatan_radiologi.kd_pj')
+            ->leftJoin('jns_perawatan_radiologi_detail', 'jns_perawatan_radiologi_detail.kd_jenis_prw', '=', 'jns_perawatan_radiologi.kd_jenis_prw')
             ->select(
                 'jns_perawatan_radiologi.kd_jenis_prw',
                 'jns_perawatan_radiologi.nm_perawatan',
@@ -463,6 +539,8 @@ class TarifSimController extends Controller
                 'jns_perawatan_radiologi.kd_pj',
                 'jns_perawatan_radiologi.status',
                 'jns_perawatan_radiologi.kelas',
+                'jns_perawatan_radiologi_detail.kptl',
+                'jns_perawatan_radiologi_detail.keterangan',
                 'penjab.png_jawab'
             )
             ->where('jns_perawatan_radiologi.status', '=', '1')
@@ -538,6 +616,31 @@ class TarifSimController extends Controller
                         'kelas' => $listData['kelas']
                     ]);
                 }
+
+                // Cek apakah data sudah ada di tabel jns_perawatan_lab_detail
+                $cekDetail = DB::connection('mysqlkhanzadummy')->table('jns_perawatan_radiologi_detail')
+                    ->where('kd_jenis_prw', $listData['kode_periksa'])
+                    ->first();
+
+                // dd($cekDetail, $listData);
+
+                if (empty($cekDetail)) {
+                    // Jika tidak ada, simpan data baru
+                    DB::connection('mysqlkhanzadummy')->table('jns_perawatan_radiologi_detail')->insert([
+                        'kd_jenis_prw' => $listData['kode_periksa'],
+                        'kptl' => $listData['kptl'] ?? null,
+                        'keterangan' => $listData['keterangan'] ?? null
+                    ]);
+                } else {
+                    // Jika sudah ada, update data yang ada
+                    DB::connection('mysqlkhanzadummy')->table('jns_perawatan_radiologi_detail')
+                        ->where('kd_jenis_prw', $listData['kode_periksa'])
+                        ->update([
+                            // Tambahkan kolom yang perlu di-update di sini, jika ada
+                            'kptl' => $listData['kptl'] ?? null,
+                            'keterangan' => $listData['keterangan'] ?? null
+                        ]);
+                }
             }
             // notifikasi dengan session
             Session::flash('sukses', 'Data Berhasil Diimport!');
@@ -574,6 +677,7 @@ class TarifSimController extends Controller
 
         $data = DB::connection('mysqlkhanzadummy')->table('paket_operasi')
             ->join('penjab', 'penjab.kd_pj', '=', 'paket_operasi.kd_pj')
+            ->leftJoin('paket_operasi_detail', 'paket_operasi_detail.kode_paket', '=', 'paket_operasi.kode_paket')
             ->select(
                 'paket_operasi.kode_paket',
                 'paket_operasi.nm_perawatan',
@@ -613,7 +717,8 @@ class TarifSimController extends Controller
                 DB::raw("operator1 + operator2 + operator3 + asisten_operator1 + asisten_operator2 + asisten_operator3 +
                  instrumen + dokter_anak + perawaat_resusitas + dokter_anestesi + asisten_anestesi + asisten_anestesi2
                  + bidan + bidan2 + bidan3 + perawat_luar + sewa_ok + alat + akomodasi + bagian_rs + omloop +
-                 omloop2 + omloop3 + omloop4 +omloop5 + sarpras + dokter_pjanak + dokter_umum AS jml_tarif")
+                 omloop2 + omloop3 + omloop4 +omloop5 + sarpras + dokter_pjanak + dokter_umum AS jml_tarif"),
+                'paket_operasi_detail.kptl'
             )
             ->where('paket_operasi.status', '=', '1')
             ->get();
@@ -728,6 +833,27 @@ class TarifSimController extends Controller
                         'kd_pj' => $listData['kode_pj'],
                         'kelas' => $listData['kelas']
                     ]);
+                }
+
+                // Cek apakah data sudah ada di tabel jns_perawatan_lab_detail
+                $cekDetail = DB::connection('mysqlkhanzadummy')->table('paket_operasi_detail')
+                    ->where('kode_paket', $listData['kode_paket'])
+                    ->first();
+
+                if (empty($cekDetail)) {
+                    // Jika tidak ada, simpan data baru
+                    DB::connection('mysqlkhanzadummy')->table('paket_operasi_detail')->insert([
+                        'kode_paket' => $listData['kode_paket'],
+                        'kptl' => $listData['kptl'] ?? null,
+                    ]);
+                } else {
+                    // Jika sudah ada, update data yang ada
+                    DB::connection('mysqlkhanzadummy')->table('paket_operasi_detail')
+                        ->where('kode_paket', $listData['kode_paket'])
+                        ->update([
+                            // Tambahkan kolom yang perlu di-update di sini, jika ada
+                            'kptl' => $listData['kptl'] ?? null,
+                        ]);
                 }
             }
             // notifikasi dengan session

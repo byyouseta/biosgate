@@ -258,7 +258,7 @@ class ClientController extends Controller
 
         $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
 
-        // $tanggal = '2024-08-17';
+        // $tanggal = '2025-01-15';
 
         // $begin = new DateTime('2024-04-05');
         // $end = new DateTime('2024-04-15');
@@ -467,12 +467,13 @@ class ClientController extends Controller
         ClientController::token();
 
         $tanggal = Carbon::now()->format('Y-m-d');
-        // $tanggal = '2023-07-05';
+        // $tanggal = '2025-01-05';
         $pecahTanggal = explode('-', $tanggal);
         $tanggalCek = $pecahTanggal[2];
         $BulanCek = $pecahTanggal[1];
 
-        if ($tanggalCek == '5' and (($BulanCek == 01) or ($BulanCek == 07))) {
+        if ($tanggalCek == '05') { //&& (($BulanCek == 01) || ($BulanCek == 07))
+            // dd('masuk');
             //data Dokter Spesialis sesuai tanggal
             $cekSpesialis = LogResponseBios::where('tanggal', $tanggal)
                 ->where('nama_fungsi', 'sendDokterSpesialis')

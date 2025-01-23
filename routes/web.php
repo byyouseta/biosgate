@@ -231,11 +231,14 @@ Route::get('/vedika/ranap/{id}/radiologi', 'VedikaController@radioRanap')->name(
 Route::get('/vedika/ranap/{id}/obat', 'VedikaController@obatRanap')->name('vedika.obatRanap');
 Route::get('/vedika/ranap/{id}/berkas', 'VedikaController@berkasRanap')->name('vedika.berkasRanap');
 
+Route::get('/vedika/{id}/tambahradiologi', 'VedikaController@tambahRadiologi')->name('vedika.tambahRadiologi');
+Route::get('/vedika/{id}/deleteradiologi', 'VedikaController@deleteRadiologi')->name('vedika.deleteRadiologi');
+
 Route::get('/vedika/obatkronis', 'VedikaController@pasienkronis')->name('vedika.pasienkronis');
 Route::get('/vedika/obatkronis/{id}/detail', 'VedikaController@detailCronis')->name('vedika.detailCronis');
 
 Route::post('/vedika/verifikasi', 'VedikaController@simpanVerif')->name('vedika.simpanVerif');
-Route::post('/vedika/verifikasi/{id}', 'VedikaController@updateVerif')->name('vedika.updateVerif');
+Route::post('/vedika/{id}/verifikasi', 'VedikaController@updateVerif')->name('vedika.updateVerif');
 Route::post('/vedika/berkas/store', 'VedikaController@berkasUpload')->name('vedika.berkasUpload');
 // Route::post('/vedika/berkas/store', 'VedikaController@berkasStore')->name('vedika.berkasStore');
 Route::get('/vedika/berkas/{id}/delete', 'VedikaController@berkasDelete')->name('vedika.berkasDelete');
@@ -274,6 +277,8 @@ Route::get('/vedika/klaimcompare/template', 'KlaimCompareController@template')->
 Route::post('/vedika/klaimcompare/ambilresponevklaim', 'KlaimCompareController@ambilResponeVklaim')->name('vedika.klaimcompare.ambilRespone');
 
 Route::get('/vedika/eklaim/{id}/printout', 'EklaimController@getStatus')->name('eklaim.status');
+
+Route::get('/vedika/pendingdpjp', 'KlaimCompareController@lihatDpjpPending')->name('vedika.pendingDpjp');
 
 Route::get('/sep', 'SepController@getSep')->name('sep.getSep');
 // Route::get('/sep2', 'SepController@getJmlSep')->name('sep.getJmlSep');
@@ -357,6 +362,10 @@ Route::get('/satusehat/ranap/encounterupdate', 'RanapSehatController@closeEncoun
 
 Route::get('/satusehat/kfa', 'KfaController@cari')->name('satuSehat.kfa');
 
+Route::get('/satusehat/kjsu', 'KjsuController@index')->name('satuSehat.kjsu');
+Route::get('/satusehat/kjsu/{id}/detail', 'KjsuController@detail')->name('satuSehat.kjsuDetail');
+Route::post('/satusehat/kjsu/kirimeoc', 'KjsuController@kirimEoc')->name('satuSehat.kjsuKirimEoc');
+
 Route::get('/setting', 'SettingController@index')->name('setting.index');
 Route::post('/setting/store', 'SettingController@store')->name('setting.store');
 Route::get('/setting/edit/{id}', 'SettingController@edit')->name('setting.edit');
@@ -378,6 +387,7 @@ Route::post('/master/bank/store', 'BankController@store')->name('bank.store');
 Route::get('/master/bank/edit/{id}', 'BankController@edit')->name('bank.edit');
 Route::post('/master/bank/update/{id}', 'BankController@update')->name('bank.update');
 Route::get('/master/bank/delete/{id}', 'BankController@delete')->name('bank.delete');
+// Route::get('/master/bank/refBank', 'BankController@refBank')->name('bank.refBank');
 
 Route::get('/master/dummygeo', 'DummyController@index')->name('dummy.index');
 Route::get('/master/dummygeo/provinsi', 'DummyController@provinsi')->name('dummy.provinsi');

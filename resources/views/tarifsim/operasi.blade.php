@@ -38,6 +38,7 @@
                                 <thead>
                                     <tr>
                                         <th class="align-middle">Kode Paket</th>
+                                        <th class="align-middle">Kode KPTL</th>
                                         <th class="align-middle">Nama Operasi</th>
                                         <th class="align-middle">Kategori</th>
                                         <th class="align-middle">Operator 1</th>
@@ -77,6 +78,7 @@
                                     @foreach ($data as $summary)
                                     <tr>
                                         <td>{{ $summary->kode_paket }}</td>
+                                        <td>{{ $summary->kptl }}</td>
                                         <td>{{ $summary->nm_perawatan }}</td>
                                         <td>{{ $summary->kategori }}</td>
                                         <td class="text-right">{{ $summary->operator1 }}</td>

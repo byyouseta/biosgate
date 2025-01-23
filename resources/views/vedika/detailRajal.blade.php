@@ -18,7 +18,7 @@
                     $statusVerif = App\VedikaVerif::cekVerif($pasien->no_rawat, 'Rajal');
                     $statusPengajuan = App\DataPengajuanKlaim::cekPengajuan($pasien->no_rawat, 'Rawat Jalan');
                     $statusPengajuanKronis = App\DataPengajuanKronis::cekPengajuanKronis($pasien->no_rawat);
-                    // dd($dataKlaim);
+                    // dd($dataKlaim, $pasien);
                 @endphp
                 <div class="col-12">
                     <div class="card">
@@ -2940,7 +2940,532 @@
                                 </tr>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+            @endif
 
+            @if($dataUsg)
+                <div class="card">
+                    <div class="card-header">Data USG</div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-3">
+                            <thead>
+                                <tr>
+                                    <td class="align-top" style="width:60%" rowspan="4"><img
+                                            src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                            width="350">
+                                    </td>
+                                    <td class="pt-1 pb-0 align-middle"
+                                        style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                        <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                            Kesehatan</div>
+                                        <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">
+                                        <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                        Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">
+                                        <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                        (0271)
+                                        713055
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">
+                                        <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                        https://web.rsupsurakarta.co.id
+                                    </td>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div class="progress progress-xs mt-0 pt-0">
+                            <div class="progress-bar progress-bar bg-black" role="progressbar" aria-valuenow="100"
+                                aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 1px solid black">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: center; border: 1px solid black;" colspan="4">
+                                            <h5><b><u>HASIL PEMERIKSAAN ULTRASONOGRAFI (USG) OBSTETRI</u></b></h5>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                                        <td style="width: 30%; ">: {{ $pasien->no_rkm_medis }}</td>
+                                        <td style="padding-left: 25px; text-align:right;">Tanggal Lahir</td>
+                                        <td style="padding-left: 50px;">: {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d/m/Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px; border-bottom: 1px solid black;">Nama Pasien</td>
+                                        <td style="border-bottom: 1px solid black;" colspan="4">: {{ $pasien->nm_pasien }}</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding-left: 25px;">Kiriman Dari</td>
+                                        <td colspan="3">: {{ $dataUsg->kiriman_dari }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px;">Diagnosa Klinis</td>
+                                        <td colspan="3">: {{ $dataUsg->diagnosa_klinis }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px;">HTA</td>
+                                        <td colspan="3">: {{ $dataUsg->hta }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px;">Jenis Prestasi</td>
+                                        <td colspan="3">: {{ $dataUsg->jenis_prestasi }}</td>
+                                    </tr>
+                                    @php
+                                        $formattedDate = \Carbon\Carbon::parse($dataUsg->tanggal)->format('M, d/m/Y H:i:s') . ' WIB';
+                                        $qr_dokter =
+                                        'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                        elektronik oleh' .
+                                        "\n" .
+                                        $dataUsg->nama .
+                                        "\n" .
+                                        'ID ' .
+                                        $dataUsg->kd_dokter .
+                                        "\n" .
+                                        \Carbon\Carbon::parse($dataUsg->tanggal)->format('d-m-Y');
+                                    @endphp
+                                    <tr>
+                                        <td style="padding-left: 25px; vertical-align:top; ">Kesimpulan</td>
+                                        <td colspan="3">: {!! nl2br(e($dataUsg->kesimpulan)) !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center; border: 1px solid black;">Tanggal dan Jam</td>
+                                        <td style="text-align:center; border: 1px solid black;" colspan="3">Nama Dokter dan Tanda Tangan</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="text-align: center; border: 1px solid black;">{{ $formattedDate }}</td>
+                                        <td style="padding: 10px;">{!! QrCode::size(100)->generate($qr_dokter) !!}</td>
+                                        <td colspan="2">{{ $dataUsg->nama }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            @if($dataUsgGynecologi)
+                <div class="card">
+                    <div class="card-header">Data USG Gynecologi</div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-3">
+                            <thead>
+                                <tr>
+                                    <td class="align-top" style="width:60%" rowspan="4"><img
+                                            src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                            width="350">
+                                    </td>
+                                    <td class="pt-1 pb-0 align-middle"
+                                        style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                        <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                            Kesehatan</div>
+                                        <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">
+                                        <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                        Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">
+                                        <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                        (0271)
+                                        713055
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">
+                                        <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                        https://web.rsupsurakarta.co.id
+                                    </td>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div class="progress progress-xs mt-0 pt-0">
+                            <div class="progress-bar progress-bar bg-black" role="progressbar" aria-valuenow="100"
+                                aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                            </div>
+                        </div>
+                        <div class="row justify-content-center">
+                            <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 1px solid black">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: center; border: 1px solid black;" colspan="4">
+                                            <h5><b><u>HASIL PEMERIKSAAN ULTRASONOGRAFI (USG) GINEKOLOGI</u></b></h5>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                                        <td style="width: 30%; ">: {{ $pasien->no_rkm_medis }}</td>
+                                        <td style="padding-left: 25px; text-align:right;">Tanggal Lahir</td>
+                                        <td style="padding-left: 50px;">: {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d/m/Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px; border-bottom: 1px solid black;">Nama Pasien</td>
+                                        <td style="border-bottom: 1px solid black;" colspan="4">: {{ $pasien->nm_pasien }}</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="padding-left: 25px;">Kiriman Dari</td>
+                                        <td colspan="3">: {{ $dataUsgGynecologi->kiriman_dari }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px;">Diagnosa Klinis</td>
+                                        <td colspan="3">: {{ $dataUsgGynecologi->diagnosa_klinis }}</td>
+                                    </tr>
+                                    @php
+                                        $formattedDate = \Carbon\Carbon::parse($dataUsgGynecologi->tanggal)->format('M, d/m/Y H:i:s') . ' WIB';
+                                        $qr_dokter =
+                                        'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                        elektronik oleh' .
+                                        "\n" .
+                                        $dataUsgGynecologi->nama .
+                                        "\n" .
+                                        'ID ' .
+                                        $dataUsgGynecologi->kd_dokter .
+                                        "\n" .
+                                        \Carbon\Carbon::parse($dataUsgGynecologi->tanggal)->format('d-m-Y');
+                                    @endphp
+                                    <tr>
+                                        <td style="padding-left: 25px; vertical-align:top; ">Kesimpulan</td>
+                                        <td colspan="3">: {!! nl2br(e($dataUsgGynecologi->kesimpulan)) !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center; border: 1px solid black;">Tanggal dan Jam</td>
+                                        <td style="text-align:center; border: 1px solid black;" colspan="3">Nama Dokter dan Tanda Tangan</td>
+                                    </tr>
+
+                                    <tr>
+                                        <td style="text-align: center; border: 1px solid black;">{{ $formattedDate }}</td>
+                                        <td style="padding: 10px;">{!! QrCode::size(100)->generate($qr_dokter) !!}</td>
+                                        <td colspan="2">{{ $dataUsgGynecologi->nama }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            @endif
+            @if($dataSpiro)
+                <div class="card">
+                    <div class="card-header">Pemeriksaan Spirometri</div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-3">
+                            <thead>
+                                <tr>
+                                    <td class="align-top" style="width:60%" rowspan="4"><img
+                                            src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                            width="350">
+                                    </td>
+                                    <td class="pt-1 pb-0 align-middle"
+                                        style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                        <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                            Kesehatan</div>
+                                        <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">
+                                        <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                        Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">
+                                        <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                        (0271)
+                                        713055
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="align-middle py-0">
+                                        <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                        https://web.rsupsurakarta.co.id
+                                    </td>
+                                </tr>
+                            </thead>
+                        </table>
+                        {{-- <div class="progress progress-xs mt-0 pt-0">
+                            <div class="progress-bar progress-bar bg-black" role="progressbar" aria-valuenow="100"
+                                aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                            </div>
+                        </div> --}}
+                        <div class="row justify-content-center">
+                            <table style="width: 100%; margin-bottom:50px; margin-top:10px;" class="table table-borderless table-sm">
+                                <thead>
+                                    <tr>
+                                        <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;" colspan="4">
+                                            <h5><b>PEMERIKSAAN SPIROMETRI</b></h5>
+                                        </th>
+                                    </tr>
+                                    <tr>
+                                        <td style="" colspan="4">
+                                            A. IDENTITAS
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 20%; padding-left: 25px;">No. Rawat</td>
+                                        <td style="width: 30%; ">: {{ $pasien->no_rawat }}</td>
+                                        <td style="padding-left: 100px; ">Tanggal Periksa</td>
+                                        <td style="padding-left: 50px;">: {{ \Carbon\Carbon::parse($dataSpiro->tanggal)->format('d-m-Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                                        <td style="width: 30%; ">: {{ $pasien->no_rkm_medis }}</td>
+                                        <td style="padding-left: 100px; ">DPJP</td>
+                                        <td style="padding-left: 50px;">: {{ $dataSpiro->nm_dokter }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
+                                        <td style="border-bottom: 0px solid black;">: {{ $pasien->nm_pasien }}</td>
+                                        <td style="padding-left: 100px;;">Dokter Pengirim</td>
+                                        <td style="padding-left: 50px;">: {{ $dataSpiro->nm_dokter }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px; border-bottom: 0px solid black;">Umur</td>
+                                        <td style="border-bottom: 0px solid black;">:
+                                            {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataSpiro->tanggal))->format('%y Th') }} </td>
+                                        <td style="padding-left: 100px; ">Tinggi Badan</td>
+                                        <td style="padding-left: 50px;">: {{ $dataSpiro->tb }} Cm</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px; border-bottom: 0px solid black;">Alamat</td>
+                                        <td style="border-bottom: 0px solid black;">: {{$pasien->alamat}} </td>
+                                        <td style="padding-left: 100px; ">Berat Badan</td>
+                                        <td style="padding-left: 50px;">: {{ $dataSpiro->bb }} Cm</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td style="border-top: 1px solid black;" colspan="4">B. RIWAYAT PEKERJAAN / KEBIASAAN</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px;">Pekerjaan</td>
+                                        <td colspan="4">: {{ $dataSpiro->pekerjaan }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px;">Merokok</td>
+                                        <td>: {{ $dataSpiro->merokok }}</td>
+                                        <td>Lama : {{ $dataSpiro->lama_merokok }}</td>
+                                        <td>Jumlah : 20 Btg / Hari, Eks : {{ $dataSpiro->jumlah_merokok }} </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px;">Pengobatan</td>
+                                        <td colspan="4">: {{ $dataSpiro->pengobatan }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="table table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th rowspan="2" style="vertical-align: middle; text-align:center;">No</th>
+                                        <th rowspan="2" style="vertical-align: middle; text-align:center;">Pemeriksaan</th>
+                                        <th colspan="7" style="text-align: center">Nilai</th>
+                                    </tr>
+                                    <tr>
+                                        <th style="text-align: center;" colspan="2">Hasil</th>
+                                        <th style="text-align: center;">Prediksi</th>
+                                        <th style="text-align: center;">Normal</th>
+                                        <th style="text-align: center;" colspan="2">Uji Bromkodilator</th>
+                                        <th style="text-align: center;">Kenaikan Vep 1</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td rowspan="3" style="text-align:center;">1</td>
+                                        <td rowspan="3">Kapasitas Vital</td>
+                                        <td style="text-align:center;">1</td>
+                                        <td style="text-align: center;">{{ $dataSpiro->pemeriksaan_1a }}</td>
+                                        <td rowspan="3" style="width: 5%; text-align:center; vertical-align:middle;">{{ $dataSpiro->prediksi_1a }}</td>
+                                        <td rowspan="3" style="background-color:beige"></td>
+                                        <td rowspan="3" colspan="2" style="background-color:beige"></td>
+                                        <td rowspan="4"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">2</td>
+                                        <td  style="text-align:center;">{{ $dataSpiro->pemeriksaan_1b }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">3</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_1c }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">2</td>
+                                        <td>% KV ( KV / KV Prediksi )</td>
+                                        <td colspan="2" style="text-align:center;">{{ $dataSpiro->hasil_2a }}%</td>
+                                        <td style="background-color:beige"></td>
+                                        <td style="text-align:center;">80 %</td>
+                                        <td colspan="2" style="background-color:beige"></td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="3" style="text-align:center;">3</td>
+                                        <td rowspan="3">Kapasital Vital Paksa</td>
+                                        <td style="text-align:center;">1</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_3a }}</td>
+                                        <td rowspan="3" style="text-align:center; vertical-align:middle;">{{ $dataSpiro->prediksi_3a }}</td>
+                                        <td rowspan="3" style="background-color:beige"></td>
+                                        <td rowspan="3" colspan="2" style="background-color:beige"></td>
+                                        <td rowspan="4"></td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">2</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_3b }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">3</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_3c }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">4</td>
+                                        <td>% KV ( KV / KV Prediksi )</td>
+                                        <td colspan="2" style="text-align:center;">{{ $dataSpiro->hasil_4a }}%</td>
+                                        <td style="background-color:beige"></td>
+                                        <td style="text-align:center;">80 %</td>
+                                        <td colspan="2" style="background-color:beige"></td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="3" style="text-align:center;">5</td>
+                                        <td rowspan="3">Volome Ekspirasi Paksa
+                                            Detik 1 ( 1 VEP )</td>
+                                        <td style="text-align:center;">1</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_5a }}</td>
+                                        <td rowspan="3" style="text-align:center; vertical-align:middle;">{{ $dataSpiro->prediksi_5a }}</td>
+                                        <td rowspan="3" style="background-color:beige"></td>
+                                        <td style="width: 3%; text-align:center;">1</td>
+                                        <td style="text-align:right;">{{ $dataSpiro->uji_5a }} Ml</td>
+                                        <td rowspan="9" style="text-align:end;">%</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">2</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_5b }}</td>
+                                        <td style="text-align:center;">2</td>
+                                        <td style="text-align:right;">{{ $dataSpiro->uji_5b }} Ml</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">3</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_5c }}</td>
+                                        <td style="text-align:center;">3</td>
+                                        <td style="text-align:right;">{{ $dataSpiro->uji_5c }} Ml</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">6</td>
+                                        <td>% VEP 1( VEP 1 Prediksi )</td>
+                                        <td colspan="2" style="text-align:center;">{{ $dataSpiro->hasil_6a }}%</td>
+                                        <td style="background-color:beige"></td>
+                                        <td style="text-align:center;">80 %</td>
+                                        <td colspan="2" style="text-align:right;">%</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">7</td>
+                                        <td>VEP 1%( VEP 1 / KVP )</td>
+                                        <td colspan="2" style="text-align:center;">{{ $dataSpiro->hasil_7a }}%</td>
+                                        <td style="text-align: center;">%</td>
+                                        <td style="text-align:center;">75 %</td>
+                                        <td colspan="2" style="background-color:beige"></td>
+                                    </tr>
+                                    <tr>
+                                        <td rowspan="3" style="text-align:center;">8</td>
+                                        <td rowspan="3">Arus Puncak Ekspirasi</td>
+                                        <td style="text-align:center;">1</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_8a }}</td>
+                                        <td rowspan="3" style="background-color:beige"></td>
+                                        <td rowspan="3" style="background-color:beige"></td>
+                                        <td colspan="2" style="text-align:right;">Ml/detik</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">2</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_8b }}</td>
+                                        <td colspan="2" style="text-align:right;">Ml/detik</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">3</td>
+                                        <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_8c }}</td>
+                                        <td colspan="2" style="text-align:right;">Ml/detik</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align:center;">9</td>
+                                        <td>Air Trapping</td>
+                                        <td colspan="2" style="background-color:beige"></td>
+                                        <td style="background-color:beige"></td>
+                                        <td  style="background-color:beige"></td>
+                                        <td colspan="2" style="background-color:beige"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            @php
+                                        $qr_dokter =
+                                        'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                        elektronik oleh' .
+                                        "\n" .
+                                        $dataSpiro->nama .
+                                        "\n" .
+                                        'ID ' .
+                                        $dataSpiro->kd_dokter .
+                                        "\n" .
+                                        \Carbon\Carbon::parse($dataSpiro->tanggal)->format('d-m-Y');
+                                    @endphp
+
+                            <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black" class="table table-borderless table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td colspan="2">C. KESIMPULAN / HASIL :</td>
+                                        <td>CATATAN :</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px; width:5%;">1.</td>
+                                        <td style="width:45%">{{ $dataSpiro->kesimpulan_hasil_a }}</td>
+                                        <td style="width:50%" rowspan="3">{{ $dataSpiro->catatandokter }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px;">2.</td>
+                                        <td>Restriksi : {{ $dataSpiro->kesimpulan_hasil_b }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding-left: 25px;">3.</td>
+                                        <td>Obstruksi : {{ $dataSpiro->kesimpulan_hasil_c }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td  style="text-align: center;">Surakarta, {{ \Carbon\Carbon::parse($dataSpiro->tanggal)->format('d-m-Y') }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td style="text-align: center;">Dokter Pemeriksa</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td style="text-align: center;">{!! QrCode::size(100)->generate($qr_dokter) !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td style="text-align: center;">{{ $dataSpiro->kd_dokter }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2"></td>
+                                        <td style="text-align: center;">{{ $dataSpiro->nm_dokter }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             @endif
@@ -2978,8 +3503,14 @@
                                         <td>
                                             @php
                                             $nama = explode('pages/upload/',$berkas->lokasi_file);
+                                            $cekAda = Storage::disk('sftp')->exists($berkas->lokasi_file);
                                             @endphp
                                             {{ $nama[1] }}
+                                            @if($cekAda)
+                                                <span class="badge badge-success"><i class="fas fa-check-circle"></i></span>
+                                            @else
+                                                <span class="badge badge-danger"><i class="fas fa-times-circle"></i></span>
+                                            @endif
                                         </td>
                                         <td>
                                             <div class="col text-center">
@@ -3179,7 +3710,7 @@
         <div class="modal fade" id="modal-edit-verif">
             <div class="modal-dialog">
                 <div class="modal-content">
-                    <form method="POST" action="/vedika/verifikasi/{{ Crypt::encrypt($pasien->no_rawat) }}">
+                    <form method="POST" action="/vedika/{{ Crypt::encrypt($pasien->no_rawat) }}/verifikasi">
                         @csrf
                         <div class="modal-header">
                             <h4 class="modal-title">Verifikasi Berkas Pasien</h4>
@@ -3206,7 +3737,7 @@
                                         <select name="status" class="form-control" required>
                                             <option value="">Pilih</option>
                                             <option value="0" {{ $statusVerif->status == 0 ? 'selected' : '' }}>
-                                                Perbaikan</span>
+                                                Perbaikan
                                             </option>
                                             <option value="1" {{ $statusVerif->status == 1 ? 'selected' : '' }}>
                                                 Selesai

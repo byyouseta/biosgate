@@ -123,6 +123,8 @@
                                                                     $cekKlaim = App\Vedika::cekEklaim($dataSep->no_sep);
                                                                 } elseif (!empty($dataSep->noSep)) {
                                                                     $cekKlaim = App\Vedika::cekEklaim($dataSep->noSep);
+                                                                }else{
+                                                                    $cekKlaim = null;
                                                                 }
                                                                 $statusPengajuan = App\DataPengajuanKlaim::cekPengajuan(
                                                                     $data->no_rawat,
@@ -156,6 +158,19 @@
                                                                     <span class="badge bg-purple" data-toggle="tooltip"
                                                                         data-placement="bottom" title="Berkas ditemukan">Diag
                                                                         <i class="fas fa-check-circle"></i></span>
+                                                                @endif
+                                                                @if(isset($dataSep->no_sep))
+                                                                    @if (file_exists(public_path("pdfklaim/$dataSep->no_sep/$dataSep->no_sep.pdf")))
+                                                                        <span class="badge badge-danger" data-toggle="tooltip"
+                                                                        data-placement="bottom"
+                                                                        title="File Gabung ditemukan"><i class="fas fa-file-pdf"></i></span>
+                                                                    @endif
+                                                                @elseif(isset($dataSep->noSep))
+                                                                    @if (file_exists(public_path("pdfklaim/$dataSep->noSep/$dataSep->noSep.pdf")))
+                                                                        <span class="badge badge-danger" data-toggle="tooltip"
+                                                                        data-placement="bottom"
+                                                                        title="File Gabung ditemukan"><i class="fas fa-file-pdf"></i></span>
+                                                                    @endif
                                                                 @endif
                                                             @endcan
                                                             @if (!empty($statusPengajuan))

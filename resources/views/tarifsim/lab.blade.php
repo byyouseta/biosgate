@@ -38,6 +38,7 @@
                                 <thead>
                                     <tr>
                                         <th class="align-middle">Kode Periksa</th>
+                                        <th class="align-middle">Kode KPTL</th>
                                         <th class="align-middle">Nama Pemeriksaan</th>
                                         <th class="align-middle">Jasa RS</th>
                                         <th class="align-middle">Paket BHP</th>
@@ -50,12 +51,14 @@
                                         <th class="align-middle">Jenis Bayar</th>
                                         <th class="align-middle">Kelas</th>
                                         <th class="align-middle">Kategori</th>
+                                        <th class="align-middle">Keterangan</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($data as $summary)
                                     <tr>
                                         <td>{{ $summary->kd_jenis_prw }}</td>
+                                        <td>{{ $summary->kptl }}</td>
                                         <td>{{ $summary->nm_perawatan }}</td>
                                         <td class="text-right">{{ $summary->bagian_rs }}</td>
                                         <td class="text-right">{{ $summary->bhp }}</td>
@@ -68,6 +71,7 @@
                                         <td>{{ $summary->png_jawab }}</td>
                                         <td>{{ $summary->kelas }}</td>
                                         <td>{{ $summary->kategori }}</td>
+                                        <td>{{ $summary->keterangan }}</td>
                                     </tr>
                                     @endforeach
                                 </tbody>

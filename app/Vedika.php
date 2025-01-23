@@ -150,15 +150,19 @@ class Vedika extends Model
             ->where('periksa_lab.jam', '=', $idt)
             ->first();
 
-        $data = DB::connection('mysqlkhanza')->table('petugas')
-            ->select(
-                'petugas.nip',
-                'petugas.nama'
-            )
-            ->where('petugas.nip', '=', $cari->nip)
-            ->first();
+        if ($cari) {
+            $data = DB::connection('mysqlkhanza')->table('petugas')
+                ->select(
+                    'petugas.nip',
+                    'petugas.nama'
+                )
+                ->where('petugas.nip', '=', $cari->nip)
+                ->first();
 
-        return $data;
+            return $data;
+        } else {
+            return null;
+        }
     }
 
     public static function getDokter($idd, $idt)
@@ -173,15 +177,20 @@ class Vedika extends Model
             ->where('periksa_lab.jam', '=', $idt)
             ->first();
 
-        $data = DB::connection('mysqlkhanza')->table('dokter')
-            ->select(
-                'dokter.kd_dokter',
-                'dokter.nm_dokter'
-            )
-            ->where('dokter.kd_dokter', '=', $cari->kd_dokter)
-            ->first();
+        // dd($cari);
+        if ($cari) {
+            $data = DB::connection('mysqlkhanza')->table('dokter')
+                ->select(
+                    'dokter.kd_dokter',
+                    'dokter.nm_dokter'
+                )
+                ->where('dokter.kd_dokter', '=', $cari->kd_dokter)
+                ->first();
 
-        return $data;
+            return $data;
+        } else {
+            return null;
+        }
     }
 
     public static function getPegawai($id)
@@ -194,7 +203,11 @@ class Vedika extends Model
             ->where('pegawai.nik', '=', $id)
             ->first();
 
-        return $cari;
+        if ($cari) {
+            return $cari;
+        } else {
+            return null;
+        }
     }
 
     public static function getSep($norawat, $pelayanan)
@@ -450,8 +463,13 @@ class Vedika extends Model
             )
             ->where('inacbg_klaim_baru2.no_sep', $noSep)
             ->first();
-
-        // dd($cek);
+        // $cek = DB::connection('mysqlkhanza')->table('bridging_sep')
+        //     ->select(
+        //         'bridging_sep.no_rawat',
+        //         'bridging_sep.no_sep'
+        //     )
+        //     ->where('bridging_sep.no_sep', $noSep)
+        //     ->first();
 
         if (empty($cek)) {
             return false;

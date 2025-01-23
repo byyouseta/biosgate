@@ -539,7 +539,7 @@ class SaldoKeuanganController extends Controller
         $rekening = json_decode($response->getBody());
         $rekening = $rekening->data;
 
-        // dd($rekening);
+        dd($rekening);
         foreach ($rekening as $dataRek) {
             $simpan = new Rekening();
             $simpan->kode = $dataRek->kode;

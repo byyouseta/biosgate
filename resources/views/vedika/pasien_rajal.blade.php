@@ -74,7 +74,9 @@
                                                     @php
                                                         $dataSep = App\Vedika::getSep($data->no_rawat, 2);
                                                         $getManualSep = App\Vedika::getHapusSep($data->no_rawat);
-                                                        // dd($noSep);
+                                                        // if($data->no_peserta == '0002761296423'){
+                                                        // dd($dataSep, $getManualSep);
+                                                        // }
                                                         //Ambil data untuk Bukti Pelayanan
                                                         $buktiPelayanan = \App\Http\Controllers\VedikaController::buktiPelayanan(
                                                             $data->no_rawat
@@ -128,7 +130,10 @@
                                                                     'Rajal'
                                                                 );
                                                                 if (!empty($dataSep)) {
+
                                                                     $cekKlaim = App\Vedika::cekEklaim($dataSep->no_sep);
+                                                                }else{
+                                                                    $cekKlaim = null;
                                                                 }
                                                                 $statusPengajuan = App\DataPengajuanKlaim::cekPengajuan(
                                                                     $data->no_rawat,
@@ -172,18 +177,31 @@
                                                                         data-placement="bottom" title="Berkas ditemukan">PreOP
                                                                         <i class="fas fa-check-circle"></i></span>
                                                                 @endif
+
                                                             @endcan
                                                             @if (!empty($statusPengajuan))
                                                                 <span class="badge badge-success"><i
                                                                         class="fas fa-paper-plane"></i>
                                                                     {{ \Carbon\Carbon::parse($statusPengajuan->periodeKlaim->periode)->format('F Y') }}
-                                                                    <span>
-                                                                    @else
-                                                                        <span class="badge badge-danger"><i
-                                                                                class="fas fa-paper-plane"></i>Belum
-                                                                            diajukan</span>
+                                                                </span>
+                                                                @else
+                                                                    <span class="badge badge-danger"><i
+                                                                            class="fas fa-paper-plane"></i>Belum
+                                                                        diajukan</span>
                                                             @endif
-
+                                                            @if(isset($dataSep->no_sep))
+                                                                @if (file_exists(public_path("pdfklaim/$dataSep->no_sep/$dataSep->no_sep.pdf")))
+                                                                    <span class="badge badge-danger" data-toggle="tooltip"
+                                                                    data-placement="bottom"
+                                                                    title="File Gabung ditemukan"><i class="fas fa-file-pdf"></i></span>
+                                                                @endif
+                                                            @elseif(isset($dataSep->noSep))
+                                                                @if (file_exists(public_path("pdfklaim/$dataSep->noSep/$dataSep->noSep.pdf")))
+                                                                    <span class="badge badge-danger" data-toggle="tooltip"
+                                                                    data-placement="bottom"
+                                                                    title="File Gabung ditemukan"><i class="fas fa-file-pdf"></i></span>
+                                                                @endif
+                                                            @endif
                                                         </div>
                                                     </td>
                                                     <td>

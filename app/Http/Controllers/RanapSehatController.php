@@ -326,7 +326,7 @@ class RanapSehatController extends Controller
                 ->first();
 
             // dd($cekPulang);
-            if ($cekPulang->status_bayar == 'Sudah Bayar') {
+            if (isset($cekPulang) && ($cekPulang->status_bayar == 'Sudah Bayar')) {
 
                 if ($dataTerkirim->asesmen_nadi == null) {
                     RanapSehatController::sendVitalSign($dataTerkirim->noRawat, $dataTerkirim->encounter_id);

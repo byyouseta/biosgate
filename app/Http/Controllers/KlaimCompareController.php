@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Imports\KlaimCairImport;
 use App\KlaimCair;
 use App\KlaimPending;
+use App\sepManual;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -265,5 +266,128 @@ class KlaimCompareController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    public function lihatDpjpPending(Request $request)
+    {
+        session()->put('ibu', 'Vedika');
+        session()->put('anak', 'DPJP Klaim Pending');
+        session()->forget('cucu');
+        set_time_limit(0);
+
+        if (isset($request->tanggal)) {
+            $tanggal = $request->tanggal;
+        } else {
+            $tanggal = Carbon::now()->format('Y-m-15');
+        }
+
+        // $request->validate([
+        //     'tanggal' => 'required|date' // Validasi tanggal (wajib diisi dan harus berupa tanggal yang valid)
+        // ]);
+        $data = KlaimPending::whereYear('tgl_pulang', Carbon::parse($tanggal)->format('Y'))
+            ->whereMonth('tgl_pulang', Carbon::parse($tanggal)->format('m'))
+            // ->limit(10)
+            ->get();
+
+
+        foreach ($data as $listData) {
+            $alasan = KlaimCompareController::getAlasan($listData->no_sep);
+            if ($alasan) {
+                $listData->alasan = $alasan;
+            } else {
+                $listData->alasan = null;
+            }
+
+            $dpjp = KlaimCompareController::getDpjp($listData->no_sep);
+            if ($dpjp) {
+                $listData->dpjp = $dpjp->nmdpdjp ?? $dpjp['nmdpdjp'];
+                $listData->no_rawat = $dpjp->no_rawat ?? $dpjp['no_rawat'];
+                $listData->nama_pasien = $dpjp->nama_pasien ?? $dpjp['nama_pasien'];
+            } else {
+                $listData->dpjp = null;
+                $listData->no_rawat = null;
+                $listData->nama_pasien = null;
+            }
+        }
+
+        // dd($data);
+
+        return view('vedika.pending_dpjp', compact('data'));
+    }
+
+    public function getAlasan($nosep)
+    {
+        $data = DB::connection('mysqlpayroll')->table('alasan_pendings')
+            ->where('no_sep', $nosep)
+            ->first();
+
+        if ($data) {
+            return $data->alasan;
+        } else {
+            return null;
+        }
+    }
+
+    public function getDpjp($nosep)
+    {
+        $data = DB::connection('mysqlkhanza')->table('bridging_sep')
+            ->join('maping_dokter_dpjpvclaim', 'maping_dokter_dpjpvclaim.kd_dokter_bpjs', '=', 'bridging_sep.kddpjp')
+            ->select(
+                'bridging_sep.no_rawat',
+                'bridging_sep.nama_pasien',
+                'maping_dokter_dpjpvclaim.nm_dokter_bpjs as nmdpdjp'
+            )
+            ->where('no_sep', $nosep)
+            ->first();
+
+        if ($data) {
+            // dd($data);
+            return $data;
+        } else {
+            $cekLokal = sepManual::where('no_sep', $nosep)->first();
+            if ($cekLokal) {
+                $cekData = DB::connection('mysqlkhanza')->table('reg_periksa')
+                    ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                    ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
+                    ->select(
+                        'reg_periksa.no_rawat',
+                        'reg_periksa.status_lanjut',
+                        'pasien.nm_pasien',
+                        'dokter.nm_dokter'
+                    )
+                    ->where('no_rawat', $cekLokal->noRawat)
+                    ->first();
+
+
+                if ($cekData && $cekData->status_lanjut == 'Ralan') {
+                    $finis = [
+                        'no_rawat' => $cekData->no_rawat,
+                        'nama_pasien' => $cekData->nm_pasien,
+                        'nmdpdjp' => $cekData->nm_dokter
+                    ];
+
+                    return $finis;
+                } elseif ($cekData && $cekData->status_lanjut == 'Ranap') {
+                    $cekDpjp = DB::connection('mysqlkhanza')->table('dpjp_ranap')
+                        ->join('dokter', 'dokter.kd_dokter', '=', 'dpjp_ranap.kd_dokter')
+                        ->select(
+                            'dpjp_ranap.no_rawat',
+                            'dokter.nm_dokter'
+                        )
+                        ->where('no_rawat', $cekLokal->noRawat)
+                        ->first();
+
+                    $finis = [
+                        'no_rawat' => $cekData->no_rawat,
+                        'nama_pasien' => $cekData->nm_pasien,
+                        'nmdpdjp' => $cekDpjp->nm_dokter
+                    ];
+
+                    return $finis;
+                }
+            } else {
+                return null;
+            }
+        }
     }
 }

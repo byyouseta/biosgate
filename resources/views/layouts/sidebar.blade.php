@@ -432,6 +432,15 @@
                             </p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="/vedika/pendingdpjp"
+                            class="nav-link @if (@session('anak') == 'DPJP Klaim Pending') active @endif">
+                            <i class="nav-icon far fa-copy"></i>
+                            <p>
+                                Pending DPJP
+                            </p>
+                        </a>
+                    </li>
                     @endcan
                 </ul>
             </li>
@@ -753,6 +762,14 @@
                             <i class="nav-icon fas fa-pills"></i>
                             <p>
                                 API KFA
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/satusehat/kjsu" class="nav-link @if (@session('anak') == 'Monitoring KJSU') active @endif">
+                            <i class="nav-icon fas fa-diagnoses"></i>
+                            <p>
+                                Monitoring KJSU
                             </p>
                         </a>
                     </li>

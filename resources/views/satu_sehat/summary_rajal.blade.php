@@ -13,10 +13,12 @@
 @section('content')
     <section class="content">
         @php
-            if (!empty(Request::get('tanggal'))) {
-                $tanggal = Request::get('tanggal');
+            if (!empty(Request::get('tanggal_awal'))) {
+                $tanggal_awal = Request::get('tanggal_awal');
+                $tanggal_akhir = Request::get('tanggal_akhir');
             } else {
-                $tanggal = \Carbon\Carbon::now()->format('Y-m-d');
+                $tanggal_awal = \Carbon\Carbon::now()->format('Y-m-d');
+                $tanggal_akhir = \Carbon\Carbon::now()->format('Y-m-d');
             }
         @endphp
         <div class="container-fluid">
@@ -105,10 +107,13 @@
                             <div class="card_title">Summary Cek data terkirim
                                 <div class="float-right">
                                     <form action="/satusehat/cek" method="GET">
-                                        <div class="input-group input-group" id="tanggal" data-target-input="nearest">
-                                            <input type="text" class="form-control datetimepicker-input"
-                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
-                                                autocomplete="off" value="{{ $tanggal }}">
+                                        <div class="input-group input-group" >
+                                            <input type="text" class="form-control datetimepicker-input w-10" id="tanggal_awal" data-target-input="nearest"
+                                                data-target="#tanggal_awal" data-toggle="datetimepicker" name="tanggal_awal"
+                                                autocomplete="off" value="{{ $tanggal_awal }}">
+                                            <input type="text" class="form-control datetimepicker-input" id="tanggal_akhir" data-target-input="nearest"
+                                                data-target="#tanggal_akhir" data-toggle="datetimepicker" name="tanggal_akhir"
+                                                autocomplete="off" value="{{ $tanggal_akhir }}" style="width:30px">
                                             <span class="input-group-append">
                                                 <button type="submit" class="btn btn-info btn-flat btn-sm"><i
                                                         class="fas fa-search"></i> Tampilkan</button>
@@ -266,7 +271,7 @@
             });
         });
         //Date picker
-        $('#tanggal').datetimepicker({
+        $('#tanggal_awal,#tanggal_akhir').datetimepicker({
             format: 'YYYY-MM-DD'
         });
     </script>

@@ -52,6 +52,7 @@ class SatuSehatController extends Controller
             $tanggal = new Carbon($request->get('tanggal'));
         }
 
+
         $dataLog = ResponseSatuSehat::whereDate('tgl_registrasi', $tanggal)
             ->get();
 
@@ -68,10 +69,13 @@ class SatuSehatController extends Controller
         session()->put('anak', 'Rajal Satu Sehat');
         session()->put('cucu', 'Summary Check');
 
-        if (empty($request->get('tanggal'))) {
-            $tanggal = Carbon::now();
+
+        if (empty($request->get('tanggal_awal'))) {
+            $tanggal_awal = Carbon::now();
+            $tanggal_akhir = Carbon::now();
         } else {
-            $tanggal = new Carbon($request->get('tanggal'));
+            $tanggal_awal = new Carbon($request->get('tanggal_awal'));
+            $tanggal_akhir = new Carbon($request->get('tanggal_akhir'));
         }
 
         $dataLog = DB::connection('mysqlkhanza')->table('reg_periksa')
@@ -102,7 +106,7 @@ class SatuSehatController extends Controller
             ->where('reg_periksa.status_lanjut', 'Ralan')
             // ->where('poliklinik.nm_poli', 'not like', '%IGD%')
             ->whereNotIn('poliklinik.nm_poli', ['IGD', 'Farmasi', 'Farmasi 2', 'Radiologi', 'LABORATORIUM'])
-            ->where('reg_periksa.tgl_registrasi', $tanggal)
+            ->whereBetween('reg_periksa.tgl_registrasi', [$tanggal_awal, $tanggal_akhir])
             ->orderBy('reg_periksa.no_rkm_medis', 'ASC')
             ->get();
 
