@@ -5,8 +5,10 @@ namespace App\Http\Controllers;
 use App\BerkasVedika;
 use App\DataPengajuanKlaim;
 use App\DataPengajuanKronis;
+use App\DataPengajuanUlang;
 use App\MasterBerkasVedika;
 use App\PeriodeKlaim;
+use App\PeriodePengajuanUlang;
 use App\sepManual;
 use App\Setting;
 use App\TambahanRadiologi;
@@ -190,114 +192,128 @@ class VedikaController extends Controller
             ->first();
 
         // dd($pasien);
-
-        //Ambil data billing
-        $billing = VedikaController::billingRajal($pasien->no_rawat);
-        //Ambil data untuk Bukti Pelayanan
-        $buktiPelayanan = VedikaController::buktiPelayanan($pasien->no_rawat);
-        $diagnosa = $buktiPelayanan[0];
-        $prosedur = $buktiPelayanan[1];
-        //Ambil data Radiologi
-        $radiologi = VedikaController::radioRajal($pasien->no_rawat);
-        // dd($radiologi);
-        $dataRadiologiRajal = $radiologi[0];
-        $dokterRadiologiRajal = $radiologi[1];
-        $hasilRadiologiRajal = $radiologi[2];
-        $dataSep = VedikaController::getSep($pasien->no_rawat, 2);
-        if ($dataSep != null) {
-            if (!empty($dataSep->no_sep)) {
-                $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
-                // dd($dataDetailEklaim);
+        if ($pasien) {
+            //Ambil data billing
+            $billing = VedikaController::billingRajal($pasien->no_rawat);
+            //Ambil data untuk Bukti Pelayanan
+            $buktiPelayanan = VedikaController::buktiPelayanan($pasien->no_rawat);
+            $diagnosa = $buktiPelayanan[0];
+            $prosedur = $buktiPelayanan[1];
+            //Ambil data Radiologi
+            $radiologi = VedikaController::radioRajal($pasien->no_rawat);
+            // dd($radiologi);
+            $dataRadiologiRajal = $radiologi[0];
+            $dokterRadiologiRajal = $radiologi[1];
+            $hasilRadiologiRajal = $radiologi[2];
+            $dataSep = VedikaController::getSep($pasien->no_rawat, 2);
+            if ($dataSep != null) {
+                if (!empty($dataSep->no_sep)) {
+                    $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
+                    // dd($dataDetailEklaim);
+                } else {
+                    $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
+                }
+                $dataKlaim = json_decode(json_encode($dataDetailEklaim));
             } else {
-                $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
+                $dataKlaim = null;
             }
-            $dataKlaim = json_decode(json_encode($dataDetailEklaim));
+            //Ambil data Triase dan Ringkasan IGD
+            if ($pasien->nm_poli == "IGD") {
+                $triase = VedikaController::triase($pasien->no_rawat);
+                $dataTriase = $triase[0];
+                $primer = $triase[1];
+                $sekunder = $triase[2];
+                $skala = $triase[3];
+
+                $ringkasan = VedikaController::ringkasanIgd($pasien->no_rawat);
+                $dataRingkasan = $ringkasan[0];
+                $resumeIgd = $ringkasan[1];
+            } else {
+                $dataTriase = $primer = $sekunder = $skala = $dataRingkasan = $resumeIgd = null;
+            }
+            //Ambil Berkas tambahan
+            $berkas = VedikaController::berkas($pasien->no_rawat);
+            $dataBerkas = $berkas[0];
+            $masterBerkas = $berkas[1];
+            $pathBerkas = $berkas[2];
+            //Data Lab
+            $lab = VedikaController::lab($pasien->no_rawat);
+            $permintaanLab = $lab[0];
+            $hasilLab = $lab[1];
+            $kesanLab = $lab[2];
+            //Data Obat
+            $obat = VedikaController::obat($pasien->no_rawat);
+            $resepObat = $obat[0];
+            $obatJadi = $obat[1];
+            $obatRacik = $obat[2];
+            $bbPasien = $obat[3];
+            //data SOAP
+            $soap = VedikaController::dataSoap($pasien->no_rawat);
+
+            $dataOperasi = VedikaController::OperasiRajal($pasien->no_rawat);
+            //Data Pemeriksaan
+            $dataRalan = VedikaController::pemeriksaanRalan($pasien->no_rawat, $pasien->kd_dokter);
+            // Periode Klaim BPJS
+            $periodeKlaim = PeriodeKlaim::where('status', 0)
+                ->orderBy('periode', 'DESC')
+                ->get();
+
+            // Periode Klaim BPJS Ulang
+            $periodePending = PeriodePengajuanUlang::where('status', 0)
+                ->orderBy('periode', 'DESC')
+                ->get();
+
+            $dataPengajuanPending = DataPengajuanUlang::where('no_rawat', $pasien->no_rawat)
+                ->get();
+
+            //Data USG
+            $dataUsg = VedikaController::getUsg($pasien->no_rawat);
+            // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
+            $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
+
+            $dataSpiro = VedikaController::getSpiro($pasien->no_rkm_medis);
+            // dd($dataSpiro);
+
+            return view('vedika.detailRajal', compact(
+                'pasien',
+                'billing',
+                'dataKlaim',
+                'diagnosa',
+                'prosedur',
+                'permintaanLab',
+                'hasilLab',
+                'kesanLab',
+                'dataRadiologiRajal',
+                'dokterRadiologiRajal',
+                'hasilRadiologiRajal',
+                'dataTriase',
+                'primer',
+                'sekunder',
+                'skala',
+                'dataRingkasan',
+                'resumeIgd',
+                'resepObat',
+                'obatJadi',
+                'obatRacik',
+                'bbPasien',
+                'dataBerkas',
+                'dataSep',
+                'soap',
+                'dataUsg',
+                'dataUsgGynecologi',
+                'dataSpiro',
+                'masterBerkas',
+                'dataRalan',
+                'dataOperasi',
+                'periodeKlaim',
+                'periodePending',
+                'dataPengajuanPending',
+                'pathBerkas'
+            ));
         } else {
-            $dataKlaim = null;
+            Session::flash('error', 'Data Pasien tidak ditemukan');
+            return redirect()->back();
         }
-        //Ambil data Triase dan Ringkasan IGD
-        if ($pasien->nm_poli == "IGD") {
-            $triase = VedikaController::triase($pasien->no_rawat);
-            $dataTriase = $triase[0];
-            $primer = $triase[1];
-            $sekunder = $triase[2];
-            $skala = $triase[3];
-
-            $ringkasan = VedikaController::ringkasanIgd($pasien->no_rawat);
-            $dataRingkasan = $ringkasan[0];
-            $resumeIgd = $ringkasan[1];
-        } else {
-            $dataTriase = $primer = $sekunder = $skala = $dataRingkasan = $resumeIgd = null;
-        }
-        //Ambil Berkas tambahan
-        $berkas = VedikaController::berkas($pasien->no_rawat);
-        $dataBerkas = $berkas[0];
-        $masterBerkas = $berkas[1];
-        $pathBerkas = $berkas[2];
-        //Data Lab
-        $lab = VedikaController::lab($pasien->no_rawat);
-        $permintaanLab = $lab[0];
-        $hasilLab = $lab[1];
-        $kesanLab = $lab[2];
-        //Data Obat
-        $obat = VedikaController::obat($pasien->no_rawat);
-        $resepObat = $obat[0];
-        $obatJadi = $obat[1];
-        $obatRacik = $obat[2];
-        $bbPasien = $obat[3];
-        //data SOAP
-        $soap = VedikaController::dataSoap($pasien->no_rawat);
-
-        $dataOperasi = VedikaController::OperasiRajal($pasien->no_rawat);
-        //Data Pemeriksaan
-        $dataRalan = VedikaController::pemeriksaanRalan($pasien->no_rawat, $pasien->kd_dokter);
-        // Periode Klaim BPJS
-        $periodeKlaim = PeriodeKlaim::where('status', 0)
-            ->orderBy('periode', 'DESC')
-            ->get();
-
-        //Data USG
-        $dataUsg = VedikaController::getUsg($pasien->no_rawat);
-        // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
-        $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
-
-        $dataSpiro = VedikaController::getSpiro($pasien->no_rkm_medis);
-        // dd($dataSpiro);
-
-        return view('vedika.detailRajal', compact(
-            'pasien',
-            'billing',
-            'dataKlaim',
-            'diagnosa',
-            'prosedur',
-            'permintaanLab',
-            'hasilLab',
-            'kesanLab',
-            'dataRadiologiRajal',
-            'dokterRadiologiRajal',
-            'hasilRadiologiRajal',
-            'dataTriase',
-            'primer',
-            'sekunder',
-            'skala',
-            'dataRingkasan',
-            'resumeIgd',
-            'resepObat',
-            'obatJadi',
-            'obatRacik',
-            'bbPasien',
-            'dataBerkas',
-            'dataSep',
-            'soap',
-            'dataUsg',
-            'dataUsgGynecologi',
-            'dataSpiro',
-            'masterBerkas',
-            'dataRalan',
-            'dataOperasi',
-            'periodeKlaim',
-            'pathBerkas'
-        ));
     }
 
     public function detailRanap($id)
@@ -349,177 +365,196 @@ class VedikaController extends Controller
             ->first();
 
         // dd($pasien);
+        if ($pasien) {
+            //Ambil data billing
+            $billing = VedikaController::billingRanap($pasien->no_rawat);
+            //Ambil data untuk Bukti Pelayanan
+            $buktiPelayanan = VedikaController::buktiPelayanan($pasien->no_rawat);
+            $diagnosa = $buktiPelayanan[0];
+            $prosedur = $buktiPelayanan[1];
+            //Ambil data Radiologi
+            $dataRadiologi = VedikaController::radioRanap($pasien->no_rawat);
+            $dataRadiologiRanap = $dataRadiologi[0];
+            $dokterRadiologiRanap = $dataRadiologi[1];
+            $hasilRadiologiRanap = $dataRadiologi[2];
+            $radiologi = VedikaController::radioRajal($pasien->no_rawat);
+            $dataRadiologiRajal = $radiologi[0];
+            $dokterRadiologiRajal = $radiologi[1];
+            $hasilRadiologiRajal = $radiologi[2];
+            $historyRadiologi = VedikaController::perawatanRadioRajal($pasien->no_rkm_medis);
+            $tambahanRadiologi = TambahanRadiologi::where('no_rawat', $pasien->no_rawat)->get();
+            // dd($dataRadiologiRanap, $dokterRadiologiRanap, $hasilRadiologiRajal, $dataRadiologiRajal, $dokterRadiologiRajal, $hasilRadiologiRajal);
 
-        //Ambil data billing
-        $billing = VedikaController::billingRanap($pasien->no_rawat);
-        //Ambil data untuk Bukti Pelayanan
-        $buktiPelayanan = VedikaController::buktiPelayanan($pasien->no_rawat);
-        $diagnosa = $buktiPelayanan[0];
-        $prosedur = $buktiPelayanan[1];
-        //Ambil data Radiologi
-        $dataRadiologi = VedikaController::radioRanap($pasien->no_rawat);
-        $dataRadiologiRanap = $dataRadiologi[0];
-        $dokterRadiologiRanap = $dataRadiologi[1];
-        $hasilRadiologiRanap = $dataRadiologi[2];
-        $radiologi = VedikaController::radioRajal($pasien->no_rawat);
-        $dataRadiologiRajal = $radiologi[0];
-        $dokterRadiologiRajal = $radiologi[1];
-        $hasilRadiologiRajal = $radiologi[2];
-        $historyRadiologi = VedikaController::perawatanRadioRajal($pasien->no_rkm_medis);
-        $tambahanRadiologi = TambahanRadiologi::where('no_rawat', $pasien->no_rawat)->get();
-        // dd($dataRadiologiRanap, $dokterRadiologiRanap, $hasilRadiologiRajal, $dataRadiologiRajal, $dokterRadiologiRajal, $hasilRadiologiRajal);
-
-        if ($tambahanRadiologi) {
-            $tambahanDataRadiologi = [];
-            $tambahanDokterRadiologi = [];
-            $tambahanHasilRadiologi = [];
-            foreach ($tambahanRadiologi as $listTambahan) {
-                $dataTambahan = VedikaController::radioRajal($listTambahan->no_rawat_tambahan);
-                if (isset($dataTambahan[0], $dataTambahan[1], $dataTambahan[2])) {
-                    // Menambah data ke array masing-masing
-                    array_push($tambahanDataRadiologi, $dataTambahan[0][0]);
-                    array_push($tambahanDokterRadiologi, $dataTambahan[1][0]);
-                    array_push($tambahanHasilRadiologi, $dataTambahan[2][0]);
+            if ($tambahanRadiologi) {
+                $tambahanDataRadiologi = [];
+                $tambahanDokterRadiologi = [];
+                $tambahanHasilRadiologi = [];
+                foreach ($tambahanRadiologi as $listTambahan) {
+                    $dataTambahan = VedikaController::radioRajal($listTambahan->no_rawat_tambahan);
+                    if (isset($dataTambahan[0], $dataTambahan[1], $dataTambahan[2])) {
+                        // Menambah data ke array masing-masing
+                        array_push($tambahanDataRadiologi, $dataTambahan[0][0]);
+                        array_push($tambahanDokterRadiologi, $dataTambahan[1][0]);
+                        array_push($tambahanHasilRadiologi, $dataTambahan[2][0]);
+                    }
                 }
             }
-        }
 
-        // dd($tambahanDataRadiologi, $tambahanDokterRadiologi, $tambahanHasilRadiologi, $dataRadiologiRajal);
+            // dd($tambahanDataRadiologi, $tambahanDokterRadiologi, $tambahanHasilRadiologi, $dataRadiologiRajal);
 
-        $dataSep = VedikaController::getSep($pasien->no_rawat, 1);
-        // dd($dataSep);
-        if ($dataSep != null) {
-            if (!empty($dataSep->no_sep)) {
-                $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
-                // dd($dataDetailEklaim);
+            $dataSep = VedikaController::getSep($pasien->no_rawat, 1);
+            // dd($dataSep);
+            if ($dataSep != null) {
+                if (!empty($dataSep->no_sep)) {
+                    $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
+                    // dd($dataDetailEklaim);
+                } else {
+                    $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
+                }
+                $dataKlaim = json_decode(json_encode($dataDetailEklaim));
             } else {
-                $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
+                $dataKlaim = null;
             }
-            $dataKlaim = json_decode(json_encode($dataDetailEklaim));
+            // dd($dataSep, $dataKlaim);
+            //Ambil Berkas tambahan
+            $berkas = VedikaController::berkas($pasien->no_rawat);
+            // dd($berkas);
+
+            $dataBerkas = $berkas[0];
+            $masterBerkas = $berkas[1];
+            $pathBerkas = $berkas[2];
+            //Data Lab
+            $lab = VedikaController::lab($pasien->no_rawat);
+            $permintaanLab = $lab[0];
+            $hasilLab = $lab[1];
+            $kesanLab = $lab[2];
+
+            // dd($lab);
+            //Data Obat
+            // $obat = VedikaController::obat($pasien->no_rawat);
+            // $resepObat = $obat[0];
+            // $obatJadi = $obat[1];
+            // $obatRacik = $obat[2];
+            // $bbPasien = $obat[3];
+            $dataOperasi = VedikaController::OperasiRanap($pasien->no_rawat);
+            $dataOperasi2 = $dataOperasi[0];
+            $dataOperasi1 = $dataOperasi[1];
+
+            $dataAnestesi = VedikaController::getPrasedasi($pasien->no_rawat);
+            $dataAnestesi2 = VedikaController::getPraInduksi($pasien->no_rawat);
+
+            // dd($dataAnestesi, $dataAnestesi2);
+
+            //Data Pemeriksaan
+            // $dataRalan = VedikaController::pemeriksaanRalan($pasien->no_rawat, $pasien->kd_dokter);
+            //Ambil data Triase dan Ringkasan IGD
+            if ($pasien->nm_poli == "IGD") {
+                $triase = VedikaController::triase($pasien->no_rawat);
+                $dataTriase = $triase[0];
+                $primer = $triase[1];
+                $sekunder = $triase[2];
+                $skala = $triase[3];
+
+                $ringkasan = VedikaController::ringkasanIgd($pasien->no_rawat);
+                $dataRingkasan = $ringkasan[0];
+                $resumeIgd = $ringkasan[1];
+            } else {
+                $dataTriase = $primer = $sekunder = $skala = $dataRingkasan = $resumeIgd = null;
+            }
+
+            // Periode Klaim BPJS
+            $periodeKlaim = PeriodeKlaim::where('status', 0)
+                ->orderBy('periode', 'DESC')
+                ->get();
+            // Periode Klaim BPJS Ulang
+            $periodePending = PeriodePengajuanUlang::where('status', 0)
+                ->orderBy('periode', 'DESC')
+                ->get();
+
+            $dataPengajuanPending = DataPengajuanUlang::where('no_rawat', $pasien->no_rawat)
+                ->get();
+            //Data SPRI
+            $spri = VedikaController::getPerintahRanap($pasien->no_rawat);
+            $skor_psi = VedikaController::getPsi($pasien->no_rawat);
+            $skor_curb = VedikaController::getCurb($pasien->no_rawat);
+            //Data USG
+            // $dataUsg = VedikaController::getUsg($pasien->no_rawat);
+            $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
+            // $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
+            $dataSpiro = VedikaController::getSpiro($pasien->no_rkm_medis);
+            // dd($dataSpiro);
+
+            //Resume Ranap
+            $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
+            if ($resumeRanap) {
+                $resumeRanap1 = $resumeRanap[0];
+                $resumeRanap2 = $resumeRanap[1];
+                $resumeRanap3 = $resumeRanap[2];
+                $resumeRanap4 = $resumeRanap[3];
+            } else {
+                $resumeRanap1 = null;
+                $resumeRanap2 = null;
+                $resumeRanap3 = null;
+                $resumeRanap4 = null;
+            }
+
+
+            return view('vedika.detailRanap', compact(
+                'pasien',
+                'billing',
+                'diagnosa',
+                'prosedur',
+                'permintaanLab',
+                'hasilLab',
+                'kesanLab',
+                'dataRadiologiRanap',
+                'dokterRadiologiRanap',
+                'hasilRadiologiRanap',
+                'dataRadiologiRajal',
+                'dokterRadiologiRajal',
+                'hasilRadiologiRajal',
+                'historyRadiologi',
+                'tambahanRadiologi',
+                'tambahanDataRadiologi',
+                'tambahanDokterRadiologi',
+                'tambahanHasilRadiologi',
+                'dataTriase',
+                'primer',
+                'sekunder',
+                'skala',
+                'dataRingkasan',
+                'resumeIgd',
+                'skor_psi',
+                'skor_curb',
+                'dataUsgRanap',
+                'dataSpiro',
+                // 'resepObat',
+                // 'obatJadi',
+                // 'obatRacik',
+                // 'bbPasien',
+                'dataBerkas',
+                'dataSep',
+                'dataKlaim',
+                'masterBerkas',
+                // 'dataRalan',
+                'dataOperasi1',
+                'dataOperasi2',
+                'dataAnestesi',
+                'dataAnestesi2',
+                'periodeKlaim',
+                'periodePending',
+                'dataPengajuanPending',
+                'spri',
+                'resumeRanap1',
+                'resumeRanap2',
+                'resumeRanap3',
+                'resumeRanap4',
+                'pathBerkas'
+            ));
         } else {
-            $dataKlaim = null;
+            Session::flash('error', 'Data Pasien tidak ditemukan');
+            return redirect()->back();
         }
-        // dd($dataSep, $dataKlaim);
-        //Ambil Berkas tambahan
-        $berkas = VedikaController::berkas($pasien->no_rawat);
-        // dd($berkas);
-
-        $dataBerkas = $berkas[0];
-        $masterBerkas = $berkas[1];
-        $pathBerkas = $berkas[2];
-        //Data Lab
-        $lab = VedikaController::lab($pasien->no_rawat);
-        $permintaanLab = $lab[0];
-        $hasilLab = $lab[1];
-        $kesanLab = $lab[2];
-
-        // dd($lab);
-        //Data Obat
-        // $obat = VedikaController::obat($pasien->no_rawat);
-        // $resepObat = $obat[0];
-        // $obatJadi = $obat[1];
-        // $obatRacik = $obat[2];
-        // $bbPasien = $obat[3];
-        $dataOperasi = VedikaController::OperasiRanap($pasien->no_rawat);
-        $dataOperasi2 = $dataOperasi[0];
-        $dataOperasi1 = $dataOperasi[1];
-
-        // dd($dataOperasi2, $dataOperasi1);
-
-        //Data Pemeriksaan
-        // $dataRalan = VedikaController::pemeriksaanRalan($pasien->no_rawat, $pasien->kd_dokter);
-        //Ambil data Triase dan Ringkasan IGD
-        if ($pasien->nm_poli == "IGD") {
-            $triase = VedikaController::triase($pasien->no_rawat);
-            $dataTriase = $triase[0];
-            $primer = $triase[1];
-            $sekunder = $triase[2];
-            $skala = $triase[3];
-
-            $ringkasan = VedikaController::ringkasanIgd($pasien->no_rawat);
-            $dataRingkasan = $ringkasan[0];
-            $resumeIgd = $ringkasan[1];
-        } else {
-            $dataTriase = $primer = $sekunder = $skala = $dataRingkasan = $resumeIgd = null;
-        }
-        // Periode Klaim BPJS
-        $periodeKlaim = PeriodeKlaim::where('status', 0)
-            ->orderBy('periode', 'DESC')
-            ->get();
-        //Data SPRI
-        $spri = VedikaController::getPerintahRanap($pasien->no_rawat);
-        $skor_psi = VedikaController::getPsi($pasien->no_rawat);
-        $skor_curb = VedikaController::getCurb($pasien->no_rawat);
-        //Data USG
-        // $dataUsg = VedikaController::getUsg($pasien->no_rawat);
-        $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
-        // $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
-        $dataSpiro = VedikaController::getSpiro($pasien->no_rkm_medis);
-        // dd($dataSpiro);
-
-        //Resume Ranap
-        $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
-        if ($resumeRanap) {
-            $resumeRanap1 = $resumeRanap[0];
-            $resumeRanap2 = $resumeRanap[1];
-            $resumeRanap3 = $resumeRanap[2];
-            $resumeRanap4 = $resumeRanap[3];
-        } else {
-            $resumeRanap1 = null;
-            $resumeRanap2 = null;
-            $resumeRanap3 = null;
-            $resumeRanap4 = null;
-        }
-
-
-        return view('vedika.detailRanap', compact(
-            'pasien',
-            'billing',
-            'diagnosa',
-            'prosedur',
-            'permintaanLab',
-            'hasilLab',
-            'kesanLab',
-            'dataRadiologiRanap',
-            'dokterRadiologiRanap',
-            'hasilRadiologiRanap',
-            'dataRadiologiRajal',
-            'dokterRadiologiRajal',
-            'hasilRadiologiRajal',
-            'historyRadiologi',
-            'tambahanRadiologi',
-            'tambahanDataRadiologi',
-            'tambahanDokterRadiologi',
-            'tambahanHasilRadiologi',
-            'dataTriase',
-            'primer',
-            'sekunder',
-            'skala',
-            'dataRingkasan',
-            'resumeIgd',
-            'skor_psi',
-            'skor_curb',
-            'dataUsgRanap',
-            'dataSpiro',
-            // 'resepObat',
-            // 'obatJadi',
-            // 'obatRacik',
-            // 'bbPasien',
-            'dataBerkas',
-            'dataSep',
-            'dataKlaim',
-            'masterBerkas',
-            // 'dataRalan',
-            'dataOperasi1',
-            'dataOperasi2',
-            'periodeKlaim',
-            'spri',
-            'resumeRanap1',
-            'resumeRanap2',
-            'resumeRanap3',
-            'resumeRanap4',
-            'pathBerkas'
-        ));
     }
 
     public function detailCronis($id)
@@ -559,7 +594,10 @@ class VedikaController extends Controller
             ->where('reg_periksa.no_rawat', '=', $id)
             ->first();
 
-        // dd($pasien);
+        if (empty($pasien)) {
+            Session::flash('error', 'Data pasien tidak ditemukan, pastikan data pasien sesuai');
+            return redirect()->back();
+        }
 
         //Ambil data billing
         $billing = VedikaController::getBillFarmasi($pasien->no_rawat);
@@ -777,6 +815,7 @@ class VedikaController extends Controller
 
         return $pdf->stream();
     }
+
     public function downloadRajalPdf($id)
     {
         $id = Crypt::decrypt($id);
@@ -941,26 +980,28 @@ class VedikaController extends Controller
         // dd($dataBerkas);
         if ($dataBerkas) {
             foreach ($dataBerkas as $list) {
-                $ambilNama = explode('/upload/', $list->lokasi_file);
-                $filePath = public_path("berkas_vedika/$ambilNama[1]");
-                if (FileLokal::exists($filePath)) {
-                    // File exists
-                    array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
-                } else {
-                    // dd('kosong');
-                    $cek = Storage::disk('sftp')->exists($list->lokasi_file);
-                    if ($cek == true) {
-                        // $realFile = explode('/', $id);
-                        //Cek file di lokal ada tidak
-                        $cek2 = Storage::disk()->exists($ambilNama[1]);
-                        if ($cek2 == false) {
-                            Storage::disk('local')
-                                ->put("$ambilNama[1]", Storage::disk('sftp')
-                                    ->get($list->lokasi_file));
-                            $contents = Storage::disk('sftp')->get($list->lokasi_file);
-                            file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
-                        }
+                if ($list->kode != '047') {
+                    $ambilNama = explode('/upload/', $list->lokasi_file);
+                    $filePath = public_path("berkas_vedika/$ambilNama[1]");
+                    if (FileLokal::exists($filePath)) {
+                        // File exists
                         array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                    } else {
+                        // dd('kosong');
+                        $cek = Storage::disk('sftp')->exists($list->lokasi_file);
+                        if ($cek == true) {
+                            // $realFile = explode('/', $id);
+                            //Cek file di lokal ada tidak
+                            $cek2 = Storage::disk()->exists($ambilNama[1]);
+                            if ($cek2 == false) {
+                                Storage::disk('local')
+                                    ->put("$ambilNama[1]", Storage::disk('sftp')
+                                        ->get($list->lokasi_file));
+                                $contents = Storage::disk('sftp')->get($list->lokasi_file);
+                                file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+                            }
+                            array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                        }
                     }
                 }
             }
@@ -975,6 +1016,11 @@ class VedikaController extends Controller
         // dd($gabung['success']);
 
         if (file_exists($outputFilePath) && ($gabung['success'] == TRUE)) {
+            // Hapus file laporan digital to pdf
+            $hapusLaporan = public_path("pdfklaim/$dataSep->no_sep/laporan_$dataSep->no_sep.pdf");
+            if (file_exists($hapusLaporan)) {
+                unlink($hapusLaporan);
+            }
             // Kembalikan file PDF sebagai response
             return response()->file($outputFilePath);
         } else {
@@ -1414,26 +1460,28 @@ class VedikaController extends Controller
         // dd($dataBerkas);
         if ($dataBerkas) {
             foreach ($dataBerkas as $list) {
-                $ambilNama = explode('/upload/', $list->lokasi_file);
-                $filePath = public_path("berkas_vedika/$ambilNama[1]");
-                if (FileLokal::exists($filePath)) {
-                    // File exists
-                    array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
-                } else {
-                    // dd('kosong');
-                    $cek = Storage::disk('sftp')->exists($list->lokasi_file);
-                    if ($cek == true) {
-                        // $realFile = explode('/', $id);
-                        //Cek file di lokal ada tidak
-                        $cek2 = Storage::disk()->exists($ambilNama[1]);
-                        if ($cek2 == false) {
-                            Storage::disk('local')
-                                ->put("$ambilNama[1]", Storage::disk('sftp')
-                                    ->get($list->lokasi_file));
-                            $contents = Storage::disk('sftp')->get($list->lokasi_file);
-                            file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
-                        }
+                if ($list->kode != '047') {
+                    $ambilNama = explode('/upload/', $list->lokasi_file);
+                    $filePath = public_path("berkas_vedika/$ambilNama[1]");
+                    if (FileLokal::exists($filePath)) {
+                        // File exists
                         array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                    } else {
+                        // dd('kosong');
+                        $cek = Storage::disk('sftp')->exists($list->lokasi_file);
+                        if ($cek == true) {
+                            // $realFile = explode('/', $id);
+                            //Cek file di lokal ada tidak
+                            $cek2 = Storage::disk()->exists($ambilNama[1]);
+                            if ($cek2 == false) {
+                                Storage::disk('local')
+                                    ->put("$ambilNama[1]", Storage::disk('sftp')
+                                        ->get($list->lokasi_file));
+                                $contents = Storage::disk('sftp')->get($list->lokasi_file);
+                                file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+                            }
+                            array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                        }
                     }
                 }
             }
@@ -1448,6 +1496,201 @@ class VedikaController extends Controller
         // dd('selesai');
 
         if (file_exists($outputFilePath) && ($gabung['success'] == TRUE)) {
+            // Hapus file laporan digital to pdf
+            $hapusLaporan = public_path("pdfklaim/$dataSep->no_sep/laporan_$dataSep->no_sep.pdf");
+            if (file_exists($hapusLaporan)) {
+                unlink($hapusLaporan);
+            }
+            // Kembalikan file PDF sebagai response
+            return response()->file($outputFilePath);
+        } else {
+            // Jika file tidak ada, kembalikan error atau pesan yang sesuai
+            // abort(404);
+            Session::flash('error', $gabung['message']);
+            return redirect()->back();
+        }
+    }
+
+    public function gabungKronisPdf($id)
+    {
+        $id = Crypt::decrypt($id);
+        // mengambil data id rapat
+        $pasien = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->join('penjab', 'penjab.kd_pj', '=', 'reg_periksa.kd_pj')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.kd_pj',
+                'reg_periksa.stts',
+                'reg_periksa.kd_dokter',
+                'poliklinik.nm_poli',
+                'pasien.nm_pasien',
+                'pasien.no_ktp',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pasien.alamat',
+                'pasien.no_peserta',
+                'dokter.nm_dokter',
+                'penjab.png_jawab'
+            )
+            ->where('reg_periksa.kd_pj', '=', 'BPJ')
+            ->where('reg_periksa.status_lanjut', '=', 'Ralan')
+            ->where('reg_periksa.no_rawat', '=', $id)
+            ->first();
+
+        // dd($pasien);
+
+        //Ambil data billing
+        // $billing = VedikaController::billingRajal($pasien->no_rawat);
+        $billing = VedikaController::getBillFarmasi($pasien->no_rawat);
+        //Ambil data untuk Bukti Pelayanan
+        $buktiPelayanan = VedikaController::buktiPelayanan($pasien->no_rawat);
+        $diagnosa = $buktiPelayanan[0];
+        $prosedur = $buktiPelayanan[1];
+        //Ambil data Radiologi
+        $radiologi = VedikaController::radioRajal($pasien->no_rawat);
+        $dataRadiologiRajal = $radiologi[0];
+        $dokterRadiologiRajal = $radiologi[1];
+        $hasilRadiologiRajal = $radiologi[2];
+        //Ambil data Triase dan Ringkasan IGD
+        if ($pasien->nm_poli == "IGD") {
+            $triase = VedikaController::triase($pasien->no_rawat);
+            $dataTriase = $triase[0];
+            $primer = $triase[1];
+            $sekunder = $triase[2];
+            $skala = $triase[3];
+
+            $ringkasan = VedikaController::ringkasanIgd($pasien->no_rawat);
+            $dataRingkasan = $ringkasan[0];
+            $resumeIgd = $ringkasan[1];
+        } else {
+            $dataTriase = $primer = $sekunder = $skala = $dataRingkasan = $resumeIgd = null;
+        }
+        //Ambil Berkas tambahan
+        $berkas = VedikaController::berkas($pasien->no_rawat);
+        $dataBerkas = $berkas[0];
+        $masterBerkas = $berkas[1];
+        $pathBerkas = $berkas[2];
+        //Data Lab
+        $lab = VedikaController::lab($pasien->no_rawat);
+        $permintaanLab = $lab[0];
+        $hasilLab = $lab[1];
+        //Data Obat
+        $obat = VedikaController::obat($pasien->no_rawat);
+        $resepObat = $obat[0];
+        $obatJadi = $obat[1];
+        $obatRacik = $obat[2];
+        $bbPasien = $obat[3];
+        //Data Pemeriksaan
+        $dataRalan = VedikaController::pemeriksaanRalan($pasien->no_rawat, $pasien->kd_dokter);
+        // dd($obat, $resepObat);
+
+        $pdf = Pdf::loadView('vedika.cronisRajal_pdf', [
+            'pasien' => $pasien,
+            'billing' => $billing,
+            'diagnosa' => $diagnosa,
+            'prosedur' => $prosedur,
+            'permintaanLab' => $permintaanLab,
+            'hasilLab' => $hasilLab,
+            'dataRadiologiRajal' => $dataRadiologiRajal,
+            'dokterRadiologiRajal' => $dokterRadiologiRajal,
+            'hasilRadiologiRajal' => $hasilRadiologiRajal,
+            'dataTriase' => $dataTriase,
+            'primer' => $primer,
+            'sekunder' => $sekunder,
+            'skala' => $skala,
+            'dataRingkasan' => $dataRingkasan,
+            'resumeIgd' => $resumeIgd,
+            'resepObat' => $resepObat,
+            'obatJadi' => $obatJadi,
+            'obatRacik' => $obatRacik,
+            'bbPasien' => $bbPasien,
+            'dataBerkas' => $dataBerkas,
+            'masterBerkas' => $masterBerkas,
+            'dataRalan' => $dataRalan,
+            'pathBerkas' => $pathBerkas
+        ]);
+
+        // (Optional) Setup the paper size and orientation
+        $pdf->setPaper('A4', 'potraid');
+
+        //Get No Resep
+        $getPengajuan = DataPengajuanKronis::where('no_rawat', $id)
+            ->first();
+        $periode = Carbon::parse($getPengajuan->periodeKlaim->periode)->format('Ym');
+
+        // Tentukan nama dan path penyimpanan file
+        $fileName = "laporan_$getPengajuan->no_resep" . '.pdf';
+        $folderPath = public_path("pdfkronis/$periode");
+        $filePath = $folderPath . '/' . $fileName;
+
+        // Buat folder jika belum ada
+        if (!FileLokal::exists($folderPath)) {
+            FileLokal::makeDirectory($folderPath, 0755, true);
+        }
+
+        // Simpan file PDF ke lokasi tujuan
+        $pdf->save($filePath);
+        $pdfFiles = [
+            public_path("pdfkronis/$periode/$fileName")
+        ];
+
+        // dd('done');
+        $berkas = VedikaController::berkas($pasien->no_rawat);
+        // dd($berkas);
+
+        $dataBerkas = $berkas[0];
+
+        // dd($dataBerkas);
+        if ($dataBerkas) {
+            foreach ($dataBerkas as $list) {
+                if ($list->kode == '047') {
+                    $ambilNama = explode('/upload/', $list->lokasi_file);
+                    $filePath = public_path("berkas_vedika/$ambilNama[1]");
+                    if (FileLokal::exists($filePath)) {
+                        // File exists
+                        array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                    } else {
+                        // dd('kosong');
+                        $cek = Storage::disk('sftp')->exists($list->lokasi_file);
+                        if ($cek == true) {
+                            // $realFile = explode('/', $id);
+                            //Cek file di lokal ada tidak
+                            $cek2 = Storage::disk()->exists($ambilNama[1]);
+                            if ($cek2 == false) {
+                                Storage::disk('local')
+                                    ->put("$ambilNama[1]", Storage::disk('sftp')
+                                        ->get($list->lokasi_file));
+                                $contents = Storage::disk('sftp')->get($list->lokasi_file);
+                                file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+                            }
+                            array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                        }
+                    }
+                }
+            }
+        }
+
+        // dd($pdfFiles);
+
+        $outputFilePath = public_path("pdfkronis/$periode/$getPengajuan->no_resep" . '.pdf');
+
+        $gabung = VedikaController::mergePdfs($pdfFiles, $outputFilePath);
+
+        // dd($gabung['success']);
+
+        if (file_exists($outputFilePath) && ($gabung['success'] == TRUE)) {
+            // Hapus file laporan digital to pdf
+            $hapusLaporan = public_path("pdfkronis/$periode/laporan_$getPengajuan->no_resep.pdf");
+            if (file_exists($hapusLaporan)) {
+                unlink($hapusLaporan);
+            }
             // Kembalikan file PDF sebagai response
             return response()->file($outputFilePath);
         } else {
@@ -1473,6 +1716,46 @@ class VedikaController extends Controller
             Session::flash('error', 'File gabung tidak ditemukan!');
             return redirect()->back();
         }
+    }
+
+    public function lihatKronisPdf($no_rawat)
+    {
+        $no_rawat = Crypt::decrypt($no_rawat);
+        // dd($no_rawat);
+        //Get No Resep
+        $getPengajuan = DataPengajuanKronis::where('no_rawat', $no_rawat)
+            ->first();
+
+        // dd($getPengajuan);
+        $periode = Carbon::parse($getPengajuan->periodeKlaim->periode)->format('Ym');
+
+        $outputFilePath = public_path("pdfkronis/$periode/$getPengajuan->no_resep.pdf");
+        // dd($outputFilePath);
+
+
+        if (file_exists($outputFilePath)) {
+            // Kembalikan file PDF sebagai response
+            return response()->file($outputFilePath);
+        } else {
+            // Jika file tidak ada, kembalikan error atau pesan yang sesuai
+            Session::flash('error', 'File gabung tidak ditemukan!');
+            return redirect()->back();
+        }
+    }
+
+    public function deletePdf($no_sep)
+    {
+        $no_sep = Crypt::decrypt($no_sep);
+        $outputFilePath = public_path("pdfklaim/$no_sep/$no_sep.pdf");
+
+        if (file_exists($outputFilePath)) {
+            unlink($outputFilePath);
+            Session::flash('success', 'File gabung berhasil dihapus!');
+        } else {
+            Session::flash('error', 'File gabung tidak ditemukan!');
+        }
+
+        return redirect()->back();
     }
 
     public function gabungRanap($no_rawat)
@@ -2110,6 +2393,235 @@ class VedikaController extends Controller
         if (FileLokal::exists($filePath)) {
             //download file
             return response()->download($filePath, "klaim_" . Carbon::parse($periodeKlaim->periode)->format('mY') . "_$jenis.zip");
+        } else {
+            Session::flash('error', 'file tidak ditemukan');
+
+            return redirect()->back();
+        }
+    }
+
+    public function generateZipRajalPending($periode)
+    {
+        set_time_limit(0);
+        $periode = Crypt::decrypt($periode);
+
+        $getData = DataPengajuanUlang::where('periode_pengajuan_ulang_id', $periode)
+            ->get();
+
+        $periodeKlaim = PeriodePengajuanUlang::find($periode);
+
+
+        if ($getData) {
+
+            $pdfFolderPath = public_path('pdfklaim'); // Folder utama tempat file PDF berada
+            $zipFileName = public_path("compressed/zipped_klaim_pending_" . Carbon::parse($periodeKlaim->periode)->format('mY') . "_rajal.zip");
+
+            $fileNotFound = 0;
+            // Daftar file dengan path relatif terhadap folder utama
+            $listOfFiles = [];
+
+            foreach ($getData as $listBerkas) {
+                if ($listBerkas->jenis_rawat == 'Rawat Jalan') {
+                    array_push($listOfFiles, "$listBerkas->no_sep" . DIRECTORY_SEPARATOR . "$listBerkas->no_sep.pdf");
+                }
+            }
+
+            // dd($periode, $getData->where('jenis_rawat', 'Rawat Inap')->take(10));
+
+            // Buat objek ZipArchive
+            $zip = new ZipArchive;
+
+            // Buka atau buat file ZIP
+            if ($zip->open($zipFileName, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                foreach ($listOfFiles as $relativePath) {
+                    // Pastikan file yang ada di daftar benar-benar ada di sistem
+                    $fullPath = $pdfFolderPath . DIRECTORY_SEPARATOR . $relativePath;
+                    if (FileLokal::exists($fullPath)) {
+                        // dd($relativePath, $fullPath);
+                        // Masukkan file ke dalam ZIP dengan struktur folder aslinya
+                        $relativeZipPath = Carbon::parse($periodeKlaim->periode)->format('mY') . "_rajal/" . $relativePath;
+                        $zip->addFile($fullPath, $relativeZipPath);
+                    } else {
+                        ++$fileNotFound;
+                    }
+                }
+
+                // Tutup ZIP setelah selesai
+                $zip->close();
+
+                if ($fileNotFound > 0) {
+                    Session::flash('error', "Zip berhasil digenerate, ada file yang tidak ditemukan sebanyak $fileNotFound.");
+                } else {
+                    Session::flash('sukses', 'Zip Rajal berhasil digenerate');
+                }
+            } else {
+                Session::flash('error', 'Gak bisa masuk file zip Rajal');
+            }
+        } else {
+            Session::flash('error', 'Periode tidak memiliki data');
+        }
+
+        return redirect()->back();
+    }
+
+    public function generateZipRanapPending($periode)
+    {
+        set_time_limit(0);
+        $periode = Crypt::decrypt($periode);
+
+        $getData = DataPengajuanUlang::where('periode_pengajuan_ulang_id', $periode)
+            ->get();
+
+        $periodeKlaim = PeriodePengajuanUlang::find($periode);
+
+
+        if ($getData) {
+
+            $pdfFolderPath = public_path('pdfklaim'); // Folder utama tempat file PDF berada
+            $zipFileName = public_path("compressed/zipped_klaim_pending_" . Carbon::parse($periodeKlaim->periode)->format('mY') . "_ranap.zip");
+
+            $fileNotFound = 0;
+            // Daftar file dengan path relatif terhadap folder utama
+            $listOfFiles = [];
+
+            foreach ($getData as $listBerkas) {
+                if ($listBerkas->jenis_rawat == 'Rawat Inap') {
+                    array_push($listOfFiles, "$listBerkas->no_sep" . DIRECTORY_SEPARATOR . "$listBerkas->no_sep.pdf");
+                }
+            }
+
+            // dd($periode, $getData->where('jenis_rawat', 'Rawat Inap')->take(10));
+
+            // Buat objek ZipArchive
+            $zip = new ZipArchive;
+
+            // Buka atau buat file ZIP
+            if ($zip->open($zipFileName, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                foreach ($listOfFiles as $relativePath) {
+                    // Pastikan file yang ada di daftar benar-benar ada di sistem
+                    $fullPath = $pdfFolderPath . DIRECTORY_SEPARATOR . $relativePath;
+                    if (FileLokal::exists($fullPath)) {
+                        // dd($relativePath, $fullPath);
+                        // Masukkan file ke dalam ZIP dengan struktur folder aslinya
+                        $relativeZipPath = Carbon::parse($periodeKlaim->periode)->format('mY') . "_ranap/" . $relativePath;
+                        $zip->addFile($fullPath, $relativeZipPath);
+                    } else {
+                        ++$fileNotFound;
+                    }
+                }
+
+                // Tutup ZIP setelah selesai
+                $zip->close();
+
+                if ($fileNotFound > 0) {
+                    Session::flash('error', "Zip berhasil digenerate, ada file yang tidak ditemukan sebanyak $fileNotFound.");
+                } else {
+                    Session::flash('sukses', 'Zip Ranap berhasil digenerate');
+                }
+            } else {
+                Session::flash('error', 'Gak bisa masuk file zip Ranap');
+            }
+        } else {
+            Session::flash('error', 'Periode tidak memiliki data');
+        }
+
+        return redirect()->back();
+    }
+
+    public function generateZipKronis($periode)
+    {
+        set_time_limit(0);
+        $periode = Crypt::decrypt($periode);
+
+        $getData = DataPengajuanKronis::where('periode_klaim_id', $periode)
+            ->get();
+
+        $periodeKlaim = PeriodeKlaim::find($periode);
+
+        if ($getData) {
+
+            $pdfFolderPath = public_path('pdfkronis'); // Folder utama tempat file PDF berada
+            $zipFileName = public_path("compressed/zipped_klaim_kronis_" . Carbon::parse($periodeKlaim->periode)->format('mY') . ".zip");
+
+            $fileNotFound = 0;
+            // Daftar file dengan path relatif terhadap folder utama
+            $listOfFiles = [];
+
+            foreach ($getData as $listBerkas) {
+                // dd($listBerkas);
+                // if ($listBerkas->jenis_rawat == 'Rawat Jalan') {
+                array_push($listOfFiles, Carbon::parse($periodeKlaim->periode)->format('Ym') . DIRECTORY_SEPARATOR . "$listBerkas->no_resep.pdf");
+                // }
+            }
+
+            // dd($periode, $getData->where('jenis_rawat', 'Rawat Inap')->take(10));
+
+            // Buat objek ZipArchive
+            $zip = new ZipArchive;
+
+            // Buka atau buat file ZIP
+            if ($zip->open($zipFileName, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+                foreach ($listOfFiles as $relativePath) {
+                    // dd($relativePath);
+                    // Pastikan file yang ada di daftar benar-benar ada di sistem
+                    $fullPath = $pdfFolderPath . DIRECTORY_SEPARATOR . $relativePath;
+                    if (FileLokal::exists($fullPath)) {
+                        // dd($relativePath, $fullPath);
+                        // Masukkan file ke dalam ZIP dengan struktur folder aslinya
+                        $relativeZipPath = $relativePath;
+                        $zip->addFile($fullPath, $relativeZipPath);
+                    } else {
+                        ++$fileNotFound;
+                    }
+                }
+
+                // Tutup ZIP setelah selesai
+                $zip->close();
+
+                if ($fileNotFound > 0) {
+                    Session::flash('error', "Zip berhasil digenerate, ada file yang tidak ditemukan sebanyak $fileNotFound.");
+                } else {
+                    Session::flash('sukses', 'Zip Rajal berhasil digenerate');
+                }
+            } else {
+                Session::flash('error', 'Gak bisa masuk file zip Rajal');
+            }
+        } else {
+            Session::flash('error', 'Periode tidak memiliki data');
+        }
+
+        return redirect()->back();
+    }
+
+    public function downloadZipPending($jenis, $periode)
+    {
+        $periode = Crypt::decrypt($periode);
+
+        $periodeKlaim = PeriodePengajuanUlang::find($periode);
+
+        $filePath = public_path("compressed/zipped_klaim_pending_" . Carbon::parse($periodeKlaim->periode)->format('mY') . "_$jenis.zip");
+
+        if (FileLokal::exists($filePath)) {
+            //download file
+            return response()->download($filePath, "klaim_pending_" . Carbon::parse($periodeKlaim->periode)->format('mY') . "_$jenis.zip");
+        } else {
+            Session::flash('error', 'file tidak ditemukan');
+
+            return redirect()->back();
+        }
+    }
+
+    public function downloadZipKronis($periode)
+    {
+        $periode = Crypt::decrypt($periode);
+
+        $periodeKlaim = PeriodeKlaim::find($periode);
+
+        $filePath = public_path("compressed/zipped_klaim_kronis_" . Carbon::parse($periodeKlaim->periode)->format('mY') . ".zip");
+
+        if (FileLokal::exists($filePath)) {
+            //download file
+            return response()->download($filePath, "klaim_kronis_" . Carbon::parse($periodeKlaim->periode)->format('mY') . ".zip");
         } else {
             Session::flash('error', 'file tidak ditemukan');
 
@@ -3932,7 +4444,7 @@ class VedikaController extends Controller
                 'reg_periksa.kd_poli',
                 'dokter.nm_dokter',
                 'dokter.kd_dokter',
-                'penilaian_medis_igd.diagnosis'
+                'penilaian_medis_igd.*'
             )
             ->where('reg_periksa.no_rawat', '=', $id)
             ->first();
@@ -3944,6 +4456,7 @@ class VedikaController extends Controller
                 'ringkasan_pasien_igd.obat_pulang',
                 'ringkasan_pasien_igd.tindak_lanjut',
                 'ringkasan_pasien_igd.edukasi',
+                'ringkasan_pasien_igd.kebutuhan',
                 'ringkasan_pasien_igd.tgl_selesai'
             )
             ->where('ringkasan_pasien_igd.no_rawat', '=', $id)
@@ -3956,6 +4469,34 @@ class VedikaController extends Controller
         //     'data',
         //     'resume'
         // ));
+    }
+
+    public function awalMedisIgd($no_rawat)
+    {
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('penilaian_medis_igd', 'penilaian_medis_igd.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
+            ->select(
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'pasien.alamat',
+                'pasien.no_ktp',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.stts',
+                'reg_periksa.no_rawat',
+                'reg_periksa.kd_poli',
+                'dokter.nm_dokter',
+                'dokter.kd_dokter',
+                'penilaian_medis_igd.diagnosis'
+            )
+            ->where('reg_periksa.no_rawat', '=', $id)
+            ->first();
+
+        return array($data);
     }
 
     public function pemeriksaanRalan($id, $idDokter)
@@ -4825,6 +5366,78 @@ class VedikaController extends Controller
 
         if ($data && $dataKamar) {
             return array($data, $dataKamar, $dataDiagnosa, $dataProsedur);
+        } else {
+            return null;
+        }
+    }
+
+    public function getPrasedasi($no_rawat)
+    {
+        $data = DB::connection('mysqlkhanza')->table('penilaian_awal_anestesi_prasedasi')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'penilaian_awal_anestesi_prasedasi.kd_dokter')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'penilaian_awal_anestesi_prasedasi.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->leftJoin('kelurahan', 'kelurahan.kd_kel', '=', 'pasien.kd_kel')
+            ->leftJoin('kecamatan', 'kecamatan.kd_kec', '=', 'pasien.kd_kec')
+            ->leftJoin('kabupaten', 'kabupaten.kd_kab', '=', 'pasien.kd_kab')
+            ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'penilaian_awal_anestesi_prasedasi.no_rawat')
+            ->leftJoin('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
+            ->leftJoin('bangsal', 'bangsal.kd_bangsal', '=', 'kamar.kd_bangsal')
+            ->select(
+                'penilaian_awal_anestesi_prasedasi.*',
+                'dokter.nm_dokter',
+                'reg_periksa.no_rawat',
+                'reg_periksa.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'kelurahan.nm_kel as kelurahan',
+                'kecamatan.nm_kec as kecamatan',
+                'kabupaten.nm_kab as kabupaten',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'bangsal.nm_bangsal'
+            )
+            ->where('reg_periksa.no_rawat', $no_rawat)
+            ->first();
+
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public function getPraInduksi($no_rawat)
+    {
+        $data = DB::connection('mysqlkhanza')->table('penilaian_awal_anestesi_prainduksi')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'penilaian_awal_anestesi_prainduksi.kd_dokter')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'penilaian_awal_anestesi_prainduksi.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->leftJoin('kelurahan', 'kelurahan.kd_kel', '=', 'pasien.kd_kel')
+            ->leftJoin('kecamatan', 'kecamatan.kd_kec', '=', 'pasien.kd_kec')
+            ->leftJoin('kabupaten', 'kabupaten.kd_kab', '=', 'pasien.kd_kab')
+            ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'penilaian_awal_anestesi_prainduksi.no_rawat')
+            ->leftJoin('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
+            ->leftJoin('bangsal', 'bangsal.kd_bangsal', '=', 'kamar.kd_bangsal')
+            ->select(
+                'penilaian_awal_anestesi_prainduksi.*',
+                'dokter.nm_dokter',
+                'reg_periksa.no_rawat',
+                'reg_periksa.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'kelurahan.nm_kel as kelurahan',
+                'kecamatan.nm_kec as kecamatan',
+                'kabupaten.nm_kab as kabupaten',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'bangsal.nm_bangsal'
+            )
+            ->where('reg_periksa.no_rawat', $no_rawat)
+            ->first();
+
+        if ($data) {
+            return $data;
         } else {
             return null;
         }

@@ -387,6 +387,15 @@
                             </p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="/vedika/pengajuan/ulang"
+                            class="nav-link @if (@session('anak') == 'Pengajuan Ulang') active @endif">
+                            <i class="nav-icon fas fa-redo-alt"></i>
+                            <p>
+                                Pengajuan Ulang
+                            </p>
+                        </a>
+                    </li>
                     @endcan
                     @can('vedika-kronis-list')
                     <li class="nav-item">
@@ -438,6 +447,15 @@
                             <i class="nav-icon far fa-copy"></i>
                             <p>
                                 Pending DPJP
+                            </p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/vedika/tidaklayak"
+                            class="nav-link @if (@session('anak') == 'DPJP Tidak Layak') active @endif">
+                            <i class="nav-icon fas fa-times"></i>
+                            <p>
+                                Tidak Layak
                             </p>
                         </a>
                     </li>
@@ -864,6 +882,15 @@
                             </p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="/master/vedika/klaimpending"
+                            class="nav-link @if (@session('anak') == 'Periode Klaim Pending') active @endif">
+                            <i class="nav-icon fas fa-calendar-alt"></i>
+                            <p>
+                                Periode Klaim Pending
+                            </p>
+                        </a>
+                    </li>
                     @endcan
                     @can('role-list')
                     <li class="nav-item">
@@ -885,6 +912,16 @@
                         </a>
                     </li>
                     @endcan
+                    {{-- @can('permission-list') --}}
+                        <li class="nav-item">
+                            <a href="/logs" class="nav-link @if (@session('anak') == 'User Logs') active @endif">
+                                <i class="nav-icon fas fa-address-book"></i>
+                                <p>
+                                    User Logs
+                                </p>
+                            </a>
+                        </li>
+                    {{-- @endcan --}}
                     @can('geografi-list')
                     <li class="nav-item">
                         <a href="/master/dummygeo"

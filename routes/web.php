@@ -225,6 +225,7 @@ Route::get('/vedika/ranap/{id}/detail', 'VedikaController@detailRanap')->name('v
 Route::get('/vedika/ranap/{id}/detailpdf', 'VedikaController@detailRanapPdf')->name('vedika.detailRanapPdf');
 Route::get('/vedika/ranap/{id}/downloadpdf', 'VedikaController@downloadRanapPdf')->name('vedika.downloadRanapPdf');
 Route::get('/vedika/ranap/{id}/viewgabungpdf', 'VedikaController@viewGabungPdf')->name('vedika.viewGabungPdf');
+Route::get('/vedika/ranap/{id}/deletepdf', 'VedikaController@deletePdf')->name('vedika.deletePdf');
 Route::get('/vedika/ranap/{id}/billing', 'VedikaController@billingRanap')->name('vedika.billingRanap');
 Route::get('/vedika/ranap/{id}/lab', 'VedikaController@labRanap')->name('vedika.labRanap');
 Route::get('/vedika/ranap/{id}/radiologi', 'VedikaController@radioRanap')->name('vedika.radioRanap');
@@ -237,6 +238,9 @@ Route::get('/vedika/{id}/deleteradiologi', 'VedikaController@deleteRadiologi')->
 Route::get('/vedika/obatkronis', 'VedikaController@pasienkronis')->name('vedika.pasienkronis');
 Route::get('/vedika/obatkronis/{id}/detail', 'VedikaController@detailCronis')->name('vedika.detailCronis');
 
+Route::get('/vedika/obatkronis/{id}/gabungpdf', 'VedikaController@gabungKronisPdf')->name('vedika.gabungKronis');
+Route::get('/vedika/obatkronis/{id}/viewgabungpdf', 'VedikaController@lihatKronisPdf')->name('vedika.lihatKronisPdf');
+
 Route::post('/vedika/verifikasi', 'VedikaController@simpanVerif')->name('vedika.simpanVerif');
 Route::post('/vedika/{id}/verifikasi', 'VedikaController@updateVerif')->name('vedika.updateVerif');
 Route::post('/vedika/berkas/store', 'VedikaController@berkasUpload')->name('vedika.berkasUpload');
@@ -245,19 +249,27 @@ Route::get('/vedika/berkas/{id}/delete', 'VedikaController@berkasDelete')->name(
 Route::get('/vedika/berkas/{id}/view', 'VedikaController@berkasShow')->name('vedika.berkasShow');
 
 Route::post('/vedika/pengajuan', 'KlaimController@pengajuan')->name('vedika.pengajuan');
+Route::post('/vedika/pengajuanpending', 'KlaimController@pengajuanUlang')->name('vedika.pengajuanUlang');
 Route::post('/vedika/pengajuankronis', 'KlaimController@pengajuanKronis')->name('vedika.pengajuanKronis');
 Route::post('/vedika/pengajuan/{id}/update', 'KlaimController@updatePengajuan')->name('vedika.updatePengajuan');
 Route::post('/vedika/pengajuankronis/{id}/update', 'KlaimController@updatePengajuanKronis')->name('vedika.updatePengajuanKronis');
 Route::get('/vedika/pengajuan/{id}/delete', 'KlaimController@deletePengajuan')->name('vedika.deletePengajuan');
 Route::get('/vedika/pengajuankronis/{id}/delete', 'KlaimController@deletePengajuanKronis')->name('vedika.deletePengajuanKronis');
+Route::get('/vedika/pengajuanpending/{id}/delete', 'KlaimController@deletePengajuanUlang')->name('vedika.deletePengajuanUlang');
 Route::get('/vedika/pengajuan/rajal', 'KlaimController@daftarRajal')->name('vedika.daftarRajal');
 Route::get('/vedika/pengajuan/kronis', 'KlaimController@daftarRajalKronis')->name('vedika.daftarRajalKronis');
 Route::get('/vedika/pengajuan/ranap', 'KlaimController@daftarRanap')->name('vedika.daftarRanap');
+Route::get('/vedika/pengajuan/ulang', 'KlaimController@daftarUlang')->name('vedika.daftarUlang');
 
 Route::get('/vedika/pengajuan/{periode}/gabungberkasall', 'VedikaController@gabungBerkasAll')->name('vedika.gabungberkasall');
 Route::get('/vedika/pengajuan/{periode}/makezipranap', 'VedikaController@generateZipRanap')->name('vedika.makezipranap');
 Route::get('/vedika/pengajuan/{periode}/makeziprajal', 'VedikaController@generateZipRajal')->name('vedika.makeziprajal');
 Route::get('/vedika/pengajuan/{jenis}/{periode}/downloadzip', 'VedikaController@downloadZip')->name('vedika.downloadzip');
+Route::get('/vedika/pengajuanpending/{periode}/makezipranap', 'VedikaController@generateZipRanapPending')->name('vedika.makezipranap_pending');
+Route::get('/vedika/pengajuanpending/{periode}/makeziprajal', 'VedikaController@generateZipRajalPending')->name('vedika.makeziprajal_pending');
+Route::get('/vedika/pengajuanpending/{jenis}/{periode}/downloadzip', 'VedikaController@downloadZipPending')->name('vedika.downloadzip_pending');
+Route::get('/vedika/pengajuankronis/{periode}/makezip', 'VedikaController@generateZipKronis')->name('vedika.makezipkronis');
+Route::get('/vedika/pengajuankronis/{periode}/downloadzip', 'VedikaController@downloadZipKronis')->name('vedika.downloadzipkronis');
 
 Route::get('/vedika/fraud/rajal', 'FraudController@rajal')->name('vedika.fraudRajal');
 Route::get('/vedika/fraud/ranap', 'FraudController@ranap')->name('vedika.fraudRanap');
@@ -279,10 +291,13 @@ Route::post('/vedika/klaimcompare/ambilresponevklaim', 'KlaimCompareController@a
 Route::get('/vedika/eklaim/{id}/printout', 'EklaimController@getStatus')->name('eklaim.status');
 
 Route::get('/vedika/pendingdpjp', 'KlaimCompareController@lihatDpjpPending')->name('vedika.pendingDpjp');
+Route::get('/vedika/tidaklayak', 'KlaimCompareController@lihatDpjpGagal')->name('vedika.tidakLayak');
+Route::post('/vedika/tidaklayak/import', 'KlaimCompareController@importTidakLayak')->name('vedika.importTidakLayak');
+Route::get('/vedika/tidaklayak/template', 'KlaimCompareController@templateTidakLayak')->name('vedika.tidaklayak.template');
 
 Route::get('/sep', 'SepController@getSep')->name('sep.getSep');
 // Route::get('/sep2', 'SepController@getJmlSep')->name('sep.getJmlSep');
-// Route::get('/coba', 'SepController@coba')->name('sep.coba');
+// Route::get('/coba', 'EklaimController@getDetail')->name('sep.coba');
 
 // Route::get('/show-log', function () {
 //     $logFile = storage_path('logs/laravel.log');
@@ -411,6 +426,12 @@ Route::get('/master/vedika/klaim/{id}/delete', 'KlaimController@delete')->name('
 Route::get('/master/vedika/klaim/{id}/edit', 'KlaimController@edit')->name('vedika.klaimedit');
 Route::post('/master/vedika/klaim/{id}/update', 'KlaimController@update')->name('vedika.klaimupdate');
 
+Route::get('/master/vedika/klaimpending', 'KlaimController@periodePending')->name('vedika.klaimpending');
+Route::post('/master/vedika/klaimpending', 'KlaimController@storePending')->name('vedika.klaimpendingstore');
+Route::get('/master/vedika/klaimpending/{id}/delete', 'KlaimController@deletePending')->name('vedika.klaimpendingdelete');
+Route::get('/master/vedika/klaimpending/{id}/edit', 'KlaimController@editPending')->name('vedika.klaimpendingedit');
+Route::post('/master/vedika/klaimpending/{id}/update', 'KlaimController@updatePending')->name('vedika.klaimpendingupdate');
+
 Route::get('/permission', 'PermissionController@index')->name('permission.index');
 Route::post('/permission/store', 'PermissionController@store')->name('permission.store');
 Route::get('/permission/edit/{id}', 'PermissionController@edit')->name('permission.edit');
@@ -418,6 +439,7 @@ Route::post('/permission/update/{id}', 'PermissionController@update')->name('per
 Route::get('/permission/delete/{id}', 'PermissionController@delete')->name('permission.delete');
 
 Route::resource('roles', 'RoleController');
+Route::get('/logs', 'LogController@index')->name('logs.index');
 
 Route::get('/profil', 'UserController@profile')->name('user.profile');
 Route::post('/profil/update', 'UserController@profileupdate')->name('user.profileupdate');

@@ -440,11 +440,15 @@ class SatuSehatController extends Controller
                     if ((!empty($vital->tgl_perawatan))) {
                         $waktuSelesai = Carbon::parse($vital->tgl_perawatan . ' ' . $vital->jam_rawat);
                         if ($waktuInprogress > $waktuSelesai) {
-                            goto WaktuSelesai2;
+                            // goto WaktuSelesai2;
+                            $selisih = $waktuInprogress->diffInMinutes($waktu_mulai, true);
+                            $waktuSelesai = Carbon::parse($waktuAwal)->addMinute($selisih + 5);
                         }
                     } else {
                         WaktuSelesai2:
-                        $waktuSelesai = Carbon::parse($waktuAwal)->addMinute(30);
+                        $selisih = $waktuInprogress->diffInMinutes($waktu_mulai, true);
+                        $waktuSelesai = Carbon::parse($waktuAwal)->addMinute($selisih + 5);
+                        // $waktuSelesai = Carbon::parse($waktuAwal)->addMinute(30);
                         // dd($dataPengunjung->no_rawat, $waktu_mulai, $waktuInprogress, $waktuSelesai);
                     }
                     // $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
@@ -1659,13 +1663,16 @@ class SatuSehatController extends Controller
                     $waktuSelesai = Carbon::parse($vital->tgl_perawatan . ' ' . $vital->jam_rawat);
                     if ($waktuInprogress > $waktuSelesai) {
 
-                        goto WaktuSelesai2;
+                        // goto WaktuSelesai2;
+                        $selisih = $waktuInprogress->diffInMinutes($waktu_mulai, true);
+                        $waktuSelesai = Carbon::parse($waktuAwal)->addMinute($selisih + 5);
                     }
                 } else {
                     WaktuSelesai2:
-                    $waktuSelesai = Carbon::parse($waktuAwal)->addMinute(30);
+                    $selisih = $waktuInprogress->diffInMinutes($waktu_mulai, true);
+                    $waktuSelesai = Carbon::parse($waktuAwal)->addMinute($selisih + 5);
                 }
-                // dd($waktu_mulai, $waktuInprogress, $waktuSelesai);
+                // dd($waktu_mulai, $waktuInprogress, $waktuSelesai, $selisih);
                 $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
 
                 $formatWaktuProgress = $waktuInprogress->setTimezone('UTC')->toW3cString();
@@ -2435,6 +2442,7 @@ class SatuSehatController extends Controller
                     $dataBundle = [$Encounter2, $diagnosis1, $vital1, $vital2, $vital3, $vital4, $vital5];
                 }
 
+                // dd($dataBundle);
                 SatuSehatController::getTokenSehat();
                 $access_token = Session::get('tokenSatuSehat');
                 $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
@@ -2454,7 +2462,7 @@ class SatuSehatController extends Controller
                         $response = $e->getResponse();
                         $test = json_decode($response->getBody());
                         $errorCode = (array) $test;
-                        dd($test, $dataBundle);
+                        // dd($test, $dataBundle);
 
                         if (!empty($errorCode)) {
                             if (!empty($errorCode['issue'][0])) {
@@ -7847,6 +7855,25 @@ class SatuSehatController extends Controller
         // dd($data);
 
         if (!empty($data)) {
+            //Kode yang diexclude
+            $dikecualikan = ['89.071'];
+
+            if (in_array($data->kode, $dikecualikan)) {
+                $data = DB::connection('mysqlkhanza')->table('prosedur_pasien')
+                    ->join('icd9', 'icd9.kode', '=', 'prosedur_pasien.kode')
+                    ->select(
+                        'prosedur_pasien.no_rawat',
+                        'prosedur_pasien.kode',
+                        'prosedur_pasien.status',
+                        'prosedur_pasien.prioritas',
+                        'icd9.deskripsi_panjang'
+                    )
+                    ->where('prosedur_pasien.no_rawat', $id)
+                    ->where('prosedur_pasien.status', 'Ralan')
+                    ->where('prosedur_pasien.prioritas', '2')
+                    ->first();
+            }
+
             return $data;
         } else {
             return null;

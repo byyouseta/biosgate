@@ -16,8 +16,10 @@
 
                         You are logged in!
 
-                        Kemungkinan kamu sedang login dari {{ $useragent }}
-
+                        Kemungkinan kamu sedang login dari Browser:
+                        {{ $useragent->ua->toString() }}
+                        {{-- OS: {{ $useragent->os->toString() }}
+                        Device: {{ $useragent->device->toString() }} --}}
                     </div>
                 </div>
             </div>

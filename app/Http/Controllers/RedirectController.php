@@ -21,7 +21,7 @@ class RedirectController extends Controller
             Session::forget('sukses');
             Session::put('error', "Accession $accession tidak ditemukan");
 
-            return redirect('/');
+            return view('info');
         }
     }
 }

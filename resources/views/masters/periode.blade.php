@@ -17,7 +17,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
-                            <div class="card-title">Periode Pangejuan Klaim
+                            <div class="card-title">Tambah Periode Klaim
                             </div>
                             <div class="float-right">
                                 @can('vedika-upload')
@@ -87,7 +87,7 @@
                 <form method="POST" action="/master/vedika/klaim">
                     @csrf
                     <div class="modal-header">
-                        <h4 class="modal-title">Tambah Berkas Pasien</h4>
+                        <h4 class="modal-title">Tambah Periode</h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>

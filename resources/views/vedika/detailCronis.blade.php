@@ -62,6 +62,9 @@
                                     class="btn btn-secondary btn-sm" target="_blank">
                                     <i class="far fa-file-pdf"></i> Cronis PDF</a>
                                 </a>
+                                <button class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#modal-gabung-file">
+                                    <i class="fas fa-file-download"></i> Gabung PDF</a>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -147,7 +150,7 @@
                                             <tr>
                                                 <td class="pt-0 pb-0">No. SEP</td>
                                                 <td class="pt-0 pb-0">:
-                                                    {{ App\Vedika::getSep($resepObat->no_rawat) != null ? App\Vedika::getSep($resepObat->no_rawat)->no_sep : '' }}
+                                                    {{ App\Vedika::getSep($resepObat->no_rawat,2) != null ? App\Vedika::getSep($resepObat->no_rawat,2)->no_sep : '' }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -177,7 +180,6 @@
                                         <tbody>
                                             @php
                                                 $no = 0;
-                                                // dd($obatJadi, $obatRacik);
                                             @endphp
                                             @if (!empty($obatJadi[$index]))
                                                 @foreach ($obatJadi[$index] as $listObat)
@@ -215,7 +217,7 @@
                                                                 @endphp
                                                                 (@foreach (\App\Vedika::getRacikan($pasien->no_rawat, $listObatRacik->jam) as $index => $listRacikan)
                                                                     {{ $listRacikan->nama_brng }}
-                                                                    {{ \App\Vedika::getJmlRacikan($pasien->no_rawat, $listRacikan->kode_brng)->jml }}{{ $index != $jumlah ? ',' : '' }}
+                                                                    {{ \App\Vedika::getJmlRacikan($pasien->no_rawat, $listRacikan->kode_brng, $listObatRacik->jam)->jml }}{{ $index != $jumlah ? ',' : '' }}
                                                                 @endforeach)
                                                                 <br>
                                                                 {{ $listObatRacik->aturan_pakai }}
@@ -228,10 +230,9 @@
                                                     @endif
                                                 @endforeach
                                             @endif
-
                                         </tbody>
-
                                     </table>
+
                                     <table class="table table-borderless mt-3">
                                         <tr>
                                             <td class="text-center pt-0 pb-0" style="width: 70%"></td>
@@ -305,7 +306,6 @@
                                             <td style="width:10%" class="pt-0 pb-0">No. SEP</td>
                                             <td style="width:50%" class="pt-0 pb-0">: {{ $dataSep->no_sep }}</td>
                                             <td class="pt-0 pb-0 text-center" colspan="2"></td>
-                                            {{-- <td  class="pt-0 pb-0"></td> --}}
                                         </tr>
                                         <tr>
                                             <td class="pt-0 pb-0">Tgl. SEP</td>
@@ -449,28 +449,6 @@
                                                 </div>
                                             </td>
                                         </tr>
-
-                                        {{-- <tr>
-                                        <td colspan="3" class="pt-0 pb-0"><small><i>*SEP bukan sebagai bukti
-                                                    penjaminan
-                                                    peserta
-                                                </i></small>
-                                        </td>
-                                    </tr> --}}
-                                        {{-- <tr>
-                                        <td colspan="3" class="pt-0 pb-0"><small><i>** Dengan tampilnya luaran SEP
-                                                    elektronik
-                                                    ini merupakan
-                                                    hasil validasi terhadap eligibilitas Pasien secara elektronik(validasi
-                                                    finger print atau biometrik /sistem validasi lain) dan selanjutnya
-                                                    Pasien
-                                                    dapat mengakses pelayanan kesehatan rujukan sesuai ketentuan berlaku.
-                                                    Kebenaran dan keaslian atas informasi Pasien menjadi tanggung jawab
-                                                    penuh
-                                                    FKRTL
-                                                </i></small>
-                                        </td>
-                                    </tr> --}}
                                     </table>
                                 </div>
                             </div>
@@ -926,7 +904,6 @@
                                     </tr>
                                 </thead>
                                 <tbody class="border border-dark">
-                                    {{-- @forelse ($diagnosa as $index => $dataDiagnosa) --}}
                                     <tr>
                                         <td class="border border-dark text-center">1</td>
                                         <td class="border border-dark">
@@ -941,13 +918,6 @@
                                             @endif
                                         </td>
                                     </tr>
-                                    {{-- @empty
-                                        <tr>
-                                            <td class="border border-dark text-center"></td>
-                                            <td class="border border-dark"></td>
-                                            <td class="border border-dark text-center"></td>
-                                        </tr>
-                                    @endforelse --}}
                                 </tbody>
                             </table>
                             <table class="table table-bordered mb-5">
@@ -985,7 +955,6 @@
                                 <tr>
                                     @php
                                         $ttd_pasien = \App\Vedika::getTtd($pasien->no_rawat);
-                                        // dd($ttd_pasien);
                                         $qr_dokter =
                                             'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' .
                                             "\n" .
@@ -1075,7 +1044,6 @@
 
                                                 </div>
                                             </div>
-                                            {{-- <div style="overflow-x:auto;"> --}}
                                             <table class="table table-borderless table-sm py-0 ">
                                                 <thead>
                                                     <tr>
@@ -1105,7 +1073,6 @@
                                                         <td class="pt-0 pb-0">JK/Umur</td>
                                                         <td class="pt-0 pb-0">:
                                                             {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }} /
-                                                            {{-- {{ $data->umurdaftar }} {{ $data->sttsumur }} --}}
                                                             {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y Th %m Bl %d Hr') }}
                                                         </td>
                                                         <td class="pt-0 pb-0">Jam Permintaan</td>
@@ -1128,7 +1095,6 @@
                                                     <tr>
                                                         <td class="pt-0 pb-0">Dokter Pengirim</td>
                                                         <td class="pt-0 pb-0">: {{ $order->nm_dokter }}
-                                                            {{-- {{ App\Vedika::getDokter($data->dokter_perujuk)->nm_dokter }} --}}
                                                         </td>
                                                         <td class="pt-0 pb-0">Poli</td>
                                                         <td class="pt-0 pb-0">: {{ $pasien->nm_poli }}</td>
@@ -1211,9 +1177,6 @@
                                                 <small><b>Catatan:</b> Jika ada keragu-raguan pemeriksaan, diharapkan segera
                                                     menghubungi
                                                     laboratorium.</small>
-                                                {{-- <div class="float-right">Tgl.Cetak :
-                                                    {{ Carbon\Carbon::now()->format('d/m/Y h:i:s') }}
-                                                </div> --}}
                                             </div>
                                             @if ($hasil_lab == 1)
                                                 <table class="table table-borderless">
@@ -1278,7 +1241,6 @@
                                     @endforeach
                                 </div>
                             </div>
-                            <!-- /.card -->
                         </div>
                     @endif
                     {{-- End hasil Lab --}}
@@ -1297,7 +1259,6 @@
                             </div>
                         </div>
                         <div class="card-body">
-
                             <table class="table table-bordered table-hover">
                                 <thead class="text-center">
                                     <tr>
@@ -1307,36 +1268,40 @@
                                         <th>Aksi</th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    @forelse($dataBerkas as $index => $berkas)
-                                        <tr>
-                                            <td class="text-center">{{ ++$index }}</td>
-                                            <td>{{ $berkas->nama }}</td>
-                                            {{-- <td></td> --}}
-                                            <td>
-                                                <div class="col text-center">
-                                                    <div class="btn-group">
-                                                        {{-- <a href="{{ $path->base_url }}{{ $berkas->lokasi_file }}" --}}
-                                                        <a href="/vedika/berkas/{{ Crypt::encrypt($berkas->lokasi_file) }}/view"
-                                                            target="_blank" class="btn btn-info btn-sm"
-                                                            data-toggle="tooltip" data-placement="bottom"
-                                                            title="Lihat Berkas">
-                                                            <i class="far fa-eye"></i>
-                                                        </a>
-                                                        <a href="/vedika/berkas/{{ Crypt::encrypt($berkas->lokasi_file) }}/delete"
-                                                            class="btn btn-danger btn-sm delete-confirm @cannot('vedika-delete') disabled @endcannot"
-                                                            data-toggle="tooltip" data-placement="bottom" title="Delete">
-                                                            <i class="fas fa-ban"></i>
-                                                        </a>
+                                    @if ($dataBerkas)
+                                        @foreach($dataBerkas as $index => $berkas)
+                                            <tr>
+                                                <td class="text-center">{{ ++$index }}</td>
+                                                <td>{{ $berkas->nama }}</td>
+                                                {{-- <td></td> --}}
+                                                <td>
+                                                    <div class="col text-center">
+                                                        <div class="btn-group">
+                                                            {{-- <a href="{{ $path->base_url }}{{ $berkas->lokasi_file }}" --}}
+                                                            <a href="/vedika/berkas/{{ Crypt::encrypt($berkas->lokasi_file) }}/view"
+                                                                target="_blank" class="btn btn-info btn-sm"
+                                                                data-toggle="tooltip" data-placement="bottom"
+                                                                title="Lihat Berkas">
+                                                                <i class="far fa-eye"></i>
+                                                            </a>
+                                                            <a href="/vedika/berkas/{{ Crypt::encrypt($berkas->lokasi_file) }}/delete"
+                                                                class="btn btn-danger btn-sm delete-confirm @cannot('vedika-delete') disabled @endcannot"
+                                                                data-toggle="tooltip" data-placement="bottom" title="Delete">
+                                                                <i class="fas fa-ban"></i>
+                                                            </a>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @empty
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
                                         <tr>
                                             <td class="text-center" colspan="4">Belum ada berkas yang diunggah</td>
                                         </tr>
-                                    @endforelse
+                                    @endif
+
                                 </tbody>
                             </table>
                         </div>
@@ -1698,6 +1663,42 @@
             </div>
         </div>
     @endif
+
+    {{-- //Gabung File --}}
+    <div class="modal fade" id="modal-gabung-file">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Gabung Berkas Pasien</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- text input -->
+                        <div class="col-12">
+                            @can('vedika-kronis-create')
+                                <a href="/vedika/obatkronis/{{ Crypt::encrypt($pasien->no_rawat) }}/gabungpdf"
+                                    class="btn btn-success btn-sm btn-block" target="_blank">
+                                    <i class="fas fa-sync-alt"></i></i> Gabung PDF Kronis</a>
+                                    @if($dataSep)
+                                        <a href="/vedika/obatkronis/{{ !empty($pasien->no_rawat)? Crypt::encrypt($pasien->no_rawat):Crypt::encrypt($dataSep->noSep) }}/viewgabungpdf"
+                                            class="btn btn-danger btn-sm btn-block" target="_blank">
+                                            <i class="fas fa-file-download"></i> Buka PDF Kronis</a>
+                                        {{-- <a href="/vedika/obatkronis/{{ !empty($pasien->no_rawat)? Crypt::encrypt($pasien->no_rawat):Crypt::encrypt($dataSep->noSep) }}/deletepdf"
+                                            class="btn btn-secondary btn-sm btn-block">
+                                            <i class="fas fa-trash"></i> Hapus File PDF Kronis</a> --}}
+                                    @endif
+                            @endcan
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
 @endsection
 @section('plugin')
     <script src="{{ asset('template/plugins/datatables/jquery.dataTables.min.js') }}"></script>

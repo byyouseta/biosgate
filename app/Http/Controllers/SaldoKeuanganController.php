@@ -52,14 +52,17 @@ class SaldoKeuanganController extends Controller
         $tahun = Carbon::now()->format('Y');
         $bulan = Carbon::now()->format('m');
 
-        $data = SaldoPengelolaan::whereYear('tgl_transaksi', $tahun)
+        $data = SaldoPengelolaan::with(['bank' => function ($query) {
+            $query->withTrashed(); // Ambil termasuk soft-deleted
+        }])
+            ->whereYear('tgl_transaksi', $tahun)
             ->whereMonth('tgl_transaksi', $bulan)
             ->orderBy('tgl_transaksi', 'DESC')
             ->get();
         $bank = Bank::where('rekening_id', '1')->get();
         $rekening = Rekening::all();
 
-        // dd($rekening);
+        // dd($data, $rekening, $bank);
         return view('keuangan.saldo_pengelolaan', compact('data', 'bank', 'rekening'));
     }
 

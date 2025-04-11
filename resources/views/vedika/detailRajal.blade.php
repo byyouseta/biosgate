@@ -39,6 +39,10 @@
 
                             <div class="float-right">
                                 @can('vedika-pengajuan-create')
+                                    <button class="btn btn-secondary btn-sm" data-toggle="modal"
+                                        data-target="#modal-pengajuan-pending">
+                                        <i class="fas fa-plus-circle"></i> Pengajuan Ulang</a>
+                                    </button>
                                     @if (empty($statusPengajuan))
                                         <button class="btn btn-success btn-sm" data-toggle="modal"
                                             data-target="#modal-pengajuan">
@@ -2277,6 +2281,250 @@
                 </div>
             @endif
             {{-- End Ringksan IGD --}}
+
+            {{-- Data Penilaian Awal IGD --}}
+            @if (!empty($dataRingkasan))
+                <div class="card">
+                    <div class="card-header">Penilaian Awal Medis IGD</div>
+                    <div class="card-body">
+                        <table class="table table-borderless mb-0">
+                            <thead>
+                                <tr>
+                                    <td style="width:3%" class="pr-0 align-middle"><img
+                                            src="{{ asset('image/logorsup.jpg') }}" alt="Logo RSUP" width="70"
+                                            class="px-0 py-0">
+                                    </td>
+                                    <td class="pt-0 pb-0 text-center align-middle" colspan="6">
+                                        <div style="font-size: 16pt">RSUP SURAKARTA</div>
+                                        Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah <br>
+                                        Telp.0271-713055 / 720002 <br>
+                                        E-mail : rsupsurakarta@kemkes.go.id
+                                    </td>
+                                    <td style="width:3%" class="pr-0 align-middle">&nbsp;</td>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table class="table table-bordered table-sm mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="pt-0 pb-0 text-center align-middle border border-dark" colspan="6">
+                                        <h4>PENILAIAN AWAL MEDIS GAWAT DARURAT</h4>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <th class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0"
+                                        style="width: 10%">No. RM
+                                    </th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-0">:
+                                        {{ $dataRingkasan->no_rkm_medis }}</th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-0"
+                                        style="width: 10%">Jenis Kelamin
+                                    </th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-0">:
+                                        {{ $dataRingkasan->jk == 'L' ? 'Laki-laki':'Perempuan' }}</th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-0"
+                                        style="width: 10%">Tanggal
+                                    </th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-0">:
+                                        {{ $dataRingkasan->tanggal }}</th>
+                                </tr>
+                                <tr>
+                                    <th class="pt-0 pb-0 border border-dark border-left-1 border-right-0 border-bottom-1 border-top-0">Nama Pasien</th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-top-0">
+                                        : {{ $dataRingkasan->nm_pasien }}</th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-1 border-top-0 ">Tanggal Lahir</th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-1 border-top-0">
+                                        : {{ $dataRingkasan->tgl_lahir }}</th>
+                                    <th class="pt-0 pb-0 border border-dark border-right-0 border-top-0">Anamnesis</th>
+                                    <th class="pt-0 pb-0 border border-dark border-left-0 border-top-0">:
+                                        {{ $dataRingkasan->anamnesis }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                        <b>I. RIWAYAT KESEHATAN</b><br>
+                                        <p>Keluhan Utama :  {{ $dataRingkasan->keluhan_utama }} </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                        <p>Riwayat Penyakit Sekarang :  {{ $dataRingkasan->rps }} </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="3">
+                                        <p>Riwayat Penyakit Dahulu :  {{ $dataRingkasan->rpd }} </p>
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="3">
+                                        <p>Riwayat Penyakit dalam Keluarga :  {{ $dataRingkasan->rpk }} </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="3" style="width: 50%;">
+                                        <p>Riwayat Pengobatan :  {{ $dataRingkasan->rpo }} </p>
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="3" style="width: 50%;">
+                                        <p>Riwayat Alergi :  {{ $dataRingkasan->alergi }} </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                        <b>II. PEMERIKSAAN FISIK </b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0" colspan="2">
+                                        Keadaan Umum : {{ $dataRingkasan->keadaan }}
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-left-0 border-right-0" colspan="2">
+                                        Kesadaran : {{ $dataRingkasan->kesadaran }}
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-left-0 " colspan="2">
+                                        GCS(E,V,M) : {{ $dataRingkasan->gcs }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark text-center" colspan="6">
+                                        Tanda Vital :&emsp;  TD: {{ $dataRingkasan->td }}&ensp;  N: {{ $dataRingkasan->nadi }}&ensp;  R: {{ $dataRingkasan->rr }}&ensp; S: {{ $dataRingkasan->suhu }}&ensp;  SPO2: {{ $dataRingkasan->spo }}&ensp;  BB: {{ $dataRingkasan->bb }}&ensp;  TB: {{ $dataRingkasan->tb }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                        Kepala
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                        {{ $dataRingkasan->kepala }}
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                        Thoraks
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0" >
+                                        {{ $dataRingkasan->thoraks }}
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-left-0 border-right-1" colspan="2" rowspan="4">
+                                        <pre>{{ $dataRingkasan->ket_fisik }}</pre>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                        Mata
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                        {{ $dataRingkasan->mata }}
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                        Abdomen
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0" >
+                                        {{ $dataRingkasan->abdomen }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                        Gigi dan Mulut
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                        {{ $dataRingkasan->gigi }}
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                        Genital & Anus
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0" >
+                                        {{ $dataRingkasan->genital }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0" >
+                                        Leher
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0" >
+                                        {{ $dataRingkasan->leher }}
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0" >
+                                        Ekstremitas
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark border-right-1 border-top-0" >
+                                        {{ $dataRingkasan->ekstremitas }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                        <b>III. STATUS LOKALIS</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                        <p>Keterangan : {{ $dataRingkasan->ket_lokalis }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                        <b>IV. PEMERIKSAAN PENUNJANG</b>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="2">
+                                        <p>EKG : {{ $dataRingkasan->ekg }}</p>
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="2">
+                                        <p>Radiologi : {{ $dataRingkasan->rad }}</p>
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="2">
+                                        <p>Laboratorium : {{ $dataRingkasan->lab }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                        <b>V. DIAGNOSIS</b><br>
+                                        <p>{{ $dataRingkasan->diagnosis }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="3">
+                                        <b>VI. TATA LAKSANA</b><br>
+                                        <p>{{ $dataRingkasan->tata }}</p>
+                                    </td>
+                                    <td class="pt-0 pb-0 border border-dark" colspan="3">
+                                        <b>VII. RINGKASAN PASIEN GAWAT DARURAT</b><br>
+                                        <p>Kondisi Pada Saat Keluar : {{ $resumeIgd && $resumeIgd->kondisi_pulang? $resumeIgd->kondisi_pulang:'-' }}</p>
+                                        <p>Tindak Lanjut : {{ $resumeIgd && $resumeIgd->tindak_lanjut? $resumeIgd->tindak_lanjut:'-' }}</p>
+                                        <p>Kebutuhan : {{ $resumeIgd && $resumeIgd->kebutuhan? $resumeIgd->kebutuhan:'-' }}</p>
+                                        <p>Edukasi : {{ $resumeIgd && $resumeIgd->edukasi ? $resumeIgd->edukasi:'-' }}</p>
+                                        <p>Obat Yang Dibawa Pulang : {{ $resumeIgd && $resumeIgd->obat_pulang ? $resumeIgd->obat_pulang:'-' }}</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="border border-dark border-top-0 text-center" colspan="3">Tanggal dan Jam</td>
+                                    <td class="border border-dark border-top-0 text-center" colspan="3">Nama Dokter dan Tanda
+                                        Tangan</td>
+                                </tr>
+                                <tr>
+                                    @php
+                                        $qr_dokter =
+                                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                        elektronik oleh' .
+                                            "\n" .
+                                            $dataRingkasan->nm_dokter .
+                                            "\n" .
+                                            'ID ' .
+                                            $dataRingkasan->kd_dokter .
+                                            "\n" .
+                                            \Carbon\Carbon::parse($dataRingkasan->tanggal)->format('d-m-Y');
+                                    @endphp
+                                    <td class="border border-dark border-top-0 text-center align-middle" colspan="3">{{ \Carbon\Carbon::parse($dataRingkasan->tanggal)->format('d-m-Y H:i:s') }} WIB</td>
+                                    <td class="pt-1 pb-1 pl-5 border border-dark border-top-0 border-right-0">
+                                        {!! QrCode::size(100)->generate($qr_dokter) !!} </td>
+                                    <td class="border border-dark border-top-0 border-left-0 align-bottom" colspan="2">
+                                        {{ $dataRingkasan->nm_dokter }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+            {{-- End Ringksan IGD --}}
+
             {{-- Pasien Operasi --}}
             @if (!empty($dataOperasi))
                 <div class="card">
@@ -3638,14 +3886,19 @@
                     <div class="row">
                         <!-- text input -->
                         <div class="col-12">
-                            <a href="/vedika/rajal/{{ Crypt::encrypt($pasien->no_rawat) }}/downloadpdf"
+                            @can('vedika-verif-create')
+                                <a href="/vedika/rajal/{{ Crypt::encrypt($pasien->no_rawat) }}/downloadpdf"
                                 class="btn btn-success btn-sm btn-block" target="_blank">
                                 <i class="fas fa-sync-alt"></i></i> Gabung PDF</a>
-                            @if($dataSep)
-                                <a href="/vedika/ranap/{{ !empty($dataSep->no_sep)? Crypt::encrypt($dataSep->no_sep):Crypt::encrypt($dataSep->noSep) }}/viewgabungpdf"
-                                    class="btn btn-danger btn-sm btn-block" target="_blank">
-                                    <i class="fas fa-file-download"></i> Buka PDF</a>
-                            @endif
+                                @if($dataSep)
+                                    <a href="/vedika/ranap/{{ !empty($dataSep->no_sep)? Crypt::encrypt($dataSep->no_sep):Crypt::encrypt($dataSep->noSep) }}/viewgabungpdf"
+                                        class="btn btn-danger btn-sm btn-block" target="_blank">
+                                        <i class="fas fa-file-download"></i> Buka PDF</a>
+                                    <a href="/vedika/ranap/{{ !empty($dataSep->no_sep)? Crypt::encrypt($dataSep->no_sep):Crypt::encrypt($dataSep->noSep) }}/deletepdf"
+                                        class="btn btn-secondary btn-sm btn-block">
+                                        <i class="fas fa-trash"></i> Hapus File PDF</a>
+                                @endif
+                            @endcan
                         </div>
                     </div>
                 </div>
@@ -4125,6 +4378,125 @@
             </div>
         </div>
     @endif
+
+    {{-- Modal pengajuan pending --}}
+    <div class="modal fade" id="modal-pengajuan-pending">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="POST" action="/vedika/pengajuanpending">
+                    @csrf
+                    <div class="modal-header">
+                        <h4 class="modal-title">Pengajuan Klaim Pending</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>No Rawat pasien</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->no_rawat }}"
+                                        name="no_rawat" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>No SEP</label>
+                                    <input type="text" class="form-control"
+                                        value="{{ !empty($dataSep->no_sep) ? $dataSep->no_sep : '' }}"
+                                        name="no_sep" {{ !empty($dataSep->no_sep) ? 'readonly' : 'required' }} />
+                                </div>
+                                <div class="form-group">
+                                    <label>No Kartu</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->no_peserta }}"
+                                        name="no_bpjs" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Nama Pasien</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->nm_pasien }}"
+                                        name="nama_pasien" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Jenis Rawat</label>
+                                    <input type="text" class="form-control" value="Rawat Jalan"
+                                        name="jenis_rawat" readonly />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>Tgl Lahir</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->tgl_lahir }}"
+                                        name="tgl_lahir" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Jenis Kelamin</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->jk }}"
+                                        name="jk" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Tgl Registrasi</label>
+                                    <input type="text" class="form-control"
+                                        value="{{ $pasien->tgl_registrasi }}" name="tgl_registrasi" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Poli Dituju</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->nm_poli }}"
+                                        name="nm_poli" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Periode</label>
+                                    <select name="periode" class="form-control" required>
+                                        <option value="">Pilih</option>
+                                        @foreach ($periodePending as $periodeUlang)
+                                            <option value="{{ $periodeUlang->id }}">{{ $periodeUlang->periode }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default float-left"
+                            data-dismiss="modal">Tutup</button>
+                        <button type="Submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <table class="table table-bordered mb-0 table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center" style="width: 5%;">No</th>
+                                            <th class="text-center" >Periode</th>
+                                            <th class="text-center" style="width: 20%;">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($dataPengajuanPending as $indek=>$listPengajuan)
+                                            <tr>
+                                                <td class="text-center">{{ ++$indek }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($listPengajuan->periodePengajuanUlang->periode)->format('F Y') }}</td>
+                                                <td class="text-center">
+                                                    <a href="/vedika/pengajuanpending/{{ Crypt::encrypt($listPengajuan->id) }}/delete"
+                                                        class="btn btn-danger btn-sm delete-confirm @cannot('vedika-delete') disabled @endcannot"
+                                                        data-toggle="tooltip" data-placement="bottom" title="Delete">
+                                                        <i class="fas fa-ban"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center">Data tidak ditemukan</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
 @endsection
 @section('plugin')
     <script src="{{ asset('template/plugins/datatables/jquery.dataTables.min.js') }}"></script>

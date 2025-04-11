@@ -38,6 +38,10 @@
                             @endcan
                             <div class="float-right">
                                 @can('vedika-upload')
+                                    <button class="btn btn-secondary btn-sm" data-toggle="modal"
+                                        data-target="#modal-pengajuan-pending">
+                                        <i class="fas fa-plus-circle"></i> Pengajuan Ulang</a>
+                                    </button>
                                     @if (empty($statusPengajuan))
                                         <button class="btn btn-success btn-sm" data-toggle="modal"
                                             data-target="#modal-pengajuan">
@@ -2607,6 +2611,249 @@
         @endif
         {{-- End Ringksan IGD --}}
 
+        {{-- Data Penilaian Awal IGD --}}
+        @if (!empty($dataRingkasan))
+            <div class="card">
+                <div class="card-header">Penilaian Awal Medis IGD</div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-0">
+                        <thead>
+                            <tr>
+                                <td style="width:3%" class="pr-0 align-middle"><img
+                                        src="{{ asset('image/logorsup.jpg') }}" alt="Logo RSUP" width="70"
+                                        class="px-0 py-0">
+                                </td>
+                                <td class="pt-0 pb-0 text-center align-middle" colspan="6">
+                                    <div style="font-size: 16pt">RSUP SURAKARTA</div>
+                                    Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah <br>
+                                    Telp.0271-713055 / 720002 <br>
+                                    E-mail : rsupsurakarta@kemkes.go.id
+                                </td>
+                                <td style="width:3%" class="pr-0 align-middle">&nbsp;</td>
+                            </tr>
+                        </thead>
+                    </table>
+                    <table class="table table-bordered table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th class="pt-0 pb-0 text-center align-middle border border-dark" colspan="6">
+                                    <h4>PENILAIAN AWAL MEDIS GAWAT DARURAT</h4>
+                                </th>
+                            </tr>
+                            <tr>
+                                <th class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0"
+                                    style="width: 10%">No. RM
+                                </th>
+                                <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-0">:
+                                    {{ $dataRingkasan->no_rkm_medis }}</th>
+                                <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-0"
+                                    style="width: 10%">Jenis Kelamin
+                                </th>
+                                <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-0">:
+                                    {{ $dataRingkasan->jk == 'L' ? 'Laki-laki':'Perempuan' }}</th>
+                                <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-0"
+                                    style="width: 10%">Tanggal
+                                </th>
+                                <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-0">:
+                                    {{ $dataRingkasan->tanggal }}</th>
+                            </tr>
+                            <tr>
+                                <th class="pt-0 pb-0 border border-dark border-left-1 border-right-0 border-bottom-1 border-top-0">Nama Pasien</th>
+                                <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-top-0">
+                                    : {{ $dataRingkasan->nm_pasien }}</th>
+                                <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-1 border-top-0 ">Tanggal Lahir</th>
+                                <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-1 border-top-0">
+                                    : {{ $dataRingkasan->tgl_lahir }}</th>
+                                <th class="pt-0 pb-0 border border-dark border-right-0 border-top-0">Anamnesis</th>
+                                <th class="pt-0 pb-0 border border-dark border-left-0 border-top-0">:
+                                    {{ $dataRingkasan->anamnesis }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                    <b>I. RIWAYAT KESEHATAN</b><br>
+                                    <p>Keluhan Utama :  {{ $dataRingkasan->keluhan_utama }} </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                    <p>Riwayat Penyakit Sekarang :  {{ $dataRingkasan->rps }} </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="3">
+                                    <p>Riwayat Penyakit Dahulu :  {{ $dataRingkasan->rpd }} </p>
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark" colspan="3">
+                                    <p>Riwayat Penyakit dalam Keluarga :  {{ $dataRingkasan->rpk }} </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="3" style="width: 50%;">
+                                    <p>Riwayat Pengobatan :  {{ $dataRingkasan->rpo }} </p>
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark" colspan="3" style="width: 50%;">
+                                    <p>Riwayat Alergi :  {{ $dataRingkasan->alergi }} </p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                    <b>II. PEMERIKSAAN FISIK </b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark border-right-0" colspan="2">
+                                    Keadaan Umum : {{ $dataRingkasan->keadaan }}
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-left-0 border-right-0" colspan="2">
+                                    Kesadaran : {{ $dataRingkasan->kesadaran }}
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-left-0 " colspan="2">
+                                    GCS(E,V,M) : {{ $dataRingkasan->gcs }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark text-center" colspan="6">
+                                    Tanda Vital :&emsp;  TD: {{ $dataRingkasan->td }}&ensp;  N: {{ $dataRingkasan->nadi }}&ensp;  R: {{ $dataRingkasan->rr }}&ensp; S: {{ $dataRingkasan->suhu }}&ensp;  SPO2: {{ $dataRingkasan->spo }}&ensp;  BB: {{ $dataRingkasan->bb }}&ensp;  TB: {{ $dataRingkasan->tb }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                    Kepala
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                    {{ $dataRingkasan->kepala }}
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                    Thoraks
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0" >
+                                    {{ $dataRingkasan->thoraks }}
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-left-0 border-right-1" colspan="2" rowspan="4">
+                                    <pre>{{ $dataRingkasan->ket_fisik }}</pre>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                    Mata
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                    {{ $dataRingkasan->mata }}
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                    Abdomen
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0" >
+                                    {{ $dataRingkasan->abdomen }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                    Gigi dan Mulut
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                    {{ $dataRingkasan->gigi }}
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                    Genital & Anus
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0" >
+                                    {{ $dataRingkasan->genital }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0" >
+                                    Leher
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0" >
+                                    {{ $dataRingkasan->leher }}
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0" >
+                                    Ekstremitas
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark border-right-1 border-top-0" >
+                                    {{ $dataRingkasan->ekstremitas }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                    <b>III. STATUS LOKALIS</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                    <p>Keterangan : {{ $dataRingkasan->ket_lokalis }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                    <b>IV. PEMERIKSAAN PENUNJANG</b>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="2">
+                                    <p>EKG : {{ $dataRingkasan->ekg }}</p>
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark" colspan="2">
+                                    <p>Radiologi : {{ $dataRingkasan->rad }}</p>
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark" colspan="2">
+                                    <p>Laboratorium : {{ $dataRingkasan->lab }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="6">
+                                    <b>V. DIAGNOSIS</b><br>
+                                    <p>{{ $dataRingkasan->diagnosis }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pt-0 pb-0 border border-dark" colspan="3">
+                                    <b>VI. TATA LAKSANA</b><br>
+                                    <p>{{ $dataRingkasan->tata }}</p>
+                                </td>
+                                <td class="pt-0 pb-0 border border-dark" colspan="3">
+                                    <b>VII. RINGKASAN PASIEN GAWAT DARURAT</b><br>
+                                    <p>Kondisi Pada Saat Keluar : {{ $resumeIgd && $resumeIgd->kondisi_pulang? $resumeIgd->kondisi_pulang:'-' }}</p>
+                                    <p>Tindak Lanjut : {{ $resumeIgd && $resumeIgd->tindak_lanjut? $resumeIgd->tindak_lanjut:'-' }}</p>
+                                    <p>Kebutuhan : {{ $resumeIgd && $resumeIgd->kebutuhan? $resumeIgd->kebutuhan:'-' }}</p>
+                                    <p>Edukasi : {{ $resumeIgd && $resumeIgd->edukasi ? $resumeIgd->edukasi:'-' }}</p>
+                                    <p>Obat Yang Dibawa Pulang : {{ $resumeIgd && $resumeIgd->obat_pulang ? $resumeIgd->obat_pulang:'-' }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="border border-dark border-top-0 text-center" colspan="3">Tanggal dan Jam</td>
+                                <td class="border border-dark border-top-0 text-center" colspan="3">Nama Dokter dan Tanda
+                                    Tangan</td>
+                            </tr>
+                            <tr>
+                                @php
+                                    $qr_dokter =
+                                        'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                    elektronik oleh' .
+                                        "\n" .
+                                        $dataRingkasan->nm_dokter .
+                                        "\n" .
+                                        'ID ' .
+                                        $dataRingkasan->kd_dokter .
+                                        "\n" .
+                                        \Carbon\Carbon::parse($dataRingkasan->tanggal)->format('d-m-Y');
+                                @endphp
+                                <td class="border border-dark border-top-0 text-center align-middle" colspan="3">{{ \Carbon\Carbon::parse($dataRingkasan->tanggal)->format('d-m-Y H:i:s') }} WIB</td>
+                                <td class="pt-1 pb-1 pl-5 border border-dark border-top-0 border-right-0">
+                                    {!! QrCode::size(100)->generate($qr_dokter) !!} </td>
+                                <td class="border border-dark border-top-0 border-left-0 align-bottom" colspan="2">
+                                    {{ $dataRingkasan->nm_dokter }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        @endif
+        {{-- End Ringksan IGD --}}
+
         @if($skor_psi)
             <div class="card">
                 <div class="card-header">Pneumonia Severity Index(PSI)</div>
@@ -4043,6 +4290,422 @@
         @endif
         {{-- End hasil operasi multi --}}
         {{-- End of laporan Operasi --}}
+
+        {{-- Data Anestesi --}}
+        @if($dataAnestesi)
+            <div class="card">
+                <div class="card-header">Asesmen Prasedasi</div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-3">
+                        <tr>
+                            <td class="align-top" style="width:60%" rowspan="4"><img
+                                    src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                    width="350">
+                            </td>
+                            <td class="pt-1 pb-0 align-middle"
+                                style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                    Kesehatan</div>
+                                <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle py-0">
+                                <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle py-0">
+                                <img src="{{ asset('image/telephone.png') }}" alt="telepon" width="17"> (0271)
+                                713055
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle py-0">
+                                <img src="{{ asset('image/world-wide-web.png') }}" alt="website" width="17">
+                                https://web.rsupsurakarta.co.id
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="progress progress-xs mt-0 pt-0">
+                        <div class="progress-bar progress-bar bg-black" role="progressbar" aria-valuenow="100"
+                            aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <table class="table table-borderless table-sm">
+                        <thead>
+                            <tr>
+                                <th class="align-middle text-center pb-1" colspan="2" rowspan="6" style="width: 40%;">
+                                    <h5><b>ASESMEN PRASEDASI DAN ANESTESI</b></h5>
+                                </th>
+                                <td style="width: 20%;">
+                                    No. Rawat
+                                </td style="width: 40%;">
+                                <td>: {{ $dataAnestesi->no_rawat }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    No. Rekam Medis
+                                </td>
+                                <td>: {{ $dataAnestesi->no_rkm_medis }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Nama Pasien
+                                </td>
+                                <td>: {{ $dataAnestesi->nm_pasien }}/ Th/ {{ $dataAnestesi->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Tanggal Lahir
+                                </td>
+                                <td>: {{ \Carbon\Carbon::parse($dataAnestesi->tgl_lahir)->format('d-m-Y') }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Alamat
+                                </td>
+                                <td>: {{ $dataAnestesi->alamat }}, {{ $dataAnestesi->kelurahan }}, {{ $dataAnestesi->kecamatan }}, {{ $dataAnestesi->kabupaten }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Ruang Rawat
+                                </td>
+                                <td>: {{ $dataAnestesi->nm_bangsal }}</td>
+                            </tr>
+                        </thead>
+                    </table>
+                    <table class="table table-bordered table-sm" style="width: 100%;">
+                        <tbody>
+                            <tr>
+                                <td colspan="2" rowspan="6" style="width:40%;">
+                                    Anamnesis: <br>
+                                    {{ $dataAnestesi->anamnesis }}
+                                </td>
+                                <td style="width:20%;">
+                                    Diagnosa Pre Operasi
+                                </td>
+                                <td style="width:40%;">
+                                    : {{ $dataAnestesi->diagnosa_preop }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Rencana Operasi
+                                </td>
+                                <td>
+                                    : {{ $dataAnestesi->rencana_operasi }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    TB : {{ $dataAnestesi->tb }}
+                                </td>
+                                <td>
+                                    BB : {{ $dataAnestesi->bb }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    Obat yang dikonsumsi saat ini :
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi->obat_dikonsumsi == 'Tidak Ada' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Tidak Ada
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi->obat_dikonsumsi == 'Ada' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Ada {{ $dataAnestesi->obat_dikonsumsi_ket?  $dataAnestesi->obat_dikonsumsi_ket:'-' }}
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Riwayat Alergi</td>
+                                <td>: {{ $dataAnestesi->riwayat_alergi }} {{ $dataAnestesi->riwayat_alergi_ket }}</td>
+                                <td>Riwayat Merokok</td>
+                                <td>: {{ $dataAnestesi->riwayat_merokok }}</td>
+                            </tr>
+                            <tr>
+                                <td>Riwayat Penyakit</td>
+                                <td>: {{ $dataAnestesi->riwayat_penyakit }} {{ $dataAnestesi->riwayat_penyakit_ket }}</td>
+                            </tr>
+                            <tr>
+                                <td>Riwayat Anestesi</td>
+                                <td>: {{ $dataAnestesi->riwayat_anestesi }} {{ $dataAnestesi->jenis_anestesi }}</td>
+                                <td>Komplikasi Anestesi</td>
+                                <td>: {{ $dataAnestesi->komplikasi_anestesi }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Pemeriksaan Fisik :
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>B1/Breathing : {{ $dataAnestesi->fisik_b1 }}</td>
+                                <td>alat pembebas jalan napas</td>
+                                <td>: {{ $dataAnestesi->fisik_alat }}</td>
+                                <td>RR : {{ $dataAnestesi->fisik_rr }} X/menit </td>
+                            </tr>
+                            <tr>
+                                <td>Vesikuler : {{ $dataAnestesi->fisik_vesikuler }}</td>
+                                <td>Rhonki : {{ $dataAnestesi->fisik_rhonki }}</td>
+                                <td>Wheezing</td>
+                                <td>: (+){{ $dataAnestesi->fisik_wheezing_plus }} (-){{ $dataAnestesi->fisik_wheezing_min }}</td>
+                            </tr>
+                            <tr>
+                                <td>B2/Blood : TD : {{ $dataAnestesi->fisik_td }}</td>
+                                <td>, HR : {{ $dataAnestesi->fisik_hr }} {{ $dataAnestesi->fisik_hr_ket }}</td>
+                                <td>, {{ $dataAnestesi->fisik_hr_ket }}</td>
+                                <td>Konjingtiva: {{ $dataAnestesi->fisik_konjungtiva }}</td>
+                            </tr>
+                            <tr>
+                                <td>B3/Brain : GCS E:{{ $dataAnestesi->fisik_gcse }}</td>
+                                <td>M: {{ $dataAnestesi->fisik_gcsm }}   V: {{ $dataAnestesi->fisik_gcsv }}</td>
+                                <td>Pupil: {{ $dataAnestesi->fisik_pupil }}</td>
+                                <td>Hemiparese : {{ $dataAnestesi->fisik_hemiparese }} X/menit </td>
+                            </tr>
+                            <tr>
+                                <td>B4/Badder : Produksi Urin:{{ $dataAnestesi->fisik_urin }} cc/jam</td>
+                                <td>, Warna Urine : {{ $dataAnestesi->fisik_warnaurin }}</td>
+                            </tr>
+                            <tr>
+                                <td>B5/Bowel : Perut Distensi/kembung:{{ $dataAnestesi->fisik_perut }}</td>
+                                <td>Diare : {{ $dataAnestesi->fisik_diare }}</td>
+                                <td>Muntah : {{ $dataAnestesi->fisik_muntah }}</td>
+                            </tr>
+                            <tr>
+                                <td>B6/Bone : Alat Bantu Jalan:{{ $dataAnestesi->fisik_alatbantu }} cc/jam</td>
+                                <td>Fraktur : {{ $dataAnestesi->fisik_fraktur }}</td>
+                            </tr>
+                            <tr>
+                                <td>Laboratorium</td>
+                                <td colspan="3">: {{ $dataAnestesi->penunjang_lab }}</td>
+                            </tr>
+                            <tr>
+                                <td>Radiologi</td>
+                                <td colspan="3">: {{ $dataAnestesi->penunjang_rad }}</td>
+                            </tr>
+                            <tr>
+                                <td>Elektrokardiografi</td>
+                                <td colspan="3">: {{ $dataAnestesi->penunjang_elektro }}</td>
+                            </tr>
+                            <tr>
+                                <td>Status Fisik</td>
+                                <td colspan="3">:</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center" colspan="4" >
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi->asa == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                ASA
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi->asa1 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                ASA 1
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi->asa2 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                ASA 2
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi->asa3 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                ASA 3
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi->asa4 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                ASA 4
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi->asa5 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                ASA 5
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi->asa6 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                ASA 6
+                                            </label>
+                                        </div>
+
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi->asaE == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                E
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-center" colspan="4">PERENCANA TINDAKAN ANESTESI</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">Rencana Tindakan Anestesi</td>
+                            </tr>
+                            <tr>
+                                <td>GA</td>
+                                <td colspan="3">: {{ $dataAnestesi->rencana_ga }}</td>
+                            </tr>
+                            <tr>
+                                <td>Regional</td>
+                                <td colspan="3">: {{ $dataAnestesi->rencana_reg }}</td>
+                            </tr>
+                            <tr>
+                                <td>Blok</td>
+                                <td colspan="3">: {{ $dataAnestesi->rencana_blok }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">Alat / bahan khusus yang diperlukan ( obat-obatan dan cairan) :</td>
+                            </tr>
+                            <tr>
+                                <td>Obat - obatan</td>
+                                <td colspan="3">: {{ $dataAnestesi->obat_obatan }} {{ $dataAnestesi->obat_obatan_ket }}</td>
+                            </tr>
+                            <tr>
+                                <td>Cairan</td>
+                                <td colspan="3">: {{ $dataAnestesi->cairan }} {{ $dataAnestesi->cairan_ket }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">Prosedur monitoring khusus saat tindakan anestesi :</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi->monitoring_khusus == 'Tidak' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Tidak
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi->monitoring_khusus == 'Ya' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Ya
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">Rencana perawatan setelah tindakan :</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi->rencana_perawatan_inap == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Rawat Inap
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi->rencana_hcu == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            HCU
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi->rencana_icu == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            ICU/PICU/NICU
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi->rencana_rajal == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Rawat Jalan
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi->rencana_igd == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            IGD
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-borderless table-sm mt-5">
+                        <tr>
+                            <td style="width: 50%"></td>
+                            <td style="width: 50%; text-align:center;">
+                                Surakarta,
+                                {{ \Carbon\Carbon::parse($dataAnestesi->tanggal)->locale('id')->isoFormat('D MMMM Y') }}<br>
+                                Dokter Anestesi
+                            </td>
+                        </tr>
+                        <tr>
+                            @php
+                                $qr_dokter =
+                                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                elektronik oleh' .
+                                    "\n" .
+                                    $dataAnestesi->nm_dokter .
+                                    "\n" .
+                                    'ID ' .
+                                    $dataAnestesi->kd_dokter .
+                                    "\n" .
+                                    \Carbon\Carbon::parse($dataAnestesi->tanggal)->format('d-m-Y');
+
+                            @endphp
+                            <td style="width: 50%"></td>
+                            <td class="text-center pt-0 pb-0"> {!! QrCode::size(100)->generate($qr_dokter) !!}
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td style="width: 50%"></td>
+                            <td class="text-center"> {{ $dataAnestesi->kd_dokter }}</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%"></td>
+                            <td class="text-center"> {{ $dataAnestesi->nm_dokter }} </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        @endif
+
         {{-- Data Resume Ranap --}}
         @if ($resumeRanap1)
             <style>
@@ -4662,6 +5325,9 @@
                                 <a href="/vedika/ranap/{{ !empty($dataSep->no_sep)? Crypt::encrypt($dataSep->no_sep):Crypt::encrypt($dataSep->noSep) }}/viewgabungpdf"
                                     class="btn btn-danger btn-sm btn-block" target="_blank">
                                     <i class="fas fa-file-download"></i> Buka PDF</a>
+                                <a href="/vedika/ranap/{{ !empty($dataSep->no_sep)? Crypt::encrypt($dataSep->no_sep):Crypt::encrypt($dataSep->noSep) }}/deletepdf"
+                                    class="btn btn-secondary btn-sm btn-block">
+                                    <i class="fas fa-trash"></i> Hapus File PDF</a>
                             @endif
                         </div>
                     </div>
@@ -4955,6 +5621,127 @@
         </div>
     @endif
 
+    {{-- Modal pengajuan pending --}}
+    <div class="modal fade" id="modal-pengajuan-pending">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="POST" action="/vedika/pengajuanpending">
+                    @csrf
+                    <div class="modal-header">
+                        <h4 class="modal-title">Pengajuan Klaim Pending</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>No Rawat pasien</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->no_rawat }}"
+                                        name="no_rawat" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>No SEP</label>
+                                    <input type="text" class="form-control"
+                                        value="{{ !empty($dataSep->no_sep) ? $dataSep->no_sep : '' }}"
+                                        name="no_sep" {{ !empty($dataSep->no_sep) ? 'readonly' : 'required' }} />
+                                </div>
+                                <div class="form-group">
+                                    <label>No Kartu</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->no_peserta }}"
+                                        name="no_bpjs" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Nama Pasien</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->nm_pasien }}"
+                                        name="nama_pasien" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Jenis Rawat</label>
+                                    <input type="text" class="form-control" value="Rawat Inap"
+                                        name="jenis_rawat" readonly />
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                    <label>Tgl Lahir</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->tgl_lahir }}"
+                                        name="tgl_lahir" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Jenis Kelamin</label>
+                                    <input type="text" class="form-control" value="{{ $pasien->jk }}"
+                                        name="jk" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Tgl Registrasi</label>
+                                    <input type="text" class="form-control"
+                                        value="{{ $pasien->tgl_registrasi }}" name="tgl_registrasi" readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Kamar</label>
+                                    <input type="text" class="form-control"
+                                        value="{{ $pasien->kd_kamar }} {{ $pasien->nm_bangsal }}" name="nm_poli"
+                                        readonly />
+                                </div>
+                                <div class="form-group">
+                                    <label>Periode</label>
+                                    <select name="periode" class="form-control" required>
+                                        <option value="">Pilih</option>
+                                        @foreach ($periodePending as $periodeUlang)
+                                            <option value="{{ $periodeUlang->id }}">{{ $periodeUlang->periode }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default float-left"
+                            data-dismiss="modal">Tutup</button>
+                        <button type="Submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-12">
+                                <table class="table table-bordered mb-0 table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center" style="width: 5%;">No</th>
+                                            <th class="text-center" >Periode</th>
+                                            <th class="text-center" style="width: 20%;">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse ($dataPengajuanPending as $indek=>$listPengajuan)
+                                            <tr>
+                                                <td class="text-center">{{ ++$indek }}</td>
+                                                <td>{{ \Carbon\Carbon::parse($listPengajuan->periodePengajuanUlang->periode)->format('F Y') }}</td>
+                                                <td class="text-center">
+                                                    <a href="/vedika/pengajuanpending/{{ Crypt::encrypt($listPengajuan->id) }}/delete"
+                                                        class="btn btn-danger btn-sm delete-confirm @cannot('vedika-delete') disabled @endcannot"
+                                                        data-toggle="tooltip" data-placement="bottom" title="Delete">
+                                                        <i class="fas fa-ban"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center">Data tidak ditemukan</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Tambahan data radiologi --}}
     <div class="modal fade" id="modal-history-radio">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">

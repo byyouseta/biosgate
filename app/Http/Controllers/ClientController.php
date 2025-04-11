@@ -258,7 +258,7 @@ class ClientController extends Controller
 
         $tanggal = Carbon::now()->yesterday()->format('Y-m-d');
 
-        // $tanggal = '2025-01-15';
+        // $tanggal = '2025-02-22';
 
         // $begin = new DateTime('2024-04-05');
         // $end = new DateTime('2024-04-15');
@@ -402,7 +402,7 @@ class ClientController extends Controller
         ClientController::token();
 
         $tanggal = Carbon::now()->subMonth()->format('Y-m-d');
-        // $tanggal = '2023-02-05';
+        // $tanggal = '2024-01-05';
         $pecahTanggal = explode('-', $tanggal);
         $tanggalCek = $pecahTanggal[2];
 
@@ -467,7 +467,7 @@ class ClientController extends Controller
         ClientController::token();
 
         $tanggal = Carbon::now()->format('Y-m-d');
-        // $tanggal = '2025-01-05';
+        // $tanggal = '2025-02-05';
         $pecahTanggal = explode('-', $tanggal);
         $tanggalCek = $pecahTanggal[2];
         $BulanCek = $pecahTanggal[1];

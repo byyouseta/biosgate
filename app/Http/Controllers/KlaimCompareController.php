@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Imports\KlaimCairImport;
+use App\Imports\TidakLayakImport;
 use App\KlaimCair;
 use App\KlaimPending;
 use App\sepManual;
@@ -127,6 +128,67 @@ class KlaimCompareController extends Controller
         return redirect('/vedika/klaimcompare');
     }
 
+    public function importTidakLayak(Request $request)
+    {
+        set_time_limit(0);
+        // validasi
+        $this->validate($request, [
+            'file' => 'required|mimes:csv,xls,xlsx'
+        ]);
+
+        // menangkap file excel
+        $file = $request->file('file');
+
+        // membuat nama file unik
+        $nama_file = rand() . $file->getClientOriginalName();
+
+        // upload ke folder file_siswa di dalam folder public
+        $file->move('tidak_layak', $nama_file);
+
+        // // import data
+        // Excel::import(new DataEklaimImport, public_path('/eklaim/' . $nama_file));
+
+        // // notifikasi dengan session
+        try {
+            $data = Excel::toArray(new TidakLayakImport(), public_path('/tidak_layak/' . $nama_file));
+
+            foreach ($data[0] as $dataEklaim) {
+                // dd($dataEklaim);
+                $cek = KlaimPending::where('no_sep', $dataEklaim['no_sep'])
+                    ->first();
+
+                if ($cek) {
+                    $cek->status = '4#Klaim Tidak Layak';
+                    $cek->save();
+
+                    $cekAlasan = DB::connection('mysqlpayroll')->table('alasan_pendings')
+                        ->where('no_sep', $dataEklaim['no_sep'])
+                        ->first();
+
+                    if ($cekAlasan) {
+                        //Buat update jika ada
+                        DB::connection('mysqlpayroll')->table('alasan_pendings')
+                            ->where('no_sep', $dataEklaim['no_sep'])
+                            ->update([
+                                'alasan' => $dataEklaim['alasan'], // Ganti dengan kolom yang ingin diperbarui
+                                'updated_at' => now()
+                            ]);
+                    }
+                }
+            }
+
+            // notifikasi dengan session
+            Session::flash('sukses', 'Data Berhasil Diimport!');
+        } catch (\Throwable $th) {
+            dd($th);
+            // notifikasi dengan session
+            Session::flash('error', 'Cek kembali data file Anda!');
+        }
+
+        // alihkan halaman kembali
+        return redirect()->back();
+    }
+
     public function template()
     {
         //PDF file is stored under project/public/download/info.pdf
@@ -137,6 +199,18 @@ class KlaimCompareController extends Controller
         ];
 
         return response()->download($file, 'template_klaim_cair.xlsx', $headers);
+    }
+
+    public function templateTidakLayak()
+    {
+        //PDF file is stored under project/public/download/info.pdf
+        $file = public_path() . "/tidak_layak/template_tidak_layak.xlsx";
+
+        $headers = [
+            'Content-Type' => 'application/xlsx',
+        ];
+
+        return response()->download($file, 'template_tidak_layak.xlsx', $headers);
     }
 
     public function ambilResponeVklaim(Request $request)
@@ -158,25 +232,31 @@ class KlaimCompareController extends Controller
                     foreach ($ambil as $responseAmbil) {
                         $cekKlaim = KlaimPending::where('no_sep', $responseAmbil->noSEP)->first();
                         if ($cekKlaim) {
-                            $cekKlaim->status = $responseAmbil->status;
-                            $cekKlaim->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
-                            $cekKlaim->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
-                            $cekKlaim->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
-                            $cekKlaim->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                            // exclude klaim tidak layak karena data tidak layak tidak sesuai dengan data excel dari bpjs
+                            if ($responseAmbil->status != '4#Klaim Tidak Layak') {
+                                $cekKlaim->status = $responseAmbil->status;
+                                $cekKlaim->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
+                                $cekKlaim->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
+                                $cekKlaim->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
+                                $cekKlaim->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                                $cekKlaim->save();
+                            }
                         } else {
-                            $new = new KlaimPending;
-                            $new->no_sep = $responseAmbil->noSEP;
-                            $new->tgl_sep = $responseAmbil->tglSep;
-                            $new->tgl_pulang = $responseAmbil->tglPulang;
-                            $new->kelas_rawat = $responseAmbil->kelasRawat;
-                            $new->poli = $responseAmbil->poli;
-                            $new->status = $responseAmbil->status;
-                            $new->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
-                            $new->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
-                            $new->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
-                            $new->biaya_disetujui = $responseAmbil->biaya->bySetujui;
-                            $new->jenis_rawat = 'RI';
-                            $new->save();
+                            if ($responseAmbil->status != '4#Klaim Tidak Layak') {
+                                $new = new KlaimPending;
+                                $new->no_sep = $responseAmbil->noSEP;
+                                $new->tgl_sep = $responseAmbil->tglSep;
+                                $new->tgl_pulang = $responseAmbil->tglPulang;
+                                $new->kelas_rawat = $responseAmbil->kelasRawat;
+                                $new->poli = $responseAmbil->poli;
+                                $new->status = $responseAmbil->status;
+                                $new->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
+                                $new->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
+                                $new->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
+                                $new->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                                $new->jenis_rawat = 'RI';
+                                $new->save();
+                            }
                         }
                     }
                 }
@@ -187,25 +267,31 @@ class KlaimCompareController extends Controller
                     foreach ($ambil as $responseAmbil) {
                         $cekKlaim = KlaimPending::where('no_sep', $responseAmbil->noSEP)->first();
                         if ($cekKlaim) {
-                            $cekKlaim->status = $responseAmbil->status;
-                            $cekKlaim->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
-                            $cekKlaim->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
-                            $cekKlaim->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
-                            $cekKlaim->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                            // exclude klaim tidak layak karena data tidak layak tidak sesuai dengan data excel dari bpjs
+                            if ($responseAmbil->status != '4#Klaim Tidak Layak') {
+                                $cekKlaim->status = $responseAmbil->status;
+                                $cekKlaim->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
+                                $cekKlaim->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
+                                $cekKlaim->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
+                                $cekKlaim->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                                $cekKlaim->save();
+                            }
                         } else {
-                            $new = new KlaimPending;
-                            $new->no_sep = $responseAmbil->noSEP;
-                            $new->tgl_sep = $responseAmbil->tglSep;
-                            $new->tgl_pulang = $responseAmbil->tglPulang;
-                            $new->kelas_rawat = $responseAmbil->kelasRawat;
-                            $new->poli = $responseAmbil->poli;
-                            $new->status = $responseAmbil->status;
-                            $new->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
-                            $new->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
-                            $new->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
-                            $new->biaya_disetujui = $responseAmbil->biaya->bySetujui;
-                            $new->jenis_rawat = 'RJ';
-                            $new->save();
+                            if ($responseAmbil->status != '4#Klaim Tidak Layak') {
+                                $new = new KlaimPending;
+                                $new->no_sep = $responseAmbil->noSEP;
+                                $new->tgl_sep = $responseAmbil->tglSep;
+                                $new->tgl_pulang = $responseAmbil->tglPulang;
+                                $new->kelas_rawat = $responseAmbil->kelasRawat;
+                                $new->poli = $responseAmbil->poli;
+                                $new->status = $responseAmbil->status;
+                                $new->biaya_pengajuan = $responseAmbil->biaya->byPengajuan;
+                                $new->biaya_tarif_grouper = $responseAmbil->biaya->byTarifGruper;
+                                $new->biaya_tarif_rs = $responseAmbil->biaya->byTarifRS;
+                                $new->biaya_disetujui = $responseAmbil->biaya->bySetujui;
+                                $new->jenis_rawat = 'RJ';
+                                $new->save();
+                            }
                         }
                     }
                 }
@@ -221,9 +307,11 @@ class KlaimCompareController extends Controller
                         // dd($responseAmbil, 'Rajal');
                         $cekKlaim = KlaimCair::where('no_sep', $responseAmbil->noSEP)->first();
                         if ($cekKlaim) {
+                            // dd($responseAmbil, $cekKlaim);
                             $cekKlaim->riil = $responseAmbil->biaya->byTarifRS;
                             $cekKlaim->diajukan = $responseAmbil->biaya->byPengajuan;
                             $cekKlaim->disetujui = $responseAmbil->biaya->bySetujui;
+                            $cekKlaim->save();
                         } else {
                             $new = new KlaimCair();
                             $new->no_sep = $responseAmbil->noSEP;
@@ -241,11 +329,12 @@ class KlaimCompareController extends Controller
                 if ($ambil) {
                     foreach ($ambil as $responseAmbil) {
                         // dd($responseAmbil, 'Rajal');
-                        $cekKlaim = KlaimPending::where('no_sep', $responseAmbil->noSEP)->first();
+                        $cekKlaim = KlaimCair::where('no_sep', $responseAmbil->noSEP)->first();
                         if ($cekKlaim) {
                             $cekKlaim->riil = $responseAmbil->biaya->byTarifRS;
                             $cekKlaim->diajukan = $responseAmbil->biaya->byPengajuan;
                             $cekKlaim->disetujui = $responseAmbil->biaya->bySetujui;
+                            $cekKlaim->save();
                         } else {
                             $new = new KlaimCair();
                             $new->no_sep = $responseAmbil->noSEP;
@@ -313,6 +402,54 @@ class KlaimCompareController extends Controller
         // dd($data);
 
         return view('vedika.pending_dpjp', compact('data'));
+    }
+
+    public function lihatDpjpGagal(Request $request)
+    {
+        session()->put('ibu', 'Vedika');
+        session()->put('anak', 'DPJP Tidak Layak');
+        session()->forget('cucu');
+        set_time_limit(0);
+
+        if (isset($request->tanggal)) {
+            $tanggal = $request->tanggal;
+        } else {
+            $tanggal = Carbon::now()->format('Y-m-15');
+        }
+
+        // $request->validate([
+        //     'tanggal' => 'required|date' // Validasi tanggal (wajib diisi dan harus berupa tanggal yang valid)
+        // ]);
+        $data = KlaimPending::whereYear('tgl_pulang', Carbon::parse($tanggal)->format('Y'))
+            ->whereMonth('tgl_pulang', Carbon::parse($tanggal)->format('m'))
+            ->where('status', '4#Klaim Tidak Layak')
+            // ->limit(10)
+            ->get();
+
+
+        foreach ($data as $listData) {
+            $alasan = KlaimCompareController::getAlasan($listData->no_sep);
+            if ($alasan) {
+                $listData->alasan = $alasan;
+            } else {
+                $listData->alasan = null;
+            }
+
+            $dpjp = KlaimCompareController::getDpjp($listData->no_sep);
+            if ($dpjp) {
+                $listData->dpjp = $dpjp->nmdpdjp ?? $dpjp['nmdpdjp'];
+                $listData->no_rawat = $dpjp->no_rawat ?? $dpjp['no_rawat'];
+                $listData->nama_pasien = $dpjp->nama_pasien ?? $dpjp['nama_pasien'];
+            } else {
+                $listData->dpjp = null;
+                $listData->no_rawat = null;
+                $listData->nama_pasien = null;
+            }
+        }
+
+        // dd($data);
+
+        return view('vedika.tidak_layak', compact('data'));
     }
 
     public function getAlasan($nosep)

@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\DataPengajuanKlaim;
 use App\DataPengajuanKronis;
+use App\DataPengajuanUlang;
 use App\PeriodeKlaim;
+use App\PeriodePengajuanUlang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
@@ -26,6 +28,18 @@ class KlaimController extends Controller
             ->get();
 
         return view('masters.periode', compact('data'));
+    }
+
+    public function periodePending()
+    {
+        session()->put('ibu', 'Master Data');
+        session()->put('anak', 'Periode Klaim Pending');
+        session()->forget('cucu');
+
+        $data = PeriodePengajuanUlang::orderBy('periode', 'DESC')
+            ->get();
+
+        return view('masters.periode_pending', compact('data'));
     }
 
     public function daftarRajal(Request $request)
@@ -74,6 +88,29 @@ class KlaimController extends Controller
         return view('vedika.pengajuan_ranap', compact('dataPengajuan', 'dataPeriode'));
     }
 
+    public function daftarUlang(Request $request)
+    {
+        session()->put('ibu', 'Vedika');
+        session()->put('anak', 'Pengajuan Ulang');
+        session()->forget('cucu');
+        set_time_limit(0);
+
+        if (empty($request->periode)) {
+            $dataPengajuan = null;
+        } else {
+            $dataPengajuan = DataPengajuanUlang::where('periode_pengajuan_ulang_id', $request->periode)
+                ->where('jenis_rawat', $request->jenis)
+                ->get();
+        }
+
+        // dd($dataPengajuan);
+
+        $dataPeriode = PeriodePengajuanUlang::orderBy('periode', 'DESC')
+            ->get();
+
+        return view('vedika.pengajuan_ulang', compact('dataPengajuan', 'dataPeriode'));
+    }
+
     public function daftarRajalKronis(Request $request)
     {
         session()->put('ibu', 'Vedika');
@@ -113,6 +150,29 @@ class KlaimController extends Controller
         $data->nama_poli = $request->nm_poli;
         $data->jenis_rawat = $request->jenis_rawat;
         $data->periode_klaim_id = $request->periode;
+        $data->save();
+
+        Session::flash('sukses', 'Data Berhasil ditambahkan!');
+
+        return redirect()->back();
+    }
+
+    public function pengajuanUlang(Request $request)
+    {
+
+        // dd($request);
+
+        $data = new DataPengajuanUlang();
+        $data->no_rawat = $request->no_rawat;
+        $data->no_sep = $request->no_sep;
+        $data->no_kartu = $request->no_bpjs;
+        $data->nama_pasien = $request->nama_pasien;
+        $data->jk = $request->jk;
+        $data->tgl_registrasi = $request->tgl_registrasi;
+        $data->tgl_lahir = $request->tgl_lahir;
+        $data->nama_poli = $request->nm_poli;
+        $data->jenis_rawat = $request->jenis_rawat;
+        $data->periode_pengajuan_ulang_id = $request->periode;
         $data->save();
 
         Session::flash('sukses', 'Data Berhasil ditambahkan!');
@@ -184,6 +244,18 @@ class KlaimController extends Controller
         return redirect()->back();
     }
 
+    public function deletePengajuanUlang($id)
+    {
+        $id = Crypt::decrypt($id);
+
+        $delete = DataPengajuanUlang::find($id);
+        $delete->delete();
+
+        Session::flash('sukses', 'Data Berhasil dihapus!');
+
+        return redirect()->back();
+    }
+
     public function deletePengajuanKronis($id)
     {
         $id = Crypt::decrypt($id);
@@ -218,6 +290,28 @@ class KlaimController extends Controller
         return redirect('/master/vedika/klaim');
     }
 
+    public function storePending(Request $request)
+    {
+        $this->validate($request, [
+            'periode' => 'required|unique:periode_pengajuan_ulangs,periode',
+        ], [
+            'periode.required' => 'Periode hasus diisi!',
+            'periode.unique' => 'Periode sudah pernah diinput!',
+        ]);
+
+        $periode = $request->periode . '-01';
+
+        $data = new PeriodePengajuanUlang();
+        $data->periode = $periode;
+        $data->keterangan = $request->keterangan;
+        $data->status = $request->status;
+        $data->save();
+
+        Session::flash('sukses', 'Data Berhasil ditambahkan!');
+
+        return redirect('/master/vedika/klaimpending');
+    }
+
     public function edit($id)
     {
         $id = Crypt::decrypt($id);
@@ -225,6 +319,15 @@ class KlaimController extends Controller
         $data = PeriodeKlaim::find($id);
 
         return view('masters.periode_edit', compact('data'));
+    }
+
+    public function editPending($id)
+    {
+        $id = Crypt::decrypt($id);
+
+        $data = PeriodePengajuanUlang::find($id);
+
+        return view('masters.periode_edit_pending', compact('data'));
     }
 
     public function update($id, Request $request)
@@ -247,10 +350,48 @@ class KlaimController extends Controller
         return redirect('/master/vedika/klaim');
     }
 
+    public function updatePending($id, Request $request)
+    {
+        $this->validate($request, [
+            'periode' => 'required|unique:periode_pengajuan_ulangs,periode,' . $id,
+        ], [
+            'periode.required' => 'Periode hasus diisi!',
+            'periode.unique' => 'Periode sudah pernah diinput!',
+        ]);
+
+        $data = PeriodePengajuanUlang::find($id);
+        if ($data) {
+            $data->periode = $request->periode;
+            $data->keterangan = $request->keterangan;
+            $data->status = $request->status;
+            $data->save();
+
+            Session::flash('sukses', 'Data Berhasil diupdate!');
+        } else {
+            Session::flash('sukses', 'Data tidak ditemukan!');
+
+            return redirect()->back();
+        }
+
+
+        return redirect('/master/vedika/klaimpending');
+    }
+
     public function delete($id)
     {
         $id = Crypt::decrypt($id);
         $delete = PeriodeKlaim::find($id);
+        $delete->delete();
+
+        Session::flash('sukses', 'Data Berhasil dihapus!');
+
+        return redirect()->back();
+    }
+
+    public function deletePending($id)
+    {
+        $id = Crypt::decrypt($id);
+        $delete = PeriodePengajuanUlang::find($id);
         $delete->delete();
 
         Session::flash('sukses', 'Data Berhasil dihapus!');

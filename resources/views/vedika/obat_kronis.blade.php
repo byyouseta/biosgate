@@ -28,8 +28,18 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="form-group row">
-                                <div class="col-sm-9 mt-2">
+                                <div class="col-sm-6 mt-2">
                                     <label>Pengajuan Pasien Obat Kronis</label>
+                                </div>
+                                <div class="col-sm-3">
+                                    <div class="float-right">
+                                        @if(!empty($dataPengajuan))
+                                            <button class="btn btn-primary btn-sm" data-toggle="modal"
+                                                data-target="#modal-berkas-klaim">
+                                                <i class="fas fa-file-download"></i> Download
+                                            </button>
+                                        @endif
+                                    </div>
                                 </div>
                                 <div class="col-sm-3">
                                     <form action="/vedika/pengajuan/kronis" method="GET">
@@ -76,7 +86,7 @@
                                                 <tr>
                                                     <td class="align-middle">
                                                         @php
-                                                            $dataSep = App\Vedika::getSep($data->no_rawat);
+                                                            $dataSep = App\Vedika::getSep($data->no_rawat,2);
                                                         @endphp
                                                         {{-- <td>{{ $data->no_rkm_medis }}</td> --}}
                                                         {{ $dataSep != null ? $dataSep->no_sep : '' }}
@@ -111,6 +121,41 @@
         </div>
         <!-- /.container-fluid -->
     </section>
+
+    @if(!empty($dataPengajuan))
+    <div class="modal fade" id="modal-berkas-klaim">
+        <div class="modal-dialog modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Berkas Klaim</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <!-- text input -->
+                        <div class="col-12">
+                            @can('vedika-upload')
+                                {{-- <a href="/vedika/pengajuan/{{ Crypt::encrypt(Request::get('periode')) }}/gabungberkasall"
+                                    class="btn btn-success btn-sm btn-block">
+                                    <i class="fas fa-sync-alt"></i> Kumpulkan & Gabung Berkas</a> --}}
+                                <a href="/vedika/pengajuankronis/{{ Crypt::encrypt(Request::get('periode')) }}/makezip"
+                                    class="btn btn-warning btn-sm btn-block">
+                                    <i class="far fa-file-archive"></i> Arsipkan Berkas Kronis</a>
+                            @endcan
+                            <a href="/vedika/pengajuankronis/{{ Crypt::encrypt(Request::get('periode')) }}/downloadzip"
+                                class="btn btn-primary btn-sm btn-block">
+                                <i class="fas fa-file-download"></i> Bulk Download</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+    </div>
+    @endif
 @endsection
 @section('plugin')
     <script src="{{ asset('template/plugins/datatables/jquery.dataTables.min.js') }}"></script>

@@ -2063,7 +2063,255 @@
             </table>
         </div>
     @endif
-     {{-- Data Operasi --}}
+
+    {{-- Lembar penilaian IGD --}}
+    @if(!empty($dataRingkasan))
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
+        <div class="watermark">
+            {{ $watermark }}
+        </div>
+        <div>
+            <table style="width: 100%; padding-bottom:5px;">
+                <thead>
+                    <tr>
+                        <td style="width: 3%; padding-right: 0; vertical-align: middle;">
+                            <img src="image/logorsup.jpg" alt="Logo RSUP" width="70" style="padding: 0;">
+                        </td>
+                        <td style="padding-top: 0; padding-bottom: 0; text-align: center; vertical-align: middle;" colspan="6">
+                            <div style="font-size: 14pt; font-weight: bold;">RSUP SURAKARTA</div>
+                            Jl.Prof.Dr.R.Soeharso No.28 , Surakarta, Jawa Tengah <br>
+                            Telp.0271-713055 / 720002 <br>
+                            E-mail : rsupsurakarta@kemkes.go.id
+                        </td>
+                        <td style="width: 3%; padding-right: 0; vertical-align: middle;">&nbsp;</td>
+                    </tr>
+                </thead>
+            </table>
+            <table style="width: 100%; table-layout: fixed; border-collapse: collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; border: 1px solid black;" colspan="6">
+                            <div style="font-size:12pt;">PENILAIAN AWAL MEDIS GAWAT DARURAT</div>
+                        </th>
+                    </tr>
+                    <tr>
+                        <th style="border-left:1px solid black; border-right:0px solid black; width: 15%; text-align:left;">No. RM
+                        </th>
+                        <th style="border-left:0px solid black; border-right:0px solid black; text-align:left;">:
+                            {{ $dataRingkasan->no_rkm_medis }}</th>
+                        <th style="text-align:left;">Jenis Kelamin
+                        </th>
+                        <th style="text-align:left;">:
+                            {{ $dataRingkasan->jk == 'L' ? 'Laki-laki':'Perempuan' }}</th>
+                        <th style="width: 10%; text-align:left; border-left: 1px solid black">Tanggal
+                        </th>
+                        <th style="border-right: 1px solid black; text-align:left;">:
+                            {{ $dataRingkasan->tanggal }}</th>
+                    </tr>
+                    <tr style="vertical-align: top;">
+                        <th style="border-left:1px solid black; border-bottom:1px solid black; text-align:left;">Nama Pasien</th>
+                        <th style="border-bottom: 1px solid black; text-align:left;">
+                            : {{ $dataRingkasan->nm_pasien }}</th>
+                        <th style="border-bottom: 1px solid black; text-align:left;">Tanggal Lahir</th>
+                        <th style="border-bottom: 1px solid black; text-align:left;">
+                            : {{ $dataRingkasan->tgl_lahir }}</th>
+                        <th style="border-bottom: 1px solid black; border-left: 1px solid black; text-align:left;">Anamnesis</th>
+                        <th style="border-bottom: 1px solid black; border-right: 1px solid black; text-align:left;">:
+                            {{ $dataRingkasan->anamnesis }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="6">
+                            <b>I. RIWAYAT KESEHATAN</b><br>
+                            <p>Keluhan Utama :  {{ $dataRingkasan->keluhan_utama }} </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="6">
+                            <p>Riwayat Penyakit Sekarang :  {{ $dataRingkasan->rps }} </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="3">
+                            <p>Riwayat Penyakit Dahulu :  {{ $dataRingkasan->rpd }} </p>
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; vertical-align:top;" colspan="3">
+                            <p>Riwayat Penyakit dalam Keluarga :  {{ $dataRingkasan->rpk }} </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;width: 50%;" colspan="3" >
+                            <p>Riwayat Pengobatan :  {{ $dataRingkasan->rpo }} </p>
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black;width: 50%;" colspan="3">
+                            <p>Riwayat Alergi :  {{ $dataRingkasan->alergi }} </p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="6">
+                            <b>II. PEMERIKSAAN FISIK </b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-right: 0px solid black;" colspan="2">
+                            Keadaan Umum : {{ $dataRingkasan->keadaan }}
+                        </td>
+                        <td style="border-bottom: 1px solid black;" colspan="2">
+                            Kesadaran : {{ $dataRingkasan->kesadaran }}
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-left: 0px solid black;" colspan="2">
+                            GCS(E,V,M) : {{ $dataRingkasan->gcs }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black; text-align:center;" colspan="6">
+                            Tanda Vital :&emsp;  TD: {{ $dataRingkasan->td }}&ensp;  N: {{ $dataRingkasan->nadi }}&ensp;  R: {{ $dataRingkasan->rr }}&ensp; S: {{ $dataRingkasan->suhu }}&ensp;  SPO2: {{ $dataRingkasan->spo }}&ensp;  BB: {{ $dataRingkasan->bb }}&ensp;  TB: {{ $dataRingkasan->tb }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;  border-bottom: 0px solid black;" >
+                            Kepala
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            {{ $dataRingkasan->kepala }}
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            Thoraks
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            {{ $dataRingkasan->thoraks }}
+                        </td>
+                        <td style="border : 1px solid black; border-top: 0px solid black;" colspan="2" rowspan="4">
+                            <pre style="white-space: pre-wrap; word-wrap: break-word; overflow: hidden; padding-left: 10pt;">{{ $dataRingkasan->ket_fisik }}</pre>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            Mata
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            {{ $dataRingkasan->mata }}
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            Abdomen
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            {{ $dataRingkasan->abdomen }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            Gigi dan Mulut
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            {{ $dataRingkasan->gigi }}
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            Genital & Anus
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 0px solid black;" >
+                            {{ $dataRingkasan->genital }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 1px solid black;" >
+                            Leher
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 1px solid black;" >
+                            {{ $dataRingkasan->leher }}
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 1px solid black;" >
+                            Ekstremitas
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; border-bottom: 1px solid black;" >
+                            {{ $dataRingkasan->ekstremitas }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="6">
+                            <b>III. STATUS LOKALIS</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="6">
+                            <p>Keterangan : {{ $dataRingkasan->ket_lokalis }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="6">
+                            <b>IV. PEMERIKSAAN PENUNJANG</b>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="2">
+                            <p>EKG : {{ $dataRingkasan->ekg }}</p>
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="2">
+                            <p>Radiologi : {{ $dataRingkasan->rad }}</p>
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="2">
+                            <p>Laboratorium : {{ $dataRingkasan->lab }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black;" colspan="6">
+                            <b>V. DIAGNOSIS</b><br>
+                            <p>{{ $dataRingkasan->diagnosis }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black; vertical-align: top;" colspan="3">
+                            <b>VI. TATA LAKSANA</b><br>
+                            <pre style="white-space: pre-wrap; word-wrap: break-word; overflow: hidden; padding-left: 10pt;">{{ $dataRingkasan->tata }}</pre>
+                        </td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; vertical-align:top;" colspan="3">
+                            <b>VII. RINGKASAN PASIEN GAWAT DARURAT</b><br>
+                            <p>Kondisi Pada Saat Keluar : {{ $resumeIgd && $resumeIgd->kondisi_pulang? $resumeIgd->kondisi_pulang:'-' }}</p>
+                            <p>Tindak Lanjut : {{ $resumeIgd && $resumeIgd->tindak_lanjut? $resumeIgd->tindak_lanjut:'-' }}</p>
+                            <p>Kebutuhan : {{ $resumeIgd && $resumeIgd->kebutuhan? $resumeIgd->kebutuhan:'-' }}</p>
+                            <p>Edukasi : {{ $resumeIgd && $resumeIgd->edukasi ? $resumeIgd->edukasi:'-' }}</p>
+                            <p>Obat Yang Dibawa Pulang : {{ $resumeIgd && $resumeIgd->obat_pulang ? $resumeIgd->obat_pulang:'-' }}</p>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="border: 1px solid black; border-top: 0px solid black; text-align: center;" colspan="3">Tanggal dan Jam</td>
+                        <td style="border: 1px solid black; border-top: 0px solid black; text-align: center;" colspan="3">Nama Dokter dan Tanda
+                            Tangan</td>
+                    </tr>
+                    <tr>
+                        @php
+                            $qr_dokter =
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                            elektronik oleh' .
+                                "\n" .
+                                $dataRingkasan->nm_dokter .
+                                "\n" .
+                                'ID ' .
+                                $dataRingkasan->kd_dokter .
+                                "\n" .
+                                \Carbon\Carbon::parse($dataRingkasan->tanggal)->format('d-m-Y');
+
+                                $qrcode_dokter = base64_encode(
+                                QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter)
+                                );
+
+
+                        @endphp
+                        <td style="border: 1px solid black; border-top: 0px solid black; text-align:center; vertical-align:middle;" colspan="3">{{ \Carbon\Carbon::parse($dataRingkasan->tanggal)->format('d-m-Y H:i:s') }} WIB</td>
+                        <td style="padding: 5pt; border: 1px solid black; border-right: 0px solid black">
+                            <img src="data:image/png;base64, {!! $qrcode_dokter !!}"> </td>
+                        <td style="border: 1px solid black; border-left: 0px solid black; vertical-align:bottom;" colspan="2">
+                            {{ $dataRingkasan->nm_dokter }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    @endif
+
+    {{-- Data Operasi --}}
     @if($dataOperasi)
      {{-- @foreach ($dataOperasi as $index => $listOperasi) --}}
          <div style="float: none;">

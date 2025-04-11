@@ -26,7 +26,7 @@
                             @endphp
                         @endif
                         <div class="card-header">
-                            <form action="/vedika/pendingdpjp" method="GET">
+                            {{-- <form action="/vedika/pendingdpjp" method="GET">
                                 <div class="form-group row">
                                     <div class="col-sm-1 col-form-label">
                                         <label>Tanggal</label>
@@ -45,12 +45,24 @@
                                     <div class="col-sm-2 col-form-label">
                                         <button type="submit" class="btn btn-primary">Cari</button>
                                     </div>
-                            </form>
+                            </form> --}}
+                            <div class="col-sm-12">
+                                <form action="/vedika/pendingdpjp" method="GET" class="form-inline d-flex align-items-center">
+                                    <label class="mr-2">Tanggal</label>
+                                    <div class="input-group date mr-2" id="tanggal" data-target-input="nearest">
+                                        <input type="text" class="form-control datetimepicker-input" data-target="#tanggal"
+                                            data-toggle="datetimepicker" name="tanggal" value="{{ $tanggal }}" autocomplete="off" />
+                                        <div class="input-group-append" data-target="#tanggal" data-toggle="datetimepicker">
+                                            <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Cari</button>
+                                </form>
+                            </div>
                         </div>
-
                     </div>
                 </div>
-            </div>
+            {{-- </div> --}}
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
