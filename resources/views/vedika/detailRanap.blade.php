@@ -4334,60 +4334,60 @@
                             aria-valuemin="0" aria-valuemax="100" style="width: 100%">
                         </div>
                     </div>
-                    <table class="table table-borderless table-sm">
+                    <table class="table table-borderless table-sm mb-2">
                         <thead>
                             <tr>
-                                <th class="align-middle text-center pb-1" colspan="2" rowspan="6" style="width: 40%;">
+                                <th class="align-middle text-center pb-1" colspan="2" rowspan="6" style="width: 40%; border: 1px solid black;">
                                     <h5><b>ASESMEN PRASEDASI DAN ANESTESI</b></h5>
                                 </th>
-                                <td style="width: 20%;">
+                                <td style="width: 20%; border-top: 1px solid black;">
                                     No. Rawat
-                                </td style="width: 40%;">
-                                <td>: {{ $dataAnestesi->no_rawat }}</td>
+                                </td>
+                                <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->no_rawat }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     No. Rekam Medis
                                 </td>
-                                <td>: {{ $dataAnestesi->no_rkm_medis }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->no_rkm_medis }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Nama Pasien
                                 </td>
-                                <td>: {{ $dataAnestesi->nm_pasien }}/ Th/ {{ $dataAnestesi->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->nm_pasien }}/ Th/ {{ $dataAnestesi->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Tanggal Lahir
                                 </td>
-                                <td>: {{ \Carbon\Carbon::parse($dataAnestesi->tgl_lahir)->format('d-m-Y') }}</td>
+                                <td style="border-right: 1px solid black;">: {{ \Carbon\Carbon::parse($dataAnestesi->tgl_lahir)->format('d-m-Y') }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Alamat
                                 </td>
-                                <td>: {{ $dataAnestesi->alamat }}, {{ $dataAnestesi->kelurahan }}, {{ $dataAnestesi->kecamatan }}, {{ $dataAnestesi->kabupaten }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->alamat }}, {{ $dataAnestesi->kelurahan }}, {{ $dataAnestesi->kecamatan }}, {{ $dataAnestesi->kabupaten }}</td>
                             </tr>
                             <tr>
-                                <td>
+                                <td style="border-bottom: 1px solid black; ">
                                     Ruang Rawat
                                 </td>
-                                <td>: {{ $dataAnestesi->nm_bangsal }}</td>
+                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->nm_bangsal }}</td>
                             </tr>
                         </thead>
                     </table>
-                    <table class="table table-bordered table-sm" style="width: 100%;">
+                    <table class="table table-borderless table-sm" style="width: 100%;">
                         <tbody>
                             <tr>
-                                <td colspan="2" rowspan="6" style="width:40%;">
+                                <td colspan="2" rowspan="6" style="width:40%; border: 1px solid black;">
                                     Anamnesis: <br>
                                     {{ $dataAnestesi->anamnesis }}
                                 </td>
-                                <td style="width:20%;">
+                                <td style="width:20%; border-top: 1px solid black;">
                                     Diagnosa Pre Operasi
                                 </td>
-                                <td style="width:40%;">
+                                <td style="width:40%; border-top: 1px solid black; border-right: 1px solid black;">
                                     : {{ $dataAnestesi->diagnosa_preop }}
                                 </td>
                             </tr>
@@ -4395,25 +4395,25 @@
                                 <td>
                                     Rencana Operasi
                                 </td>
-                                <td>
+                                <td style="border-right: 1px solid black;">
                                     : {{ $dataAnestesi->rencana_operasi }}
                                 </td>
                             </tr>
                             <tr>
-                                <td>
+                                <td style="border-top: 1px solid black;">
                                     TB : {{ $dataAnestesi->tb }}
                                 </td>
-                                <td>
+                                <td style="border-top: 1px solid black; border-right: 1px solid black;">
                                     BB : {{ $dataAnestesi->bb }}
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
+                                <td colspan="2" style="border-right: 1px solid black;">
                                     Obat yang dikonsumsi saat ini :
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
+                                <td colspan="2" style="border-right: 1px solid black;">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" onclick="return false;"
                                             {{ $dataAnestesi->obat_dikonsumsi == 'Tidak Ada' ? 'checked' : '' }}>
@@ -4424,7 +4424,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2">
+                                <td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" onclick="return false;"
                                             {{ $dataAnestesi->obat_dikonsumsi == 'Ada' ? 'checked' : '' }}>
@@ -4435,81 +4435,81 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>Riwayat Alergi</td>
-                                <td>: {{ $dataAnestesi->riwayat_alergi }} {{ $dataAnestesi->riwayat_alergi_ket }}</td>
+                                <td style="border-left: 1px solid black;">Riwayat Alergi</td>
+                                <td >: {{ $dataAnestesi->riwayat_alergi }} {{ $dataAnestesi->riwayat_alergi_ket }}</td>
                                 <td>Riwayat Merokok</td>
-                                <td>: {{ $dataAnestesi->riwayat_merokok }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->riwayat_merokok }}</td>
                             </tr>
                             <tr>
-                                <td>Riwayat Penyakit</td>
-                                <td>: {{ $dataAnestesi->riwayat_penyakit }} {{ $dataAnestesi->riwayat_penyakit_ket }}</td>
+                                <td style="border-left: 1px solid black;">Riwayat Penyakit</td>
+                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->riwayat_penyakit }} {{ $dataAnestesi->riwayat_penyakit_ket }}</td>
                             </tr>
                             <tr>
-                                <td>Riwayat Anestesi</td>
-                                <td>: {{ $dataAnestesi->riwayat_anestesi }} {{ $dataAnestesi->jenis_anestesi }}</td>
-                                <td>Komplikasi Anestesi</td>
-                                <td>: {{ $dataAnestesi->komplikasi_anestesi }}</td>
+                                <td style="border-left: 1px solid black; border-bottom: 1px solid black">Riwayat Anestesi</td>
+                                <td style="border-bottom: 1px solid black">: {{ $dataAnestesi->riwayat_anestesi }} {{ $dataAnestesi->jenis_anestesi }}</td>
+                                <td style="border-bottom: 1px solid black">Komplikasi Anestesi</td>
+                                <td style="border-right: 1px solid black; border-bottom: 1px solid black">: {{ $dataAnestesi->komplikasi_anestesi }}</td>
                             </tr>
                             <tr>
-                                <td>
+                                <td style="border-left:1px solid black;border-right: 1px solid black;" colspan="4">
                                     Pemeriksaan Fisik :
                                 </td>
                             </tr>
                             <tr>
-                                <td>B1/Breathing : {{ $dataAnestesi->fisik_b1 }}</td>
+                                <td style="border-left:1px solid black;">B1/Breathing : {{ $dataAnestesi->fisik_b1 }}</td>
                                 <td>alat pembebas jalan napas</td>
                                 <td>: {{ $dataAnestesi->fisik_alat }}</td>
-                                <td>RR : {{ $dataAnestesi->fisik_rr }} X/menit </td>
+                                <td style="border-right: 1px solid black;">RR : {{ $dataAnestesi->fisik_rr }} X/menit </td>
                             </tr>
                             <tr>
-                                <td>Vesikuler : {{ $dataAnestesi->fisik_vesikuler }}</td>
+                                <td style="border-left:1px solid black;">Vesikuler : {{ $dataAnestesi->fisik_vesikuler }}</td>
                                 <td>Rhonki : {{ $dataAnestesi->fisik_rhonki }}</td>
                                 <td>Wheezing</td>
-                                <td>: (+){{ $dataAnestesi->fisik_wheezing_plus }} (-){{ $dataAnestesi->fisik_wheezing_min }}</td>
+                                <td style="border-right: 1px solid black;">: (+){{ $dataAnestesi->fisik_wheezing_plus }} (-){{ $dataAnestesi->fisik_wheezing_min }}</td>
                             </tr>
                             <tr>
-                                <td>B2/Blood : TD : {{ $dataAnestesi->fisik_td }}</td>
+                                <td style="border-left:1px solid black;">B2/Blood : TD : {{ $dataAnestesi->fisik_td }}</td>
                                 <td>, HR : {{ $dataAnestesi->fisik_hr }} {{ $dataAnestesi->fisik_hr_ket }}</td>
                                 <td>, {{ $dataAnestesi->fisik_hr_ket }}</td>
-                                <td>Konjingtiva: {{ $dataAnestesi->fisik_konjungtiva }}</td>
+                                <td style="border-right: 1px solid black;">Konjingtiva: {{ $dataAnestesi->fisik_konjungtiva }}</td>
                             </tr>
                             <tr>
-                                <td>B3/Brain : GCS E:{{ $dataAnestesi->fisik_gcse }}</td>
+                                <td style="border-left:1px solid black;">B3/Brain : GCS E:{{ $dataAnestesi->fisik_gcse }}</td>
                                 <td>M: {{ $dataAnestesi->fisik_gcsm }}   V: {{ $dataAnestesi->fisik_gcsv }}</td>
                                 <td>Pupil: {{ $dataAnestesi->fisik_pupil }}</td>
-                                <td>Hemiparese : {{ $dataAnestesi->fisik_hemiparese }} X/menit </td>
+                                <td style="border-right: 1px solid black;">Hemiparese : {{ $dataAnestesi->fisik_hemiparese }} X/menit </td>
                             </tr>
                             <tr>
-                                <td>B4/Badder : Produksi Urin:{{ $dataAnestesi->fisik_urin }} cc/jam</td>
-                                <td>, Warna Urine : {{ $dataAnestesi->fisik_warnaurin }}</td>
+                                <td style="border-left:1px solid black;">B4/Badder : Produksi Urin:{{ $dataAnestesi->fisik_urin }} cc/jam</td>
+                                <td style="border-right: 1px solid black;" colspan="3">, Warna Urine : {{ $dataAnestesi->fisik_warnaurin }}</td>
                             </tr>
                             <tr>
-                                <td>B5/Bowel : Perut Distensi/kembung:{{ $dataAnestesi->fisik_perut }}</td>
+                                <td style="border-left:1px solid black;">B5/Bowel : Perut Distensi/kembung:{{ $dataAnestesi->fisik_perut }}</td>
                                 <td>Diare : {{ $dataAnestesi->fisik_diare }}</td>
-                                <td>Muntah : {{ $dataAnestesi->fisik_muntah }}</td>
+                                <td style="border-right: 1px solid black;" colspan="2">Muntah : {{ $dataAnestesi->fisik_muntah }}</td>
                             </tr>
                             <tr>
-                                <td>B6/Bone : Alat Bantu Jalan:{{ $dataAnestesi->fisik_alatbantu }} cc/jam</td>
-                                <td>Fraktur : {{ $dataAnestesi->fisik_fraktur }}</td>
+                                <td style="border-bottom: 1px solid black; border-left: 1px solid black;">B6/Bone : Alat Bantu Jalan:{{ $dataAnestesi->fisik_alatbantu }} cc/jam</td>
+                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;" colspan="3">Fraktur : {{ $dataAnestesi->fisik_fraktur }}</td>
                             </tr>
                             <tr>
-                                <td>Laboratorium</td>
-                                <td colspan="3">: {{ $dataAnestesi->penunjang_lab }}</td>
+                                <td style="border-left:1px solid black;">Laboratorium</td>
+                                <td colspan="3" style="border-right:1px solid black;">: {{ $dataAnestesi->penunjang_lab }}</td>
                             </tr>
                             <tr>
-                                <td>Radiologi</td>
-                                <td colspan="3">: {{ $dataAnestesi->penunjang_rad }}</td>
+                                <td style="border-left:1px solid black;">Radiologi</td>
+                                <td colspan="3" style="border-right:1px solid black;">: {{ $dataAnestesi->penunjang_rad }}</td>
                             </tr>
                             <tr>
-                                <td>Elektrokardiografi</td>
-                                <td colspan="3">: {{ $dataAnestesi->penunjang_elektro }}</td>
+                                <td style="border-left:1px solid black; border-bottom: 1px solid black;">Elektrokardiografi</td>
+                                <td colspan="3" style="border-bottom:1px solid black; border-right:1px solid black;">: {{ $dataAnestesi->penunjang_elektro }}</td>
                             </tr>
                             <tr>
-                                <td>Status Fisik</td>
-                                <td colspan="3">:</td>
+                                <td style="border-left:1px solid black;">Status Fisik</td>
+                                <td colspan="3" style="border-right:1px solid black;">:</td>
                             </tr>
                             <tr>
-                                <td class="text-center" colspan="4" >
+                                <td class="text-center" colspan="4" style="border-left:1px solid black; border-right:1px solid black; border-bottom: 1px solid black;">
                                     <div style="display: inline-flex; gap: 20px;">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" onclick="return false;"
@@ -4572,39 +4572,39 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="align-center" colspan="4">PERENCANA TINDAKAN ANESTESI</td>
+                                <td colspan="4" style="text-align: center; border-left: 1px solid black; border-right: 1px solid black;">PERENCANA TINDAKAN ANESTESI</td>
                             </tr>
                             <tr>
-                                <td colspan="4">Rencana Tindakan Anestesi</td>
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">Rencana Tindakan Anestesi</td>
                             </tr>
                             <tr>
-                                <td>GA</td>
-                                <td colspan="3">: {{ $dataAnestesi->rencana_ga }}</td>
+                                <td style="border-left: 1px solid black;">GA</td>
+                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->rencana_ga }}</td>
                             </tr>
                             <tr>
-                                <td>Regional</td>
-                                <td colspan="3">: {{ $dataAnestesi->rencana_reg }}</td>
+                                <td style="border-left: 1px solid black;">Regional</td>
+                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->rencana_reg }}</td>
                             </tr>
                             <tr>
-                                <td>Blok</td>
-                                <td colspan="3">: {{ $dataAnestesi->rencana_blok }}</td>
+                                <td style="border-left: 1px solid black;">Blok</td>
+                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->rencana_blok }}</td>
                             </tr>
                             <tr>
-                                <td colspan="4">Alat / bahan khusus yang diperlukan ( obat-obatan dan cairan) :</td>
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">Alat / bahan khusus yang diperlukan ( obat-obatan dan cairan) :</td>
                             </tr>
                             <tr>
-                                <td>Obat - obatan</td>
-                                <td colspan="3">: {{ $dataAnestesi->obat_obatan }} {{ $dataAnestesi->obat_obatan_ket }}</td>
+                                <td style="border-left: 1px solid black;">Obat - obatan</td>
+                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->obat_obatan }} {{ $dataAnestesi->obat_obatan_ket }}</td>
                             </tr>
                             <tr>
-                                <td>Cairan</td>
-                                <td colspan="3">: {{ $dataAnestesi->cairan }} {{ $dataAnestesi->cairan_ket }}</td>
+                                <td style="border-left: 1px solid black;">Cairan</td>
+                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->cairan }} {{ $dataAnestesi->cairan_ket }}</td>
                             </tr>
                             <tr>
-                                <td colspan="4">Prosedur monitoring khusus saat tindakan anestesi :</td>
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">Prosedur monitoring khusus saat tindakan anestesi :</td>
                             </tr>
                             <tr>
-                                <td colspan="4">
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" onclick="return false;"
                                             {{ $dataAnestesi->monitoring_khusus == 'Tidak' ? 'checked' : '' }}>
@@ -4622,10 +4622,10 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="4">Rencana perawatan setelah tindakan :</td>
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">Rencana perawatan setelah tindakan :</td>
                             </tr>
                             <tr>
-                                <td colspan="4">
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" onclick="return false;"
                                             {{ $dataAnestesi->rencana_perawatan_inap == 'true' ? 'checked' : '' }}>
@@ -4700,6 +4700,566 @@
                         <tr>
                             <td style="width: 50%"></td>
                             <td class="text-center"> {{ $dataAnestesi->nm_dokter }} </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        @endif
+
+        @if($dataAnestesi2)
+            <div class="card">
+                <div class="card-header">Asesmen Pra Induksi</div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-3">
+                        <tr>
+                            <td class="align-top" style="width:60%" rowspan="4"><img
+                                    src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                    width="350">
+                            </td>
+                            <td class="pt-1 pb-0 align-middle"
+                                style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                    Kesehatan</div>
+                                <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle py-0">
+                                <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle py-0">
+                                <img src="{{ asset('image/telephone.png') }}" alt="telepon" width="17"> (0271)
+                                713055
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="align-middle py-0">
+                                <img src="{{ asset('image/world-wide-web.png') }}" alt="website" width="17">
+                                https://web.rsupsurakarta.co.id
+                            </td>
+                        </tr>
+                    </table>
+                    <div class="progress progress-xs mt-0 pt-0">
+                        <div class="progress-bar progress-bar bg-black" role="progressbar" aria-valuenow="100"
+                            aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <table class="table table-borderless table-sm mb-2">
+                        <thead>
+                            <tr>
+                                <th class="align-middle text-center pb-1" colspan="2" rowspan="6" style="width: 40%; border: 1px solid black;">
+                                    <h5><b>ASESMEN PRA INDUKSI</b></h5>
+                                </th>
+                                <td style="width: 20%; border-top: 1px solid black;">
+                                    No. Rawat
+                                </td>
+                                <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->no_rawat }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    No. Rekam Medis
+                                </td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->no_rkm_medis }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Nama Pasien
+                                </td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->nm_pasien }}/ Th/ {{ $dataAnestesi->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Tanggal Lahir
+                                </td>
+                                <td style="border-right: 1px solid black;">: {{ \Carbon\Carbon::parse($dataAnestesi->tgl_lahir)->format('d-m-Y') }}</td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    Alamat
+                                </td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->alamat }}, {{ $dataAnestesi->kelurahan }}, {{ $dataAnestesi->kecamatan }}, {{ $dataAnestesi->kabupaten }}</td>
+                            </tr>
+                            <tr>
+                                <td style="border-bottom: 1px solid black; ">
+                                    Ruang Rawat
+                                </td>
+                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->nm_bangsal }}</td>
+                            </tr>
+                        </thead>
+                    </table>
+                    <table class="table table-borderless table-sm" style="width: 100%;">
+                        <tbody>
+                            <tr >
+                                <td colspan="4" style="border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;" >Keadaan Prainduksi :</td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black;">BB : {{ $dataAnestesi2->bb }} Kg</td>
+                                <td>TB : {{ $dataAnestesi2->tb }} Cm</td>
+                                <td>Gol. Darah : {{ $dataAnestesi2->gol_darah }} </td>
+                                <td style="border-right: 1px solid black;">HB : {{ $dataAnestesi2->hb }} </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="border-left: 1px solid black;">TD : {{ $dataAnestesi2->td }} mmHg</td>
+                                <td>Suhu : {{ $dataAnestesi2->suhu }} C</td>
+                                <td style="border-right: 1px solid black;">VAS : {{ $dataAnestesi2->vas }} </td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black;">Nadi : {{ $dataAnestesi2->nadi }} x/mnt</td>
+                                <td>Respirasi : {{ $dataAnestesi2->respirasi }} x/mnt</td>
+                                <td>GCS : {{ $dataAnestesi2->gcs }} </td>
+                                <td style="border-right: 1px solid black;">Ht : {{ $dataAnestesi2->ht }} </td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black;">Alergi :
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi2->alergi == 'false' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Tidak
+                                        </label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi2->alergi == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Ya
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>{{ $dataAnestesi2->alergi_ket }}</td>
+                                <td>Rh : {{ $dataAnestesi2->rh }} </td>
+                                <td style="border-right: 1px solid black;">Lain : {{ $dataAnestesi2->lain }} </td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black; border-top: 1px solid black;">Pemeriksaan Fisik</td>
+                                <td colspan="3" style="border-right: 1px solid black; border-top: 1px solid black;">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi2->fisik_bukamulut == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Buka Mulut > 2 Jari
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black;">Jalan Nafas :
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi2->fisik_normal == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Normal
+                                        </label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi2->fisik_jarak == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Jarak Thyromental > 3 Jam
+                                        </label>
+                                    </div>
+                                </td>
+                                <td colspan="2" style="border-right: 1px solid black;">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi2->fisik_abnormal == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Abnormal
+                                        </label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black;"></td>
+                                <td colspan="2">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi2->fisik_mallampati == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Mallampati I / II / III / IV
+                                        </label>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid black;"></td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black;"></td>
+                                <td colspan="2">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" onclick="return false;"
+                                            {{ $dataAnestesi2->fisik_gerakanleher == 'true' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="defaultCheck1">
+                                            Gerakan Leher Maksimal
+                                        </label>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid black;"></td>
+                            </tr>
+                            <tr>
+                                <td style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;" colspan="4">
+                                    Anamnesis:
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->anamnesis_auto == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Auto
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->anamnesis_allo == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Allo
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black; border-top: 1px solid black;">Status Fisik Asa</td>
+                                <td class="text-center"  style="border-top: 1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->asa1 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                1
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->asa2 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                2
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->asa3 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                3
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->asa4 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                4
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->asa5 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                5
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->asaE == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                E
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border-top: 1px solid black;border-right: 1px solid black;" colspan="2">Penyulit Praanestesi : {{ $dataAnestesi2->penyulit_praanestesi }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border-left: 1px solid black;border-top: 1px solid black;border-right: 1px solid black;">Checklist Sebelum Induksi :</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border-left:1px solid black; border-right:1px solid black; border-bottom: 1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->cek_1 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Ijin Operasi
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->cek_2 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Cek Mohon Anestesi
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->cek_3 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Cek Suction Unit
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->cek_4 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Persiapan Obat-obatan
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->cek_5 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Antibiotika Profilaksis
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border-left:1px solid black;border-right:1px solid black;">Teknik Anestesi</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border-left:1px solid black; border-right:1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->ga_1 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                GA
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->ga_2 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                TIVA
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->ga_3 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                LMA
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->ga_4 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                FACEMASK
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->ga_5 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                ET
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border-left:1px solid black; border-right:1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->reg_1 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Regional
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->reg_2 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Spinal
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->reg_3 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Epidural
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->reg_4 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Kaudal
+                                            </label>
+                                        </div>
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->reg_5 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Blok Saraf Tepi
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border-left:1px solid black; border-bottom: 1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->anestesi_lain == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Lain-lain
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td colspan="3" style="border-right:1px solid black; border-bottom: 1px solid black;">{{ $dataAnestesi2->anestesi_lain_ket }}</td>
+                            </tr>
+                            <tr>
+                                <td colspan="4" style="border-left: 1px solid black;border-right: 1px solid black; ">Monitoring :</td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->monitoring_1 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                EKG Lead
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->monitoring_2 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                SPO2 %
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->monitoring_3 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                TD {{ $dataAnestesi2->monitoring_3_ket }} mmHg
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="border-right: 1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->monitoring_4 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Temp {{ $dataAnestesi2->monitoring_4_ket }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border-left: 1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->monitoring_5 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                CVC  mmHg
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->monitoring_6 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                PCO %
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td colspan="2" style="border-right: 1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->monitoring_7 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Urin Catheter
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->monitoring_8 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                Stetoscop
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;">
+                                    <div style="display: inline-flex; gap: 20px;">
+                                        <div class="form-check form-check-inline">
+                                            <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                {{ $dataAnestesi2->monitoring_9 == 'true' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="defaultCheck1">
+                                                NGT
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-borderless table-sm mt-5">
+                        <tr>
+                            <td style="width: 50%"></td>
+                            <td style="width: 50%; text-align:center;">
+                                Surakarta,
+                                {{ \Carbon\Carbon::parse($dataAnestesi2->tanggal)->locale('id')->isoFormat('D MMMM Y') }}<br>
+                                Dokter Anestesi
+                            </td>
+                        </tr>
+                        <tr>
+                            @php
+                                $qr_dokter =
+                                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                elektronik oleh' .
+                                    "\n" .
+                                    $dataAnestesi2->nm_dokter .
+                                    "\n" .
+                                    'ID ' .
+                                    $dataAnestesi2->kd_dokter .
+                                    "\n" .
+                                    \Carbon\Carbon::parse($dataAnestesi2->tanggal)->format('d-m-Y');
+
+                            @endphp
+                            <td style="width: 50%"></td>
+                            <td class="text-center pt-0 pb-0"> {!! QrCode::size(100)->generate($qr_dokter) !!}
+                            </td>
+
+                        </tr>
+                        <tr>
+                            <td style="width: 50%"></td>
+                            <td class="text-center"> {{ $dataAnestesi2->kd_dokter }}</td>
+                        </tr>
+                        <tr>
+                            <td style="width: 50%"></td>
+                            <td class="text-center"> {{ $dataAnestesi2->nm_dokter }} </td>
                         </tr>
                     </table>
                 </div>

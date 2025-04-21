@@ -105,7 +105,7 @@ class SatuSehatController extends Controller
             )
             ->where('reg_periksa.status_lanjut', 'Ralan')
             // ->where('poliklinik.nm_poli', 'not like', '%IGD%')
-            ->whereNotIn('poliklinik.nm_poli', ['IGD', 'Farmasi', 'Farmasi 2', 'Radiologi', 'LABORATORIUM'])
+            ->whereNotIn('poliklinik.nm_poli', ['IGD', 'Farmasi', 'Farmasi 2', 'Radiologi', 'LABORATORIUM', 'POLI HOME CARE'])
             ->whereBetween('reg_periksa.tgl_registrasi', [$tanggal_awal, $tanggal_akhir])
             ->orderBy('reg_periksa.no_rkm_medis', 'ASC')
             ->get();

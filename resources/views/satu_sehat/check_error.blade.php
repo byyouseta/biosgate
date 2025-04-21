@@ -100,7 +100,7 @@
                         <div class="card_title">Check Data Praktisi
                             {{-- Kirim data Encounter --}}
                             <div class="float-right">
-                                @if($dataPasien->kd_poli == 'MCU' || $dataPasien->kd_poli == 'LAB')
+                                @if($dataPasien->kd_poli == 'MCU' || $dataPasien->kd_poli == 'LAB' || $dataPasien->kd_poli == 'PAK')
                                 <a href="{{ route('satuSehat.singleEncounter',Crypt::encrypt($dataPasien->no_rawat)) }}"
                                     class="btn btn-primary btn-sm"><i class="far fa-paper-plane"></i> Kirim
                                     Encounter</a>

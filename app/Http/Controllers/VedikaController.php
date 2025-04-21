@@ -1142,6 +1142,9 @@ class VedikaController extends Controller
         $dataOperasi = VedikaController::OperasiRanap($pasien->no_rawat);
         $dataOperasi2 = $dataOperasi[0];
         $dataOperasi1 = $dataOperasi[1];
+
+        $dataAnestesi = VedikaController::getPrasedasi($pasien->no_rawat);
+        $dataAnestesi2 = VedikaController::getPraInduksi($pasien->no_rawat);
         //Data Pemeriksaan
         // $dataRalan = VedikaController::pemeriksaanRalan($pasien->no_rawat, $pasien->kd_dokter);
         //Ambil data Triase dan Ringkasan IGD
@@ -1217,6 +1220,8 @@ class VedikaController extends Controller
             'spri' => $spri,
             'dataOperasi1' => $dataOperasi1,
             'dataOperasi2' => $dataOperasi2,
+            'dataAnestesi' => $dataAnestesi,
+            'dataAnestesi2' => $dataAnestesi2,
             'resumeRanap1' => $resumeRanap1,
             'resumeRanap2' => $resumeRanap2,
             'resumeRanap3' => $resumeRanap3,
@@ -1343,6 +1348,9 @@ class VedikaController extends Controller
         $dataOperasi = VedikaController::OperasiRanap($pasien->no_rawat);
         $dataOperasi2 = $dataOperasi[0];
         $dataOperasi1 = $dataOperasi[1];
+
+        $dataAnestesi = VedikaController::getPrasedasi($pasien->no_rawat);
+        $dataAnestesi2 = VedikaController::getPraInduksi($pasien->no_rawat);
         //Ambil data Triase dan Ringkasan IGD
         if ($pasien->nm_poli == "IGD") {
             $triase = VedikaController::triase($pasien->no_rawat);
@@ -1417,6 +1425,8 @@ class VedikaController extends Controller
             'spri' => $spri,
             'dataOperasi1' => $dataOperasi1,
             'dataOperasi2' => $dataOperasi2,
+            'dataAnestesi' => $dataAnestesi,
+            'dataAnestesi2' => $dataAnestesi2,
             'resumeRanap1' => $resumeRanap1,
             'resumeRanap2' => $resumeRanap2,
             'resumeRanap3' => $resumeRanap3,
