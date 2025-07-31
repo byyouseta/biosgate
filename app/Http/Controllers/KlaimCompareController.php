@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataPengajuanKlaim;
 use App\Imports\KlaimCairImport;
 use App\Imports\TidakLayakImport;
 use App\KlaimCair;
@@ -68,9 +69,122 @@ class KlaimCompareController extends Controller
             ->where('reg_periksa.stts', '!=', 'Batal')
             ->get();
 
-        // dd($data);
+        foreach ($data->where('no_sep', null) as $listData) {
+            // dd($listData);
+            $sepManual = sepManual::where('noRawat', $listData->no_rawat)->first();
 
-        return view('vedika.compare', compact('data'));
+            if ($sepManual) {
+                $listData->no_sep = $sepManual->no_sep;
+            }
+        }
+
+        $noRawatList = $data->pluck('no_rawat')->unique();
+        $sepList = $data->pluck('no_sep')->unique();
+
+        $sepManualList = sepManual::whereIn('noRawat', $noRawatList)->get()->pluck('no_sep')->unique();
+        $gabungSepList = $sepList->merge($sepManualList)->unique()->values();
+
+        // dd($sepList, $sepManualList, $gabungSepList);
+
+
+        $waktuKeluarMap = DB::connection('mysqlkhanza')->table('kamar_inap')
+            ->leftJoin('dpjp_ranap', 'dpjp_ranap.no_rawat', '=', 'kamar_inap.no_rawat')
+            ->leftJoin('dokter', 'dokter.kd_dokter', '=', 'dpjp_ranap.kd_dokter')
+            ->select(
+                'kamar_inap.no_rawat',
+                'kamar_inap.tgl_keluar',
+                'kamar_inap.jam_keluar',
+                DB::raw("CONCAT(kamar_inap.tgl_keluar, ' ', kamar_inap.jam_keluar) AS waktuKeluar"),
+                'dokter.nm_dokter'
+            )
+            ->whereIn('kamar_inap.no_rawat', $noRawatList)
+            ->orderBy('waktuKeluar', 'DESC')
+            ->get();
+        $waktu = $waktuKeluarMap->keyBy('no_rawat');
+
+        $bill = DB::connection('mysqlkhanza')->table('billing')
+            ->select('no_rawat', DB::raw('SUM(totalbiaya) as total_biaya'))
+            ->whereIn('no_rawat', $noRawatList)
+            ->groupBy('no_rawat')
+            ->get()
+            ->keyBy('no_rawat');
+
+        $cairMap = KlaimCair::whereIn('no_sep', $gabungSepList)->get();
+        $cair = $cairMap->pluck('disetujui', 'no_sep');
+
+        $pendingMap = KlaimPending::select('no_sep', 'status', 'biaya_disetujui')
+            ->whereIn('no_sep', $gabungSepList)->get();
+
+        $dataPending = $pendingMap->keyBy('no_sep');
+
+        // dd($pendingMap, $dataPending, $cair);
+
+        $kronis = DB::connection('mysqlkhanza')->table('resep_obat')
+            ->join('resep_obat_kronis', 'resep_obat_kronis.no_resep', '=', 'resep_obat.no_resep')
+            ->select(
+                'resep_obat.no_rawat',
+                DB::raw("
+                    SUM(
+                        CASE
+                            WHEN resep_obat_kronis.obat_kronis IS NULL OR resep_obat_kronis.obat_kronis = ''
+                                THEN 0
+                            ELSE
+                                CAST(
+                                    REPLACE(REPLACE(TRIM(SUBSTRING_INDEX(resep_obat_kronis.obat_kronis, '(', 1)), ',', ''), '.', '')
+                                    AS UNSIGNED
+                                )
+                        END
+                    ) AS total_biaya
+                ")
+            )
+            ->whereIn('resep_obat.no_rawat', $noRawatList)
+            ->groupBy('resep_obat.no_rawat')
+            ->get()
+            ->keyBy('no_rawat');
+
+        $diagnosa = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            ->select(
+                'diagnosa_pasien.no_rawat',
+                'diagnosa_pasien.kd_penyakit',
+                'diagnosa_pasien.prioritas',
+                'diagnosa_pasien.status',
+                'penyakit.nm_penyakit'
+            )
+            ->whereIn('diagnosa_pasien.no_rawat', $noRawatList)
+            ->orderBy('diagnosa_pasien.no_rawat', 'ASC')
+            ->orderBy('diagnosa_pasien.prioritas', 'ASC')
+            ->get();
+
+        $prosedur = DB::connection('mysqlkhanza')->table('prosedur_pasien')
+            ->join('icd9', 'icd9.kode', '=', 'prosedur_pasien.kode')
+            ->select(
+                'prosedur_pasien.no_rawat',
+                'prosedur_pasien.kode',
+                'prosedur_pasien.status',
+                'icd9.deskripsi_panjang'
+            )
+            ->whereIn('prosedur_pasien.no_rawat', $noRawatList)
+            ->orderBy('prosedur_pasien.no_rawat', 'ASC')
+            ->orderBy('prosedur_pasien.prioritas', 'ASC')
+            ->get();
+
+        $pengajuanMap = DataPengajuanKlaim::whereIn('no_sep', $gabungSepList)->get();
+        $dataPengajuan = $pengajuanMap->keyBy('no_sep');
+
+        // dd($dataPengajuan);
+
+        return view('vedika.compare', compact(
+            'data',
+            'waktu',
+            'bill',
+            'kronis',
+            'cair',
+            'dataPending',
+            'diagnosa',
+            'prosedur',
+            'dataPengajuan'
+        ));
     }
 
     public function import_excel(Request $request)
@@ -215,6 +329,8 @@ class KlaimCompareController extends Controller
 
     public function ambilResponeVklaim(Request $request)
     {
+        set_time_limit(0);
+
         $request->validate([
             'periodeBulan' => 'required|date', // Validasi tanggal (wajib diisi dan harus berupa tanggal yang valid)
             'status' => 'required',   // Validasi radio button (wajib dipilih)
@@ -370,14 +486,14 @@ class KlaimCompareController extends Controller
             $tanggal = Carbon::now()->format('Y-m-15');
         }
 
-        // $request->validate([
-        //     'tanggal' => 'required|date' // Validasi tanggal (wajib diisi dan harus berupa tanggal yang valid)
-        // ]);
+        $request->validate([
+            'tanggal' => 'nullable|date' // Validasi tanggal (optional diisi dan harus berupa tanggal yang valid)
+        ]);
+
         $data = KlaimPending::whereYear('tgl_pulang', Carbon::parse($tanggal)->format('Y'))
             ->whereMonth('tgl_pulang', Carbon::parse($tanggal)->format('m'))
             // ->limit(10)
             ->get();
-
 
         foreach ($data as $listData) {
             $alasan = KlaimCompareController::getAlasan($listData->no_sep);
@@ -389,13 +505,34 @@ class KlaimCompareController extends Controller
 
             $dpjp = KlaimCompareController::getDpjp($listData->no_sep);
             if ($dpjp) {
-                $listData->dpjp = $dpjp->nmdpdjp ?? $dpjp['nmdpdjp'];
+                try {
+                    if ($listData->jenis_rawat == 'RJ') {
+                        $listData->dpjp = $dpjp->nmdpdjp ?? $dpjp['nmdpdjp'];
+                    } elseif ($listData->jenis_rawat == 'RI') {
+                        $dokterInap = KlaimCompareController::getDpjpInap($dpjp->no_rawat);
+                        if ($dokterInap) {
+                            $listData->dpjp = $dokterInap;
+                        } else {
+                            $listData->dpjp = null;
+                        }
+                    }
+                } catch (\Throwable $th) {
+                    // dd($th, $dpjp);
+                    Session::flash('error', $th);
+
+                    return redirect()->back();
+                }
+
                 $listData->no_rawat = $dpjp->no_rawat ?? $dpjp['no_rawat'];
                 $listData->nama_pasien = $dpjp->nama_pasien ?? $dpjp['nama_pasien'];
+                $listData->no_rm = $dpjp->no_rkm_medis ?? $dpjp['no_rkm_medis'];
+                $listData->drsep = $dpjp->nmdrsep ? $dpjp->nmdrsep : null;
             } else {
                 $listData->dpjp = null;
                 $listData->no_rawat = null;
                 $listData->nama_pasien = null;
+                $listData->no_rm = null;
+                $listData->drsep = null;
             }
         }
 
@@ -417,9 +554,10 @@ class KlaimCompareController extends Controller
             $tanggal = Carbon::now()->format('Y-m-15');
         }
 
-        // $request->validate([
-        //     'tanggal' => 'required|date' // Validasi tanggal (wajib diisi dan harus berupa tanggal yang valid)
-        // ]);
+        $request->validate([
+            'tanggal' => 'nullable|date' // Validasi tanggal (wajib diisi dan harus berupa tanggal yang valid)
+        ]);
+
         $data = KlaimPending::whereYear('tgl_pulang', Carbon::parse($tanggal)->format('Y'))
             ->whereMonth('tgl_pulang', Carbon::parse($tanggal)->format('m'))
             ->where('status', '4#Klaim Tidak Layak')
@@ -465,14 +603,48 @@ class KlaimCompareController extends Controller
         }
     }
 
+    public function getDpjpInap($no_rawat)
+    {
+        $data = DB::connection('mysqlkhanza')->table('dpjp_ranap')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'dpjp_ranap.kd_dokter')
+            ->select(
+                'dpjp_ranap.*',
+                'dokter.nm_dokter'
+            )
+            ->where('dpjp_ranap.no_rawat', $no_rawat)
+            ->orderBy('dpjp_ranap.no_rawat', 'DESC')
+            ->first();
+
+        if ($data) {
+            return $data->nm_dokter;
+        } else {
+            return null;
+        }
+    }
+
     public function getDpjp($nosep)
     {
-        $data = DB::connection('mysqlkhanza')->table('bridging_sep')
-            ->join('maping_dokter_dpjpvclaim', 'maping_dokter_dpjpvclaim.kd_dokter_bpjs', '=', 'bridging_sep.kddpjp')
+        // $data = DB::connection('mysqlkhanza')->table('bridging_sep')
+        //     ->join('maping_dokter_dpjpvclaim', 'maping_dokter_dpjpvclaim.kd_dokter_bpjs', '=', 'bridging_sep.kddpjp')
+        //     ->select(
+        //         'bridging_sep.no_rawat',
+        //         'bridging_sep.nama_pasien',
+        //         'maping_dokter_dpjpvclaim.nm_dokter_bpjs as nmdpdjp'
+        //     )
+        //     ->where('no_sep', $nosep)
+        //     ->first();
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('bridging_sep', 'bridging_sep.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
+            ->leftJoin('maping_dokter_dpjpvclaim', 'maping_dokter_dpjpvclaim.kd_dokter_bpjs', '=', 'bridging_sep.kddpjp')
+
             ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.status_lanjut',
                 'bridging_sep.no_rawat',
                 'bridging_sep.nama_pasien',
-                'maping_dokter_dpjpvclaim.nm_dokter_bpjs as nmdpdjp'
+                'dokter.nm_dokter as nmdpdjp',
+                'maping_dokter_dpjpvclaim.nm_dokter_bpjs as nmdrsep'
             )
             ->where('no_sep', $nosep)
             ->first();
@@ -488,6 +660,7 @@ class KlaimCompareController extends Controller
                     ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
                     ->select(
                         'reg_periksa.no_rawat',
+                        'reg_periksa.no_rkm_medis',
                         'reg_periksa.status_lanjut',
                         'pasien.nm_pasien',
                         'dokter.nm_dokter'
@@ -495,15 +668,24 @@ class KlaimCompareController extends Controller
                     ->where('no_rawat', $cekLokal->noRawat)
                     ->first();
 
+                $sep = EklaimController::getDetail($cekLokal->no_sep);
+                $sep = (object)$sep;
+
+                // dd((object)$sep, $cekData, $cekLokal);
 
                 if ($cekData && $cekData->status_lanjut == 'Ralan') {
                     $finis = [
                         'no_rawat' => $cekData->no_rawat,
+                        'no_rkm_medis' => $cekData->no_rkm_medis,
+                        'status_lanjut' => $cekData->status_lanjut,
                         'nama_pasien' => $cekData->nm_pasien,
-                        'nmdpdjp' => $cekData->nm_dokter
+                        'nmdpdjp' => $cekData->nm_dokter,
+                        'nmdrsep' => $sep->nama_dokter
                     ];
 
-                    return $finis;
+                    $data2 = (object)$finis;
+
+                    return $data2;
                 } elseif ($cekData && $cekData->status_lanjut == 'Ranap') {
                     $cekDpjp = DB::connection('mysqlkhanza')->table('dpjp_ranap')
                         ->join('dokter', 'dokter.kd_dokter', '=', 'dpjp_ranap.kd_dokter')
@@ -516,11 +698,16 @@ class KlaimCompareController extends Controller
 
                     $finis = [
                         'no_rawat' => $cekData->no_rawat,
+                        'no_rkm_medis' => $cekData->no_rkm_medis,
+                        'status_lanjut' => $cekData->status_lanjut,
                         'nama_pasien' => $cekData->nm_pasien,
-                        'nmdpdjp' => $cekDpjp->nm_dokter
+                        'nmdpdjp' => $cekDpjp->nm_dokter,
+                        'nmdrsep' => $sep->nama_dokter
                     ];
 
-                    return $finis;
+                    $data2 = (object)$finis;
+
+                    return $data2;
                 }
             } else {
                 return null;

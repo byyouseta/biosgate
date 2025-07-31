@@ -24,8 +24,9 @@
     <!-- Toastr -->
     <link rel="stylesheet" href="{{ asset('template/plugins/toastr/toastr.min.css') }}"> --}}
     <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    {{-- <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"> --}}
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="{{ asset('template/plugins/fontawesome-free/css/all.min.css') }}">
     <!-- SweetAlert2 -->
@@ -38,8 +39,11 @@
     <link href="{{ asset('css/app.css') }}" rel="stylesheet"> --}}
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('template/dist/css/adminlte.min.css') }}">
+    <!-- Custom Theme for Kemenkes -->
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
 
     {!! RecaptchaV3::initJs() !!}
+
 </head>
 
 <body>

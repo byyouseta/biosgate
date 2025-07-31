@@ -69,7 +69,7 @@ return [
             'host' => '10.10.28.10',
             'port' => 2882,
             'username' => 'dataserver',
-            'password' => '#Bi6D@t42025',
+            'password' => '$b1GD@t42025',
             // 'privateKey' => 'path/to/or/contents/of/privatekey',
             'root' => '/var/www/html/webappz/berkasrawat',
             'visibility' => 'public',

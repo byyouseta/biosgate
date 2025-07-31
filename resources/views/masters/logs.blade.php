@@ -31,10 +31,9 @@
                                     <input type="text" class="form-control datetimepicker-input mr-2 ml-2"
                                         id="tanggal" data-target="#tanggal" data-toggle="datetimepicker"
                                         name="tanggal" autocomplete="off" value="{{ $tanggal }}"
-                                        style="max-width: 100px">
+                                        style="max-width: 130px">
                                     <button type="submit" class="btn btn-info btn-block btn-sm"
-                                        style="max-width: 100px"><i class="fas fa-search"></i> Tampilkan</button>
-
+                                        style="max-width: 120px"><i class="fas fa-search"></i> Tampilkan</button>
                                 </div>
                             </form>
                         </div>

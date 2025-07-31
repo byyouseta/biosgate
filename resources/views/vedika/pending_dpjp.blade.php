@@ -73,10 +73,12 @@
                                     <th>Nama Pasien</th>
                                     <th>No SEP</th>
                                     <th>No Rawat</th>
+                                    <th>No RM</th>
                                     <th>Jenis Rawat</th>
                                     <th>Tanggal SEP</th>
                                     <th>Tanggal Pulang</th>
                                     <th>Nama DPJP</th>
+                                    <th>Nama dr SEP</th>
                                     <th>Pengajuan</th>
                                     <th>Tarif INACBG</th>
                                     <th>Tarif RS</th>
@@ -89,10 +91,12 @@
                                         <td>{{ $klaim->nama_pasien }}</td>
                                         <td>{{ $klaim->no_sep }}</td>
                                         <td>{{ $klaim->no_rawat }}</td>
+                                        <td>{{ $klaim->no_rm }}</td>
                                         <td>{{ $klaim->jenis_rawat }}</td>
                                         <td>{{ $klaim->tgl_sep }}</td>
                                         <td>{{ $klaim->tgl_pulang }}</td>
                                         <td>{{ $klaim->dpjp }}</td>
+                                        <td>{{ $klaim->drsep }}</td>
                                         <td class="text-right">{{ $klaim->biaya_pengajuan }}</td>
                                         <td class="text-right">{{ $klaim->biaya_tarif_grouper }}</td>
                                         <td class="text-right">{{ $klaim->biaya_tarif_rs }}</td>

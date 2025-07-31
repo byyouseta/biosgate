@@ -154,10 +154,11 @@
                                             <td>
                                                 @if ($summary->ktp_pasien)
                                                     @php
-                                                        $idSehat = \App\PasienSehat::getIdSehat($summary->ktp_pasien);
+                                                    // dd($summary);
+                                                    //     $idSehat = \App\PasienSehat::getIdSehat($summary->ktp_pasien);
                                                     @endphp
-                                                    @if ($idSehat)
-                                                        {{ $idSehat }}
+                                                    @if ($summary->idSehat)
+                                                        {{ $summary->idSehat }}
                                                     @else
                                                         @php
                                                             ++$noihs;
@@ -184,16 +185,16 @@
                                                 @endif
                                             </td>
                                             @php
-                                                $dataEncounter = \App\ResponseSatuSehat::getEncounter(
-                                                    $summary->no_rawat
-                                                );
+                                                // $dataEncounter = \App\ResponseSatuSehat::getEncounter(
+                                                //     $summary->no_rawat
+                                                // );
                                             @endphp
                                             <td>
-                                                @if ($dataEncounter)
+                                                @if ($summary->dataEncounter)
                                                     @php
                                                         ++$terkirim;
                                                     @endphp
-                                                    {{ $dataEncounter->encounter_id }}
+                                                    {{ $summary->dataEncounter->encounter_id }}
                                                 @else
                                                     @php
                                                         ++$tidakterkirim;
@@ -202,7 +203,7 @@
                                                         class='badge badge-info badge-sm' target="_blank">Check</a>
                                                 @endif
                                             </td>
-                                            <td>{{ $dataEncounter ? $dataEncounter->created_at : '--' }}</td>
+                                            <td>{{ $summary->dataEncounter ? $summary->dataEncounter->created_at : '--' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

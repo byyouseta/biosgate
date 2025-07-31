@@ -13,8 +13,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <title>{{ config('app.name') }}</title>
 
     <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    {{-- <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback"> --}}
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="{{ asset('template/plugins/fontawesome-free/css/all.min.css') }}">
     <!-- overlayScrollbars -->
@@ -29,6 +31,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
     @endif
     <!-- Theme style -->
     <link rel="stylesheet" href="{{ asset('template/dist/css/adminlte.min.css') }}">
+    <!-- Custom Theme for Kemenkes -->
+    <link rel="stylesheet" href="{{ asset('css/custom.css') }}">
+
 </head>
 
 {{-- <body class="hold-transition sidebar-mini"> --}}
@@ -40,13 +45,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- /.navbar -->
 
         <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+        <aside class="main-sidebar sidebar-light-primary elevation-4">
             <!-- Brand Logo -->
-            <a href="/home" class="brand-link text-center">
-                {{-- <img src="{{ asset('template/dist/img/AdminLTELogo.png') }}" alt="KPI Logo"
-                    class="brand-image img-circle elevation-3" style="opacity: .8"> --}}
-                <span class="brand-text font-weight-light">{{ config('app.name') }}</span>
+            <a href="/home" class="brand-link text-left d-flex align-items-left justify-content-left">
+                <img src="{{ asset('image/GateLogo3.png') }}" alt="Gate Logo"
+                    class="brand-image img-circle elevation-3" style="opacity: 1; width: 30px; height: 30px; margin-right: 10px;">
+                <span class="brand-text font-weight-dark mb-0">{{ config('app.name') }}</span>
             </a>
+
 
             <!-- Sidebar -->
             @include('layouts.sidebar')

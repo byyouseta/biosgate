@@ -69,23 +69,27 @@
                     } elseif ($data->unit == 2) {
                         $unit = 'Rawat Inap';
                     } elseif ($data->unit == 3) {
-                        $unit = 'IGD';
+                        $unit = 'Medical Check Up (MCU)';
                     } elseif ($data->unit == 4) {
-                        $unit = 'Farmasi';
+                        $unit = 'IGD';
                     } elseif ($data->unit == 5) {
-                        $unit = 'Laboratorium';
+                        $unit = 'Instalasi Bedah Sentral (IBS)';
                     } elseif ($data->unit == 6) {
-                        $unit = 'Radiologi';
+                        $unit = 'ICU/NICU/PICU';
                     } elseif ($data->unit == 7) {
-                        $unit = 'ICU; NICU; PICU';
+                        $unit = 'Farmasi';
                     } elseif ($data->unit == 8) {
-                        $unit = 'Pemulasaran Jenazah';
+                        $unit = 'Laboratorium';
                     } elseif ($data->unit == 9) {
-                        $unit = 'Rehabilitasi medik';
+                        $unit = 'Radiologi';
                     } elseif ($data->unit == 10) {
-                        $unit = 'Radioterapi';
+                        $unit = 'Rehabilitasi Medik';
                     } elseif ($data->unit == 11) {
-                        $unit = 'Jantung';
+                        $unit = 'Pendaftaran';
+                    }elseif ($data->unit == 12) {
+                        $unit = 'Konseling Gizi';
+                    }elseif ($data->unit == 13) {
+                        $unit = 'Konseling Kesehatan (TB/Asma)';
                     }
 
                 @endphp

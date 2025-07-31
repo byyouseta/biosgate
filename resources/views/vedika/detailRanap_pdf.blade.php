@@ -71,6 +71,51 @@
         table {
             border-spacing: 0px;
         }
+
+        .inline-field input[type="checkbox"],
+        .inline-field label {
+            display: inline-block; /* or display: inline; */
+            vertical-align: middle; /* Helps with vertical alignment */
+            margin-bottom: 0; /* Remove default margins that might cause wrapping */
+        }
+
+        /* If you nested the input inside the label: */
+        label input[type="checkbox"] {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .checkbox-group-flex {
+            /* Mengaktifkan Flexbox pada kontainer parent */
+            display: flex;
+            /* Ini adalah kunci! Menyelaraskan item di tengah secara vertikal */
+            align-items: center;
+            /* Memberikan sedikit jarak antara checkbox dan label */
+            gap: 5px;
+            /* Opsional: Sesuaikan margin bawah jika Anda memiliki banyak grup ini */
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group-flex input[type="checkbox"] {
+            /* Mencegah checkbox mengecil jika ruang terbatas */
+            flex-shrink: 0;
+            /* Pastikan checkbox memiliki ukuran yang konsisten */
+            width: 15px; /* Sesuaikan sesuai kebutuhan Anda */
+            height: 15px; /* Sesuaikan sesuai kebutuhan Anda */
+            /* Pastikan tidak ada margin default yang mengganggu */
+            margin: 0;
+            padding: 0;
+        }
+
+        .checkbox-group-flex label {
+            /* Membiarkan label menggunakan sisa ruang yang tersedia */
+            flex-grow: 1;
+            /* Pastikan tidak ada margin default yang mengganggu */
+            margin: 0;
+            padding: 0;
+            /* Jika Anda ingin teks label rata kiri di awal */
+            text-align: left;
+        }
     </style>
 
     <style type="text/css">
@@ -148,7 +193,7 @@
                             {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
                         <td>Tanggal Masuk</td>
                         <td style=" margin-right:10pt;">:
-                            {{ \Carbon\Carbon::parse($resumeRanap2->first()->waktu_masuk_ranap)->format('d-m-Y') }}
+                            {{ $resumeRanap2->first()->waktu_masuk_ranap != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($resumeRanap2->first()->waktu_masuk_ranap)->format('d-m-Y'):'-' }}
                         </td>
                     </tr>
                     <tr>
@@ -156,7 +201,7 @@
                         <td>: {{ $pasien->alamat }}</td>
                         <td>Tanggal Keluar</td>
                         <td style="margin-right:10pt;">:
-                            {{ \Carbon\Carbon::parse($resumeRanap2->last()->waktu_keluar_ranap)->format('d-m-Y') }}
+                            {{ $resumeRanap2->first()->waktu_keluar_ranap != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($resumeRanap2->last()->waktu_keluar_ranap)->format('d-m-Y'):'-' }}
                         </td>
                     </tr>
                     <tr>
@@ -1982,6 +2027,8 @@
             </div>
         @endforeach
     @endif
+
+
     {{-- Lembar selanjutnya Triase IGD --}}
     @if (!empty($dataTriase) && $dataTriase)
         <div style="float: none;">
@@ -3206,6 +3253,428 @@
             </div>
         </div>
     @endif
+
+    @if($dataTransfusi)
+        @foreach ($dataTransfusi as $listTransfusi)
+            <div style="float: none;">
+                <div style="page-break-after: always;"></div>
+            </div>
+            <div class="watermark">
+                {{ $watermark }}
+            </div>
+            <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP">
+            <div class="row justify-content-center">
+                <table style="width: 100%; margin-top:10px; margin-bottom:-2px;" class="table table-borderless table-sm">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black; border-left: 1px solid black; border-right: 1px solid black;" colspan="5">
+                                <h3><b>MONITORING TRANSFUSI DARAH / PRODUK DARAH</b></h3>
+                            </th>
+                        </tr>
+                        <tr>
+                            <td style="border-left: 1px solid black;">
+                                Identitas Pasien
+                            </td>
+                            <td style="" colspan="2">
+                                : {{ $listTransfusi->nm_pasien }} / {{ $listTransfusi->no_rkm_medis }} / {{ $listTransfusi->jk }}
+                            </td>
+                            <td style="border-right: 1px solid black;" class="text-bold" colspan="2">
+                                PETUGAS BANK DARAH
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border-left: 1px solid black;">
+                                Nomor Kantong
+                            </td>
+                            <td style="" colspan="2">
+                                : {{ $listTransfusi->nomor_kantong }}
+                            </td>
+                            <td style="" class="">
+                                Nama Petugas
+                            </td>
+                            <td style="border-right: 1px solid black;" class="">
+                                : {{ $listTransfusi->petugas1 }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border-left: 1px solid black;">
+                                Golongan Darah
+                            </td>
+                            <td style="" colspan="2">
+                                : {{ $listTransfusi->gol_darah }}
+                            </td>
+                            <td style="" class="">
+                                Waktu Penyerahan
+                            </td>
+                            <td style="border-right: 1px solid black;" class="">
+                                : {{ $listTransfusi->tgl_penyerahan }} {{ $listTransfusi->wp_jam }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border-left: 1px solid black;">
+                                Jenis Darah / Komponen
+                            </td>
+                            <td style="" colspan="2">
+                                : {{ $listTransfusi->jenis_darah }}
+                            </td>
+                            <td style="border-right: 1px solid black;" class="text-bold" colspan="2">
+                                PENERIMA DARAH
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border-left: 1px solid black;">
+                                Tanggal Kadaluarsa
+                            </td>
+                            <td style="" colspan="2">
+                                : {{ $listTransfusi->tgl_kadaluwarsa }}
+                            </td>
+                            <td style="" class="">
+                                Nama
+                            </td>
+                            <td style="border-right: 1px solid black;" class="">
+                                : {{ $listTransfusi->penerima }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border-left: 1px solid black;">
+                            </td>
+                            <td style="" colspan="2">
+                            </td>
+                            <td style="" class="">
+                                Waktu Transfusi
+                            </td>
+                            <td style="border-right: 1px solid black;" class="">
+                                : {{ $listTransfusi->tgl_transfusi }} {{ $listTransfusi->jam_transfusi }}
+                            </td>
+                        </tr>
+                    </thead>
+                </table>
+                <table class="table table-borderless table-sm" style="border: 1px solid black;">
+                    <tbody>
+                        <tr>
+                            <td style="vertical-align: middle; text-align:center; width:20%; border: 1px solid black;"><b>KONDISI</b></td>
+                            <td colspan="2" style="vertical-align: middle; text-align:center;width:20%; border: 1px solid black;"><b>SEBELUM TRANSFUSI</b><br>{{ $listTransfusi->jam_st }} WIB</td>
+                            <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>15-30 MENIT TRANSFUSI</b><br>{{ $listTransfusi->jam_mt }} WIB</td>
+                            <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>2 JAM TRANSFUSI</b><br>{{ $listTransfusi->jam_t }} WIB</td>
+                            <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>PASCA TRANSFUSI</b><br>{{ $listTransfusi->jam_pt }} WIB</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: middle; text-align:center;border: 1px solid black;">Keadaan Umum</td>
+                            <td colspan="2" style="vertical-align: middle; text-align:center;border: 1px solid black;">{{ $listTransfusi->ku_st }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->ku_mt }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->ku_t }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->ku_pt }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: middle; text-align:center;border: 1px solid black;">Suhu Tubuh</td>
+                            <td colspan="2" style="vertical-align: middle; text-align:center;border: 1px solid black;">{{ $listTransfusi->st_st }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->st_mt }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->st_t }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->st_pt }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;">Nadi</td>
+                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->nadi_st }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->nadi_mt }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->nadi_t }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->nadi_pt }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;">Tekanan Darah</td>
+                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->td_st }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->td_mt }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->td_t }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->td_pt }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;"><i>Respiratory Rate</i></td>
+                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->rr_st }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->rr_mt }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->rr_t }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->rr_pt }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;">Volume & Warna Urine</td>
+                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->vol_st }} WIB</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->vol_mt }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->vol_t }}</td>
+                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->vol_pt }}</td>
+                        </tr>
+                        <tr>
+                            <td style="vertical-align: middle; border: 1px solid black;" rowspan="5">Gejala dan tanda reaksi transfusi yang ditemukan &#42;&#41;</td>
+                            <td style="border-left: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_1 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">urtikaria</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_6 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">nyeri dada</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                {{-- <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                        {{ $listTransfusi->gr_10 == 'true' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="defaultCheck1">
+                                        urtikaria
+                                    </label>
+                                </div> --}}
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_10 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">urtikaria</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_15 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">nyeri dada</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_19 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">urtikaria</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_24 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">nyeri dada</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_28 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">urtikaria</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_33 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">nyeri dada</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_2 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">demam</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_7 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">nyeri kepala</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_11 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">demam</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_16 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">nyeri kepala</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_20 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">demam</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_25 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">nyeri kepala</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_29 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">demam</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_34 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">nyeri kepala</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_3 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">gatal</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_8 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">Syok&#42;&#42;</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_12 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">gatal</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_17 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">Syok&#42;&#42;</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_21 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">gatal</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_26 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">Syok&#42;&#42;</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_30 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">gatal</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_35 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">Syok&#42;&#42;</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_4 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">takikardi</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_9 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">sesak napas&#42;&#42;</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_13 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">takikardi</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_18 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">sesak napas&#42;&#42;</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_22 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">takikardi</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_27 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">sesak napas&#42;&#42;</label>
+                                </div>
+                            </td>
+                            <td style="">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_31 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">takikardi</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black;">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_36 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">sesak napas&#42;&#42;</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_5 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">hematuria / Hemoglobinuria&#42;&#42;</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_14 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">hematuria / Hemoglobinuria&#42;&#42;</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_23 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">hematuria / Hemoglobinuria&#42;&#42;</label>
+                                </div>
+                            </td>
+                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                <div class="checkbox-group-flex">
+                                    <input type="checkbox" id="myCheckbox" {{ $listTransfusi->gr_32 == 'true' ? 'checked' : '' }}>
+                                    <label for="myCheckbox">hematuria / Hemoglobinuria&#42;&#42;</label>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding-left:25px;" colspan="3">Nama Perawat yang melakukan transfusi <br> <i>(double check)</i>
+                            </td>
+                            <td style="" colspan="3">
+                                1&#41; {{ $listTransfusi->petugas2 }} <br>
+                                2&#41; {{ $listTransfusi->petugas3 }} <br>
+                            </td>
+                            <td style="text-align:center;" colspan="3">
+                                Surakarta, {{ \Carbon\Carbon::parse($listTransfusi->tanggal)->format('d-m-Y') }} <br> Petugas Transfusi
+                            </td>
+                        </tr>
+                        @php
+                            $qr_petugas =
+                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                            elektronik oleh' .
+                            "\n" .
+                            $listTransfusi->petugas2 .
+                            "\n" .
+                            'ID ' .
+                            $listTransfusi->kd_petugas_2 .
+                            "\n" .
+                            \Carbon\Carbon::parse($listTransfusi->tanggal)->format('d-m-Y');
+
+                            $qrcode_petugas= base64_encode(
+                                QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_petugas)
+                            );
+                        @endphp
+                        <tr>
+                            <td style="padding-left:25px; vertical-align:middle;" colspan="6">
+                                &#42;&#41; gejala yang ditemukan <br>
+                                &#42;&#42;&#41; mengikuti SPO pelaporan reaksi transfusi
+                            </td>
+                            <td style="text-align:center;" colspan="3">
+                                <img src="data:image/png;base64, {!! $qrcode_dokter !!}"> <br> {{ $listTransfusi->petugas2 }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        @endforeach
+    @endif
     {{-- Data Operasi --}}
     @if ($dataOperasi2)
         @foreach ($dataOperasi2 as $index => $listOperasi)
@@ -4061,37 +4530,37 @@
                         <td style="width: 20%; border-top: 1px solid black;">
                             No. Rawat
                         </td>
-                        <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->no_rawat }}</td>
+                        <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi2->no_rawat }}</td>
                     </tr>
                     <tr>
                         <td>
                             No. Rekam Medis
                         </td>
-                        <td style="border-right: 1px solid black;">: {{ $dataAnestesi->no_rkm_medis }}</td>
+                        <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->no_rkm_medis }}</td>
                     </tr>
                     <tr>
                         <td>
                             Nama Pasien
                         </td>
-                        <td style="border-right: 1px solid black;">: {{ $dataAnestesi->nm_pasien }}/ Th/ {{ $dataAnestesi->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
+                        <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->nm_pasien }}/ Th/ {{ $dataAnestesi2->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
                     </tr>
                     <tr>
                         <td>
                             Tanggal Lahir
                         </td>
-                        <td style="border-right: 1px solid black;">: {{ \Carbon\Carbon::parse($dataAnestesi->tgl_lahir)->format('d-m-Y') }}</td>
+                        <td style="border-right: 1px solid black;">: {{ \Carbon\Carbon::parse($dataAnestesi2->tgl_lahir)->format('d-m-Y') }}</td>
                     </tr>
                     <tr>
                         <td>
                             Alamat
                         </td>
-                        <td style="border-right: 1px solid black;">: {{ $dataAnestesi->alamat }}, {{ $dataAnestesi->kelurahan }}, {{ $dataAnestesi->kecamatan }}, {{ $dataAnestesi->kabupaten }}</td>
+                        <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->alamat }}, {{ $dataAnestesi2->kelurahan }}, {{ $dataAnestesi2->kecamatan }}, {{ $dataAnestesi2->kabupaten }}</td>
                     </tr>
                     <tr>
                         <td style="border-bottom: 1px solid black; ">
                             Ruang Rawat
                         </td>
-                        <td style="border-bottom: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->nm_bangsal }}</td>
+                        <td style="border-bottom: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi2->nm_bangsal }}</td>
                     </tr>
                 </thead>
             </table>

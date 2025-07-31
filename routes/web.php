@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\File;
 Route::get('/', function () {
     // return view('home');
     return redirect('/login');
+    // return redirect()->away('https://gate.rsupsurakarta.id');
 });
 
 // Survei
@@ -201,6 +202,13 @@ Route::post('/berkasrm/generalconsent/store', 'BerkasRmController@generalStore')
 Route::post('/berkasrm/generalconsent/edit', 'BerkasRmController@generalEdit')->name('berkasrm.generalEdit');
 Route::get('/berkasrm/generalconsent/{id}/delete', 'BerkasRmController@generalDelete')->name('berkasrm.generalDelete');
 Route::get('/berkasrm/generalconsent/{id}/print', 'BerkasRmController@generalPdf')->name('berkasrm.generalPdf');
+Route::get('/berkasrm/booking', 'BookingPendaftaranController@index')->name('berkasrm.bookingIndex');
+Route::get('/berkasrm/booking/{id}/pasien', 'BookingPendaftaranController@getPasien')->name('berkasrm.bookingGetPasien');
+Route::post('/berkasrm/booking/kirimpesan', 'BookingPendaftaranController@kirimPesanPasien')->name('berkasrm.bookingKirimPesan');
+Route::post('/berkasrm/booking/kirimblast', 'BookingPendaftaranController@kirimBlast')->name('berkasrm.bookingKirimBlast');
+Route::get('/berkasrm/bookingmjkn', 'BookingPendaftaranController@indexMjkn')->name('berkasrm.bookingMjkn');
+Route::post('/berkasrm/bookingmjkn/kirimpesan', 'BookingPendaftaranController@kirimPesanMPasien')->name('berkasrm.bookingMKirimPesan');
+Route::post('/berkasrm/bookingmjkn/kirimblast', 'BookingPendaftaranController@kirimBlastM')->name('berkasrm.bookingMKirimBlast');
 //VEDIKA
 Route::get('/vedika/rajal', 'VedikaController@rajal')->name('vedika.rajal');
 Route::get('/vedika/rajal/{id}/detail', 'VedikaController@detailRajal')->name('vedika.detailRajal');
@@ -295,6 +303,13 @@ Route::get('/vedika/tidaklayak', 'KlaimCompareController@lihatDpjpGagal')->name(
 Route::post('/vedika/tidaklayak/import', 'KlaimCompareController@importTidakLayak')->name('vedika.importTidakLayak');
 Route::get('/vedika/tidaklayak/template', 'KlaimCompareController@templateTidakLayak')->name('vedika.tidaklayak.template');
 
+Route::get('/vedikanon/rajal', 'VedikaNonController@rajal')->name('vedika_non.rajal');
+Route::get('/vedikanon/rajal/{id}/detail', 'VedikaNonController@detailRajal')->name('vedika_non.rajalDetail');
+Route::get('/vedikanon/rajal/{id}/detailpdf', 'VedikaNonController@detailRajalPdf')->name('vedika_non.RajalDetailPdf');
+Route::get('/vedikanon/ranap', 'VedikaNonController@ranap')->name('vedika_non.ranap');
+Route::get('/vedikanon/ranap/{id}/detail', 'VedikaNonController@detailRanap')->name('vedika_non.ranapDetail');
+Route::get('/vedikanon/ranap/{id}/detailpdf', 'VedikaNonController@detailRanapPdf')->name('vedika_non.ranapDetailPdf');
+
 Route::get('/sep', 'SepController@getSep')->name('sep.getSep');
 // Route::get('/sep2', 'SepController@getJmlSep')->name('sep.getJmlSep');
 // Route::get('/coba', 'EklaimController@getDetail')->name('sep.coba');
@@ -324,9 +339,21 @@ Route::get('/operasi/jadwal', 'OperasiController@jadwal')->name('operasi.jadwal'
 //COBA WHATSAPP API BAILEY
 Route::get('/pesan', 'WaController@index')->name('wa.index');
 Route::get('/pesan/createsession', 'WaController@createSession')->name('wa.createSession');
+Route::get('/pesan/getqr', 'WaController@getqr')->name('wa.getQr');
 Route::get('/pesan/deletesession', 'WaController@deleteSession')->name('wa.deleteSession');
 Route::get('/pesan/kirim', 'WaController@kirimPesan')->name('wa.kirimPesan');
 Route::post('/pesan/kirim', 'WaController@kirim')->name('wa.kirim');
+//Ajax
+Route::get('/pesan/getpenerima', 'WaController@getPenerima')->name('wa.getPenerima');
+Route::get('/pesan/pembicaraan', 'WaController@pembicaraan')->name('wa.pembicaraan');
+Route::post('/pesan/template/simpan', 'WaController@simpanTemplate')->name('wa.simpanTemplate');
+Route::get('/pesan/template/{id}/default', 'WaController@defaultTemplate')->name('wa.defaultTemplate');
+Route::get('/pesan/template/{id}/delete', 'WaController@deleteTemplate')->name('wa.deleteTemplate');
+Route::get('/pesan/template/{id}', 'WaController@editTemplate')->name('wa.editTemplate');
+Route::post('/pesan/template/update', 'WaController@updateTemplate')->name('wa.updateTemplate');
+Route::get('/pesan/kotak', 'WaController@kotakPesan')->name('wa.kotakPesan');
+Route::get('/pesan/{id}/percakapan', 'WaController@percakapan')->name('wa.percakapan');
+Route::get('/pesan/status', 'WaController@status')->name('wa.status');
 
 //Tarif SIMRS
 Route::get('/tarifsimrs/rajal', 'TarifSimController@rajal')->name('tarifsim.rajal');

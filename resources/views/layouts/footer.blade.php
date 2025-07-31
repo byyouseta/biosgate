@@ -4,7 +4,7 @@
         Kesehatan Anda Prioritas Kami
     </div>
     <!-- Default to the left -->
-    <strong>Copyright &copy; 2021 SIRS <a href="https://rsupsurakarta.co.id" target="new_tab">RSUP
+    <strong>Copyright &copy; 2021-{{ \Carbon\Carbon::now()->format('Y') }} SIRS <a href="https://rsupsurakarta.co.id" target="new_tab">RSUP
             Surakarta</a>.</strong> All rights
     reserved.
 </footer>

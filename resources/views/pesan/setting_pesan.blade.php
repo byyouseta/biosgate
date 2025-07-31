@@ -27,55 +27,45 @@
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
+                                <table class="table table-bordered table-hover table-sm">
                                     <thead>
                                         <tr>
-                                            <th class="align-middle">Server Pesan</th>
-                                            <th class="align-middle">Port</th>
-                                            <th class="align-middle">Status</th>
-                                            {{-- <th class="align-middle">Key</th> --}}
-                                            <th class="align-middle">Aksi</th>
+                                            <th class="text-center">Server Pesan : Port</th>
+                                            <th class="text-center">Status Server</th>
+                                            <th class="text-center">Key</th>
+                                            <th class="text-center">Session</th>
+                                            <th class="text-center">Aksi</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{{ $status[0] != null ? $status[0] : '-' }}</td>
-                                            <td>{{ $status[1] != null ? $status[1] : '-' }}</td>
-                                            <td>{{ $status[2] }}</td>
-                                            {{-- <td>{{ $setting->key }}</td> --}}
+                                            <td>{{ $setting ? $setting->base_url : '-' }}</td>
+                                            {{-- <td>{{ $status[1] != null ? $status[1] : '-' }}</td> --}}
+                                            <td>{{ $status }}</td>
+                                            <td>{{ $setting->key }}</td>
+                                            <td class="text-center">{{ $sessionApp == true ? 'Sudah terhubung':'Tidak terhubung' }}</td>
                                             <td>
-                                                @can('setting-update')
+                                                @can('pesan-setting')
                                                     <div class="col text-center">
                                                         <div class="btn-group">
-                                                            {{-- {{ dd($sessionApp) }} --}}
-
-
-                                                            {{-- @if ($status[2] == 'online') --}}
-                                                            {{-- @if ($sessionApp == false) --}}
-                                                            <a href="/pesan/createsession"
-                                                                class="btn {{ $sessionApp == 'true' ? 'btn-success' : 'btn-danger' }} btn-sm"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="{{ $sessionApp == 'true' ? 'Session App Found' : 'Session App Not Found' }}">
-                                                                <i class="fas fa-link"></i>
-                                                            </a>
-                                                            {{-- @elseif ($sessionApp == true) --}}
-                                                            <a href="/pesan/deletesession"
-                                                                class="btn btn-success btn-sm delete-confirm"
-                                                                data-toggle="tooltip" data-placement="bottom"
-                                                                title="Delete Session App">
-                                                                <i class="fas fa-unlink"></i>
-                                                            </a>
-                                                            {{-- @endif --}}
-                                                            {{-- @else
+                                                            @if ($sessionApp == false)
                                                                 <a href="/pesan/createsession"
-                                                                    class="btn {{ $sessionApp == 'true' ? 'btn-success' : 'btn-danger' }} btn-sm disabled"
-                                                                    data-toggle="tooltip" data-placement="bottom"
-                                                                    title="{{ $sessionApp == 'true' ? 'Session App Found' : 'Session App Not Found' }}">
-                                                                    <i class="fas fa-ban"></i>
+                                                                    class="btn btn-success btn-sm"
+                                                                    data-toggle="tooltip" data-placement="bottom" title="Buat Session">
+                                                                    <i class="fas fa-plus-circle"></i>
                                                                 </a>
-                                                            @endif --}}
-
-
+                                                                <a href="/pesan/getqr"
+                                                                    class="btn btn-secondary btn-sm"
+                                                                    data-toggle="tooltip" data-placement="bottom" title="Ambil Barcode">
+                                                                    <i class="fas fa-qrcode"></i>
+                                                                </a>
+                                                            @elseif ($sessionApp == true)
+                                                                <a href="/pesan/deletesession"
+                                                                    class="btn btn-danger btn-sm delete-confirm" data-toggle="tooltip" data-placement="bottom"
+                                                                    title="Hapus Session">
+                                                                    <i class="fas fa-unlink"></i>
+                                                                </a>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 @endcan
@@ -87,11 +77,18 @@
                         </div>
                     </div>
                     @if (!empty($qrCode))
+                        @php
+                            $qrBase64 = base64_encode(QrCode::format('png')->size(300)->generate($qrCode->qr));
+                        @endphp
                         <div class="card">
-                            <div class="card-header">Scan Barcode</div>
+                            <div class="card-header">Scan Barcode
+                                <div class="float-right">
+                                    <a href="{{ route('wa.index') }}" class="btn btn-success btn-sm">Sukses</a>
+                                </div>
+                            </div>
                             <div class="card-body">
                                 Disini
-                                <img src="{{ $qrCode->qr }}" alt="Silahkan scan no Whatsapp yang dipakai" />
+                                <img src="data:image/png;base64,{{ $qrBase64 }}" alt="Silahkan scan no Whatsapp yang dipakai" />
                             </div>
                         </div>
                     @endif

@@ -1,0 +1,112 @@
+/* Ubah warna utama navigasi atau header */
+.main-header,
+.brand-link {
+    background-color: #00bfa5 !important;
+}
+
+/* Warna untuk info box (widget card) */
+.bg-learning-total {
+    background-color: #00c853 !important;
+    color: white;
+}
+
+.bg-learning-finished {
+    background-color: #40c4ff !important;
+    color: white;
+}
+
+.bg-learning-skp {
+    background-color: #b388ff !important;
+    color: white;
+}
+
+/* Warna teks judul section */
+.section-title {
+    color: #333333;
+    font-weight: bold;
+}
+
+/* Warna teks biasa */
+.text-normal {
+    color: #666666;
+}
+
+/* Tambahan jika ingin card style serupa */
+.card-custom {
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Menu sidebar aktif */
+.main-sidebar .nav-link.active {
+    background-color: #e0f7f5 !important;
+    /* lembut, hampir putih kehijauan */
+    border-left: 3px solid #00B29C;
+    color: #00B29C !important;
+    font-weight: bold;
+}
+
+/* Hover menu sidebar */
+.main-sidebar .nav-link:hover {
+    background-color: #e6f9f7 !important;
+    color: #00B29C !important;
+}
+
+/* Tombol utama bergaya LMS Kemenkes */
+.btn-primary,
+.btn-success,
+.btn-custom {
+    background-color: #00B29C !important;
+    border-color: #00B29C !important;
+    color: white !important;
+}
+
+.btn-primary:hover,
+.btn-success:hover,
+.btn-custom:hover {
+    background-color: #009e8a !important;
+    border-color: #009e8a !important;
+}
+
+body,
+.content-wrapper,
+.main-header,
+.main-sidebar,
+.nav-sidebar .nav-link,
+.brand-text {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+/* Turunkan font size dasar */
+body {
+    font-size: 0.875rem !important;
+    /* Default AdminLTE: 1rem (16px), ini jadi 14px */
+}
+
+/* Menu sidebar */
+.nav-sidebar .nav-link {
+    font-size: 0.85rem !important;
+}
+
+/* Header judul konten */
+.content-header h1,
+.content-header h2,
+.content-header h3 {
+    font-size: 1.25rem !important;
+    /* Sesuaikan judul agar tidak terlalu besar */
+}
+
+/* Text pada box dan card */
+.card-title,
+.card-body,
+.info-box-content,
+.small-box .inner {
+    font-size: 0.875rem !important;
+}
+
+.brand-logo-custom {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}

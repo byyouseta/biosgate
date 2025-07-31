@@ -92,121 +92,124 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($data as $data)
+                                        @foreach ($data as $listData)
                                             <tr>
                                                 @php
                                                     $no_sep = null;
-                                                    if ($data->no_sep) {
-                                                        $no_sep = $data->no_sep;
-                                                    } elseif (!empty(\App\Vedika::getHapusSep($data->no_rawat))) {
-                                                        $no_sep = \App\Vedika::getHapusSep($data->no_rawat)->no_sep;
-                                                    } else {
-                                                        $no_sep = '-';
+                                                    if ($listData->no_sep) {
+                                                        $no_sep = $listData->no_sep;
                                                     }
                                                 @endphp
                                                 <td>{{ $no_sep }} </td>
-                                                <td>{{ $data->no_rawat }}, {{ $data->no_rkm_medis }}</td>
-                                                <td>{{ $data->nm_pasien }}, {{ $data->umurdaftar }}
-                                                    {{ $data->sttsumur }},
-                                                    {{ $data->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}
-                                                    @if ($data->status_lanjut == 'Ralan')
-                                                        <a href="/vedika/rajal/{{ Crypt::encrypt($data->no_rawat) }}/detail"
+                                                <td>{{ $listData->no_rawat }}, {{ $listData->no_rkm_medis }}</td>
+                                                <td>{{ $listData->nm_pasien }}, {{ $listData->umurdaftar }}
+                                                    {{ $listData->sttsumur }},
+                                                    {{ $listData->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}
+                                                    @if ($listData->status_lanjut == 'Ralan')
+                                                        <a href="/vedika/rajal/{{ Crypt::encrypt($listData->no_rawat) }}/detail"
                                                             class="btn btn-sm " data-toggle="tooltip"
                                                             data-placement="bottom" title="Detail Informasi"
                                                             target="_blank">
                                                             <span class="badge badge-info"><i
                                                                     class="fas fa-search"></i></span></a>
-                                                    @elseif ($data->status_lanjut == 'Ranap')
-                                                        <a href="/vedika/ranap/{{ Crypt::encrypt($data->no_rawat) }}/detail"
+                                                    @elseif ($listData->status_lanjut == 'Ranap')
+                                                        <a href="/vedika/ranap/{{ Crypt::encrypt($listData->no_rawat) }}/detail"
                                                             class="btn btn-sm " data-toggle="tooltip"
                                                             data-placement="bottom" title="Detail Informasi"
                                                             target="_blank">
-                                                            <span class="badge badge-info"><i
-                                                                    class="fas fa-search"></i></span></a>
+                                                            <span class="badge badge-info"><i class="fas fa-search"></i>
+                                                            </span>
+                                                        </a>
                                                     @endif
 
                                                 </td>
-                                                <td>{{ $data->tgl_registrasi }} {{ $data->jam_reg }}</td>
+                                                <td>{{ $listData->tgl_registrasi }} {{ $listData->jam_reg }}</td>
                                                 <td>
-                                                    @if ($data->status_lanjut == 'Ralan')
-                                                        {{ $data->tgl_registrasi }}
-                                                    @elseif($data->status_lanjut == 'Ranap')
-                                                        {{-- {{ \App\Vedika::getWaktuKeluar($data->no_rawat) }} --}}
-                                                        @php
-                                                            $waktu = \App\Vedika::getWaktuDokter($data->no_rawat);
-                                                        @endphp
-                                                        {{ $waktu?$waktu->waktuKeluar:'-' }}
+                                                    @if ($listData->status_lanjut == 'Ralan')
+                                                        {{ $listData->tgl_registrasi }}
+                                                    @elseif($listData->status_lanjut == 'Ranap')
+                                                        {{ isset($waktu[$listData->no_rawat])?$waktu[$listData->no_rawat]->waktuKeluar:'-' }}
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if ($data->status_lanjut == 'Ralan')
-                                                        {{ $data->nm_dokter }}
-                                                    @elseif($data->status_lanjut == 'Ranap')
-                                                        {{-- {{ \App\Vedika::getDpjp($data->no_rawat) }} --}}
-                                                        {{ $waktu?$waktu->nm_dokter:'-' }}
+                                                    @if ($listData->status_lanjut == 'Ralan')
+                                                        {{ $listData->nm_dokter }}
+                                                    @elseif($listData->status_lanjut == 'Ranap')
+                                                        {{ isset($waktu[$listData->no_rawat])?$waktu[$listData->no_rawat]->nm_dokter:'-' }}
                                                     @endif
                                                 </td>
                                                 @php
-                                                    $bill = \App\KlaimCair::getBill($data->no_rawat);
-                                                    if ($no_sep) {
-                                                        $cair = \App\KlaimCair::getCair($no_sep);
-                                                        if(empty($cair)){
-                                                            $pending = \App\KlaimPending::getPending($no_sep);
+                                                    $billKronis = null;
+                                                    if ($no_sep ) {
+                                                        if(empty($cair[$no_sep])){
+                                                            $pending = isset($dataPending[$no_sep])?$dataPending[$no_sep]:null;
+
                                                             if($pending){
-                                                                $cair = $pending->biaya_disetujui;
+                                                                $danaCair = $pending->biaya_disetujui;
                                                             }
                                                         }else{
                                                             $pending = (object) [];
                                                             $pending->status = 'Cair';
                                                         }
-                                                        $kronis = \App\KlaimCair::getObatKronis($data->no_rawat);
-                                                        $billKronis = $bill - $kronis;
+
+                                                        if(isset($bill[$listData->no_rawat])){
+                                                            $billKronis = ($bill[$listData->no_rawat]->total_biaya) - (isset($kronis[$listData->no_rawat]->total_biaya) ? $kronis[$listData->no_rawat]->total_biaya:0);
+                                                        }
+
+                                                        $klaimCair = isset($cair[$no_sep])? $cair[$no_sep]:0;
+                                                    }else{
+                                                        $billKronis = 0; //
+                                                        $pending = $klaimCair = null; //
                                                     }
 
-                                                    $diag = \App\Vedika::getDiagnosaAll(
-                                                        $data->no_rawat,
-                                                        $data->status_lanjut
-                                                    );
-
-                                                    $procedure = \App\Vedika::getProcedure($data->no_rawat,$data->status_lanjut);
-                                                    if( $data->status_lanjut == 'Ralan'){
+                                                    if( $listData->status_lanjut == 'Ralan'){
                                                         $jenis_rawat = 'Rawat Jalan';
                                                     }else{
                                                         $jenis_rawat = 'Rawat Inap';
                                                     }
                                                     $statusPengajuan = null;
                                                     if (strlen($no_sep)>5) {
-                                                        $statusPengajuan = App\DataPengajuanKlaim::cekPengajuanSEP($no_sep);
+                                                        $statusPengajuan = isset($dataPengajuan[$no_sep])?$dataPengajuan[$no_sep]:null;
                                                     }
                                                 @endphp
                                                 <td>
-                                                    @if ($diag)
-                                                        @foreach ($diag as $listDiag)
-                                                            {{ $listDiag }},
+                                                    @if (!empty($diagnosa->where('no_rawat',$listData->no_rawat)->where('status',$listData->status_lanjut)))
+                                                        @foreach ($diagnosa->where('no_rawat',$listData->no_rawat)->where('status',$listData->status_lanjut) as $index => $dataDiagnosa)
+                                                            @if (!$loop->last)
+                                                                {{ $dataDiagnosa->kd_penyakit }},
+                                                            @else
+                                                                {{ $dataDiagnosa->kd_penyakit }}
+                                                            @endif
                                                         @endforeach
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    @if ($procedure)
-                                                        @foreach ($procedure as $listPro)
-                                                            {{ $listPro }},
-                                                        @endforeach
-                                                    @endif
+                                                   @if (!empty($prosedur->where('no_rawat',$listData->no_rawat)->where('status',$listData->status_lanjut)))
+                                                            @foreach ($prosedur->where('no_rawat',$listData->no_rawat)->where('status',$listData->status_lanjut) as $index => $dataProsedur)
+                                                                @if (!$loop->last)
+                                                                    {{ $dataProsedur->kode }},
+                                                                @else
+                                                                    {{ $dataProsedur->kode }}
+                                                                @endif
+                                                            @endforeach
+                                                        @endif
                                                 </td>
-                                                <td class="text-right">{{ number_format($bill,0,'.',',') }}</td>
+                                                <td class="text-right">
+                                                    {{ isset($bill[$listData->no_rawat]) ? number_format($bill[$listData->no_rawat]->total_biaya,0,'.',','):'0' }}
+                                                </td>
                                                 <td class="text-right">{{ number_format($billKronis,0,'.',',') }}</td>
                                                 <td class="text-right">
-                                                    {{ $cair >= 0 ? number_format($cair,0,'.',',') : '-' }}
-                                                    @if ($cair > $billKronis)
+                                                    {{ $klaimCair >= 0 ? number_format($klaimCair,0,'.',',') : '-' }}
+                                                    @if ($klaimCair > $billKronis)
                                                         <span class="badge badge-success"><i
                                                                 class="fas fa-arrow-up"></i></span>
-                                                    @elseif($cair < $billKronis && $cair != null)
+                                                    @elseif($klaimCair < $billKronis && $klaimCair != null)
                                                         <span class="badge badge-danger"><i
                                                                 class="fas fa-arrow-down"></i></span>
                                                     @endif
                                                 </td>
-                                                <td>{{ $pending?$pending->status:'-' }} </td>
-                                                <td>{{ $data->status_lanjut }} </td>
+                                                <td>{{ isset($pending)? $pending->status:'-' }} </td>
+                                                <td>{{ $listData->status_lanjut }} </td>
                                                 <td>@if ($statusPengajuan)
                                                     <span class="badge badge-success">
                                                         {{ \Carbon\Carbon::parse($statusPengajuan->periodeKlaim->periode)->format('F Y') }}</span>

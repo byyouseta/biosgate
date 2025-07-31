@@ -201,54 +201,64 @@
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" value="3" name="unit"
-                                                id="igd" {{ old('unit') == '3' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="igd">3. IGD</label>
+                                                id="mcu" {{ old('unit') == '3' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="mcu">3. Medical Check Up (MCU)</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" value="4" name="unit"
-                                                id="farmasi" {{ old('unit') == '4' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="farmasi">4. Farmasi</label>
+                                                id="igd" {{ old('unit') == '4' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="igd">4. IGD</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" value="5" name="unit"
-                                                id="lab" {{ old('unit') == '5' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="lab">5. Laboratorium</label>
+                                                id="ibs" {{ old('unit') == '5' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="ibs">5. Instalasi Bedah Sentral (IBS)</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" value="6" name="unit"
-                                                id="radiologi" {{ old('unit') == '6' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="radiologi">6. Radiologi</label>
+                                                id="icu" {{ old('unit') == '6' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="icu">6. ICU/NICU/PICU</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" value="7" name="unit"
-                                                id="icu" {{ old('unit') == '7' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="icu">7. ICU; NICU; PICU</label>
+                                                id="farmasi" {{ old('unit') == '7' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="farmasi">7. Farmasi</label>
                                         </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" value="8" name="unit"
-                                                id="jenazah" {{ old('unit') == '8' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="jenazah">8. Pemulasaran Jenazah</label>
-                                        </div>
+
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-check">
+                                            <input class="form-check-input" type="radio" value="8" name="unit"
+                                                id="lab" {{ old('unit') == '8' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="lab">8. Laboratorium</label>
+                                        </div>
+                                        <div class="form-check">
                                             <input class="form-check-input" type="radio" value="9" name="unit"
-                                                id="rehap" {{ old('unit') == '9' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="rehap">9. Rehabilitasi medik</label>
+                                                id="radiologi" {{ old('unit') == '9' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="radiologi">9. Radiologi</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" value="10" name="unit"
-                                                id="radioterapi" {{ old('unit') == '10' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="radioterapi">10. Radioterapi</label>
+                                                id="rehap" {{ old('unit') == '10' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="rehap">10. Rehabilitasi Medik</label>
                                         </div>
                                         <div class="form-check">
                                             <input class="form-check-input" type="radio" value="11" name="unit"
-                                                id="jantung" {{ old('unit') == '11' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="jantung">11. Jantung</label>
+                                                id="pendaftaran" {{ old('unit') == '11' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="pendaftaran">11. Pendaftaran</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" value="12" name="unit"
+                                                id="gizi" {{ old('unit') == '12' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="gizi">12. Konseling Gizi</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" value="13" name="unit"
+                                                id="rehap" {{ old('unit') == '13' ? 'checked' : '' }}>
+                                            <label class="form-check-label" for="rehap">13. Konseling Kesehatan (TB/Asma)</label>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
                         </div>
                         <div class="card mb-5">

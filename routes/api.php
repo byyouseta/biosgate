@@ -13,6 +13,9 @@ use Illuminate\Http\Request;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+Route::post('/pesan/webhook', 'RedirectController@handle')->name('wa.handle');
+Route::middleware('verify.payroll')->post('/send-otp', 'RedirectController@sendOtp')->name('wa.kirimOtp');

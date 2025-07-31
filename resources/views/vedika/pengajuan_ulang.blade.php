@@ -26,7 +26,7 @@
                     <div class="card-header">
                         <div class="form-group row">
                             <div class="col-sm-6 mt-2">
-                                <label>Data Pasien Ranap</label>
+                                <label>Data Pasien</label>
                             </div>
                             <div class="col-sm-2">
                                 <div class="float-right">

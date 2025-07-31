@@ -68,6 +68,7 @@ class SatuSehatController extends Controller
         session()->put('ibu', 'Satu Sehat');
         session()->put('anak', 'Rajal Satu Sehat');
         session()->put('cucu', 'Summary Check');
+        set_time_limit(0);
 
 
         if (empty($request->get('tanggal_awal'))) {
@@ -109,6 +110,23 @@ class SatuSehatController extends Controller
             ->whereBetween('reg_periksa.tgl_registrasi', [$tanggal_awal, $tanggal_akhir])
             ->orderBy('reg_periksa.no_rkm_medis', 'ASC')
             ->get();
+
+        $ktpList = $dataLog->pluck('ktp_pasien')->unique();
+        $idSehatMap = \App\PasienSehat::whereIn('nik', $ktpList)->pluck('satu_sehat_id', 'nik');
+
+        $noRawatList = $dataLog->pluck('no_rawat')->unique();
+
+        $encounters = \App\ResponseSatuSehat::whereIn('noRawat', $noRawatList)
+            ->get()
+            ->keyBy('noRawat');
+
+        // dd($noRawatList, $encounters);
+
+        foreach ($dataLog as $list) {
+            $list->idSehat = $idSehatMap[$list->ktp_pasien] ?? null;
+            $list->dataEncounter = $encounters[$list->no_rawat] ?? null;
+            // $list->dataEncounter = \App\ResponseSatuSehat::getEncounter($list->no_rawat);
+        }
 
         return view('satu_sehat.summary_rajal', compact('dataLog'));
     }
@@ -1600,7 +1618,7 @@ class SatuSehatController extends Controller
             if ((!empty($idPasien)) && (!empty($idDokter)) && (!empty($diagnosaPrimer)) && (!empty($idLokasi))) {
 
                 $diagnosaSekunder = SatuSehatController::getDiagnosisSekunderRalan($dataPengunjung->no_rawat);
-                // dd($diagnosaSekunder);
+                // dd($diagnosaPrimer, $diagnosaSekunder);
                 $procedurePasien = SatuSehatController::getProcedureRalan($dataPengunjung->no_rawat);
                 $cekDiet = SatuSehatController::getDiet($dataPengunjung->no_rawat, $dataPengunjung->tgl_registrasi); //nyoba bundle composition
                 $waktuKeperawatan = SatuSehatController::getWaktuKeperawatan($dataPengunjung->no_rawat);
@@ -7656,39 +7674,73 @@ class SatuSehatController extends Controller
             )
             ->where('diagnosa_pasien.no_rawat', $id)
             ->where('diagnosa_pasien.status', 'Ralan')
-            ->where('diagnosa_pasien.prioritas', '1')
-            ->first();
-        // dd($data->kd_penyakit);
+            ->orderBy('prioritas', 'ASC')
+            ->limit(10)
+            ->get();
+
+
 
         if (!empty($data)) {
-            //cek jika kd pengakit = kontrol /z09.8
-            // dd($data->kd_penyakit);
-            if (stripos($data->kd_penyakit, "Z09") !== false) {
-                $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
-                    ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
-                    ->select(
-                        'diagnosa_pasien.no_rawat',
-                        'diagnosa_pasien.kd_penyakit',
-                        'diagnosa_pasien.status',
-                        'diagnosa_pasien.prioritas',
-                        'penyakit.nm_penyakit'
-                    )
-                    ->where('diagnosa_pasien.no_rawat', $id)
-                    ->where('diagnosa_pasien.status', 'Ralan')
-                    ->where('diagnosa_pasien.prioritas', '2')
-                    ->first();
+            // if (stripos($data->kd_penyakit, "Z09") !== false) {
+            //     $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            //         ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            //         ->select(
+            //             'diagnosa_pasien.no_rawat',
+            //             'diagnosa_pasien.kd_penyakit',
+            //             'diagnosa_pasien.status',
+            //             'diagnosa_pasien.prioritas',
+            //             'penyakit.nm_penyakit'
+            //         )
+            //         ->where('diagnosa_pasien.no_rawat', $id)
+            //         ->where('diagnosa_pasien.status', 'Ralan')
+            //         ->where('diagnosa_pasien.prioritas', '2')
+            //         ->first();
+            // } else {
+            //     $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            //         ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            //         ->select(
+            //             'diagnosa_pasien.no_rawat',
+            //             'diagnosa_pasien.kd_penyakit',
+            //             'diagnosa_pasien.status',
+            //             'diagnosa_pasien.prioritas',
+            //             'penyakit.nm_penyakit'
+            //         )
+            //         ->where('diagnosa_pasien.no_rawat', $id)
+            //         ->where('diagnosa_pasien.status', 'Ralan')
+            //         ->orderBy('prioritas', 'ASC')
+            //         ->skip(1)
+            //         ->limit(10)
+            //         ->get();
 
-                // dd($data, $id);
-            }
+            //     $diagnosaExclude = ['z88.8', 'J44.3', 'F31.31'];
+
+            //     foreach ($data2 as $list) {
+            //         if (in_array($list->kd_penyakit, $diagnosaExclude)) {
+            //             goto next;
+            //         } else {
+            //             return $list;
+            //         }
+            //         next:
+            //     }
+            // }
+            $diagnosaExclude = explode(',', ENV('EXCLUDE_DIAGNOSA'));
+
+            $filtered = $data
+                ->filter(fn($item) => !in_array($item->kd_penyakit, $diagnosaExclude)) // step 1: exclude
+                ->sortBy('prioritas')
+                ->values() // reset index agar dimulai dari 0
+                ->take(2); // step 2: ambil 2 pertama
+
+            // dd($filtered[0]);
 
             $cek = LogErrorSatuSehat::where('subject', 'Diagnosa Primer Pasien')
                 ->where('keterangan', 'like', "%$id%")
                 ->delete();
 
-            if (!empty($data2))
-                return $data2;
+            if (!empty($filtered[0]))
+                return $filtered[0];
             else {
-                return $data;
+                return null;
             }
         } else {
             $cek = LogErrorSatuSehat::where('subject', 'Diagnosa Primer Pasien')
@@ -7705,8 +7757,6 @@ class SatuSehatController extends Controller
 
             return null;
         }
-
-        // return $data->id_ihs;
     }
 
     public function getDiagnosisSekunderRalan($id)
@@ -7722,79 +7772,72 @@ class SatuSehatController extends Controller
             )
             ->where('diagnosa_pasien.no_rawat', $id)
             ->where('diagnosa_pasien.status', 'Ralan')
-            ->where('diagnosa_pasien.prioritas', '1')
-            ->first();
-
-        $diagnosaExclude = ['z88.8'];
+            // ->where('diagnosa_pasien.prioritas', '1')
+            ->where('diagnosa_pasien.status', 'Ralan')
+            ->orderBy('prioritas', 'ASC')
+            ->limit(10)
+            ->get();
 
         if (!empty($data)) {
-            if ($data->kd_penyakit != "Z09.8") {
-                // dd('masuk', $data->kd_penyakit);
-                $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
-                    ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
-                    ->select(
-                        'diagnosa_pasien.no_rawat',
-                        'diagnosa_pasien.kd_penyakit',
-                        'diagnosa_pasien.status',
-                        'diagnosa_pasien.prioritas',
-                        'penyakit.nm_penyakit'
-                    )
-                    ->where('diagnosa_pasien.no_rawat', $id)
-                    ->where('diagnosa_pasien.status', 'Ralan')
-                    // ->where('diagnosa_pasien.prioritas', '2')
-                    ->orderBy('prioritas', 'ASC')
-                    ->skip(1)  // Melewatkan 5 baris pertama
-                    ->limit(10)
-                    ->get();
+            // if ($data->kd_penyakit != "Z09.8") {
+            //     $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            //         ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            //         ->select(
+            //             'diagnosa_pasien.no_rawat',
+            //             'diagnosa_pasien.kd_penyakit',
+            //             'diagnosa_pasien.status',
+            //             'diagnosa_pasien.prioritas',
+            //             'penyakit.nm_penyakit'
+            //         )
+            //         ->where('diagnosa_pasien.no_rawat', $id)
+            //         ->where('diagnosa_pasien.status', 'Ralan')
+            //         ->orderBy('prioritas', 'ASC')
+            //         ->skip(1)  // Melewatkan 5 baris pertama
+            //         ->limit(10)
+            //         ->get();
 
-                // dd($data2);
-                foreach ($data2 as $list) {
-                    if (in_array($list->kd_penyakit, $diagnosaExclude)) {
-                        goto next;
-                    } else {
-                        return $list;
-                    }
-                    next:
-                }
 
-                // if (!empty($data2)) {
-                //     return $data2;
-                // } else {
+            //     return null;
+            // } else {
+            //     $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+            //         ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+            //         ->select(
+            //             'diagnosa_pasien.no_rawat',
+            //             'diagnosa_pasien.kd_penyakit',
+            //             'diagnosa_pasien.status',
+            //             'diagnosa_pasien.prioritas',
+            //             'penyakit.nm_penyakit'
+            //         )
+            //         ->where('diagnosa_pasien.no_rawat', $id)
+            //         ->where('diagnosa_pasien.status', 'Ralan')
+            //         ->orderBy('prioritas', 'ASC')
+            //         ->skip(2)  // Melewatkan 5 baris pertama
+            //         ->limit(10)
+            //         ->get();
+            //     foreach ($data2 as $list) {
+            //         if (in_array($list->kd_penyakit, $diagnosaExclude)) {
+            //             goto next2;
+            //         } else {
+            //             return $list;
+            //         }
+            //         next2:
+            //     }
+            //     return null;
+            // }
+            $diagnosaExclude = explode(',', ENV('EXCLUDE_DIAGNOSA'));
+
+            $filtered = $data
+                ->filter(fn($item) => !in_array($item->kd_penyakit, $diagnosaExclude)) // step 1: exclude
+                ->sortBy('prioritas')
+                ->values() // reset index agar dimulai dari 0
+                ->take(2); // step 2: ambil 2 pertama
+
+            // dd($filtered);
+
+            if (!empty($filtered[1]))
+                return $filtered[1];
+            else {
                 return null;
-                // }
-            } else {
-                $data2 = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
-                    ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
-                    ->select(
-                        'diagnosa_pasien.no_rawat',
-                        'diagnosa_pasien.kd_penyakit',
-                        'diagnosa_pasien.status',
-                        'diagnosa_pasien.prioritas',
-                        'penyakit.nm_penyakit'
-                    )
-                    ->where('diagnosa_pasien.no_rawat', $id)
-                    ->where('diagnosa_pasien.status', 'Ralan')
-                    // ->where('diagnosa_pasien.prioritas', '3')
-                    ->orderBy('prioritas', 'ASC')
-                    ->skip(2)  // Melewatkan 5 baris pertama
-                    ->limit(10)
-                    ->get();
-
-                // dd($data2);
-                foreach ($data2 as $list) {
-                    if (in_array($list->kd_penyakit, $diagnosaExclude)) {
-                        goto next2;
-                    } else {
-                        return $list;
-                    }
-                    next2:
-                }
-
-                // if (!empty($data2)) {
-                //     return $data2;
-                // } else {
-                return null;
-                // }
             }
         } else {
             return null;

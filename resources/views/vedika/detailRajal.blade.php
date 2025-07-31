@@ -1511,7 +1511,7 @@
                                                         </td>
                                                         <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
                                                         <td class="pt-0 pb-0">:
-                                                            {{ \Carbon\Carbon::parse($radioRajal->tgl_hasil)->format('d-m-Y') }}
+                                                            {{ \Carbon\Carbon::parse($tgl_hasil)->format('d-m-Y') }}
                                                         </td>
 
                                                     </tr>
@@ -1519,7 +1519,7 @@
                                                         <td class="pt-0 pb-0">Alamat</td>
                                                         <td class="pt-0 pb-0">: {{ $radioRajal->alamat }}</td>
                                                         <td class="pt-0 pb-0">Jam Pemeriksaan</td>
-                                                        <td class="pt-0 pb-0">: {{ $dokterRadiologiRajal[$urutan]->jam }}
+                                                        <td class="pt-0 pb-0">: {{ $jam_hasil }}
                                                         </td>
 
                                                     </tr>

@@ -26,7 +26,7 @@
                         </div>
                         <div class="card-body">
                             <div style="overflow-x:auto;">
-                                <table class="table table-bordered table-hover">
+                                <table class="table table-bordered table-hover table-sm">
                                     <thead>
                                         <tr>
                                             <th class="align-middle">Nama APP</th>

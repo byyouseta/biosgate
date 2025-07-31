@@ -237,6 +237,9 @@
                                         .setSelectionRange(cursorPosition, cursorPosition);
                                 });
                         });
+                    setTimeout(() => {
+                        api.columns.adjust().draw();
+                    }, 100)
                 },
             });
         });

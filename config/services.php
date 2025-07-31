@@ -30,4 +30,9 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'app_payroll' => [
+        'token' => env('TOKEN_WA_PAYROLL'),
+    ],
+
+
 ];

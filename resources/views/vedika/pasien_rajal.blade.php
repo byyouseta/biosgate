@@ -78,11 +78,11 @@
                                                         // dd($dataSep, $getManualSep);
                                                         // }
                                                         //Ambil data untuk Bukti Pelayanan
-                                                        $buktiPelayanan = \App\Http\Controllers\VedikaController::buktiPelayanan(
-                                                            $data->no_rawat
-                                                        );
-                                                        $diagnosa = $buktiPelayanan[0];
-                                                        $prosedur = $buktiPelayanan[1];
+                                                        // $buktiPelayanan = \App\Http\Controllers\VedikaController::buktiPelayanan(
+                                                        //     $data->no_rawat
+                                                        // );
+                                                        // $diagnosa = $buktiPelayanan[0];
+                                                        // $prosedur = $buktiPelayanan[1];
                                                     @endphp
                                                     {{-- <td>{{ $data->no_rkm_medis }}</td> --}}
                                                     <td>{{ $dataSep != null ? $dataSep->no_sep : '' }}
@@ -125,37 +125,35 @@
                                                     <td>
                                                         <div class="col text-center">
                                                             @php
-                                                                $statusVerif = App\VedikaVerif::cekVerif(
-                                                                    $data->no_rawat,
-                                                                    'Rajal'
-                                                                );
+                                                                // $statusVerif = App\VedikaVerif::cekVerif(
+                                                                //     $data->no_rawat,
+                                                                //     'Rajal'
+                                                                // );
                                                                 if (!empty($dataSep)) {
-
                                                                     $cekKlaim = App\Vedika::cekEklaim($dataSep->no_sep);
-                                                                }else{
+                                                                } else {
                                                                     $cekKlaim = null;
                                                                 }
-                                                                $statusPengajuan = App\DataPengajuanKlaim::cekPengajuan(
-                                                                    $data->no_rawat,
-                                                                    'Rawat Jalan'
-                                                                );
+                                                                // $statusPengajuan = App\DataPengajuanKlaim::cekPengajuan(
+                                                                //     $data->no_rawat,
+                                                                //     'Rawat Jalan'
+                                                                // );
                                                                 // $cekDiagnosa = App\Vedika::getDiagnosa(
                                                                 //     $data->no_rawat,
                                                                 //     'Ralan'
                                                                 // );
-                                                                $cekBokingOp = App\Vedika::getBookingOperasi(
-                                                                    $data->no_rawat
-                                                                );
-
+                                                                // $cekBokingOp = App\Vedika::getBookingOperasi(
+                                                                //     $data->no_rawat
+                                                                // );
                                                             @endphp
                                                             @can('vedika-upload')
-                                                                @if (!empty($statusVerif))
-                                                                    @if ($statusVerif->status == 0)
+                                                                @if (!empty($statusVerif[$data->no_rawat]))
+                                                                    @if ($statusVerif[$data->no_rawat]->status == 0)
                                                                         <span class="badge badge-warning" data-toggle="tooltip"
                                                                             data-placement="bottom"
                                                                             title="Periksa Verifikasi"><i
                                                                                 class="fas fa-exclamation-triangle"></i> </span>
-                                                                    @elseif ($statusVerif->status == 1)
+                                                                    @elseif ($statusVerif[$data->no_rawat]->status == 1)
                                                                         <span class="badge badge-success" data-toggle="tooltip"
                                                                             data-placement="bottom"
                                                                             title="Verifikasi Selesai"><i
@@ -167,46 +165,47 @@
                                                                         data-placement="bottom" title="Berkas ditemukan">Eklaim
                                                                         <i class="fas fa-check-circle"></i></span>
                                                                 @endif
-                                                                @if ($diagnosa->count()>0)
+                                                                @if ($diagnosa->where('no_rawat', $data->no_rawat)->count() > 0)
                                                                     <span class="badge bg-purple" data-toggle="tooltip"
                                                                         data-placement="bottom" title="Berkas ditemukan">Diag
                                                                         <i class="fas fa-check-circle"></i></span>
                                                                 @endif
-                                                                @if ($cekBokingOp)
+                                                                @if (!empty($cekBokingOp[$data->no_rawat]))
                                                                     <span class="badge bg-info" data-toggle="tooltip"
                                                                         data-placement="bottom" title="Berkas ditemukan">PreOP
                                                                         <i class="fas fa-check-circle"></i></span>
                                                                 @endif
-
                                                             @endcan
-                                                            @if (!empty($statusPengajuan))
+                                                            @if (!empty($statusPengajuan[$data->no_rawat]))
                                                                 <span class="badge badge-success"><i
                                                                         class="fas fa-paper-plane"></i>
-                                                                    {{ \Carbon\Carbon::parse($statusPengajuan->periodeKlaim->periode)->format('F Y') }}
+                                                                    {{ \Carbon\Carbon::parse($statusPengajuan[$data->no_rawat]->periodeKlaim->periode)->format('F Y') }}
                                                                 </span>
-                                                                @else
-                                                                    <span class="badge badge-danger"><i
-                                                                            class="fas fa-paper-plane"></i>Belum
-                                                                        diajukan</span>
+                                                            @else
+                                                                <span class="badge badge-danger"><i
+                                                                        class="fas fa-paper-plane"></i>Belum
+                                                                    diajukan</span>
                                                             @endif
-                                                            @if(isset($dataSep->no_sep))
+                                                            @if (isset($dataSep->no_sep))
                                                                 @if (file_exists(public_path("pdfklaim/$dataSep->no_sep/$dataSep->no_sep.pdf")))
                                                                     <span class="badge badge-danger" data-toggle="tooltip"
-                                                                    data-placement="bottom"
-                                                                    title="File Gabung ditemukan"><i class="fas fa-file-pdf"></i></span>
+                                                                        data-placement="bottom"
+                                                                        title="File Gabung ditemukan"><i
+                                                                            class="fas fa-file-pdf"></i></span>
                                                                 @endif
                                                             @elseif(isset($dataSep->noSep))
                                                                 @if (file_exists(public_path("pdfklaim/$dataSep->noSep/$dataSep->noSep.pdf")))
                                                                     <span class="badge badge-danger" data-toggle="tooltip"
-                                                                    data-placement="bottom"
-                                                                    title="File Gabung ditemukan"><i class="fas fa-file-pdf"></i></span>
+                                                                        data-placement="bottom"
+                                                                        title="File Gabung ditemukan"><i
+                                                                            class="fas fa-file-pdf"></i></span>
                                                                 @endif
                                                             @endif
                                                         </div>
                                                     </td>
                                                     <td>
-                                                        @if (!empty($diagnosa))
-                                                            @foreach ($diagnosa as $index => $dataDiagnosa)
+                                                        @if (!empty($diagnosa->where('no_rawat', $data->no_rawat)))
+                                                            @foreach ($diagnosa->where('no_rawat', $data->no_rawat) as $index => $dataDiagnosa)
                                                                 @if (!$loop->last)
                                                                     {{ $dataDiagnosa->kd_penyakit }},
                                                                 @else
@@ -216,8 +215,8 @@
                                                         @endif
                                                     </td>
                                                     <td>
-                                                        @if (!empty($prosedur))
-                                                            @foreach ($prosedur as $index => $dataProsedur)
+                                                        @if (!empty($prosedur->where('no_rawat', $data->no_rawat)))
+                                                            @foreach ($prosedur->where('no_rawat', $data->no_rawat) as $index => $dataProsedur)
                                                                 @if (!$loop->last)
                                                                     {{ $dataProsedur->kode }},
                                                                 @else
@@ -353,6 +352,9 @@
                                         .setSelectionRange(cursorPosition, cursorPosition);
                                 });
                         });
+                    setTimeout(() => {
+                        api.columns.adjust().draw();
+                    }, 100)
                 },
             });
         });

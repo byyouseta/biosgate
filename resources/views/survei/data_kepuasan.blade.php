@@ -106,28 +106,56 @@
                                                 $penjamin = 'Tanggungan Pribadi';
                                             }
 
+                                            // if ($summary->unit == 1) {
+                                            //     $unit = 'Rawat Jalan';
+                                            // } elseif ($summary->unit == 2) {
+                                            //     $unit = 'Rawat Inap';
+                                            // } elseif ($summary->unit == 3) {
+                                            //     $unit = 'IGD';
+                                            // } elseif ($summary->unit == 4) {
+                                            //     $unit = 'Farmasi';
+                                            // } elseif ($summary->unit == 5) {
+                                            //     $unit = 'Laboratorium';
+                                            // } elseif ($summary->unit == 6) {
+                                            //     $unit = 'Radiologi';
+                                            // } elseif ($summary->unit == 7) {
+                                            //     $unit = 'ICU/NICU/PICU';
+                                            // } elseif ($summary->unit == 8) {
+                                            //     $unit = 'Pemulasaran Jenazah';
+                                            // } elseif ($summary->unit == 9) {
+                                            //     $unit = 'Rehabilitasi medik';
+                                            // } elseif ($summary->unit == 10) {
+                                            //     $unit = 'Radioterapi';
+                                            // } elseif ($summary->unit == 11) {
+                                            //     $unit = 'Jantung';
+                                            // }
+
                                             if ($summary->unit == 1) {
                                                 $unit = 'Rawat Jalan';
                                             } elseif ($summary->unit == 2) {
                                                 $unit = 'Rawat Inap';
                                             } elseif ($summary->unit == 3) {
-                                                $unit = 'IGD';
+                                                $unit = 'Medical Check Up (MCU)';
                                             } elseif ($summary->unit == 4) {
-                                                $unit = 'Farmasi';
+                                                $unit = 'IGD';
                                             } elseif ($summary->unit == 5) {
-                                                $unit = 'Laboratorium';
+                                                $unit = 'Instalasi Bedah Sentral (IBS)';
                                             } elseif ($summary->unit == 6) {
-                                                $unit = 'Radiologi';
+                                                $unit = 'ICU/NICU/PICU';
                                             } elseif ($summary->unit == 7) {
-                                                $unit = 'ICU; NICU; PICU';
+                                                $unit = 'Farmasi';
                                             } elseif ($summary->unit == 8) {
-                                                $unit = 'Pemulasaran Jenazah';
+                                                $unit = 'Laboratorium';
                                             } elseif ($summary->unit == 9) {
-                                                $unit = 'Rehabilitasi medik';
+                                                $unit = 'Radiologi';
                                             } elseif ($summary->unit == 10) {
-                                                $unit = 'Radioterapi';
+                                                $unit = 'Rehabilitasi Medik';
                                             } elseif ($summary->unit == 11) {
-                                                $unit = 'Jantung';
+                                                $unit = 'Pendaftaran';
+                                            }elseif ($summary->unit == 12) {
+                                                $unit = 'Konseling Gizi';
+                                            }elseif ($summary->unit == 13) {
+                                                $unit = 'Konseling Kesehatan (TB/Asma)';
                                             }
 
                                         @endphp

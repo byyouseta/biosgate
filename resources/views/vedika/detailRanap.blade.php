@@ -1299,274 +1299,84 @@
                 </div>
             </div>
             {{-- Data Radiologi --}}
-            @if ($dataRadiologiRanap != null || $dataRadiologiRajal != null)
-                @if ($dataRadiologiRanap->count() > 0 || count($dataRadiologiRajal) > 0)
-                    <div class="card card-primary card-outline card-outline-tabs">
-                        <div class="card-header p-0 border-bottom-0">
-                            <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
-                                @php
-                                    $index = 0;
-
-                                @endphp
-                                @if (!empty($dataRadiologiRajal))
-                                    @foreach ($dataRadiologiRajal as $nourut => $detailRadioRajal)
-                                        <li class="nav-item">
-                                            @php
-                                                // dd($dokterRadiologiRajal[$nourut]->tanggal);
-                                                $tgl_hasil = $dokterRadiologiRajal[$nourut]->tgl_periksa;
-                                                $jam_hasil = $dokterRadiologiRajal[$nourut]->jam;
-                                                $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
-                                                // dd($tab);
-                                            @endphp
-                                            <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
-                                                id="custom-tabs-four-home-tab" data-toggle="pill"
-                                                href="#custom-tabs-lap-{{ $tab }}" role="tab"
-                                                aria-controls="custom-tabs-four-home" aria-selected="true"> Hasil
-                                                Radiologi {{ $detailRadioRajal->noorder }}</a>
-                                        </li>
-                                        @php
-                                            $index++;
-                                        @endphp
-                                    @endforeach
-                                @endif
-                                @foreach ($dataRadiologiRanap as $order)
+            @if ($dataRadiologiRanap->count() > 0 || count($dataRadiologiRajal) > 0 || count($tambahanDataRadiologi) > 0)
+                <div class="card card-primary card-outline card-outline-tabs">
+                    <div class="card-header p-0 border-bottom-0">
+                        <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+                            @php
+                                $index = 0;
+                            @endphp
+                            @if (!empty($dataRadiologiRajal))
+                                @foreach ($dataRadiologiRajal as $nourut => $detailRadioRajal)
                                     <li class="nav-item">
+                                        @php
+                                            // dd($dokterRadiologiRajal[$nourut]->tanggal);
+                                            $tgl_hasil = $dokterRadiologiRajal[$nourut]->tgl_periksa;
+                                            $jam_hasil = $dokterRadiologiRajal[$nourut]->jam;
+                                            $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
+                                            // dd($tab);
+                                        @endphp
                                         <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
                                             id="custom-tabs-four-home-tab" data-toggle="pill"
-                                            href="#custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}" role="tab"
+                                            href="#custom-tabs-lap-{{ $tab }}" role="tab"
                                             aria-controls="custom-tabs-four-home" aria-selected="true"> Hasil
-                                            Radiologi {{ $order->noorder }}</a>
+                                            Radiologi {{ $detailRadioRajal->noorder }}</a>
                                     </li>
                                     @php
-                                        ++$index;
+                                        $index++;
                                     @endphp
                                 @endforeach
-                                @if (!empty($tambahanDataRadiologi))
-                                    @foreach ($tambahanDataRadiologi as $nourut => $detailRadioTambahan)
-                                        <li class="nav-item">
-                                            @php
-                                                // dd($tambahanDokterRadiologi[$nourut]);
-                                                $tgl_hasil = $tambahanDokterRadiologi[$nourut]->tgl_periksa;
-                                                $jam_hasil = $tambahanDokterRadiologi[$nourut]->jam;
-                                                $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
-                                                // dd($tab);
-                                            @endphp
-                                            <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
-                                                id="custom-tabs-four-home-tab" data-toggle="pill"
-                                                href="#custom-tabs-lap-{{ $tab }}" role="tab"
-                                                aria-controls="custom-tabs-four-home" aria-selected="true"> Hasil
-                                                Radiologi {{ $detailRadioTambahan->noorder }}</a>
-                                        </li>
-                                        @php
-                                            $index++;
-                                        @endphp
-                                    @endforeach
-                                @endif
-                            </ul>
-                        </div>
-                        <div class="card-body">
-                            <div class="tab-content" id="custom-tabs-four-tabContent">
+                            @endif
+                            @foreach ($dataRadiologiRanap as $order)
+                                <li class="nav-item">
+                                    <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
+                                        id="custom-tabs-four-home-tab" data-toggle="pill"
+                                        href="#custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}" role="tab"
+                                        aria-controls="custom-tabs-four-home" aria-selected="true"> Hasil
+                                        Radiologi {{ $order->noorder }}</a>
+                                </li>
                                 @php
-                                    $index2 = 0;
+                                    ++$index;
                                 @endphp
-                                @if (!empty($dataRadiologiRajal))
-                                    @foreach ($dataRadiologiRajal as $urutan => $radioRajal)
+                            @endforeach
+                            @if (!empty($tambahanDataRadiologi))
+                                @foreach ($tambahanDataRadiologi as $nourut => $detailRadioTambahan)
+                                    <li class="nav-item">
                                         @php
-                                            $tgl_hasil = $dokterRadiologiRajal[$urutan]->tgl_periksa;
-                                            $jam_hasil = $dokterRadiologiRajal[$urutan]->jam;
+                                            $tgl_hasil = $tambahanDokterRadiologi[$nourut]->tgl_periksa;
+                                            $jam_hasil = $tambahanDokterRadiologi[$nourut]->jam;
                                             $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
-
+                                            // dd($tab,);
                                         @endphp
-                                        <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
-                                            id="custom-tabs-lap-{{ $tab }}" role="tabpanel"
-                                            aria-labelledby="#custom-tabs-lap-{{ $tab }}">
+                                        <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
+                                            id="custom-tabs-four-home-tab" data-toggle="pill"
+                                            href="#custom-tabs-lap-{{ $tab }}" role="tab"
+                                            aria-controls="custom-tabs-four-home" aria-selected="true"> Hasil
+                                            Radiologi {{ $detailRadioTambahan->noorder }}</a>
+                                    </li>
+                                    @php
+                                        $index++;
+                                    @endphp
+                                @endforeach
+                            @endif
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content" id="custom-tabs-four-tabContent">
+                            @php
+                                $index2 = 0;
+                            @endphp
+                            @if (!empty($dataRadiologiRajal))
+                                @foreach ($dataRadiologiRajal as $urutan => $radioRajal)
+                                    @php
+                                        $tgl_hasil = $dokterRadiologiRajal[$urutan]->tgl_periksa;
+                                        $jam_hasil = $dokterRadiologiRajal[$urutan]->jam;
+                                        $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
 
-                                            <table class="table table-borderless mb-3">
-                                                <tr>
-                                                    <td class="align-top" style="width:60%" rowspan="4"><img
-                                                            src="{{ asset('image/kemenkes_logo_horisontal.png') }}"
-                                                            alt="Logo RSUP" width="350">
-                                                    </td>
-                                                    <td class="pt-1 pb-0 align-middle"
-                                                        style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
-                                                        <div style="font-size: 18pt; color:#14bccc;">Kementerian
-                                                            Kesehatan</div>
-                                                        <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS
-                                                            Surakarta
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="align-middle py-0">
-                                                        <img src="{{ asset('image/gps.png') }}" alt="pin lokasi"
-                                                            width="20"> Jalan
-                                                        Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="align-middle py-0">
-                                                        <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi"
-                                                            width="17">
-                                                        (0271)
-                                                        713055
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="align-middle py-0">
-                                                        <img src="{{ asset('image/world-wide-web.png') }}"
-                                                            alt="pin lokasi" width="17">
-                                                        https://web.rsupsurakarta.co.id
-                                                    </td>
-                                                </tr>
-
-                                            </table>
-                                            <div class="progress progress-xs mt-0 pt-0">
-                                                <div class="progress-bar progress-bar bg-black" role="progressbar"
-                                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
-                                                    style="width: 100%">
-
-                                                </div>
-                                            </div>
-                                            <table class="table table-borderless py-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="align-middle text-center pb-1" colspan="7">
-                                                            <h5>HASIL PEMERIKSAAN RADIOLOGI</h5>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">No.RM</td>
-                                                        <td class="pt-0 pb-0">: {{ $pasien->no_rkm_medis }}</td>
-                                                        <td class="pt-0 pb-0">Penanggung Jawab</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ !empty($dokterRadiologiRajal[$urutan]->nm_dokter) ? $dokterRadiologiRajal[$urutan]->nm_dokter : '' }}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">Nama Pasien</td>
-                                                        <td class="pt-0 pb-0">: {{ $pasien->nm_pasien }}</td>
-                                                        <td class="pt-0 pb-0">Dokter Pengirim</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ !empty($radioRajal->nm_dokter) ? $radioRajal->nm_dokter : '' }}
-                                                        </td>
-
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">JK/Umur</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
-                                                            /
-                                                            {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($radioRajal->tgl_hasil))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Th %m Bl %d Hr') }}
-                                                        </td>
-                                                        <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ \Carbon\Carbon::parse($radioRajal->tgl_hasil)->format('d-m-Y') }}
-                                                        </td>
-
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">Alamat</td>
-                                                        <td class="pt-0 pb-0">: {{ $radioRajal->alamat }}</td>
-                                                        <td class="pt-0 pb-0">Jam Pemeriksaan</td>
-                                                        <td class="pt-0 pb-0">: {{ $dokterRadiologiRajal[$urutan]->jam }}
-                                                        </td>
-
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">No.Periksa</td>
-                                                        <td class="pt-0 pb-0">: {{ $radioRajal->no_rawat }}</td>
-                                                        <td class="pt-0 pb-0">Poli</td>
-                                                        <td class="pt-0 pb-0">: {{ $radioRajal->nm_poli }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">Pemeriksaan</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ $dokterRadiologiRajal[$urutan]->nm_perawatan }}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">Hasil Pemeriksaan</td>
-                                                    </tr>
-                                                </tbody>
-
-                                            </table>
-                                            @if (!empty($hasilRadiologiRajal[$urutan]->hasil))
-                                                @php
-                                                    $paragraphs = explode("\n", $hasilRadiologiRajal[$urutan]->hasil);
-                                                    $tinggi = 25 * count($paragraphs);
-                                                @endphp
-                                            @endif
-                                            <table class="table table-bordered">
-                                                <tbody class="border border-dark">
-                                                    <tr>
-                                                        <textarea class="form-control" readonly
-                                                            style="
-                                            min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
-                                            resize: none;
-                                            overflow-y:hidden;
-                                            border:1px solid black;
-                                            background-color: white;
-                                        ">{{ !empty($hasilRadiologiRajal[$urutan]->hasil) ? $hasilRadiologiRajal[$urutan]->hasil : '' }}</textarea>
-                                                    </tr>
-                                                </tbody>
-
-                                            </table>
-                                            @if (!empty($dokterRadiologiRajal[$urutan]->nm_dokter))
-                                                <table class="table table-borderless mt-1">
-                                                    <tr>
-                                                        <td class="text-center pt-0 pb-0" style="width: 70%"></td>
-                                                        <td class="text-center pt-0 pb-0" style="width: 30%">Dokter
-                                                            Radiologi
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        @php
-                                                            $qr_dokter =
-                                                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
-                                        elektronik oleh' .
-                                                                "\n" .
-                                                                $dokterRadiologiRajal[$urutan]->nm_dokter .
-                                                                "\n" .
-                                                                'ID ' .
-                                                                $dokterRadiologiRajal[$urutan]->kd_dokter .
-                                                                "\n" .
-                                                                \Carbon\Carbon::parse(
-                                                                    $dokterRadiologiRajal[$urutan]->tgl_periksa
-                                                                )->format('d-m-Y');
-                                                        @endphp
-                                                        <td class="text-center pt-0 pb-0" style="width: 70%"></td>
-                                                        <td class="text-center pt-0 pb-0" style="width: 30%">
-                                                            {!! QrCode::size(100)->generate($qr_dokter) !!}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center pt-0 pb-0" style="width: 70%"></td>
-                                                        <td class="text-center pt-0 pb-0" style="width: 30%">
-                                                            {{ $dokterRadiologiRajal[$urutan]->nm_dokter }}
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            @endif
-                                        </div>
-                                        @php
-                                            ++$index2;
-                                        @endphp
-                                    @endforeach
-                                @endif
-                                @foreach ($dataRadiologiRanap as $urutan => $order)
+                                    @endphp
                                     <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
-                                        id="custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}" role="tabpanel"
-                                        aria-labelledby="#custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}">
-                                        @php
-                                            // dd($order);
-                                            $dokterRadiologi = \App\Vedika::getRadioDokter(
-                                                $order->no_rawat,
-                                                $order->jam_hasil
-                                            );
-                                        @endphp
+                                        id="custom-tabs-lap-{{ $tab }}" role="tabpanel"
+                                        aria-labelledby="#custom-tabs-lap-{{ $tab }}">
 
                                         <table class="table table-borderless mb-3">
                                             <tr>
@@ -1600,8 +1410,8 @@
                                             </tr>
                                             <tr>
                                                 <td class="align-middle py-0">
-                                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
-                                                        width="17">
+                                                    <img src="{{ asset('image/world-wide-web.png') }}"
+                                                        alt="pin lokasi" width="17">
                                                     https://web.rsupsurakarta.co.id
                                                 </td>
                                             </tr>
@@ -1611,6 +1421,7 @@
                                             <div class="progress-bar progress-bar bg-black" role="progressbar"
                                                 aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
                                                 style="width: 100%">
+
                                             </div>
                                         </div>
                                         <table class="table table-borderless py-0">
@@ -1627,7 +1438,7 @@
                                                     <td class="pt-0 pb-0">: {{ $pasien->no_rkm_medis }}</td>
                                                     <td class="pt-0 pb-0">Penanggung Jawab</td>
                                                     <td class="pt-0 pb-0">:
-                                                        {{ !empty($dokterRadiologiRanap[$urutan]->nm_dokter) ? $dokterRadiologiRanap[$urutan]->nm_dokter : '' }}
+                                                        {{ !empty($dokterRadiologiRajal[$urutan]->nm_dokter) ? $dokterRadiologiRajal[$urutan]->nm_dokter : '' }}
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -1635,41 +1446,43 @@
                                                     <td class="pt-0 pb-0">: {{ $pasien->nm_pasien }}</td>
                                                     <td class="pt-0 pb-0">Dokter Pengirim</td>
                                                     <td class="pt-0 pb-0">:
-                                                        {{ !empty($order->nm_dokter) ? $order->nm_dokter : '' }}</td>
+                                                        {{ !empty($radioRajal->nm_dokter) ? $radioRajal->nm_dokter : '' }}
+                                                    </td>
+
                                                 </tr>
                                                 <tr>
                                                     <td class="pt-0 pb-0">JK/Umur</td>
                                                     <td class="pt-0 pb-0">:
                                                         {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
                                                         /
-                                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($order->tgl_hasil))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Th %m Bl %d Hr') }}
+                                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($radioRajal->tgl_hasil))->format('%y
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Th %m Bl %d Hr') }}
                                                     </td>
                                                     <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
                                                     <td class="pt-0 pb-0">:
-                                                        {{ \Carbon\Carbon::parse($order->tgl_hasil)->format('d-m-Y') }}
+                                                        {{ \Carbon\Carbon::parse($radioRajal->tgl_hasil)->format('d-m-Y') }}
                                                     </td>
 
                                                 </tr>
                                                 <tr>
                                                     <td class="pt-0 pb-0">Alamat</td>
-                                                    <td class="pt-0 pb-0">: {{ $order->almt_pj }}</td>
+                                                    <td class="pt-0 pb-0">: {{ $radioRajal->alamat }}</td>
                                                     <td class="pt-0 pb-0">Jam Pemeriksaan</td>
-                                                    <td class="pt-0 pb-0">: {{ $order->jam_hasil }}</td>
+                                                    <td class="pt-0 pb-0">: {{ $dokterRadiologiRajal[$urutan]->jam }}
+                                                    </td>
 
                                                 </tr>
                                                 <tr>
                                                     <td class="pt-0 pb-0">No.Periksa</td>
-                                                    <td class="pt-0 pb-0">: {{ $order->no_rawat }}</td>
-                                                    <td class="pt-0 pb-0">Kamar</td>
-                                                    <td class="pt-0 pb-0">:
-                                                        {{ !empty($dokterRadiologi->kd_kamar) ? $dokterRadiologi->kd_kamar : '' }},
-                                                        {{ !empty($dokterRadiologi->nm_bangsal) ? $dokterRadiologi->nm_bangsal : '' }}
-                                                    </td>
+                                                    <td class="pt-0 pb-0">: {{ $radioRajal->no_rawat }}</td>
+                                                    <td class="pt-0 pb-0">Poli</td>
+                                                    <td class="pt-0 pb-0">: {{ $radioRajal->nm_poli }}</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="pt-0 pb-0">Pemeriksaan</td>
-                                                    <td class="pt-0 pb-0">: {{ $order->nm_perawatan }}</td>
+                                                    <td class="pt-0 pb-0">:
+                                                        {{ $dokterRadiologiRajal[$urutan]->nm_perawatan }}
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td class="pt-0 pb-0">Hasil Pemeriksaan</td>
@@ -1677,75 +1490,48 @@
                                             </tbody>
 
                                         </table>
-                                        @foreach ($hasilRadiologiRanap as $dataHasil)
-                                            @if (!empty($dataHasil->hasil) && $dataHasil->jam == $order->jam_hasil)
-                                                @php
-                                                    $paragraphs = explode("\n", $dataHasil->hasil);
-                                                    $tinggi = 25 * count($paragraphs);
+                                        @if (!empty($hasilRadiologiRajal[$urutan]->hasil))
+                                            @php
+                                                $paragraphs = explode("\n", $hasilRadiologiRajal[$urutan]->hasil);
+                                                $tinggi = 25 * count($paragraphs);
+                                            @endphp
+                                        @endif
+                                        <table class="table table-bordered">
+                                            <tbody class="border border-dark">
+                                                <tr>
+                                                    <textarea class="form-control" readonly
+                                                        style="
+                                        min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
+                                        resize: none;
+                                        overflow-y:hidden;
+                                        border:1px solid black;
+                                        background-color: white;
+                                    ">{{ !empty($hasilRadiologiRajal[$urutan]->hasil) ? $hasilRadiologiRajal[$urutan]->hasil : '' }}</textarea>
+                                                </tr>
+                                            </tbody>
 
-                                                @endphp
-
-                                                <table class="table table-bordered">
-                                                    <tbody class="border border-dark">
-                                                        <tr>
-                                                            <textarea class="form-control" readonly
-                                                                style="
-                                            min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
-                                            resize: none;
-                                            overflow-y:hidden;
-                                            border:1px solid black;
-                                            background-color: white;
-                                        ">
-                                        {{ $dataHasil->jam == $order->jam_hasil ? $dataHasil->hasil : '' }}
-
-                                    </textarea>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            @endif
-                                        @endforeach
-                                        {{-- @if (!empty($hasilRadiologiRanap[$urutan]->hasil))
-                                @php
-                                $paragraphs = explode("\n", $hasilRadiologiRanap[$urutan]->hasil);
-                                $tinggi = 25 * count($paragraphs);
-
-                                @endphp
-                                @endif
-                                <table class="table table-bordered">
-                                    <tbody class="border border-dark">
-                                        <tr>
-                                            <textarea class="form-control" readonly
-                                                style="
-                                                min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
-                                                resize: none;
-                                                overflow-y:hidden;
-                                                border:1px solid black;
-                                                background-color: white;
-                                            ">{{ !empty($hasilRadiologiRanap[$urutan]->hasil) ? $hasilRadiologiRanap[$urutan]->hasil : '' }}</textarea>
-                                        </tr>
-                                    </tbody>
-                                </table> --}}
-
-                                        @if (!empty($dokterRadiologiRanap[$urutan]->nm_dokter))
+                                        </table>
+                                        @if (!empty($dokterRadiologiRajal[$urutan]->nm_dokter))
                                             <table class="table table-borderless mt-1">
                                                 <tr>
                                                     <td class="text-center pt-0 pb-0" style="width: 70%"></td>
-                                                    <td class="text-center pt-0 pb-0" style="width: 30%">Dokter Radiologi
+                                                    <td class="text-center pt-0 pb-0" style="width: 30%">Dokter
+                                                        Radiologi
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     @php
                                                         $qr_dokter =
                                                             'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
-                                        elektronik oleh' .
+                                    elektronik oleh' .
                                                             "\n" .
-                                                            $dokterRadiologiRanap[$urutan]->nm_dokter .
+                                                            $dokterRadiologiRajal[$urutan]->nm_dokter .
                                                             "\n" .
                                                             'ID ' .
-                                                            $dokterRadiologiRanap[$urutan]->kd_dokter .
+                                                            $dokterRadiologiRajal[$urutan]->kd_dokter .
                                                             "\n" .
                                                             \Carbon\Carbon::parse(
-                                                                $dokterRadiologiRanap[$urutan]->tgl_periksa
+                                                                $dokterRadiologiRajal[$urutan]->tgl_periksa
                                                             )->format('d-m-Y');
                                                     @endphp
                                                     <td class="text-center pt-0 pb-0" style="width: 70%"></td>
@@ -1756,7 +1542,7 @@
                                                 <tr>
                                                     <td class="text-center pt-0 pb-0" style="width: 70%"></td>
                                                     <td class="text-center pt-0 pb-0" style="width: 30%">
-                                                        {{ $dokterRadiologiRanap[$urutan]->nm_dokter }}
+                                                        {{ $dokterRadiologiRajal[$urutan]->nm_dokter }}
                                                     </td>
                                                 </tr>
                                             </table>
@@ -1766,198 +1552,408 @@
                                         ++$index2;
                                     @endphp
                                 @endforeach
+                            @endif
+                            @foreach ($dataRadiologiRanap as $urutan => $order)
+                                <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
+                                    id="custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}" role="tabpanel"
+                                    aria-labelledby="#custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}">
+                                    @php
+                                        // dd($order);
+                                        $dokterRadiologi = \App\Vedika::getRadioDokter(
+                                            $order->no_rawat,
+                                            $order->jam_hasil
+                                        );
+                                    @endphp
 
-                                @if (!empty($tambahanDataRadiologi))
-                                    @foreach ($tambahanDataRadiologi as $urutan => $tambahanData)
-                                        @php
-                                            $tgl_hasil = $tambahanDokterRadiologi[$urutan]->tgl_periksa;
-                                            $jam_hasil = $tambahanDokterRadiologi[$urutan]->jam;
-                                            $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
-
-                                        @endphp
-                                        <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
-                                            id="custom-tabs-lap-{{ $tab }}" role="tabpanel"
-                                            aria-labelledby="#custom-tabs-lap-{{ $tab }}">
-
-                                            <table class="table table-borderless mb-3">
-                                                <tr>
-                                                    <td class="align-top" style="width:60%" rowspan="4"><img
-                                                            src="{{ asset('image/kemenkes_logo_horisontal.png') }}"
-                                                            alt="Logo RSUP" width="350">
-                                                    </td>
-                                                    <td class="pt-1 pb-0 align-middle"
-                                                        style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
-                                                        <div style="font-size: 18pt; color:#14bccc;">Kementerian
-                                                            Kesehatan</div>
-                                                        <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS
-                                                            Surakarta
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="align-middle py-0">
-                                                        <img src="{{ asset('image/gps.png') }}" alt="pin lokasi"
-                                                            width="20"> Jalan
-                                                        Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="align-middle py-0">
-                                                        <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi"
-                                                            width="17">
-                                                        (0271)
-                                                        713055
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="align-middle py-0">
-                                                        <img src="{{ asset('image/world-wide-web.png') }}"
-                                                            alt="pin lokasi" width="17">
-                                                        https://web.rsupsurakarta.co.id
-                                                    </td>
-                                                </tr>
-
-                                            </table>
-                                            <div class="progress progress-xs mt-0 pt-0">
-                                                <div class="progress-bar progress-bar bg-black" role="progressbar"
-                                                    aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
-                                                    style="width: 100%">
-
+                                    <table class="table table-borderless mb-3">
+                                        <tr>
+                                            <td class="align-top" style="width:60%" rowspan="4"><img
+                                                    src="{{ asset('image/kemenkes_logo_horisontal.png') }}"
+                                                    alt="Logo RSUP" width="350">
+                                            </td>
+                                            <td class="pt-1 pb-0 align-middle"
+                                                style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                                <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                                    Kesehatan</div>
+                                                <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS
+                                                    Surakarta
                                                 </div>
-                                            </div>
-                                            <table class="table table-borderless py-0">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="align-middle text-center pb-1" colspan="7">
-                                                            <h5>HASIL PEMERIKSAAN RADIOLOGI</h5>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">No.RM</td>
-                                                        <td class="pt-0 pb-0">: {{ $pasien->no_rkm_medis }}</td>
-                                                        <td class="pt-0 pb-0">Penanggung Jawab</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ !empty($tambahanDokterRadiologi[$urutan]->nm_dokter) ? $tambahanDokterRadiologi[$urutan]->nm_dokter : '' }}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">Nama Pasien</td>
-                                                        <td class="pt-0 pb-0">: {{ $pasien->nm_pasien }}</td>
-                                                        <td class="pt-0 pb-0">Dokter Pengirim</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ !empty($tambahanData->nm_dokter) ? $tambahanData->nm_dokter : '' }}
-                                                        </td>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle py-0">
+                                                <img src="{{ asset('image/gps.png') }}" alt="pin lokasi"
+                                                    width="20"> Jalan
+                                                Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle py-0">
+                                                <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi"
+                                                    width="17">
+                                                (0271)
+                                                713055
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle py-0">
+                                                <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                    width="17">
+                                                https://web.rsupsurakarta.co.id
+                                            </td>
+                                        </tr>
 
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">JK/Umur</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
-                                                            /
-                                                            {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($tambahanData->tgl_hasil))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Th %m Bl %d Hr') }}
-                                                        </td>
-                                                        <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ \Carbon\Carbon::parse($tambahanData->tgl_hasil)->format('d-m-Y') }}
-                                                        </td>
+                                    </table>
+                                    <div class="progress progress-xs mt-0 pt-0">
+                                        <div class="progress-bar progress-bar bg-black" role="progressbar"
+                                            aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                                            style="width: 100%">
+                                        </div>
+                                    </div>
+                                    <table class="table table-borderless py-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="align-middle text-center pb-1" colspan="7">
+                                                    <h5>HASIL PEMERIKSAAN RADIOLOGI</h5>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="pt-0 pb-0">No.RM</td>
+                                                <td class="pt-0 pb-0">: {{ $pasien->no_rkm_medis }}</td>
+                                                <td class="pt-0 pb-0">Penanggung Jawab</td>
+                                                <td class="pt-0 pb-0">:
+                                                    {{ !empty($dokterRadiologiRanap[$urutan]->nm_dokter) ? $dokterRadiologiRanap[$urutan]->nm_dokter : '' }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pt-0 pb-0">Nama Pasien</td>
+                                                <td class="pt-0 pb-0">: {{ $pasien->nm_pasien }}</td>
+                                                <td class="pt-0 pb-0">Dokter Pengirim</td>
+                                                <td class="pt-0 pb-0">:
+                                                    {{ !empty($order->nm_dokter) ? $order->nm_dokter : '' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pt-0 pb-0">JK/Umur</td>
+                                                <td class="pt-0 pb-0">:
+                                                    {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
+                                                    /
+                                                    {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($order->tgl_hasil))->format('%y
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Th %m Bl %d Hr') }}
+                                                </td>
+                                                <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
+                                                <td class="pt-0 pb-0">:
+                                                    {{ \Carbon\Carbon::parse($order->tgl_hasil)->format('d-m-Y') }}
+                                                </td>
 
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">Alamat</td>
-                                                        <td class="pt-0 pb-0">: {{ $tambahanData->alamat }}</td>
-                                                        <td class="pt-0 pb-0">Jam Pemeriksaan</td>
-                                                        <td class="pt-0 pb-0">: {{ $tambahanDokterRadiologi[$urutan]->jam }}
-                                                        </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pt-0 pb-0">Alamat</td>
+                                                <td class="pt-0 pb-0">: {{ $order->almt_pj }}</td>
+                                                <td class="pt-0 pb-0">Jam Pemeriksaan</td>
+                                                <td class="pt-0 pb-0">: {{ $order->jam_hasil }}</td>
 
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">No.Periksa</td>
-                                                        <td class="pt-0 pb-0">: {{ $tambahanData->no_rawat }}</td>
-                                                        <td class="pt-0 pb-0">Poli</td>
-                                                        <td class="pt-0 pb-0">: {{ $tambahanData->nm_poli }}</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">Pemeriksaan</td>
-                                                        <td class="pt-0 pb-0">:
-                                                            {{ $tambahanDokterRadiologi[$urutan]->nm_perawatan }}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="pt-0 pb-0">Hasil Pemeriksaan</td>
-                                                    </tr>
-                                                </tbody>
+                                            </tr>
+                                            <tr>
+                                                <td class="pt-0 pb-0">No.Periksa</td>
+                                                <td class="pt-0 pb-0">: {{ $order->no_rawat }}</td>
+                                                <td class="pt-0 pb-0">Kamar</td>
+                                                <td class="pt-0 pb-0">:
+                                                    {{ !empty($dokterRadiologi->kd_kamar) ? $dokterRadiologi->kd_kamar : '' }},
+                                                    {{ !empty($dokterRadiologi->nm_bangsal) ? $dokterRadiologi->nm_bangsal : '' }}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pt-0 pb-0">Pemeriksaan</td>
+                                                <td class="pt-0 pb-0">: {{ $order->nm_perawatan }}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="pt-0 pb-0">Hasil Pemeriksaan</td>
+                                            </tr>
+                                        </tbody>
 
-                                            </table>
-                                            @if (!empty($tambahanHasilRadiologi[$urutan]->hasil))
-                                                @php
-                                                    $paragraphs = explode("\n", $tambahanHasilRadiologi[$urutan]->hasil);
-                                                    $tinggi = 25 * count($paragraphs);
-                                                @endphp
-                                            @endif
+                                    </table>
+                                    @foreach ($hasilRadiologiRanap as $dataHasil)
+                                        @if (!empty($dataHasil->hasil) && $dataHasil->jam == $order->jam_hasil)
+                                            @php
+                                                $paragraphs = explode("\n", $dataHasil->hasil);
+                                                $tinggi = 25 * count($paragraphs);
+
+                                            @endphp
+
                                             <table class="table table-bordered">
                                                 <tbody class="border border-dark">
                                                     <tr>
                                                         <textarea class="form-control" readonly
                                                             style="
+                                        min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
+                                        resize: none;
+                                        overflow-y:hidden;
+                                        border:1px solid black;
+                                        background-color: white;
+                                    ">
+                                    {{ $dataHasil->jam == $order->jam_hasil ? $dataHasil->hasil : '' }}
+
+                                </textarea>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        @endif
+                                    @endforeach
+                                    {{-- @if (!empty($hasilRadiologiRanap[$urutan]->hasil))
+                            @php
+                            $paragraphs = explode("\n", $hasilRadiologiRanap[$urutan]->hasil);
+                            $tinggi = 25 * count($paragraphs);
+
+                            @endphp
+                            @endif
+                            <table class="table table-bordered">
+                                <tbody class="border border-dark">
+                                    <tr>
+                                        <textarea class="form-control" readonly
+                                            style="
                                             min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
                                             resize: none;
                                             overflow-y:hidden;
                                             border:1px solid black;
                                             background-color: white;
-                                        ">{{ !empty($tambahanHasilRadiologi[$urutan]->hasil) ? $tambahanHasilRadiologi[$urutan]->hasil : '' }}</textarea>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                            @if (!empty($tambahanDokterRadiologi[$urutan]->nm_dokter))
-                                                <table class="table table-borderless mt-1">
-                                                    <tr>
-                                                        <td class="text-center pt-0 pb-0" style="width: 70%"></td>
-                                                        <td class="text-center pt-0 pb-0" style="width: 30%">Dokter
-                                                            Radiologi
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        @php
-                                                            $qr_dokter =
-                                                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
-                                        elektronik oleh' .
-                                                                "\n" .
-                                                                $tambahanDokterRadiologi[$urutan]->nm_dokter .
-                                                                "\n" .
-                                                                'ID ' .
-                                                                $tambahanDokterRadiologi[$urutan]->kd_dokter .
-                                                                "\n" .
-                                                                \Carbon\Carbon::parse(
-                                                                    $tambahanDokterRadiologi[$urutan]->tgl_periksa
-                                                                )->format('d-m-Y');
-                                                        @endphp
-                                                        <td class="text-center pt-0 pb-0" style="width: 70%"></td>
-                                                        <td class="text-center pt-0 pb-0" style="width: 30%">
-                                                            {!! QrCode::size(100)->generate($qr_dokter) !!}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td class="text-center pt-0 pb-0" style="width: 70%"></td>
-                                                        <td class="text-center pt-0 pb-0" style="width: 30%">
-                                                            {{ $tambahanDokterRadiologi[$urutan]->nm_dokter }}
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            @endif
+                                        ">{{ !empty($hasilRadiologiRanap[$urutan]->hasil) ? $hasilRadiologiRanap[$urutan]->hasil : '' }}</textarea>
+                                    </tr>
+                                </tbody>
+                            </table> --}}
+
+                                    @if (!empty($dokterRadiologiRanap[$urutan]->nm_dokter))
+                                        <table class="table table-borderless mt-1">
+                                            <tr>
+                                                <td class="text-center pt-0 pb-0" style="width: 70%"></td>
+                                                <td class="text-center pt-0 pb-0" style="width: 30%">Dokter Radiologi
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                @php
+                                                    $qr_dokter =
+                                                        'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                    elektronik oleh' .
+                                                        "\n" .
+                                                        $dokterRadiologiRanap[$urutan]->nm_dokter .
+                                                        "\n" .
+                                                        'ID ' .
+                                                        $dokterRadiologiRanap[$urutan]->kd_dokter .
+                                                        "\n" .
+                                                        \Carbon\Carbon::parse(
+                                                            $dokterRadiologiRanap[$urutan]->tgl_periksa
+                                                        )->format('d-m-Y');
+                                                @endphp
+                                                <td class="text-center pt-0 pb-0" style="width: 70%"></td>
+                                                <td class="text-center pt-0 pb-0" style="width: 30%">
+                                                    {!! QrCode::size(100)->generate($qr_dokter) !!}
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text-center pt-0 pb-0" style="width: 70%"></td>
+                                                <td class="text-center pt-0 pb-0" style="width: 30%">
+                                                    {{ $dokterRadiologiRanap[$urutan]->nm_dokter }}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    @endif
+                                </div>
+                                @php
+                                    ++$index2;
+                                @endphp
+                            @endforeach
+
+                            @if (!empty($tambahanDataRadiologi))
+                                @foreach ($tambahanDataRadiologi as $urutan => $tambahanData)
+                                    @php
+                                        $tgl_hasil = $tambahanDokterRadiologi[$urutan]->tgl_periksa;
+                                        $jam_hasil = $tambahanDokterRadiologi[$urutan]->jam;
+                                        $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
+
+                                    @endphp
+                                    <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
+                                        id="custom-tabs-lap-{{ $tab }}" role="tabpanel"
+                                        aria-labelledby="#custom-tabs-lap-{{ $tab }}">
+
+                                        <table class="table table-borderless mb-3">
+                                            <tr>
+                                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}"
+                                                        alt="Logo RSUP" width="350">
+                                                </td>
+                                                <td class="pt-1 pb-0 align-middle"
+                                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                                        Kesehatan</div>
+                                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS
+                                                        Surakarta
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="align-middle py-0">
+                                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi"
+                                                        width="20"> Jalan
+                                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="align-middle py-0">
+                                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi"
+                                                        width="17">
+                                                    (0271)
+                                                    713055
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="align-middle py-0">
+                                                    <img src="{{ asset('image/world-wide-web.png') }}"
+                                                        alt="pin lokasi" width="17">
+                                                    https://web.rsupsurakarta.co.id
+                                                </td>
+                                            </tr>
+
+                                        </table>
+                                        <div class="progress progress-xs mt-0 pt-0">
+                                            <div class="progress-bar progress-bar bg-black" role="progressbar"
+                                                aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"
+                                                style="width: 100%">
+
+                                            </div>
                                         </div>
-                                        @php
-                                            ++$index2;
-                                        @endphp
-                                    @endforeach
-                                @endif
-                            </div>
+                                        <table class="table table-borderless py-0">
+                                            <thead>
+                                                <tr>
+                                                    <th class="align-middle text-center pb-1" colspan="7">
+                                                        <h5>HASIL PEMERIKSAAN RADIOLOGI</h5>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td class="pt-0 pb-0">No.RM</td>
+                                                    <td class="pt-0 pb-0">: {{ $pasien->no_rkm_medis }}</td>
+                                                    <td class="pt-0 pb-0">Penanggung Jawab</td>
+                                                    <td class="pt-0 pb-0">:
+                                                        {{ !empty($tambahanDokterRadiologi[$urutan]->nm_dokter) ? $tambahanDokterRadiologi[$urutan]->nm_dokter : '' }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="pt-0 pb-0">Nama Pasien</td>
+                                                    <td class="pt-0 pb-0">: {{ $pasien->nm_pasien }}</td>
+                                                    <td class="pt-0 pb-0">Dokter Pengirim</td>
+                                                    <td class="pt-0 pb-0">:
+                                                        {{ !empty($tambahanData->nm_dokter) ? $tambahanData->nm_dokter : '' }}
+                                                    </td>
+
+                                                </tr>
+                                                <tr>
+                                                    <td class="pt-0 pb-0">JK/Umur</td>
+                                                    <td class="pt-0 pb-0">:
+                                                        {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
+                                                        /
+                                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($tambahanData->tgl_hasil))->format('%y
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Th %m Bl %d Hr') }}
+                                                    </td>
+                                                    <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
+                                                    <td class="pt-0 pb-0">:
+                                                        {{ \Carbon\Carbon::parse($tambahanData->tgl_hasil)->format('d-m-Y') }}
+                                                    </td>
+
+                                                </tr>
+                                                <tr>
+                                                    <td class="pt-0 pb-0">Alamat</td>
+                                                    <td class="pt-0 pb-0">: {{ $tambahanData->alamat }}</td>
+                                                    <td class="pt-0 pb-0">Jam Pemeriksaan</td>
+                                                    <td class="pt-0 pb-0">: {{ $tambahanDokterRadiologi[$urutan]->jam }}
+                                                    </td>
+
+                                                </tr>
+                                                <tr>
+                                                    <td class="pt-0 pb-0">No.Periksa</td>
+                                                    <td class="pt-0 pb-0">: {{ $tambahanData->no_rawat }}</td>
+                                                    <td class="pt-0 pb-0">Poli</td>
+                                                    <td class="pt-0 pb-0">: {{ $tambahanData->nm_poli }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="pt-0 pb-0">Pemeriksaan</td>
+                                                    <td class="pt-0 pb-0">:
+                                                        {{ $tambahanDokterRadiologi[$urutan]->nm_perawatan }}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="pt-0 pb-0">Hasil Pemeriksaan</td>
+                                                </tr>
+                                            </tbody>
+
+                                        </table>
+                                        @if (!empty($tambahanHasilRadiologi[$urutan]->hasil))
+                                            @php
+                                                $paragraphs = explode("\n", $tambahanHasilRadiologi[$urutan]->hasil);
+                                                $tinggi = 25 * count($paragraphs);
+                                            @endphp
+                                        @endif
+                                        <table class="table table-bordered">
+                                            <tbody class="border border-dark">
+                                                <tr>
+                                                    <textarea class="form-control" readonly
+                                                        style="
+                                        min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
+                                        resize: none;
+                                        overflow-y:hidden;
+                                        border:1px solid black;
+                                        background-color: white;
+                                    ">{{ !empty($tambahanHasilRadiologi[$urutan]->hasil) ? $tambahanHasilRadiologi[$urutan]->hasil : '' }}</textarea>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        @if (!empty($tambahanDokterRadiologi[$urutan]->nm_dokter))
+                                            <table class="table table-borderless mt-1">
+                                                <tr>
+                                                    <td class="text-center pt-0 pb-0" style="width: 70%"></td>
+                                                    <td class="text-center pt-0 pb-0" style="width: 30%">Dokter
+                                                        Radiologi
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    @php
+                                                        $qr_dokter =
+                                                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                    elektronik oleh' .
+                                                            "\n" .
+                                                            $tambahanDokterRadiologi[$urutan]->nm_dokter .
+                                                            "\n" .
+                                                            'ID ' .
+                                                            $tambahanDokterRadiologi[$urutan]->kd_dokter .
+                                                            "\n" .
+                                                            \Carbon\Carbon::parse(
+                                                                $tambahanDokterRadiologi[$urutan]->tgl_periksa
+                                                            )->format('d-m-Y');
+                                                    @endphp
+                                                    <td class="text-center pt-0 pb-0" style="width: 70%"></td>
+                                                    <td class="text-center pt-0 pb-0" style="width: 30%">
+                                                        {!! QrCode::size(100)->generate($qr_dokter) !!}
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-center pt-0 pb-0" style="width: 70%"></td>
+                                                    <td class="text-center pt-0 pb-0" style="width: 30%">
+                                                        {{ $tambahanDokterRadiologi[$urutan]->nm_dokter }}
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        @endif
+                                    </div>
+                                    @php
+                                        ++$index2;
+                                    @endphp
+                                @endforeach
+                            @endif
                         </div>
-                        <!-- /.card -->
                     </div>
-                @endif
+                    <!-- /.card -->
+                </div>
             @endif
             {{-- End Radiologi --}}
             {{-- Data Obat --}}
@@ -3420,7 +3416,7 @@
                 </div>
             </div>
         @endif
-
+        {{-- Data Spiro --}}
         @if($dataSpiro)
             <div class="card">
                 <div class="card-header">Pemeriksaan Spirometri</div>
@@ -3721,6 +3717,578 @@
                 </div>
             </div>
         @endif
+        {{-- Data Transfusi --}}
+        @if($dataTransfusi)
+            <div class="card card-primary card-outline card-outline-tabs">
+                <div class="card-header p-0 border-bottom-0">
+                    <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
+                        @foreach ($dataTransfusi as $index => $listTransfusi)
+                            <li class="nav-item">
+                                <a class="nav-link {{ $index == 0 ? 'active' : '' }}" id="custom-tabs-four-home-tab"
+                                    data-toggle="pill"
+                                    href="#custom-tabs-lap-{{ $listTransfusi->nomor_kantong}}-{{ \Carbon\Carbon::parse($listTransfusi->tanggal)->format('dmY') }}"
+                                    role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">
+                                    Kantong Darah {{ $listTransfusi->nomor_kantong}}</a>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="custom-tabs-four-tabContent">
+                        @foreach ($dataTransfusi as $index => $listTransfusi)
+                            <div class="tab-pane fade show {{ $index == 0 ? 'active' : '' }}"
+                                id="custom-tabs-lap-{{ $listTransfusi->nomor_kantong }}-{{ \Carbon\Carbon::parse($listTransfusi->tanggal)->format('dmY') }}"
+                                role="tabpanel"
+                                aria-labelledby="#custom-tabs-lap-{{ $listTransfusi->nomor_kantong }}-{{ \Carbon\Carbon::parse($listTransfusi->tanggal)->format('dmY') }}">
+                                <table class="table table-borderless mb-3">
+                                    <thead>
+                                        <tr>
+                                            <td class="align-top" style="width:60%" rowspan="4"><img
+                                                    src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                                    width="350">
+                                            </td>
+                                            <td class="pt-1 pb-0 align-middle"
+                                                style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                                <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                                    Kesehatan</div>
+                                                <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle py-0">
+                                                <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                                Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle py-0">
+                                                <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                                (0271)
+                                                713055
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="align-middle py-0">
+                                                <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                                https://web.rsupsurakarta.co.id
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <table style="width: 100%; margin-top:10px; margin-bottom:-2px;" class="table table-borderless table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black; border-left: 1px solid black; border-right: 1px solid black;" colspan="5">
+                                                <h5><b>MONITORING TRANSFUSI DARAH / PRODUK DARAH</b></h5>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-left: 1px solid black;">
+                                                Identitas Pasien
+                                            </td>
+                                            <td style="" colspan="2">
+                                                : {{ $listTransfusi->nm_pasien }} / {{ $listTransfusi->no_rkm_medis }} / {{ $listTransfusi->jk }}
+                                            </td>
+                                            <td style="border-right: 1px solid black;" class="text-bold" colspan="2">
+                                                PETUGAS BANK DARAH
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-left: 1px solid black;">
+                                                Nomor Kantong
+                                            </td>
+                                            <td style="" colspan="2">
+                                                : {{ $listTransfusi->nomor_kantong }}
+                                            </td>
+                                            <td style="" class="">
+                                                Nama Petugas
+                                            </td>
+                                            <td style="border-right: 1px solid black;" class="">
+                                                : {{ $listTransfusi->petugas1 }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-left: 1px solid black;">
+                                                Golongan Darah
+                                            </td>
+                                            <td style="" colspan="2">
+                                                : {{ $listTransfusi->gol_darah }}
+                                            </td>
+                                            <td style="" class="">
+                                                Waktu Penyerahan
+                                            </td>
+                                            <td style="border-right: 1px solid black;" class="">
+                                                : {{ $listTransfusi->tgl_penyerahan }} {{ $listTransfusi->wp_jam }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-left: 1px solid black;">
+                                                Jenis Darah / Komponen
+                                            </td>
+                                            <td style="" colspan="2">
+                                                : {{ $listTransfusi->jenis_darah }}
+                                            </td>
+                                            <td style="border-right: 1px solid black;" class="text-bold" colspan="2">
+                                                PENERIMA DARAH
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-left: 1px solid black;">
+                                                Tanggal Kadaluarsa
+                                            </td>
+                                            <td style="" colspan="2">
+                                                : {{ $listTransfusi->tgl_kadaluwarsa }}
+                                            </td>
+                                            <td style="" class="">
+                                                Nama
+                                            </td>
+                                            <td style="border-right: 1px solid black;" class="">
+                                                : {{ $listTransfusi->penerima }}
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-left: 1px solid black;">
+                                            </td>
+                                            <td style="" colspan="2">
+                                            </td>
+                                            <td style="" class="">
+                                                Waktu Transfusi
+                                            </td>
+                                            <td style="border-right: 1px solid black;" class="">
+                                                : {{ $listTransfusi->tgl_transfusi }} {{ $listTransfusi->jam_transfusi }}
+                                            </td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                                <table class="table table-borderless table-sm" style="border: 1px solid black;">
+                                    <tbody>
+                                        <tr>
+                                            <td style="vertical-align: middle; text-align:center; width:20%; border: 1px solid black;"><b>KONDISI</b></td>
+                                            <td colspan="2" style="vertical-align: middle; text-align:center;width:20%; border: 1px solid black;"><b>SEBELUM TRANSFUSI</b><br>{{ $listTransfusi->jam_st }} WIB</td>
+                                            <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>15-30 MENIT TRANSFUSI</b><br>{{ $listTransfusi->jam_mt }} WIB</td>
+                                            <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>2 JAM TRANSFUSI</b><br>{{ $listTransfusi->jam_t }} WIB</td>
+                                            <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>PASCA TRANSFUSI</b><br>{{ $listTransfusi->jam_pt }} WIB</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: middle; text-align:center;border: 1px solid black;">Keadaan Umum</td>
+                                            <td colspan="2" style="vertical-align: middle; text-align:center;border: 1px solid black;">{{ $listTransfusi->ku_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->ku_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->ku_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->ku_pt }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: middle; text-align:center;border: 1px solid black;">Suhu Tubuh</td>
+                                            <td colspan="2" style="vertical-align: middle; text-align:center;border: 1px solid black;">{{ $listTransfusi->st_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->st_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->st_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->st_pt }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;">Nadi</td>
+                                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->nadi_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->nadi_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->nadi_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->nadi_pt }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;">Tekanan Darah</td>
+                                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->td_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->td_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->td_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->td_pt }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;"><i>Respiratory Rate</i></td>
+                                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->rr_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->rr_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->rr_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->rr_pt }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;">Volume & Warna Urine</td>
+                                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->vol_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->vol_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->vol_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->vol_pt }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td style="vertical-align: middle; border: 1px solid black;" rowspan="5">Gejala dan tanda reaksi transfusi yang ditemukan &#42;&#41;</td>
+                                            <td style="border-left: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_1 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        urtikaria
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_6 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        nyeri dada
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_10 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        urtikaria
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_15 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        nyeri dada
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_19 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        urtikaria
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_24 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        nyeri dada
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_28 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        urtikaria
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_33 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        nyeri dada
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_2 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        demam
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_7 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        nyeri kepala
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_11 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        demam
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_16 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        nyeri kepala
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_20 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        demam
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_25 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        nyeri kepala
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_29 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        demam
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_34 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        nyeri kepala
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_3 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        gatal
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_8 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        Syok &#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_12 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        gatal
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_17 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        Syok &#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_21 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        gatal
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_26 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        Syok &#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_30 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        gatal
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_35 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        Syok &#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_4 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        takikardi
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_9 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        sesak napas &#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_13 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        takikardi
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_18 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        sesak napas &#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_22 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        takikardi
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_27 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        sesak napas &#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_31 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        takikardi
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black;">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_36 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        sesak napas &#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_5 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        hematuria / Hemoglobinuria&#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_14 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        hematuria / Hemoglobinuria&#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_23 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        hematuria / Hemoglobinuria&#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                        {{ $listTransfusi->gr_32 == 'true' ? 'checked' : '' }}>
+                                                    <label class="form-check-label" for="defaultCheck1">
+                                                        hematuria / Hemoglobinuria&#42;&#42;
+                                                    </label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="padding-left:25px;" colspan="3">Nama Perawat yang melakukan transfusi <br> <i>(double check)</i>
+                                            </td>
+                                            <td style="" colspan="3">
+                                                1&#41; {{ $listTransfusi->petugas2 }} <br>
+                                                2&#41; {{ $listTransfusi->petugas3 }} <br>
+                                            </td>
+                                            <td style="text-align:center;" colspan="3">
+                                                Surakarta, {{ \Carbon\Carbon::parse($listTransfusi->tanggal)->format('d-m-Y') }} <br> Petugas Transfusi
+                                            </td>
+                                        </tr>
+                                        @php
+                                            $qr_petugas =
+                                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                            elektronik oleh' .
+                                            "\n" .
+                                            $listTransfusi->petugas2 .
+                                            "\n" .
+                                            'ID ' .
+                                            $listTransfusi->kd_petugas_2 .
+                                            "\n" .
+                                            \Carbon\Carbon::parse($listTransfusi->tanggal)->format('d-m-Y');
+                                        @endphp
+                                        <tr>
+                                            <td style="padding-left:25px; vertical-align:middle;" colspan="6">
+                                                &#42;&#41; gejala yang ditemukan <br>
+                                                &#42;&#42;&#41; mengikuti SPO pelaporan reaksi transfusi
+                                            </td>
+                                            <td style="text-align:center;" colspan="3">
+                                                {!! QrCode::size(100)->generate($qr_petugas) !!} <br> {{ $listTransfusi->petugas2 }}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+
+
         {{-- Pasien Operasi --}}
         {{-- Data Operasi Multi Tab --}}
         @if ($dataOperasi2 != null && $dataOperasi1)
@@ -4757,37 +5325,37 @@
                                 <td style="width: 20%; border-top: 1px solid black;">
                                     No. Rawat
                                 </td>
-                                <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->no_rawat }}</td>
+                                <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi2->no_rawat }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     No. Rekam Medis
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->no_rkm_medis }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->no_rkm_medis }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Nama Pasien
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->nm_pasien }}/ Th/ {{ $dataAnestesi->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->nm_pasien }}/ Th/ {{ $dataAnestesi2->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Tanggal Lahir
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ \Carbon\Carbon::parse($dataAnestesi->tgl_lahir)->format('d-m-Y') }}</td>
+                                <td style="border-right: 1px solid black;">: {{ \Carbon\Carbon::parse($dataAnestesi2->tgl_lahir)->format('d-m-Y') }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Alamat
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->alamat }}, {{ $dataAnestesi->kelurahan }}, {{ $dataAnestesi->kecamatan }}, {{ $dataAnestesi->kabupaten }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->alamat }}, {{ $dataAnestesi2->kelurahan }}, {{ $dataAnestesi2->kecamatan }}, {{ $dataAnestesi2->kabupaten }}</td>
                             </tr>
                             <tr>
                                 <td style="border-bottom: 1px solid black; ">
                                     Ruang Rawat
                                 </td>
-                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->nm_bangsal }}</td>
+                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi2->nm_bangsal }}</td>
                             </tr>
                         </thead>
                     </table>
@@ -5267,7 +5835,7 @@
         @endif
 
         {{-- Data Resume Ranap --}}
-        @if ($resumeRanap1)
+        @if ($resumeRanap1 && $resumeRanap2 && $resumeRanap3 && $resumeRanap4)
             <style>
                 /* pre {
                                                                     white-space: pre-wrap !important;
@@ -5364,7 +5932,7 @@
                                     {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
                                 <td class="align-middle py-0">Tanggal Masuk</td>
                                 <td class="align-middle py-0">:
-                                    {{ \Carbon\Carbon::parse($resumeRanap2->first()->waktu_masuk_ranap)->format('d-m-Y') }}
+                                    {{ $resumeRanap2->first()->waktu_masuk_ranap != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($resumeRanap2->first()->waktu_masuk_ranap)->format('d-m-Y'):'-' }}
                                 </td>
                             </tr>
                             <tr>
@@ -5372,7 +5940,7 @@
                                 <td class="align-middle py-0">: {{ $pasien->alamat }}</td>
                                 <td class="align-middle py-0">Tanggal Keluar</td>
                                 <td class="align-middle py-0">:
-                                    {{ \Carbon\Carbon::parse($resumeRanap2->last()->waktu_keluar_ranap)->format('d-m-Y') }}
+                                    {{ $resumeRanap2->first()->waktu_keluar_ranap != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($resumeRanap2->last()->waktu_keluar_ranap)->format('d-m-Y'):'-' }}
                                 </td>
                             </tr>
                             <tr>
