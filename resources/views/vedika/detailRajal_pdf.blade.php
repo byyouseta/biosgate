@@ -281,15 +281,15 @@
                     INA-CBG</td>
                 <td style="width: 20%;padding: 0; padding-top:10px; vertical-align:top;">
                     :
-                    {{ $dataKlaim->grouper->response ? $dataKlaim->grouper->response->cbg->code : '' }}
+                    {{ $dataKlaim->grouper->response_inacbg ? $dataKlaim->grouper->response_inacbg->cbg->code : '' }}
                 </td>
                 <td style="width: 50%;padding: 0; padding-top:10px; vertical-align:top;">
-                    {{ $dataKlaim->grouper->response ? $dataKlaim->grouper->response->cbg->description : '' }}
+                    {{ $dataKlaim->grouper->response_inacbg ? $dataKlaim->grouper->response_inacbg->cbg->description : '' }}
                 </td>
                 <td style="width: 5%;padding: 0; padding-top:10px; text-align:right; vertical-align:top;">
                     Rp</td>
                 <td style="width: 15%;padding: 0; padding-top:10px; text-align:right; vertical-align:top;">
-                    {{ isset($dataKlaim->grouper->response->cbg->tariff) ? number_format($dataKlaim->grouper->response->cbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
+                    {{ isset($dataKlaim->grouper->response_inacbg->cbg->tariff) ? number_format($dataKlaim->grouper->response_inacbg->cbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
                 </td>
 
             </tr>
@@ -346,7 +346,7 @@
                     Rp</td>
                 <td
                     style="width: 10%;padding: 0; padding-top:10px; text-align:right; padding-bottom:50px; border-bottom: 3px solid black;">
-                    {{ isset($dataKlaim->grouper->response->cbg->tariff) ? number_format($dataKlaim->grouper->response->cbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
+                    {{ isset($dataKlaim->grouper->response_inacbg->cbg->tariff) ? number_format($dataKlaim->grouper->response_inacbg->cbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
                 </td>
 
             </tr>
@@ -355,7 +355,7 @@
                     Generated</td>
                 <td style="width: 75%;padding: 0;" colspan='3'>
                     : Eklaim
-                    {{ $dataKlaim->grouper->response ? $dataKlaim->grouper->response->inacbg_version : '' }}
+                    {{ $dataKlaim->grouper->response_inacbg ? $dataKlaim->grouper->response_inacbg->inacbg_version : '' }}
                     @
                     {{ \Carbon\Carbon::now()->format('Y-m-d H:i:s') }}</td>
                 <td style="width: 10%;padding: 0; text-align:right">

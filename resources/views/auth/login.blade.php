@@ -86,7 +86,7 @@
                                 </div>
                             </div>
                         </form>
-                        <hr>
+                        {{-- <hr>
                         <div class="form-group row ">
                             <div class="col-md-6 offset-md-4 ">
                                 <!-- Tombol untuk SSO -->
@@ -94,7 +94,7 @@
                                     Login with SSO
                                 </a>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

@@ -189,7 +189,8 @@ class SatuSehatController extends Controller
                 'diagnosa_pasien.kd_penyakit',
                 'diagnosa_pasien.status',
                 'diagnosa_pasien.prioritas',
-                'penyakit.nm_penyakit'
+                'penyakit.nm_penyakit',
+                'penyakit.im'
             )
             ->where('diagnosa_pasien.status', 'Ralan')
             ->where('diagnosa_pasien.no_rawat', $id)
@@ -2500,16 +2501,16 @@ class SatuSehatController extends Controller
                                 }
                             }
 
-                            $cek = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
-                                ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
-                                ->whereDate('created_at', Carbon::now())
-                                ->get();
-                            if ($cek->count() < 1) {
-                                $error = new LogErrorSatuSehat();
-                                $error->subject = 'Bundle Ralan';
-                                $error->keterangan = $dataPengunjung->no_rawat . ' error kirim "' . $pesan . '"';
-                                $error->save();
-                            }
+                            // $cek = LogErrorSatuSehat::where('subject', 'Bundle Ralan')
+                            //     ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                            //     ->whereDate('created_at', Carbon::now())
+                            //     ->get();
+                            // if ($cek->count() < 1) {
+                            $error = new LogErrorSatuSehat();
+                            $error->subject = 'Bundle Ralan';
+                            $error->keterangan = $dataPengunjung->no_rawat . ' error kirim "' . $pesan . '"';
+                            $error->save();
+                            // }
 
                             $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat";
                             Session::flash('error', $message);

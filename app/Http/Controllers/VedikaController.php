@@ -265,6 +265,7 @@ class VedikaController extends Controller
             } else {
                 $dataKlaim = null;
             }
+
             //Ambil data Triase dan Ringkasan IGD
             if ($pasien->nm_poli == "IGD") {
                 $triase = VedikaController::triase($pasien->no_rawat);
