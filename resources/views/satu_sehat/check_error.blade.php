@@ -26,45 +26,27 @@
                             <table class="table table-bordered table-hover table-sm">
                                 <tr>
                                     <th width='20%'>No KTP</th>
-                                    <td>: {!! $dataPasien
-                                        ? $dataPasien->ktp_pasien
-                                        : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                style="color: red;"></i>' !!}</td>
+                                    <td>: {!! $dataPasien ? $dataPasien->ktp_pasien : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
                                 <tr>
                                     <th width='20%'>ID Satu Sehat</th>
-                                    <td>: {!! $idSatu
-                                        ? $idSatu->satu_sehat_id
-                                        : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                style="color: red;"></i>' !!}</td>
+                                    <td>: {!! $idSatu ? $idSatu->satu_sehat_id : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
                                 <tr>
                                     <th width='20%'>Nama</th>
-                                    <td>: {!! $dataPasien
-                                        ? $dataPasien->nm_pasien
-                                        : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                style="color: red;"></i>' !!}</td>
+                                    <td>: {!! $dataPasien ? $dataPasien->nm_pasien : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
                                 <tr>
                                     <th width='20%'>No RM</th>
-                                    <td>: {!! $dataPasien
-                                        ? $dataPasien->no_rkm_medis
-                                        : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                style="color: red;"></i>' !!}</td>
+                                    <td>: {!! $dataPasien ? $dataPasien->no_rkm_medis : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
                                 <tr>
                                     <th width='20%'>Usia</th>
-                                    <td>: {!! $dataPasien
-                                        ? $dataPasien->tgl_lahir
-                                        : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                style="color: red;"></i>' !!}</td>
+                                    <td>: {!! $dataPasien ? $dataPasien->tgl_lahir : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
                                 <tr>
                                     <th width='20%'>Penjamin</th>
-                                    <td>: {!! $dataPasien
-                                        ? $dataPasien->nama_perusahaan
-                                        : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                style="color: red;"></i>' !!}</td>
+                                    <td>: {!! $dataPasien ? $dataPasien->nama_perusahaan : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
                                 @if (empty($idSatu) && $dataPasien->nama_perusahaan == 'BPJS')
                                     @php
@@ -80,10 +62,7 @@
                                     @endphp
                                     <tr>
                                         <th width='20%'>KTP dari Vklaim</th>
-                                        <td>: {!! $dataPeserta
-                                            ? $dataPeserta->nik
-                                            : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                                        style="color: red;"></i>' !!}</td>
+                                        <td>: {!! $dataPeserta ? $dataPeserta->nik : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                     </tr>
                                 @endif
                             </table>
@@ -135,24 +114,15 @@
                             <table class="table table-bordered table-hover table-sm">
                                 <tr>
                                     <th width='20%'>No KTP</th>
-                                    <td>: {!! $dataPasien
-                                        ? $dataPasien->ktp_dokter
-                                        : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                style="color: red;"></i>' !!}</td>
+                                    <td>: {!! $dataPasien ? $dataPasien->ktp_dokter : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
                                 <tr>
                                     <th width='20%'>ID Satu Sehat</th>
-                                    <td>: {!! $idSatuPraktisi
-                                        ? $idSatuPraktisi->satu_sehat_id
-                                        : '<i
-                                                                                                                                                                                                                                                                class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
+                                    <td>: {!! $idSatuPraktisi ? $idSatuPraktisi->satu_sehat_id : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
                                 <tr>
                                     <th width='20%'>Nama</th>
-                                    <td>: {!! $dataPasien
-                                        ? $dataPasien->nama_dokter
-                                        : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                style="color: red;"></i>' !!}</td>
+                                    <td>: {!! $dataPasien ? $dataPasien->nama_dokter : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
                             </table>
                         </div>
@@ -187,39 +157,29 @@
                         <div class="card-body">
                             <h6>Data Diagnosa</h6>
                             <table class="table table-bordered table-hover table-sm">
-                                <tr>
-                                    <th width='30%'>Diagnosa Primer</th>
-                                    <td>: {!! $cekDiagnosa->where('prioritas', 1)->first()
-                                        ? $cekDiagnosa->where('prioritas', 1)->first()->kd_penyakit
-                                        : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}
-                                        {!! $cekDiagnosa->where('prioritas', 1)->where('im', 1)->first()
-                                            ? '<i class="fas fa-times-circle" style="color: red;"></i>'
-                                            : '' !!}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th width='30%'>Nama Penyakit Primer</th>
-                                    <td>: {!! $cekDiagnosa->where('prioritas', 1)->first()
-                                        ? $cekDiagnosa->where('prioritas', 1)->first()->nm_penyakit
-                                        : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th width='30%'>Diagnosa Sekunder</th>
-                                    <td>: {!! $cekDiagnosa->where('prioritas', 2)->first()
-                                        ? $cekDiagnosa->where('prioritas', 2)->first()->kd_penyakit
-                                        : '<i class="fas fa-times-circle" style="color: red;"></i>' !!} {!! $cekDiagnosa->where('prioritas', 2)->where('im', 1)->first()
-                                        ? '<i class="fas fa-times-circle" style="color: red;"></i>'
-                                        : '' !!}
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <th width='30%'>Nama Penyakit Sekunder</th>
-                                    <td>: {!! $cekDiagnosa->where('prioritas', 2)->first()
-                                        ? $cekDiagnosa->where('prioritas', 2)->first()->nm_penyakit
-                                        : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}
-                                    </td>
-                                </tr>
+                                <thead>
+                                    <tr>
+                                        <th>Diagnosa</th>
+                                        <th>Nama Penyakit</th>
+                                        <th>Prioritas</th>
+                                        <th>Jenis</th>
+                                        <th>IM</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($cekDiagnosa as $listDiag)
+                                        <tr>
+                                            <td>{{ $listDiag->kd_penyakit }}</td>
+                                            <td>{{ $listDiag->nm_penyakit }}</td>
+                                            <td>{{ $listDiag->prioritas }}</td>
+                                            <td>{{ $listDiag->sumber }}</td>
+                                            <td>{!! $listDiag->im == '1'
+                                                ? '<i class="fas fa-times-circle" style="color: red;"></i>'
+                                                : '<i class="fas fa-check-circle" style="color: green;"></i>' !!}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
                             </table>
                         </div>
                         <div class="card-body">
@@ -244,6 +204,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="col-6">
                     <div class="card">
                         <div class="card-header">
@@ -265,10 +226,7 @@
                                 </tr>
                                 <tr>
                                     <th width='30%'>Kode Mapping</th>
-                                    <td>: {!! $cekPoliklinik
-                                        ? $cekPoliklinik->id_ihs
-                                        : '<i class="fas fa-times-circle"
-                                                                                                                                                                                                                                                                style="color: red;"></i>' !!}
+                                    <td>: {!! $cekPoliklinik ? $cekPoliklinik->id_ihs : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}
                                     </td>
                                 </tr>
                             </table>
@@ -288,6 +246,40 @@
                                             <td>{{ $log->subject }}</td>
                                             <td>{{ $log->keterangan }}</td>
                                             <td>{{ $log->created_at }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card_title">Check Data Procedur
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6>Data Procedur</h6>
+                            <table class="table table-bordered table-hover table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Procedur</th>
+                                        <th>Deskripsi</th>
+                                        <th>Jenis</th>
+                                        <th>IM</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($cekProsedur as $listPro)
+                                        <tr>
+                                            <td>{{ $listPro->kode }}</td>
+                                            <td>{{ $listPro->deskripsi_panjang }}</td>
+                                            <td>{{ $listPro->sumber }}</td>
+                                            <td>{!! $listPro->im == '1'
+                                                ? '<i class="fas fa-times-circle" style="color: red;"></i>'
+                                                : '<i class="fas fa-check-circle" style="color: green;"></i>' !!}
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>

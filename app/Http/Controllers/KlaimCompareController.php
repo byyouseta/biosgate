@@ -156,6 +156,8 @@ class KlaimCompareController extends Controller
             ->orderBy('diagnosa_pasien.prioritas', 'ASC')
             ->get();
 
+        // dd($diagnosa);
+
         $prosedur = DB::connection('mysqlkhanza')->table('prosedur_pasien')
             ->join('icd9', 'icd9.kode', '=', 'prosedur_pasien.kode')
             ->select(
@@ -168,6 +170,8 @@ class KlaimCompareController extends Controller
             ->orderBy('prosedur_pasien.no_rawat', 'ASC')
             ->orderBy('prosedur_pasien.prioritas', 'ASC')
             ->get();
+
+        // dd($prosedur);
 
         $pengajuanMap = DataPengajuanKlaim::whereIn('no_sep', $gabungSepList)->get();
         $dataPengajuan = $pengajuanMap->keyBy('no_sep');

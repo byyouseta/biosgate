@@ -30,6 +30,8 @@ class RanapSehatController extends Controller
             $tanggal = new Carbon($request->get('tanggal'));
         }
 
+        // dd($tanggal);
+
         $dataLog = ResponseRanapSatuSehat::whereDate('tgl_registrasi', $tanggal)
             ->get();
 
@@ -46,6 +48,8 @@ class RanapSehatController extends Controller
         session()->put('anak', 'Ranap Satu Sehat');
         session()->put('cucu', 'Client Kirim Encounter Ranap');
         set_time_limit(0);
+
+        // dd($request->get('tanggal'));
 
         if (empty($request->get('tanggal'))) {
             $pasien_tanggal = Carbon::now()->format('Y-m-d');
@@ -143,7 +147,6 @@ class RanapSehatController extends Controller
 
             $cekStatus = ResponseRanapSatuSehat::where('noRawat', $dataPengunjung->no_rawat)
                 ->count();
-
 
             if (($cekStatus == 0) && (!empty($idPasien)) && (!empty($idPractition)) && (!empty($idRequest)) && (!empty($idKamar->id_ihs))) {
 
@@ -439,10 +442,16 @@ class RanapSehatController extends Controller
             )
             ->selectRaw(DB::raw("CONCAT(pemeriksaan_ranap.tgl_perawatan, ' ',pemeriksaan_ranap.jam_rawat) AS waktu_rawat"))
             ->where('pemeriksaan_ranap.no_rawat', $noRawat)
+            ->where(function ($q) {
+                $q->where('pemeriksaan_ranap.suhu_tubuh', '!=', '')
+                    ->where('pemeriksaan_ranap.tensi', '!=', '')
+                    ->where('pemeriksaan_ranap.nadi', '!=', '')
+                    ->where('pemeriksaan_ranap.respirasi', '!=', '');
+            })
             ->orderBy('waktu_rawat', 'DESC')
             ->first();
 
-        // if ($noRawat == '2024/04/25/000063') {
+        // if ($noRawat == '2025/08/05/000355') {
         //     dd($data);
         // }
 
@@ -923,13 +932,21 @@ class RanapSehatController extends Controller
                 'diagnosa_pasien.kd_penyakit',
                 'diagnosa_pasien.status',
                 'diagnosa_pasien.prioritas',
-                'penyakit.nm_penyakit'
+                'penyakit.nm_penyakit',
+                'penyakit.im'
             )
             ->where('kamar_inap.no_rawat', $noRawat)
-            ->where('diagnosa_pasien.prioritas', '1')
+            // ->where('diagnosa_pasien.prioritas', '1')
+            ->where(function ($q) {
+                $q->where('diagnosa_pasien.status', 'Ranap')
+                    ->where('penyakit.im', '0');
+            })
+            ->orderBy('diagnosa_pasien.prioritas', 'ASC')
             ->first();
 
+
         if (!empty($data)) {
+            // dd($data);
             $idPasien = SatuSehatController::patientSehat($data->ktp_pasien);
             $waktuPerawatan = "$data->tgl_keluar $data->jam_keluar";
             $formatWaktu = Carbon::parse($waktuPerawatan)->setTimezone('UTC')->toW3cString();
@@ -1154,13 +1171,62 @@ class RanapSehatController extends Controller
                     'diagnosa_pasien.kd_penyakit',
                     'diagnosa_pasien.status',
                     'diagnosa_pasien.prioritas',
-                    'penyakit.nm_penyakit'
+                    'penyakit.nm_penyakit',
+                    'penyakit.im'
                 )
                 ->where('kamar_inap.no_rawat', $noRawat)
                 ->where('diagnosa_pasien.status', 'Ranap')
+                ->where('penyakit.im', '0')
                 ->orderBy('diagnosa_pasien.prioritas', 'ASC')
                 ->get();
+            // $data = DB::connection('mysqlkhanza')->table(DB::raw("(
+            //         SELECT * FROM (
+            //             SELECT
+            //                 rp.no_rawat,
+            //                 p.nm_pasien,
+            //                 p.no_ktp AS ktp_pasien,
+            //                 ki.tgl_keluar,
+            //                 ki.jam_keluar,
+            //                 dp.kd_penyakit,
+            //                 'IDRG' AS sumber,
+            //                 dp.prioritas,
+            //                 py.nm_penyakit
+            //             FROM reg_periksa rp
+            //             JOIN kamar_inap ki ON ki.no_rawat = rp.no_rawat
+            //             JOIN pasien p ON p.no_rkm_medis = rp.no_rkm_medis
+            //             LEFT JOIN diagnosa_pasien dp ON dp.no_rawat = rp.no_rawat
+            //             LEFT JOIN penyakit py ON py.kd_penyakit = dp.kd_penyakit
+            //             WHERE ki.no_rawat = '$noRawat'
+            //             AND dp.status = 'Ranap'
 
+            //             UNION ALL
+
+            //             SELECT
+            //                 rp.no_rawat,
+            //                 p.nm_pasien,
+            //                 p.no_ktp AS ktp_pasien,
+            //                 ki.tgl_keluar,
+            //                 ki.jam_keluar,
+            //                 dpi.kd_penyakit,
+            //                 'INACBG' AS sumber,
+            //                 dpi.prioritas,
+            //                 py.nm_penyakit
+            //             FROM reg_periksa rp
+            //             JOIN kamar_inap ki ON ki.no_rawat = rp.no_rawat
+            //             JOIN pasien p ON p.no_rkm_medis = rp.no_rkm_medis
+            //             LEFT JOIN diagnosa_pasien_inacbg dpi ON dpi.no_rawat = rp.no_rawat
+            //             LEFT JOIN penyakit py ON py.kd_penyakit = dpi.kd_penyakit
+            //             WHERE ki.no_rawat = '$noRawat'
+            //             AND dpi.status = 'Ranap'
+            //         ) AS gabungan_semua
+            //         ORDER BY FIELD(sumber, 'IDRG', 'INACBG')
+            //     ) AS gabungan_urut"))
+            //     ->selectRaw('nm_pasien, ktp_pasien, no_rawat, tgl_keluar, jam_keluar, kd_penyakit, nm_penyakit, sumber, MIN(prioritas) AS prioritas')
+            //     ->groupBy('kd_penyakit', 'nm_pasien', 'ktp_pasien', 'no_rawat', 'tgl_keluar', 'jam_keluar', 'nm_penyakit', 'sumber')
+            //     ->orderBy('prioritas', 'ASC')
+            //     ->get();
+
+            // dd($data, $noRawat);
             if (!empty($data)) {
                 foreach ($data as $index => $listData) {
                     $idPasien = SatuSehatController::patientSehat($listData->ktp_pasien);
@@ -1390,9 +1456,7 @@ class RanapSehatController extends Controller
         $idRS = env('IDRS');
 
         if ((!empty($data->ktp_pasien)) && (!empty($data->ktp_dokter)) && ($data->tgl_keluar != '0000-00-00')) {
-            // if ($data->no_rawat == '2024/03/04/000385') {
-            //     dd($data);
-            // }
+
 
             $idPasien = SatuSehatController::patientSehat($data->ktp_pasien);
             $idPractition = SatuSehatController::practitioner($data->ktp_dokter);
@@ -1498,6 +1562,10 @@ class RanapSehatController extends Controller
                     "text" => "Pasien dirujuk ke fasilitas pelayanan kesehatan lainnya"
                 ];
             }
+
+            // if ($data->no_rawat == '2025/06/30/000289') {
+            //     dd($data, $statusKepulangan, $dataKepulangan, $idKamar);
+            // }
 
             if ((!empty($dataKepulangan)) && (!empty($idKamar->id_ihs)) && (!empty($idDiagnosa))) {
                 $dataKondisiMeninggalkan = [

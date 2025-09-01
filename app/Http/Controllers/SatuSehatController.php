@@ -182,19 +182,78 @@ class SatuSehatController extends Controller
             $idSatuPraktisi = null;
         }
 
-        $cekDiagnosa = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
-            ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
-            ->select(
-                'diagnosa_pasien.no_rawat',
-                'diagnosa_pasien.kd_penyakit',
-                'diagnosa_pasien.status',
-                'diagnosa_pasien.prioritas',
-                'penyakit.nm_penyakit',
-                'penyakit.im'
-            )
-            ->where('diagnosa_pasien.status', 'Ralan')
-            ->where('diagnosa_pasien.no_rawat', $id)
+        // $cekDiagnosa = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+        //     ->leftJoin('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+        //     ->select(
+        //         'diagnosa_pasien.no_rawat',
+        //         'diagnosa_pasien.kd_penyakit',
+        //         'diagnosa_pasien.status',
+        //         'diagnosa_pasien.prioritas',
+        //         'penyakit.nm_penyakit',
+        //         'penyakit.im'
+        //     )
+        //     ->where('diagnosa_pasien.status', 'Ralan')
+        //     ->where('diagnosa_pasien.no_rawat', $id)
+        //     ->get();
+
+        $cekDiagnosa = DB::connection('mysqlkhanza')->table(DB::raw("(
+                        SELECT
+                            dp.no_rawat,
+                            dp.kd_penyakit,
+                            dp.status,
+                            dp.prioritas,
+                            p.nm_penyakit,
+                            p.im,
+                            'IDRG' as sumber,
+                            1 as urutan_sumber
+                        FROM diagnosa_pasien dp
+                        LEFT JOIN penyakit p ON p.kd_penyakit = dp.kd_penyakit
+                        WHERE dp.status = 'Ralan' AND dp.no_rawat = '$id'
+
+                        UNION ALL
+
+                        SELECT
+                            dpi.no_rawat,
+                            dpi.kd_penyakit,
+                            dpi.status,
+                            dpi.prioritas,
+                            p.nm_penyakit,
+                            p.im,
+                            'INACBG' as sumber,
+                            2 as urutan_sumber
+                        FROM diagnosa_pasien_inacbg dpi
+                        LEFT JOIN penyakit p ON p.kd_penyakit = dpi.kd_penyakit
+                        WHERE dpi.status = 'Ralan' AND dpi.no_rawat = '$id'
+                    ) as diagnosa_all"))
+            ->orderBy('urutan_sumber')
+            ->orderBy('prioritas')
             ->get();
+
+        $cekProsedur = $data = DB::connection('mysqlkhanza')
+            ->table(DB::raw("(
+                SELECT no_rawat, kode, status, prioritas, 'IDRG' as sumber
+                FROM prosedur_pasien
+                UNION
+                SELECT no_rawat, kode, status, prioritas, 'INACBG' as sumber
+                FROM prosedur_pasien_inacbg
+            ) as prosedur"))
+            ->join('icd9', 'icd9.kode', '=', 'prosedur.kode')
+            ->select(
+                'prosedur.no_rawat',
+                'prosedur.kode',
+                'prosedur.status',
+                'prosedur.prioritas',
+                'prosedur.sumber',
+                'icd9.deskripsi_panjang',
+                'icd9.im'
+            )
+            ->where('prosedur.no_rawat', $id)
+            ->where('prosedur.status', 'Ralan')
+            ->where('prosedur.prioritas', '1')
+            ->distinct()
+            ->get();
+
+        // dd($cekDiagnosa, $cekProsedur);
 
         $cekPoliklinik = DB::connection('mysqlkhanza')->table('fhir_poliklinik')
             ->where('kd_poli', $dataPasien->kd_poli)
@@ -207,6 +266,7 @@ class SatuSehatController extends Controller
                     ->orWhere('keterangan', 'like', "%$dataPasien->ktp_pasien%");
             })
             ->orderBy('created_at', 'DESC')
+            ->limit(3)
             ->get();
 
         $logPraktisi = LogErrorSatuSehat::where('subject', 'Praktitioner')
@@ -216,6 +276,7 @@ class SatuSehatController extends Controller
                     ->orWhere('keterangan', 'like', "%$dataPasien->ktp_dokter%");
             })
             ->orderBy('created_at', 'DESC')
+            ->limit(3)
             ->get();
 
         $logDiagnosa = LogErrorSatuSehat::where('subject', 'like', '%Diagnosa%')
@@ -225,16 +286,19 @@ class SatuSehatController extends Controller
                     ->orWhere('keterangan', 'like', "%$dataPasien->ktp_pasien%");
             })
             ->orderBy('created_at', 'DESC')
+            ->limit(3)
             ->get();
 
         $logPoliklinik = LogErrorSatuSehat::where('subject', 'Lokasi')
             ->where('keterangan', 'like', "%$dataPasien->kd_poli%")
             ->orderBy('created_at', 'DESC')
+            ->limit(3)
             ->get();
 
         $logOther = LogErrorSatuSehat::where('keterangan', 'like', "%$dataPasien->no_rkm_medis%")
             ->orWhere('keterangan', 'like', "%$dataPasien->no_rawat%")
             ->orderBy('created_at', 'DESC')
+            ->limit(3)
             ->get();
 
         // dd($cekDiagnosa);
@@ -247,6 +311,7 @@ class SatuSehatController extends Controller
             'logPraktisi',
             'logDiagnosa',
             'cekDiagnosa',
+            'cekProsedur',
             'cekPoliklinik',
             'logPoliklinik',
             'logOther',
@@ -1369,6 +1434,9 @@ class SatuSehatController extends Controller
                                     $error->keterangan = $dataPengunjung->no_rawat . ' error kirim "' . $pesan . '"';
                                     $error->save();
                                 }
+
+                                //Kirim CarePlan
+                                SatuSehatController::sendCarePlan($dataPengunjung, $idPasien, $idDokter);
 
                                 $message = "Error kirim bundle Pengunjung $dataPengunjung->no_rawat";
 
@@ -2651,6 +2719,10 @@ class SatuSehatController extends Controller
                             ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
                             ->delete();
                     }
+
+                    //Kirim CarePlan
+                    SatuSehatController::sendCarePlan($dataPengunjung, $idPasien, $idDokter);
+
                     $message = "Data bundle Pengunjung $dataPengunjung->no_rawat, berhasil dikirim";
                     Session::flash('sukses', $message);
                 }
@@ -4389,6 +4461,157 @@ class SatuSehatController extends Controller
         return view('satu_sehat.client_apotek', compact('dataLog'));
     }
 
+    public function sendQuestionnariesResponse()
+    {
+        $no_rawat = '';
+        $patientId = '';
+        $getData = DB::connection('mysqlkhanza')->table('resep_obat')
+            ->join('telaah_farmasi', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->where('resep_obat.no_rawat', $no_rawat)
+            ->first();
+
+        if ($getData) {
+            $data_json = [
+                "resourceType" => "QuestionnaireResponse",
+                "questionnaire" => "https://fhir.kemkes.go.id/Questionnaire/Q0007",
+                "status" => "completed",
+                "subject" => [
+                    "reference" => "Patient/{{Patient_id}}",
+                    "display" => "{{Patient_Name}}"
+                ],
+                "encounter" => [
+                    "reference" => "Encounter/{{Encounter_id}}"
+                ],
+                "authored" => "2023-06-04T10:00:00+00:00",
+                "author" => [
+                    "reference" => "Practitioner/N10000003",
+                    "display" => "Apoteker Miller"
+                ],
+                "source" => [
+                    "reference" => "Patient/{{Patient_id}}"
+                ],
+                "item" => [
+                    [
+                        "linkId" => "1",
+                        "text" => "Persyaratan Administrasi",
+                        "item" => [
+                            [
+                                "linkId" => "1.1",
+                                "text" => "Tepat Identifikasi Pasien?",
+                                "answer" => [
+                                    [
+                                        "valueCoding" => [
+                                            "system" => "http://terminology.kemkes.go.id/CodeSystem/clinical-term",
+                                            "code" => "OV000052",
+                                            "display" => "Sesuai"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        "linkId" => "2",
+                        "text" => "Persyaratan Farmasetik",
+                        "item" => [
+                            [
+                                "linkId" => "2.1",
+                                "text" => "Tepat Obat?",
+                                "answer" => [
+                                    [
+                                        "valueCoding" => [
+                                            "system" => "http://terminology.kemkes.go.id/CodeSystem/clinical-term",
+                                            "code" => "OV000052",
+                                            "display" => "Sesuai"
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            [
+                                "linkId" => "2.2",
+                                "text" => "Tepat Dosis?",
+                                "answer" => [
+                                    [
+                                        "valueCoding" => [
+                                            "system" => "http://terminology.kemkes.go.id/CodeSystem/clinical-term",
+                                            "code" => "OV000052",
+                                            "display" => "Sesuai"
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            [
+                                "linkId" => "2.3",
+                                "text" => "Tepat Cara Pemberian?",
+                                "answer" => [
+                                    [
+                                        "valueCoding" => [
+                                            "system" => "http://terminology.kemkes.go.id/CodeSystem/clinical-term",
+                                            "code" => "OV000052",
+                                            "display" => "Sesuai"
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            [
+                                "linkId" => "2.4",
+                                "text" => "Tepat Waktu Pemberian?",
+                                "answer" => [
+                                    [
+                                        "valueCoding" => [
+                                            "system" => "http://terminology.kemkes.go.id/CodeSystem/clinical-term",
+                                            "code" => "OV000052",
+                                            "display" => "Sesuai"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        "linkId" => "3",
+                        "text" => "Persyaratan Klinis",
+                        "item" => [
+                            [
+                                "linkId" => "3.1",
+                                "text" => "Ada Tidak Duplikasi Obat?",
+                                "answer" => [
+                                    [
+                                        "valueCoding" => [
+                                            "system" => "http://terminology.kemkes.go.id/CodeSystem/clinical-term",
+                                            "code" => "OV000052",
+                                            "display" => "Sesuai"
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            [
+                                "linkId" => "3.2",
+                                "text" => "Interaksi Obat?",
+                                "answer" => [
+                                    [
+                                        "valueBoolean" => false
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        "linkId" => "4",
+                        "text" => "Resep yang dilakukan pengkajian resep",
+                        "answer" => [
+                            [
+                                "valueReference" => [
+                                    "reference" => "MedicationRequest/{{MedicationRequest_id1}}"
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
+        }
+    }
+
     public function sendLab()
     {
         session()->put('ibu', 'Satu Sehat');
@@ -5816,6 +6039,95 @@ class SatuSehatController extends Controller
         // dd($dataLog);
 
         return view('satu_sehat.client_rujuklab', compact('dataLog'));
+    }
+
+    public function sendCarePlan($dataKunjungan, $idPasien, $idDokter)
+    {
+        $data = DB::connection('mysqlkhanza')->table('pemeriksaan_ralan')
+            ->where('pemeriksaan_ralan.no_rawat', $dataKunjungan->no_rawat)
+            ->first();
+
+        $idEncounter = SatuSehatController::getEncounterId($dataKunjungan->no_rawat);
+        $waktuPerawatan = new Carbon("$data->tgl_perawatan $data->jam_rawat");
+        $formatWaktuPerawatan = $waktuPerawatan->setTimezone('UTC')->toW3cString();
+
+        if ($data) {
+            if ($data->instruksi != null || $data->intruksi != '-') {
+                // dd($data, $idEncounter);
+
+                $data_json = [
+                    "resourceType" => "CarePlan",
+                    "status" => "active",
+                    "intent" => "plan",
+                    "category" => [
+                        [
+                            "coding" => [
+                                [
+                                    "system" => "http://snomed.info/sct",
+                                    "code" => "736271009",
+                                    "display" => "Outpatient care plan"
+                                ]
+                            ]
+                        ]
+                    ],
+                    "title" => "Instruksi Medik dan Keperawatan Pasien",
+                    "description" => "$data->instruksi",
+                    "subject" => [
+                        "reference" => "Patient/$idPasien",
+                        "display" => "$dataKunjungan->nm_pasien"
+                    ],
+                    "encounter" => [
+                        "reference" => "Encounter/$idEncounter->encounter_id"
+                    ],
+                    "created" => "$formatWaktuPerawatan",
+                    "author" => [
+                        "reference" => "Practitioner/$idDokter",
+                        "display" => "$dataKunjungan->nama_dokter"
+                    ]
+                    // ,
+                    // "goal" => [
+                    //     [
+                    //         "reference" => "Goal/{{Goal_TujuanPerawatan}}"
+                    //     ]
+                    // ]
+                ];
+
+                //Kirim/Create Service Request
+                SatuSehatController::getTokenSehat();
+                $access_token = Session::get('tokenSatuSehat');
+                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                try {
+                    $response = $client->request('POST', 'fhir-r4/v1/CarePlan', [
+                        'headers' => [
+                            'Authorization' => "Bearer {$access_token}"
+                        ],
+                        'json' => $data_json
+                    ]);
+                } catch (BadResponseException $e) {
+                    if ($e->hasResponse()) {
+                        $response = $e->getResponse();
+                        $test = json_decode($response->getBody());
+                        $pesan = $test->issue->details ? $test->issue->details->text : 'pola baru error';
+                        dd($test, $pesan);
+                        $error = new LogErrorSatuSehat();
+                        $error->subject = 'Care Plan';
+                        $error->keterangan = $dataPengunjung->no_rawat . ' error kirim "' . $pesan . '"';
+                        $error->save();
+                    }
+                }
+
+                $bodyResponse = json_decode($response->getBody());
+
+
+                if ($bodyResponse && !empty($bodyResponse->id)) {
+
+                    $update = ResponseSatuSehat::where('encounter_id', $idEncounter->encounter_id)
+                        ->first();
+                    $update->careplan_id = $bodyResponse->id;
+                    $update->save();
+                }
+            }
+        }
     }
 
     public function bundleLab(Request $request)
@@ -7664,22 +7976,92 @@ class SatuSehatController extends Controller
 
     public function getDiagnosisPrimerRalan($id)
     {
-        $data = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
-            ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
-            ->select(
-                'diagnosa_pasien.no_rawat',
-                'diagnosa_pasien.kd_penyakit',
-                'diagnosa_pasien.status',
-                'diagnosa_pasien.prioritas',
-                'penyakit.nm_penyakit'
-            )
-            ->where('diagnosa_pasien.no_rawat', $id)
-            ->where('diagnosa_pasien.status', 'Ralan')
-            ->orderBy('prioritas', 'ASC')
-            ->limit(10)
+        // $data = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+        //     ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+        //     ->select(
+        //         'diagnosa_pasien.no_rawat',
+        //         'diagnosa_pasien.kd_penyakit',
+        //         'diagnosa_pasien.status',
+        //         'diagnosa_pasien.prioritas',
+        //         'penyakit.nm_penyakit'
+        //     )
+        //     ->where('diagnosa_pasien.no_rawat', $id)
+        //     ->where('diagnosa_pasien.status', 'Ralan')
+        //     ->orderBy('prioritas', 'ASC')
+        //     ->limit(10)
+        //     ->get();
+
+        // $data = DB::connection('mysqlkhanza')->table(DB::raw("(
+        //                 SELECT
+        //                     dp.no_rawat,
+        //                     dp.kd_penyakit,
+        //                     dp.status,
+        //                     dp.prioritas,
+        //                     p.nm_penyakit,
+        //                     p.im,
+        //                     'IDRG' as sumber,
+        //                     1 as urutan_sumber
+        //                 FROM diagnosa_pasien dp
+        //                 LEFT JOIN penyakit p ON p.kd_penyakit = dp.kd_penyakit
+        //                 WHERE dp.status = 'Ralan' AND dp.no_rawat = '$id'
+
+        //                 UNION ALL
+
+        //                 SELECT
+        //                     dpi.no_rawat,
+        //                     dpi.kd_penyakit,
+        //                     dpi.status,
+        //                     dpi.prioritas,
+        //                     p.nm_penyakit,
+        //                     p.im,
+        //                     'INACBG' as sumber,
+        //                     2 as urutan_sumber
+        //                 FROM diagnosa_pasien_inacbg dpi
+        //                 LEFT JOIN penyakit p ON p.kd_penyakit = dpi.kd_penyakit
+        //                 WHERE dpi.status = 'Ralan' AND dpi.no_rawat = '$id'
+        //             ) as diagnosa_all"))
+        //     ->where('im', '0')
+        //     ->orderBy('urutan_sumber')
+        //     ->orderBy('prioritas')
+        //     ->get();
+
+        $data = DB::connection('mysqlkhanza')->table(DB::raw("(
+                    SELECT * FROM (
+                        SELECT
+                            dp.no_rawat,
+                            dp.kd_penyakit,
+                            dp.status,
+                            p.nm_penyakit,
+                            p.im,
+                            'IDRG' AS sumber,
+                            dp.prioritas
+                        FROM diagnosa_pasien dp
+                        LEFT JOIN penyakit p ON p.kd_penyakit = dp.kd_penyakit
+                        WHERE dp.status = 'Ralan' AND dp.no_rawat = '$id'
+
+                        UNION ALL
+
+                        SELECT
+                            dpi.no_rawat,
+                            dpi.kd_penyakit,
+                            dpi.status,
+                            p.nm_penyakit,
+                            p.im,
+                            'INACBG' AS sumber,
+                            dpi.prioritas
+                        FROM diagnosa_pasien_inacbg dpi
+                        LEFT JOIN penyakit p ON p.kd_penyakit = dpi.kd_penyakit
+                        WHERE dpi.status = 'Ralan' AND dpi.no_rawat = '$id'
+                    ) AS gabungan_semua
+                    ORDER BY FIELD(sumber, 'IDRG', 'INACBG')
+                ) AS gabungan_urut"))
+            ->selectRaw('no_rawat, kd_penyakit, status, nm_penyakit, im,sumber, MIN(prioritas) as prioritas')
+            ->where('im', '0')
+            ->groupBy('kd_penyakit')
+            ->orderBy('prioritas')
             ->get();
 
-
+        // dd($data);
 
         if (!empty($data)) {
             // if (stripos($data->kd_penyakit, "Z09") !== false) {
@@ -7762,21 +8144,92 @@ class SatuSehatController extends Controller
 
     public function getDiagnosisSekunderRalan($id)
     {
-        $data = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
-            ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
-            ->select(
-                'diagnosa_pasien.no_rawat',
-                'diagnosa_pasien.kd_penyakit',
-                'diagnosa_pasien.status',
-                'diagnosa_pasien.prioritas',
-                'penyakit.nm_penyakit'
-            )
-            ->where('diagnosa_pasien.no_rawat', $id)
-            ->where('diagnosa_pasien.status', 'Ralan')
-            // ->where('diagnosa_pasien.prioritas', '1')
-            ->where('diagnosa_pasien.status', 'Ralan')
-            ->orderBy('prioritas', 'ASC')
-            ->limit(10)
+        // $data = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+        //     ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+        //     ->select(
+        //         'diagnosa_pasien.no_rawat',
+        //         'diagnosa_pasien.kd_penyakit',
+        //         'diagnosa_pasien.status',
+        //         'diagnosa_pasien.prioritas',
+        //         'penyakit.nm_penyakit'
+        //     )
+        //     ->where('diagnosa_pasien.no_rawat', $id)
+        //     ->where('diagnosa_pasien.status', 'Ralan')
+        //     // ->where('diagnosa_pasien.prioritas', '1')
+        //     ->where('diagnosa_pasien.status', 'Ralan')
+        //     ->orderBy('prioritas', 'ASC')
+        //     ->limit(10)
+        //     ->get();
+
+        // $data = DB::connection('mysqlkhanza')->table(DB::raw("(
+        //                 SELECT
+        //                     dp.no_rawat,
+        //                     dp.kd_penyakit,
+        //                     dp.status,
+        //                     dp.prioritas,
+        //                     p.nm_penyakit,
+        //                     p.im,
+        //                     'IDRG' as sumber,
+        //                     1 as urutan_sumber
+        //                 FROM diagnosa_pasien dp
+        //                 LEFT JOIN penyakit p ON p.kd_penyakit = dp.kd_penyakit
+        //                 WHERE dp.status = 'Ralan' AND dp.no_rawat = '$id'
+
+        //                 UNION ALL
+
+        //                 SELECT
+        //                     dpi.no_rawat,
+        //                     dpi.kd_penyakit,
+        //                     dpi.status,
+        //                     dpi.prioritas,
+        //                     p.nm_penyakit,
+        //                     p.im,
+        //                     'INACBG' as sumber,
+        //                     2 as urutan_sumber
+        //                 FROM diagnosa_pasien_inacbg dpi
+        //                 LEFT JOIN penyakit p ON p.kd_penyakit = dpi.kd_penyakit
+        //                 WHERE dpi.status = 'Ralan' AND dpi.no_rawat = '$id'
+        //             ) as diagnosa_all"))
+        //     ->where('im', '0')
+        //     ->where('status', 'Ralan')
+        //     ->orderBy('urutan_sumber')
+        //     ->orderBy('prioritas')
+        //     ->get();
+
+        $data = DB::connection('mysqlkhanza')->table(DB::raw("(
+                    SELECT * FROM (
+                        SELECT
+                            dp.no_rawat,
+                            dp.kd_penyakit,
+                            dp.status,
+                            p.nm_penyakit,
+                            p.im,
+                            'IDRG' AS sumber,
+                            dp.prioritas
+                        FROM diagnosa_pasien dp
+                        LEFT JOIN penyakit p ON p.kd_penyakit = dp.kd_penyakit
+                        WHERE dp.status = 'Ralan' AND dp.no_rawat = '$id'
+
+                        UNION ALL
+
+                        SELECT
+                            dpi.no_rawat,
+                            dpi.kd_penyakit,
+                            dpi.status,
+                            p.nm_penyakit,
+                            p.im,
+                            'INACBG' AS sumber,
+                            dpi.prioritas
+                        FROM diagnosa_pasien_inacbg dpi
+                        LEFT JOIN penyakit p ON p.kd_penyakit = dpi.kd_penyakit
+                        WHERE dpi.status = 'Ralan' AND dpi.no_rawat = '$id'
+                    ) AS gabungan_semua
+                    ORDER BY FIELD(sumber, 'IDRG', 'INACBG')
+                ) AS gabungan_urut"))
+            ->selectRaw('no_rawat, kd_penyakit, status, nm_penyakit, im,sumber, MIN(prioritas) as prioritas')
+            ->where('im', '0')
+            ->groupBy('kd_penyakit')
+            ->orderBy('prioritas')
             ->get();
 
         if (!empty($data)) {
@@ -7883,20 +8336,47 @@ class SatuSehatController extends Controller
     public function getProcedureRalan($id)
     {
         // $id = '2022/09/05/000013';
-        $data = DB::connection('mysqlkhanza')->table('prosedur_pasien')
-            ->join('icd9', 'icd9.kode', '=', 'prosedur_pasien.kode')
+        // $data = DB::connection('mysqlkhanza')->table('prosedur_pasien')
+        //     ->join('icd9', 'icd9.kode', '=', 'prosedur_pasien.kode')
+        //     ->select(
+        //         'prosedur_pasien.no_rawat',
+        //         'prosedur_pasien.kode',
+        //         'prosedur_pasien.status',
+        //         'prosedur_pasien.prioritas',
+        //         'icd9.deskripsi_panjang',
+        //         'icd9.im'
+        //     )
+        //     ->where('prosedur_pasien.no_rawat', $id)
+        //     ->where('prosedur_pasien.status', 'Ralan')
+        //     ->where('prosedur_pasien.prioritas', '1')
+        //     ->where('icd9.im', false)
+        //     ->first();
+
+        $data = DB::connection('mysqlkhanza')
+            ->table(DB::raw("(
+                    SELECT no_rawat, kode, status, prioritas
+                    FROM prosedur_pasien
+                    UNION
+                    SELECT no_rawat, kode, status, prioritas
+                    FROM prosedur_pasien_inacbg
+                ) as prosedur"))
+            ->join('icd9', 'icd9.kode', '=', 'prosedur.kode')
             ->select(
-                'prosedur_pasien.no_rawat',
-                'prosedur_pasien.kode',
-                'prosedur_pasien.status',
-                'prosedur_pasien.prioritas',
-                'icd9.deskripsi_panjang'
+                'prosedur.no_rawat',
+                'prosedur.kode',
+                'prosedur.status',
+                'prosedur.prioritas',
+                'icd9.deskripsi_panjang',
+                'icd9.im'
             )
-            ->where('prosedur_pasien.no_rawat', $id)
-            ->where('prosedur_pasien.status', 'Ralan')
-            ->where('prosedur_pasien.prioritas', '1')
+            ->where('prosedur.no_rawat', $id)
+            ->where('prosedur.status', 'Ralan')
+            ->where('prosedur.prioritas', '1')
+            ->where('icd9.im', '0')
+            ->distinct() // supaya kode yang sama tidak dobel
             ->first();
-        // dd($data);
+
+        // dd($id, $data);
 
         if (!empty($data)) {
             //Kode yang diexclude

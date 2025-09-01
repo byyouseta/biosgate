@@ -539,8 +539,8 @@
                                 </table>
                                 <table class="table table-borderless table-sm">
                                     @php
-                                        $diagnosa = explode('#', $dataKlaim->diagnosa_inagrouper);
-                                        $procedure = explode('#', $dataKlaim->procedure_inagrouper);
+                                        $diagnosa = explode('#', $dataKlaim->diagnosa);
+                                        $procedure = explode('#', $dataKlaim->procedure);
                                     @endphp
                                     <tr>
                                         <td style="width: 15%; padding-top: 10px; padding-left:5px; padding-bottom:0px;">
@@ -605,7 +605,7 @@
                             <td style="width: 10%;padding: 0; padding-top:20px; text-align:right">
                                 Rp</td>
                             <td style="width: 10%;padding: 0; padding-top:20px; text-align:right">
-                                {{ isset($dataKlaim->grouper->response_inacbg->cbg->tariff) ? number_format($dataKlaim->grouper->response_inacbg->cbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
+                                {{ isset($dataKlaim->grouper->response_inacbg->tariff) ? number_format($dataKlaim->grouper->response_inacbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
                             </td>
 
                         </tr>
@@ -660,7 +660,7 @@
                                 Rp</td>
                             <td
                                 style="width: 10%;padding: 0; padding-top:20px; text-align:right; padding-bottom:50px; border-bottom: 3px solid black">
-                                {{ isset($dataKlaim->grouper->response_inacbg->cbg->tariff) ? number_format($dataKlaim->grouper->response_inacbg->cbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
+                                {{ isset($dataKlaim->grouper->response_inacbg->tariff) ? number_format($dataKlaim->grouper->response_inacbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
                             </td>
 
                         </tr>
@@ -1310,11 +1310,9 @@
                                 @foreach ($dataRadiologiRajal as $nourut => $detailRadioRajal)
                                     <li class="nav-item">
                                         @php
-                                            // dd($dokterRadiologiRajal[$nourut]->tanggal);
                                             $tgl_hasil = $dokterRadiologiRajal[$nourut]->tgl_periksa;
                                             $jam_hasil = $dokterRadiologiRajal[$nourut]->jam;
                                             $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
-                                            // dd($tab);
                                         @endphp
                                         <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
                                             id="custom-tabs-four-home-tab" data-toggle="pill"
@@ -1346,7 +1344,6 @@
                                             $tgl_hasil = $tambahanDokterRadiologi[$nourut]->tgl_periksa;
                                             $jam_hasil = $tambahanDokterRadiologi[$nourut]->jam;
                                             $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
-                                            // dd($tab,);
                                         @endphp
                                         <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
                                             id="custom-tabs-four-home-tab" data-toggle="pill"
@@ -1558,7 +1555,6 @@
                                     id="custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}" role="tabpanel"
                                     aria-labelledby="#custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}">
                                     @php
-                                        // dd($order);
                                         $dokterRadiologi = \App\Vedika::getRadioDokter(
                                             $order->no_rawat,
                                             $order->jam_hasil
@@ -1701,27 +1697,6 @@
                                             </table>
                                         @endif
                                     @endforeach
-                                    {{-- @if (!empty($hasilRadiologiRanap[$urutan]->hasil))
-                            @php
-                            $paragraphs = explode("\n", $hasilRadiologiRanap[$urutan]->hasil);
-                            $tinggi = 25 * count($paragraphs);
-
-                            @endphp
-                            @endif
-                            <table class="table table-bordered">
-                                <tbody class="border border-dark">
-                                    <tr>
-                                        <textarea class="form-control" readonly
-                                            style="
-                                            min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
-                                            resize: none;
-                                            overflow-y:hidden;
-                                            border:1px solid black;
-                                            background-color: white;
-                                        ">{{ !empty($hasilRadiologiRanap[$urutan]->hasil) ? $hasilRadiologiRanap[$urutan]->hasil : '' }}</textarea>
-                                    </tr>
-                                </tbody>
-                            </table> --}}
 
                                     @if (!empty($dokterRadiologiRanap[$urutan]->nm_dokter))
                                         <table class="table table-borderless mt-1">
@@ -4283,6 +4258,436 @@
                                 </table>
                             </div>
                         @endforeach
+                    </div>
+                </div>
+            </div>
+        @endif
+        {{-- Data OBSERVASI FIBRINOLITIK --}}
+        @if($dataObserFibri->count()>0)
+            <div class="card">
+                <div class="card-header">Lembar Observasi Fibrinolitik</div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-3">
+                        <thead>
+                            <tr>
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
+                                </td>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                    (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    https://web.rsupsurakarta.co.id
+                                </td>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div class="row justify-content-center">
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px;" class="table table-borderless table-sm">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;" colspan="4">
+                                        <h5><b>LEMBAR OBSERVASI FIBRINOLITIK</b></h5>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">No. Rawat</td>
+                                    <td style="width: 30%; ">: {{ $pasien->no_rawat }}</td>
+                                    <td style="padding-left: 100px;">Umur</td>
+                                    <td style="padding-left: 50px;">:
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataObserFibri->first()->tanggal))->format('%y Th') }} </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                                    <td style="width: 30%; ">: {{ $pasien->no_rkm_medis }}</td>
+                                    <td style="padding-left: 100px; ">JK</td>
+                                    <td style="padding-left: 50px;">: {{ $pasien->jk }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
+                                    <td style="border-bottom: 0px solid black;">: {{ $pasien->nm_pasien }}</td>
+                                    <td style="padding-left: 100px;;">Tanggal Lahir</td>
+                                    <td style="padding-left: 50px;">: {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Tanggal</td>
+                                    <td style="border-bottom: 0px solid black;">: {{ \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="padding-left: 100px; ">Alamat</td>
+                                    <td style="padding-left: 50px;">: {{ $pasien->alamat }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 1px solid black;">Jam</td>
+                                    <td style="border-bottom: 1px solid black;" colspan="3">: {{$dataObserFibri->first()->jam}} </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Ruang Rawat</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->ruang_rawat}} </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">DPJP Pasien</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->nm_dokter}} </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Diagnosa</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->diagnosa}} </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Jenis Fibrinolitik</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->jenis_fibrinolitik}} </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kontra Indikasi Absolut</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->kontra_absolut}} </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kontra Indikasi Relatif</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->kontra_relatif}} </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">EKG 12 Lead pre fibrinolitik</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->ekg_fibrinolitik}} </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Premedikasi</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->premedikasi}} </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="align-content: center; width:90%;">
+                            <table class="table table-sm table-bordered text-center" style="border: 1px solid black;">
+                                <thead>
+                                    <tr>
+                                        <th>Tanggal</th>
+                                        <th>Jam</th>
+                                        <th>Keluhan</th>
+                                        <th>TD</th>
+                                        <th>HR</th>
+                                        <th>RR</th>
+                                        <th>SPO2</th>
+                                        <th>EKG Monitor</th>
+                                        <th>Keterangan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($dataObserFibri as $item)
+                                        <tr>
+                                            <td>{{ $item->tanggal }}</td>
+                                            <td>{{ $item->jam }}</td>
+                                            <td>{{ $item->keluhan }}</td>
+                                            <td>{{ $item->td }}</td>
+                                            <td>{{ $item->hr }}</td>
+                                            <td>{{ $item->rr }}</td>
+                                            <td>{{ $item->spo2 }}</td>
+                                            <td>{{ $item->ekg_monitor }}</td>
+                                            <td>{{ $item->keterangan }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        @php
+                            $qr_dokter =
+                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                            elektronik oleh' .
+                            "\n" .
+                            $dataObserFibri->first()->nm_dokter .
+                            "\n" .
+                            'ID ' .
+                            $dataObserFibri->first()->kd_dokter .
+                            "\n" .
+                            \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y');
+                            $qr_petugas =
+                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                            elektronik oleh' .
+                            "\n" .
+                            $dataObserFibri->first()->nm_petugas .
+                            "\n" .
+                            'ID ' .
+                            $dataObserFibri->first()->kd_petugas .
+                            "\n" .
+                            \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y');
+                        @endphp
+
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black" class="table table-borderless table-sm">
+                            <tbody>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td style="text-align: center;">Surakarta, {{ \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"style="text-align: center;">Dokter</td>
+                                    <td style="text-align: center;">Perawat</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"style="text-align: center;">{!! QrCode::size(100)->generate($qr_dokter) !!}</td>
+                                    <td style="text-align: center;">{!! QrCode::size(100)->generate($qr_petugas) !!}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"style="text-align: center;">{{ $dataObserFibri->first()->nm_dokter }}</td>
+                                    <td style="text-align: center;">{{ $dataObserFibri->first()->nm_petugas }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+        {{-- Data Checklist FIBRINOLITIK --}}
+        @if($dataChecklistFibri)
+            <div class="card">
+                <div class="card-header">Lembar Observasi Fibrinolitik</div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-3">
+                        <thead>
+                            <tr>
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
+                                </td>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                    (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    https://web.rsupsurakarta.co.id
+                                </td>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div class="row justify-content-center">
+                        <table style="width: 100%; margin-bottom:0px; margin-top:10px;" class="table table-borderless table-sm">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;" colspan="4">
+                                        <h5><b>CHECKLIST FIBRINOLITIK</b></h5>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">No. Rawat</td>
+                                    <td style="width: 30%; ">: {{ $pasien->no_rawat }}</td>
+                                    <td style="padding-left: 100px;">Umur</td>
+                                    <td style="padding-left: 50px;">:
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataObserFibri->first()->tanggal))->format('%y Th') }} </td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                                    <td style="width: 30%; ">: {{ $pasien->no_rkm_medis }}</td>
+                                    <td style="padding-left: 100px; ">JK</td>
+                                    <td style="padding-left: 50px;">: {{ $pasien->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
+                                    <td style="border-bottom: 0px solid black;">: {{ $pasien->nm_pasien }}</td>
+                                    <td style="padding-left: 100px;;">Tanggal Lahir</td>
+                                    <td style="padding-left: 50px;">: {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Tanggal</td>
+                                    <td style="border-bottom: 0px solid black;">: {{ \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="padding-left: 100px; vertical-align:top;">Alamat</td>
+                                    <td style="padding-left: 50px;">: {{ $pasien->alamat }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 1px solid black;">Jam</td>
+                                    <td style="border-bottom: 1px solid black;" colspan="3">: {{$dataObserFibri->first()->jam}} </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td colspan="4">
+                                        <img src="{{ asset('image/skema-fibrinolitic.jpg') }}" alt="" class="text-center" style="width: 50%; text-align:center; display:block; margin:auto;">
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="width:90%;">
+                            <table class="table table-sm table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 3%;"></th>
+                                        <th style="width: 77%;"></th>
+                                        <th style="width: 10%; text-align:center;">Ya</th>
+                                        <th style="width: 10%; text-align:center;">Tidak</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>a &#41;</td>
+                                        <td>TD Sistolik > 200 mmHg atau Diastolik > 100-110 mmHg</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_a == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_a == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>b &#41;</td>
+                                        <td>Perbedaan TD Sistolik lengan kanan dan kiri > 15 mmHg</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_b == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_b == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>c &#41;</td>
+                                        <td>Riwayat penyakit sistem saraf pusat struktural</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_c == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_c == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>d &#41;</td>
+                                        <td>Riwayat trauma tertutup signifikan pada kepala/wajah dalam 3 minggu terakhir</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_d == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_d == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>e &#41;</td>
+                                        <td>Stroke &#62; 3 jam atau &#60;3 bulan </td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_e == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_e == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>f &#41;</td>
+                                        <td>Trauma mayor, pembedahan (termasuk bedah laser mata), perdarahan GI/GU dalam 2-4 minggu terakhir</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_f == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_f == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>g &#41;</td>
+                                        <td>Riwayat perdarahan Intrakranial</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_g == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_g == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>h &#41;</td>
+                                        <td>Perdarahan, masalah pembekuan, atau penggunaan antikoagulan</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_h == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_h == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>i &#41;</td>
+                                        <td>Wanita hamil</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_i == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_i == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>j &#41;</td>
+                                        <td>Penyakit sistemik serius (misalnya kanker tingkat lanjut, penyakit hati atau ginjal berat)</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_j == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_j == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                    <td colspan="4">
+                                        <img src="{{ asset('image/skema-fibrinolitic-lanjut.jpg') }}" alt="" class="text-center" style="width: 50%; text-align:center; display:block; margin:auto;">
+                                    </td>
+                                    <tr>
+                                        <td>a &#41;</td>
+                                        <td>Laju jantung >= 100x/menit dan TD Sistolik < 100 mmHg</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_a == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_a == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>b &#41;</td>
+                                        <td>Edema paru (ronki basah)</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_b == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_b == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>c &#41;</td>
+                                        <td>Tanda-tanda syok (dingin , lembab)</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_c == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_c == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>d &#41;</td>
+                                        <td>Kontra indikasi terapi fibrinolisis</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_d == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_d == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>e &#41;</td>
+                                        <td>Memerlukan RJP</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_e == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_e == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                    </tr>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+
+                        @php
+                            $qr_petugas =
+                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                            elektronik oleh' .
+                            "\n" .
+                            $dataChecklistFibri->nm_petugas .
+                            "\n" .
+                            'ID ' .
+                            $dataChecklistFibri->kd_petugas .
+                            "\n" .
+                            \Carbon\Carbon::parse($dataChecklistFibri->tanggal)->format('d-m-Y');
+                        @endphp
+
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black" class="table table-borderless table-sm">
+                            <tbody>
+                                <tr>
+                                    <td colspan="2" style="width: 50%;"></td>
+                                    <td style="text-align: center;">Surakarta, {{ \Carbon\Carbon::parse($dataChecklistFibri->tanggal)->format('d-m-Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"style="text-align: center;"></td>
+                                    <td style="text-align: center;">Perawat</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"style="text-align: center;"></td>
+                                    <td style="text-align: center;">{!! QrCode::size(100)->generate($qr_petugas) !!}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"style="text-align: center;"></td>
+                                    <td style="text-align: center;">{{ $dataChecklistFibri->nm_petugas }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>

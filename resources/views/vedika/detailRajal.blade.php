@@ -211,8 +211,8 @@
                                 </table>
                                 <table class="table table-borderless table-sm">
                                     @php
-                                        $diagnosaKlaim = explode('#', $dataKlaim->diagnosa_inagrouper);
-                                        $procedureKlaim = explode('#', $dataKlaim->procedure_inagrouper);
+                                        $diagnosaKlaim = explode('#', $dataKlaim->diagnosa);
+                                        $procedureKlaim = explode('#', $dataKlaim->procedure);
                                     @endphp
                                     <tr>
                                         <td style="width: 15%; padding-top: 10px; padding-left:5px; padding-bottom:0px;">
@@ -277,7 +277,7 @@
                             <td style="width: 10%;padding: 0; padding-top:20px; text-align:right">
                                 Rp</td>
                             <td style="width: 10%;padding: 0; padding-top:20px; text-align:right">
-                                {{ isset($dataKlaim->grouper->response_inacbg->cbg->tariff)? number_format($dataKlaim->grouper->response_inacbg->cbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
+                                {{ isset($dataKlaim->grouper->response_inacbg->tariff)? number_format($dataKlaim->grouper->response_inacbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
                             </td>
 
                         </tr>
@@ -332,7 +332,7 @@
                                 Rp</td>
                             <td
                                 style="width: 10%;padding: 0; padding-top:20px; text-align:right; padding-bottom:50px; border-bottom: 3px solid black">
-                                {{ isset($dataKlaim->grouper->response_inacbg->cbg->tariff) ? number_format($dataKlaim->grouper->response_inacbg->cbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
+                                {{ isset($dataKlaim->grouper->response_inacbg->tariff) ? number_format($dataKlaim->grouper->response_inacbg->tariff, 2, ',', '.') : number_format(0, 2, ',', '.') }}
                             </td>
 
                         </tr>

@@ -27,7 +27,7 @@
                         <div class="card-header">
                             <div class="card_title">{{ Session::get('cucu') }}
                                 <div class="float-right">
-                                    <form action="/satusehat/ranap/encounter" method="GET">
+                                    <form action="/satusehat/ranap/kirimencounter" method="GET">
                                         <div class="input-group input-group" id="tanggal" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
                                                 data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"

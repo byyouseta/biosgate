@@ -8,7 +8,6 @@
     <!-- Tempusdominus|Datetime Bootstrap 4 -->
     <link rel="stylesheet"
         href="{{ asset('template/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
-
 @endsection
 
 @section('content')
@@ -34,8 +33,7 @@
                                                 class="fas fa-file-download"></i> Download
                                             Template </a>
                                         <button class="btn btn-success btn-sm " data-toggle="modal"
-                                            data-target="#modal-import"
-                                            @cannot('vedika-klaim-compare') disabled @endcannot>
+                                            data-target="#modal-import" @cannot('vedika-klaim-compare') disabled @endcannot>
                                             <i class="fas fa-file-upload"></i> Import</a>
                                         </button>
                                     </div>
@@ -59,8 +57,9 @@
                                                 id="tanggalMulai" data-target="#tanggalMulai" data-toggle="datetimepicker"
                                                 name="tanggal" autocomplete="off" value="{{ $tanggal }}">
                                             <input type="text" class="form-control datetimepicker-input"
-                                                id="tanggalSelesai" data-target="#tanggalSelesai" data-toggle="datetimepicker"
-                                                name="tanggalSelesai" autocomplete="off" value="{{ $tanggalSelesai }}">
+                                                id="tanggalSelesai" data-target="#tanggalSelesai"
+                                                data-toggle="datetimepicker" name="tanggalSelesai" autocomplete="off"
+                                                value="{{ $tanggalSelesai }}">
                                             <span class="input-group-append">
                                                 <button type="submit" class="btn btn-info btn-flat btn-sm"><i
                                                         class="fas fa-search"></i> Tampilkan</button>
@@ -72,155 +71,164 @@
                         </div>
                         <div class="card-body">
                             {{-- <div style="width:100%; overflow:auto;"> --}}
-                                <table class="table table-bordered table-sm" id="example">
-                                    <thead>
+                            <table class="table table-bordered table-sm" id="example">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle">No.SEP</th>
+                                        <th class="align-middle">No.Rawat/No.RM</th>
+                                        <th class="align-middle">Nama Pasien</th>
+                                        <th class="align-middle">Tgl Registrasi</th>
+                                        <th class="align-middle">Tgl Keluar</th>
+                                        <th class="align-middle">DPJP</th>
+                                        <th class="align-middle">Diagnosa</th>
+                                        <th class="align-middle">Procedure</th>
+                                        <th class="align-middle">Biil RS</th>
+                                        <th class="align-middle">Bill tanpa Kronis</th>
+                                        <th class="align-middle">Cair</th>
+                                        <th class="align-middle">Pending</th>
+                                        <th class="align-middle">Status</th>
+                                        <th class="align-middle">Pengajuan</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php
+                                        // dd('masuk');
+                                    @endphp
+                                    @foreach ($data as $listData)
                                         <tr>
-                                            <th class="align-middle">No.SEP</th>
-                                            <th class="align-middle">No.Rawat/No.RM</th>
-                                            <th class="align-middle">Nama Pasien</th>
-                                            <th class="align-middle">Tgl Registrasi</th>
-                                            <th class="align-middle">Tgl Keluar</th>
-                                            <th class="align-middle">DPJP</th>
-                                            <th class="align-middle">Diagnosa</th>
-                                            <th class="align-middle">Procedure</th>
-                                            <th class="align-middle">Biil RS</th>
-                                            <th class="align-middle">Bill tanpa Kronis</th>
-                                            <th class="align-middle">Cair</th>
-                                            <th class="align-middle">Pending</th>
-                                            <th class="align-middle">Status</th>
-                                            <th class="align-middle">Pengajuan</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach ($data as $listData)
-                                            <tr>
-                                                @php
-                                                    $no_sep = null;
-                                                    if ($listData->no_sep) {
-                                                        $no_sep = $listData->no_sep;
-                                                    }
-                                                @endphp
-                                                <td>{{ $no_sep }} </td>
-                                                <td>{{ $listData->no_rawat }}, {{ $listData->no_rkm_medis }}</td>
-                                                <td>{{ $listData->nm_pasien }}, {{ $listData->umurdaftar }}
-                                                    {{ $listData->sttsumur }},
-                                                    {{ $listData->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}
-                                                    @if ($listData->status_lanjut == 'Ralan')
-                                                        <a href="/vedika/rajal/{{ Crypt::encrypt($listData->no_rawat) }}/detail"
-                                                            class="btn btn-sm " data-toggle="tooltip"
-                                                            data-placement="bottom" title="Detail Informasi"
-                                                            target="_blank">
-                                                            <span class="badge badge-info"><i
-                                                                    class="fas fa-search"></i></span></a>
-                                                    @elseif ($listData->status_lanjut == 'Ranap')
-                                                        <a href="/vedika/ranap/{{ Crypt::encrypt($listData->no_rawat) }}/detail"
-                                                            class="btn btn-sm " data-toggle="tooltip"
-                                                            data-placement="bottom" title="Detail Informasi"
-                                                            target="_blank">
-                                                            <span class="badge badge-info"><i class="fas fa-search"></i>
-                                                            </span>
-                                                        </a>
-                                                    @endif
+                                            @php
+                                                $no_sep = null;
+                                                if ($listData->no_sep) {
+                                                    $no_sep = $listData->no_sep;
+                                                }
+                                            @endphp
+                                            <td>{{ $no_sep }} </td>
+                                            <td>{{ $listData->no_rawat }}, {{ $listData->no_rkm_medis }}</td>
+                                            <td>{{ $listData->nm_pasien }}, {{ $listData->umurdaftar }}
+                                                {{ $listData->sttsumur }},
+                                                {{ $listData->jk == 'L' ? 'Laki-Laki' : 'Perempuan' }}
+                                                @if ($listData->status_lanjut == 'Ralan')
+                                                    <a href="/vedika/rajal/{{ Crypt::encrypt($listData->no_rawat) }}/detail"
+                                                        class="btn btn-sm " data-toggle="tooltip" data-placement="bottom"
+                                                        title="Detail Informasi" target="_blank">
+                                                        <span class="badge badge-info"><i
+                                                                class="fas fa-search"></i></span></a>
+                                                @elseif ($listData->status_lanjut == 'Ranap')
+                                                    <a href="/vedika/ranap/{{ Crypt::encrypt($listData->no_rawat) }}/detail"
+                                                        class="btn btn-sm " data-toggle="tooltip" data-placement="bottom"
+                                                        title="Detail Informasi" target="_blank">
+                                                        <span class="badge badge-info"><i class="fas fa-search"></i>
+                                                        </span>
+                                                    </a>
+                                                @endif
 
-                                                </td>
-                                                <td>{{ $listData->tgl_registrasi }} {{ $listData->jam_reg }}</td>
-                                                <td>
-                                                    @if ($listData->status_lanjut == 'Ralan')
-                                                        {{ $listData->tgl_registrasi }}
-                                                    @elseif($listData->status_lanjut == 'Ranap')
-                                                        {{ isset($waktu[$listData->no_rawat])?$waktu[$listData->no_rawat]->waktuKeluar:'-' }}
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if ($listData->status_lanjut == 'Ralan')
-                                                        {{ $listData->nm_dokter }}
-                                                    @elseif($listData->status_lanjut == 'Ranap')
-                                                        {{ isset($waktu[$listData->no_rawat])?$waktu[$listData->no_rawat]->nm_dokter:'-' }}
-                                                    @endif
-                                                </td>
-                                                @php
-                                                    $billKronis = null;
-                                                    if ($no_sep ) {
-                                                        if(empty($cair[$no_sep])){
-                                                            $pending = isset($dataPending[$no_sep])?$dataPending[$no_sep]:null;
+                                            </td>
+                                            <td>{{ $listData->tgl_registrasi }} {{ $listData->jam_reg }}</td>
+                                            <td>
+                                                @if ($listData->status_lanjut == 'Ralan')
+                                                    {{ $listData->tgl_registrasi }}
+                                                @elseif($listData->status_lanjut == 'Ranap')
+                                                    {{ isset($waktu[$listData->no_rawat]) ? $waktu[$listData->no_rawat]->waktuKeluar : '-' }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if ($listData->status_lanjut == 'Ralan')
+                                                    {{ $listData->nm_dokter }}
+                                                @elseif($listData->status_lanjut == 'Ranap')
+                                                    {{ isset($waktu[$listData->no_rawat]) ? $waktu[$listData->no_rawat]->nm_dokter : '-' }}
+                                                @endif
+                                            </td>
+                                            @php
+                                                $billKronis = null;
+                                                if ($no_sep) {
+                                                    if (empty($cair[$no_sep])) {
+                                                        $pending = isset($dataPending[$no_sep])
+                                                            ? $dataPending[$no_sep]
+                                                            : null;
 
-                                                            if($pending){
-                                                                $danaCair = $pending->biaya_disetujui;
-                                                            }
-                                                        }else{
-                                                            $pending = (object) [];
-                                                            $pending->status = 'Cair';
+                                                        if ($pending) {
+                                                            $danaCair = $pending->biaya_disetujui;
                                                         }
-
-                                                        if(isset($bill[$listData->no_rawat])){
-                                                            $billKronis = ($bill[$listData->no_rawat]->total_biaya) - (isset($kronis[$listData->no_rawat]->total_biaya) ? $kronis[$listData->no_rawat]->total_biaya:0);
-                                                        }
-
-                                                        $klaimCair = isset($cair[$no_sep])? $cair[$no_sep]:0;
-                                                    }else{
-                                                        $billKronis = 0; //
-                                                        $pending = $klaimCair = null; //
+                                                    } else {
+                                                        $pending = (object) [];
+                                                        $pending->status = 'Cair';
                                                     }
 
-                                                    if( $listData->status_lanjut == 'Ralan'){
-                                                        $jenis_rawat = 'Rawat Jalan';
-                                                    }else{
-                                                        $jenis_rawat = 'Rawat Inap';
+                                                    if (isset($bill[$listData->no_rawat])) {
+                                                        $billKronis =
+                                                            $bill[$listData->no_rawat]->total_biaya -
+                                                            (isset($kronis[$listData->no_rawat]->total_biaya)
+                                                                ? $kronis[$listData->no_rawat]->total_biaya
+                                                                : 0);
                                                     }
-                                                    $statusPengajuan = null;
-                                                    if (strlen($no_sep)>5) {
-                                                        $statusPengajuan = isset($dataPengajuan[$no_sep])?$dataPengajuan[$no_sep]:null;
-                                                    }
-                                                @endphp
-                                                <td>
-                                                    @if (!empty($diagnosa->where('no_rawat',$listData->no_rawat)->where('status',$listData->status_lanjut)))
-                                                        @foreach ($diagnosa->where('no_rawat',$listData->no_rawat)->where('status',$listData->status_lanjut) as $index => $dataDiagnosa)
-                                                            @if (!$loop->last)
-                                                                {{ $dataDiagnosa->kd_penyakit }},
-                                                            @else
-                                                                {{ $dataDiagnosa->kd_penyakit }}
-                                                            @endif
-                                                        @endforeach
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                   @if (!empty($prosedur->where('no_rawat',$listData->no_rawat)->where('status',$listData->status_lanjut)))
-                                                            @foreach ($prosedur->where('no_rawat',$listData->no_rawat)->where('status',$listData->status_lanjut) as $index => $dataProsedur)
-                                                                @if (!$loop->last)
-                                                                    {{ $dataProsedur->kode }},
-                                                                @else
-                                                                    {{ $dataProsedur->kode }}
-                                                                @endif
-                                                            @endforeach
+
+                                                    $klaimCair = isset($cair[$no_sep]) ? $cair[$no_sep] : 0;
+                                                } else {
+                                                    $billKronis = 0; //
+                                                    $pending = $klaimCair = null; //
+                                                }
+
+                                                if ($listData->status_lanjut == 'Ralan') {
+                                                    $jenis_rawat = 'Rawat Jalan';
+                                                } else {
+                                                    $jenis_rawat = 'Rawat Inap';
+                                                }
+                                                $statusPengajuan = null;
+                                                if (strlen($no_sep) > 5) {
+                                                    $statusPengajuan = isset($dataPengajuan[$no_sep])
+                                                        ? $dataPengajuan[$no_sep]
+                                                        : null;
+                                                }
+                                            @endphp
+                                            <td>
+                                                @if (!empty($diagnosa->where('no_rawat', $listData->no_rawat)->where('status', $listData->status_lanjut)))
+                                                    @foreach ($diagnosa->where('no_rawat', $listData->no_rawat)->where('status', $listData->status_lanjut) as $index => $dataDiagnosa)
+                                                        @if (!$loop->last)
+                                                            {{ $dataDiagnosa->kd_penyakit }},
+                                                        @else
+                                                            {{ $dataDiagnosa->kd_penyakit }}
                                                         @endif
-                                                </td>
-                                                <td class="text-right">
-                                                    {{ isset($bill[$listData->no_rawat]) ? number_format($bill[$listData->no_rawat]->total_biaya,0,'.',','):'0' }}
-                                                </td>
-                                                <td class="text-right">{{ number_format($billKronis,0,'.',',') }}</td>
-                                                <td class="text-right">
-                                                    {{ $klaimCair >= 0 ? number_format($klaimCair,0,'.',',') : '-' }}
-                                                    @if ($klaimCair > $billKronis)
-                                                        <span class="badge badge-success"><i
-                                                                class="fas fa-arrow-up"></i></span>
-                                                    @elseif($klaimCair < $billKronis && $klaimCair != null)
-                                                        <span class="badge badge-danger"><i
-                                                                class="fas fa-arrow-down"></i></span>
-                                                    @endif
-                                                </td>
-                                                <td>{{ isset($pending)? $pending->status:'-' }} </td>
-                                                <td>{{ $listData->status_lanjut }} </td>
-                                                <td>@if ($statusPengajuan)
+                                                    @endforeach
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if (!empty($prosedur->where('no_rawat', $listData->no_rawat)->where('status', $listData->status_lanjut)))
+                                                    @foreach ($prosedur->where('no_rawat', $listData->no_rawat)->where('status', $listData->status_lanjut) as $index => $dataProsedur)
+                                                        @if (!$loop->last)
+                                                            {{ $dataProsedur->kode }},
+                                                        @else
+                                                            {{ $dataProsedur->kode }}
+                                                        @endif
+                                                    @endforeach
+                                                @endif
+                                            </td>
+                                            <td class="text-right">
+                                                {{ isset($bill[$listData->no_rawat]) ? number_format($bill[$listData->no_rawat]->total_biaya, 0, '.', ',') : '0' }}
+                                            </td>
+                                            <td class="text-right">{{ number_format($billKronis, 0, '.', ',') }}</td>
+                                            <td class="text-right">
+                                                {{ $klaimCair >= 0 ? number_format($klaimCair, 0, '.', ',') : '-' }}
+                                                @if ($klaimCair > $billKronis)
+                                                    <span class="badge badge-success"><i class="fas fa-arrow-up"></i></span>
+                                                @elseif($klaimCair < $billKronis && $klaimCair != null)
+                                                    <span class="badge badge-danger"><i
+                                                            class="fas fa-arrow-down"></i></span>
+                                                @endif
+                                            </td>
+                                            <td>{{ isset($pending) ? $pending->status : '-' }} </td>
+                                            <td>{{ $listData->status_lanjut }} </td>
+                                            <td>
+                                                @if ($statusPengajuan)
                                                     <span class="badge badge-success">
                                                         {{ \Carbon\Carbon::parse($statusPengajuan->periodeKlaim->periode)->format('F Y') }}</span>
-                                                    @else
+                                                @else
                                                     <span class="badge badge-danger">Belum diajukan</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
 
                             {{-- </div> --}}
                         </div>
@@ -293,9 +301,9 @@
                                 <div class="form-group">
                                     <label for="bulanTarik">Periode Bulan</label>
                                     <div class="input-group">
-                                    <input type="text" class="form-control datetimepicker-input"
-                                                id="periodeBulan" data-target="#periodeBulan" data-toggle="datetimepicker"
-                                                name="periodeBulan" autocomplete="off" value="{{ $tanggal }}" required>
+                                        <input type="text" class="form-control datetimepicker-input" id="periodeBulan"
+                                            data-target="#periodeBulan" data-toggle="datetimepicker" name="periodeBulan"
+                                            autocomplete="off" value="{{ $tanggal }}" required>
                                         <div class="input-group-append">
                                             <span class="input-group-text"><i class="far fa-calendar-check"></i>
                                             </span>
@@ -320,14 +328,16 @@
                             <div class="col-sm-12">
                                 <div class="form-group">
                                     <label for="jenis">Status Klaim</label>
-                                  <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="status" value="2" id="pending" required>
-                                    <label class="form-check-label" for="pending">Pending Verifikasi</label>
-                                  </div>
-                                  <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="status" value="3" id="klaim" required>
-                                    <label class="form-check-label" for="klaim">Klaim</label>
-                                  </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="status" value="2"
+                                            id="pending" required>
+                                        <label class="form-check-label" for="pending">Pending Verifikasi</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="status" value="3"
+                                            id="klaim" required>
+                                        <label class="form-check-label" for="klaim">Klaim</label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -366,7 +376,7 @@
     <script>
         var tglMulai = "<?php echo $tanggal; ?>";
         var tglSelesai = "<?php echo $tanggalSelesai; ?>";
-        var namaFile = 'Data Compare '+tglMulai+ ' sampai '+tglSelesai;
+        var namaFile = 'Data Compare ' + tglMulai + ' sampai ' + tglSelesai;
         // $(function() {
         //     $('#example').DataTable({
         //         "paging": true,
@@ -394,8 +404,7 @@
                 "autoWidth": true,
                 "responsive": true,
                 scrollX: true,
-                buttons: [
-                    {
+                buttons: [{
                         extend: 'excelHtml5',
                         text: 'Excel',
                         filename: namaFile, // Nama file untuk Excel
@@ -415,7 +424,7 @@
 
             // Menambahkan margin pada pagination melalui jQuery
             $('#example_wrapper .dataTables_paginate').css('margin-top', '14px');
-                // tambahkan opsi lain jika perlu
+            // tambahkan opsi lain jika perlu
         });
         //Date picker
         $('#tanggalMulai,#tanggalSelesai').datetimepicker({

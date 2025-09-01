@@ -266,6 +266,7 @@ class VedikaController extends Controller
                 $dataKlaim = null;
             }
 
+            // dd($dataKlaim);
             //Ambil data Triase dan Ringkasan IGD
             if ($pasien->nm_poli == "IGD") {
                 $triase = VedikaController::triase($pasien->no_rawat);
@@ -533,7 +534,9 @@ class VedikaController extends Controller
             // $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
             $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
             $dataTransfusi = VedikaController::getTransfusi($pasien->no_rawat);
-            // dd($dataTransfusi);
+            $dataObserFibri = VedikaController::getObservasiFibrinolitic($pasien->no_rawat);
+            $dataChecklistFibri = VedikaController::getCheckFibrinolitic($pasien->no_rawat);
+            // dd($dataChecklistFibri);
 
             //Resume Ranap
             $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
@@ -582,6 +585,8 @@ class VedikaController extends Controller
                 // 'dataUsgGynecologi',
                 'dataSpiro',
                 'dataTransfusi',
+                'dataObserFibri',
+                'dataChecklistFibri',
                 // 'resepObat',
                 // 'obatJadi',
                 // 'obatRacik',
@@ -1229,6 +1234,8 @@ class VedikaController extends Controller
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
 
         $dataTransfusi = VedikaController::getTransfusi($pasien->no_rawat);
+        $dataObserFibri = VedikaController::getObservasiFibrinolitic($pasien->no_rawat);
+        $dataChecklistFibri = VedikaController::getCheckFibrinolitic($pasien->no_rawat);
         //Resume Ranap
         $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
         if ($resumeRanap) {
@@ -1265,6 +1272,8 @@ class VedikaController extends Controller
             'dataUsgRanap' => $dataUsgRanap,
             'dataUsgGynecologi' => $dataUsgGynecologi,
             'dataTransfusi' => $dataTransfusi,
+            'dataObserFibri' => $dataObserFibri,
+            'dataChecklistFibri' => $dataChecklistFibri,
             'dataTriase' => $dataTriase,
             'primer' => $primer,
             'sekunder' => $sekunder,
@@ -1436,6 +1445,8 @@ class VedikaController extends Controller
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
 
         $dataTransfusi = VedikaController::getTransfusi($pasien->no_rawat);
+        $dataObserFibri = VedikaController::getObservasiFibrinolitic($pasien->no_rawat);
+        $dataChecklistFibri = VedikaController::getCheckFibrinolitic($pasien->no_rawat);
         //Resume Ranap
         $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
         if ($resumeRanap) {
@@ -1473,6 +1484,8 @@ class VedikaController extends Controller
             'dataUsgRanap' => $dataUsgRanap,
             'dataUsgGynecologi' => $dataUsgGynecologi,
             'dataTransfusi' => $dataTransfusi,
+            'dataObserFibri' => $dataObserFibri,
+            'dataChecklistFibri' => $dataChecklistFibri,
             'dataTriase' => $dataTriase,
             'primer' => $primer,
             'sekunder' => $sekunder,
@@ -1943,6 +1956,10 @@ class VedikaController extends Controller
         $dataUsg = VedikaController::getUsg($pasien->no_rawat);
         $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
+
+        $dataTransfusi = VedikaController::getTransfusi($pasien->no_rawat);
+        $dataObserFibri = VedikaController::getObservasiFibrinolitic($pasien->no_rawat);
+        $dataChecklistFibri = VedikaController::getCheckFibrinolitic($pasien->no_rawat);
         //Resume Ranap
         $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
         if ($resumeRanap) {
@@ -1956,7 +1973,6 @@ class VedikaController extends Controller
             $resumeRanap3 = null;
             $resumeRanap4 = null;
         }
-
 
         $pdf = Pdf::loadView('vedika.detailRanap_pdf', [
             'pasien' => $pasien,
@@ -1986,6 +2002,9 @@ class VedikaController extends Controller
             'dataUsg' => $dataUsg,
             'dataUsgRanap' => $dataUsgRanap,
             'dataUsgGynecologi' => $dataUsgGynecologi,
+            'dataTransfusi' => $dataTransfusi,
+            'dataObserFibri' => $dataObserFibri,
+            'dataChecklistFibri' => $dataChecklistFibri,
             'dataOperasi1' => $dataOperasi1,
             'dataOperasi2' => $dataOperasi2,
             'resumeRanap1' => $resumeRanap1,
@@ -3973,47 +3992,86 @@ class VedikaController extends Controller
 
     public static function radioRajal($id)
     {
-        $data = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
-            ->join('dokter', 'dokter.kd_dokter', '=', 'permintaan_radiologi.dokter_perujuk')
-            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_radiologi.no_rawat')
-            // ->join('permintaan_pemeriksaan_radiologi', 'permintaan_pemeriksaan_radiologi.noorder', '=', 'permintaan_radiologi.noorder')
-            ->leftJoin('periksa_radiologi', function ($join) {
-                $join->on('periksa_radiologi.no_rawat', '=', 'permintaan_radiologi.no_rawat')
-                    ->on('periksa_radiologi.tgl_periksa', '=', 'permintaan_radiologi.tgl_hasil')
-                    ->on('periksa_radiologi.jam', '=', 'permintaan_radiologi.jam_hasil');
-            })
-            ->leftJoin('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
-            ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-            ->select(
-                'pasien.no_rkm_medis',
-                'pasien.nm_pasien',
-                'pasien.jk',
-                'pasien.tgl_lahir',
-                'pasien.alamat',
-                'reg_periksa.almt_pj',
-                'reg_periksa.umurdaftar',
-                'reg_periksa.sttsumur',
-                'reg_periksa.no_rawat',
-                'reg_periksa.kd_poli',
-                'reg_periksa.tgl_registrasi',
-                'poliklinik.nm_poli',
-                'dokter.nm_dokter',
-                'permintaan_radiologi.dokter_perujuk',
-                'permintaan_radiologi.noorder',
-                'permintaan_radiologi.tgl_permintaan',
-                'permintaan_radiologi.jam_permintaan',
-                'periksa_radiologi.tgl_periksa as tgl_hasil',
-                'periksa_radiologi.jam as jam_hasil',
-                'permintaan_radiologi.status'
-            )
-            ->where('permintaan_radiologi.status', '=', 'Ralan')
-            ->where('reg_periksa.no_rawat', '=', $id)
-            ->where('permintaan_radiologi.tgl_hasil', '!=', '0000-00-00')
-            // ->groupBy('permintaan_radiologi.noorder', 'jam_hasil')
-            // ->groupBy('permintaan_radiologi.noorder . ' | ' . periksa_radiologi.jam')
-            ->get();
+        $banding = DB::connection('mysqlkhanza')->selectOne("
+                    SELECT
+                        (SELECT COUNT(*) FROM periksa_radiologi WHERE status = 'Ralan' AND no_rawat = ?) AS jmlPeriksa,
+                        (SELECT COUNT(*) FROM permintaan_radiologi WHERE status = 'Ralan' AND no_rawat = ?) AS jmlPermintaan
+                ", [$id, $id]);
 
-        // dd($data, 'test');
+        if ($banding->jmlPeriksa == $banding->jmlPermintaan) {
+            $data = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
+                ->join('dokter', 'dokter.kd_dokter', '=', 'permintaan_radiologi.dokter_perujuk')
+                ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_radiologi.no_rawat')
+                ->leftJoin('periksa_radiologi', function ($join) {
+                    $join->on('periksa_radiologi.no_rawat', '=', 'permintaan_radiologi.no_rawat')
+                        ->on('periksa_radiologi.tgl_periksa', '=', 'permintaan_radiologi.tgl_hasil')
+                        ->on('periksa_radiologi.jam', '=', 'permintaan_radiologi.jam_hasil');
+                })
+                ->leftJoin('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+                ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                ->select(
+                    'pasien.no_rkm_medis',
+                    'pasien.nm_pasien',
+                    'pasien.jk',
+                    'pasien.tgl_lahir',
+                    'pasien.alamat',
+                    'reg_periksa.almt_pj',
+                    'reg_periksa.umurdaftar',
+                    'reg_periksa.sttsumur',
+                    'reg_periksa.no_rawat',
+                    'reg_periksa.kd_poli',
+                    'reg_periksa.tgl_registrasi',
+                    'poliklinik.nm_poli',
+                    'dokter.nm_dokter',
+                    'permintaan_radiologi.dokter_perujuk',
+                    'permintaan_radiologi.noorder',
+                    'permintaan_radiologi.tgl_permintaan',
+                    'permintaan_radiologi.jam_permintaan',
+                    'periksa_radiologi.tgl_periksa as tgl_hasil',
+                    'periksa_radiologi.jam as jam_hasil',
+                    'periksa_radiologi.status'
+                )
+                ->where('periksa_radiologi.status', '=', 'Ralan')
+                ->where('reg_periksa.no_rawat', '=', $id)
+                ->where('permintaan_radiologi.tgl_hasil', '!=', '0000-00-00')
+                ->get();
+        } else {
+            $data = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
+                ->join('dokter', 'dokter.kd_dokter', '=', 'permintaan_radiologi.dokter_perujuk')
+                ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_radiologi.no_rawat')
+                ->leftJoin('periksa_radiologi', function ($join) {
+                    $join->on('periksa_radiologi.no_rawat', '=', 'permintaan_radiologi.no_rawat');
+                })
+                ->leftJoin('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+                ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                ->select(
+                    'pasien.no_rkm_medis',
+                    'pasien.nm_pasien',
+                    'pasien.jk',
+                    'pasien.tgl_lahir',
+                    'pasien.alamat',
+                    'reg_periksa.almt_pj',
+                    'reg_periksa.umurdaftar',
+                    'reg_periksa.sttsumur',
+                    'reg_periksa.no_rawat',
+                    'reg_periksa.kd_poli',
+                    'reg_periksa.tgl_registrasi',
+                    'poliklinik.nm_poli',
+                    'dokter.nm_dokter',
+                    'permintaan_radiologi.dokter_perujuk',
+                    'permintaan_radiologi.noorder',
+                    'permintaan_radiologi.tgl_permintaan',
+                    'permintaan_radiologi.jam_permintaan',
+                    'periksa_radiologi.tgl_periksa as tgl_hasil',
+                    'periksa_radiologi.jam as jam_hasil',
+                    'periksa_radiologi.status'
+                )
+                ->where('periksa_radiologi.status', '=', 'Ralan')
+                ->where('reg_periksa.no_rawat', '=', $id)
+                ->where('permintaan_radiologi.tgl_hasil', '!=', '0000-00-00')
+                ->groupBy('periksa_radiologi.jam')
+                ->get();
+        }
 
         if (!empty($data)) {
             $dokterRad = $hasilRad = [];
@@ -4049,23 +4107,24 @@ class VedikaController extends Controller
                     }
                 }
 
-                if ($listData && $listData->jam_hasil) {
-                    $hasil = DB::connection('mysqlkhanza')->table('hasil_radiologi')
-                        ->where('hasil_radiologi.tgl_periksa', '=', $listData->tgl_hasil)
-                        ->where('hasil_radiologi.jam', '=', $listData->jam_hasil)
-                        ->get();
-                } else {
-                    $hasil = DB::connection('mysqlkhanza')->table('hasil_radiologi')
-                        ->join('periksa_radiologi', function ($join) {
-                            $join->on('periksa_radiologi.no_rawat', '=', 'hasil_radiologi.no_rawat')
-                                ->on('periksa_radiologi.tgl_periksa', '=', 'hasil_radiologi.tgl_periksa')
-                                ->on('periksa_radiologi.jam', '=', 'hasil_radiologi.jam');
-                        })
-                        ->select('hasil_radiologi.*')
-                        ->where('hasil_radiologi.no_rawat', '=', $listData->no_rawat)
-                        ->get();
-                }
+                // if ($listData && $listData->jam_hasil) {
+                //     $hasil = DB::connection('mysqlkhanza')->table('hasil_radiologi')
+                //         ->where('hasil_radiologi.tgl_periksa', '=', $listData->tgl_hasil)
+                //         ->where('hasil_radiologi.jam', '=', $listData->jam_hasil)
+                //         ->get();
 
+                //     // dd($cek, $hasil, $listData);
+                // } else {
+                $hasil = DB::connection('mysqlkhanza')->table('hasil_radiologi')
+                    ->join('periksa_radiologi', function ($join) {
+                        $join->on('periksa_radiologi.no_rawat', '=', 'hasil_radiologi.no_rawat')
+                            ->on('periksa_radiologi.tgl_periksa', '=', 'hasil_radiologi.tgl_periksa')
+                            ->on('periksa_radiologi.jam', '=', 'hasil_radiologi.jam');
+                    })
+                    ->select('hasil_radiologi.*')
+                    ->where('hasil_radiologi.no_rawat', '=', $listData->no_rawat)
+                    ->get();
+                // }
 
                 foreach ($hasil as $dataHasil) {
                     if (!in_array($dataHasil->jam, $cekHasilRad)) {
@@ -4073,21 +4132,11 @@ class VedikaController extends Controller
                         array_push($hasilRad, $dataHasil);
                     }
                 }
-
-                // array_push($dokterRad, $cek);
-                // array_push($hasilRad, $hasil);
             }
         } else {
             $dokterRad = $hasilRad = null;
         }
-
-        // dd($data, $dokterRad, $hasilRad, $cekHasilRad);
         return array($data, $dokterRad, $hasilRad);
-
-        // return view('vedika.radiologi', compact(
-        //     'data',
-        //     'dokterRad'
-        // ));
     }
 
     public static function radioRanap($id)
@@ -4429,12 +4478,6 @@ class VedikaController extends Controller
 
     public static function buktiPelayanan($id)
     {
-        // session()->put('ibu', 'Vedika');
-        // session()->put('anak', 'Pasien Rajal');
-        // session()->put('cucu', 'Surat Bukti Pelayanan Kesehatan');
-
-        // $id = Crypt::decrypt($id);
-
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
@@ -4487,14 +4530,8 @@ class VedikaController extends Controller
             ->where('prosedur_pasien.status', '=', 'Ralan')
             ->where('prosedur_pasien.no_rawat', '=', $id)
             ->get();
-        // dd($id, $data, $diagnosa, $prosedur);
 
         return array($diagnosa, $prosedur, $data);
-        // return view('vedika.sbpk', compact(
-        //     'data',
-        //     'diagnosa',
-        //     'prosedur'
-        // ));
     }
 
     public function ringkasanIgd($id)
@@ -4804,7 +4841,61 @@ class VedikaController extends Controller
         }
     }
 
+    public function getObservasiFibrinolitic($no_rawat)
+    {
+        $data =  DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('penilaian_observasi_fibrinolitik', 'reg_periksa.no_rawat', '=', 'penilaian_observasi_fibrinolitik.no_rawat')
+            ->leftJoin('petugas', 'petugas.nip', '=', 'penilaian_observasi_fibrinolitik.kd_petugas')
+            ->leftJoin('dokter', 'dokter.kd_dokter', '=', 'penilaian_observasi_fibrinolitik.kd_dokter')
+            ->select(
+                'penilaian_observasi_fibrinolitik.*',
+                'reg_periksa.no_rawat',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'petugas.nama as nm_petugas',
+                'dokter.nm_dokter'
+            )
+            ->where('reg_periksa.no_rawat', '=', $no_rawat)
+            ->orderBy('penilaian_observasi_fibrinolitik.tanggal', 'asc')
+            ->orderBy('penilaian_observasi_fibrinolitik.jam', 'asc')
+            ->get();
 
+        // dd($data);
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public function getCheckFibrinolitic($no_rawat)
+    {
+        $data =  DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('penilaian_awal_checklist_fibrinolitik', 'reg_periksa.no_rawat', '=', 'penilaian_awal_checklist_fibrinolitik.no_rawat')
+            ->leftJoin('petugas', 'petugas.nip', '=', 'penilaian_awal_checklist_fibrinolitik.kd_petugas')
+            ->select(
+                'penilaian_awal_checklist_fibrinolitik.*',
+                'reg_periksa.no_rawat',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'petugas.nama as nm_petugas'
+            )
+            ->where('reg_periksa.no_rawat', '=', $no_rawat)
+            ->first();
+
+        // dd($data);
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
 
     public static function berkas($id)
     {
