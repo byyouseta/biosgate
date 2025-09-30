@@ -6051,9 +6051,10 @@ class SatuSehatController extends Controller
         $waktuPerawatan = new Carbon("$data->tgl_perawatan $data->jam_rawat");
         $formatWaktuPerawatan = $waktuPerawatan->setTimezone('UTC')->toW3cString();
 
-        if ($data) {
+        // dd($data, $idEncounter);
+
+        if ($data && $idEncounter != null) {
             if ($data->instruksi != null || $data->intruksi != '-') {
-                // dd($data, $idEncounter);
 
                 $data_json = [
                     "resourceType" => "CarePlan",

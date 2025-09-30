@@ -1369,7 +1369,6 @@
                                         $tgl_hasil = $dokterRadiologiRajal[$urutan]->tgl_periksa;
                                         $jam_hasil = $dokterRadiologiRajal[$urutan]->jam;
                                         $tab = \Carbon\Carbon::parse("$tgl_hasil $jam_hasil")->format('YmdHis');
-
                                     @endphp
                                     <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
                                         id="custom-tabs-lap-{{ $tab }}" role="tabpanel"
@@ -1452,22 +1451,19 @@
                                                     <td class="pt-0 pb-0">:
                                                         {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
                                                         /
-                                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($radioRajal->tgl_hasil))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Th %m Bl %d Hr') }}
+                                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($radioRajal->tgl_hasil))->format('%y Th %m Bl %d Hr') }}
                                                     </td>
                                                     <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
                                                     <td class="pt-0 pb-0">:
                                                         {{ \Carbon\Carbon::parse($radioRajal->tgl_hasil)->format('d-m-Y') }}
                                                     </td>
-
                                                 </tr>
                                                 <tr>
                                                     <td class="pt-0 pb-0">Alamat</td>
                                                     <td class="pt-0 pb-0">: {{ $radioRajal->alamat }}</td>
                                                     <td class="pt-0 pb-0">Jam Pemeriksaan</td>
-                                                    <td class="pt-0 pb-0">: {{ $dokterRadiologiRajal[$urutan]->jam }}
+                                                    <td class="pt-0 pb-0">: {{ $radioRajal->jam_hasil }}
                                                     </td>
-
                                                 </tr>
                                                 <tr>
                                                     <td class="pt-0 pb-0">No.Periksa</td>
@@ -1487,27 +1483,30 @@
                                             </tbody>
 
                                         </table>
-                                        @if (!empty($hasilRadiologiRajal[$urutan]->hasil))
-                                            @php
-                                                $paragraphs = explode("\n", $hasilRadiologiRajal[$urutan]->hasil);
-                                                $tinggi = 25 * count($paragraphs);
-                                            @endphp
-                                        @endif
-                                        <table class="table table-bordered">
-                                            <tbody class="border border-dark">
-                                                <tr>
-                                                    <textarea class="form-control" readonly
-                                                        style="
-                                        min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
-                                        resize: none;
-                                        overflow-y:hidden;
-                                        border:1px solid black;
-                                        background-color: white;
-                                    ">{{ !empty($hasilRadiologiRajal[$urutan]->hasil) ? $hasilRadiologiRajal[$urutan]->hasil : '' }}</textarea>
-                                                </tr>
-                                            </tbody>
+                                        @foreach ($hasilRadiologiRajal as $itemHasilRad)
+                                            @if($itemHasilRad->jam == $radioRajal->jam_hasil)
+                                                @php
+                                                    $paragraphs = explode("\n", $itemHasilRad->hasil);
+                                                    $tinggi = 25 * count($paragraphs);
+                                                @endphp
 
-                                        </table>
+                                                <table class="table table-bordered">
+                                                    <tbody class="border border-dark">
+                                                        <tr>
+                                                            <textarea class="form-control" readonly
+                                                                style="
+                                                                min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
+                                                                resize: none;
+                                                                overflow-y:hidden;
+                                                                border:1px solid black;
+                                                                background-color: white;
+                                                            ">{{ $itemHasilRad->hasil }}</textarea>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            @endif
+                                        @endforeach
+
                                         @if (!empty($dokterRadiologiRajal[$urutan]->nm_dokter))
                                             <table class="table table-borderless mt-1">
                                                 <tr>
@@ -1635,8 +1634,7 @@
                                                 <td class="pt-0 pb-0">:
                                                     {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
                                                     /
-                                                    {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($order->tgl_hasil))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Th %m Bl %d Hr') }}
+                                                    {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($order->tgl_hasil))->format('%y Th %m Bl %d Hr') }}
                                                 </td>
                                                 <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
                                                 <td class="pt-0 pb-0">:
@@ -1671,11 +1669,16 @@
 
                                     </table>
                                     @foreach ($hasilRadiologiRanap as $dataHasil)
-                                        @if (!empty($dataHasil->hasil) && $dataHasil->jam == $order->jam_hasil)
+                                    {{-- @if($hasilRadiologiRanap)
+                                        @php
+                                        dd($hasilRadiologiRanap, $order);
+                                            $mentah = collect($hasilRadiologiRanap);
+                                            $dataHasil = $mentah->where('jam', $order->jam_hasil);
+                                        @endphp --}}
+                                        @if (!empty($dataHasil->hasil) && $dataHasil->jam === $order->jam_hasil)
                                             @php
                                                 $paragraphs = explode("\n", $dataHasil->hasil);
                                                 $tinggi = 25 * count($paragraphs);
-
                                             @endphp
 
                                             <table class="table table-bordered">
@@ -1683,19 +1686,19 @@
                                                     <tr>
                                                         <textarea class="form-control" readonly
                                                             style="
-                                        min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
-                                        resize: none;
-                                        overflow-y:hidden;
-                                        border:1px solid black;
-                                        background-color: white;
-                                    ">
-                                    {{ $dataHasil->jam == $order->jam_hasil ? $dataHasil->hasil : '' }}
-
-                                </textarea>
+                                                                min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
+                                                                resize: none;
+                                                                overflow-y:hidden;
+                                                                border:1px solid black;
+                                                                background-color: white;
+                                                            ">
+                                                            {{ $dataHasil->jam == $order->jam_hasil ? $dataHasil->hasil : '' }}
+                                                        </textarea>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         @endif
+                                    {{-- @endif --}}
                                     @endforeach
 
                                     @if (!empty($dokterRadiologiRanap[$urutan]->nm_dokter))
@@ -4409,7 +4412,6 @@
                             </table>
                         </div>
 
-
                         @php
                             $qr_dokter =
                             'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
@@ -4692,7 +4694,6 @@
                 </div>
             </div>
         @endif
-
 
         {{-- Pasien Operasi --}}
         {{-- Data Operasi Multi Tab --}}

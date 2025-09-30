@@ -240,6 +240,7 @@ class VedikaController extends Controller
             ->first();
 
         // dd($pasien);
+
         if ($pasien) {
             //Ambil data billing
             $billing = VedikaController::billingRajal($pasien->no_rawat);
@@ -249,24 +250,31 @@ class VedikaController extends Controller
             $prosedur = $buktiPelayanan[1];
             //Ambil data Radiologi
             $radiologi = VedikaController::radioRajal($pasien->no_rawat);
-            // dd($radiologi);
+            dd($radiologi);
             $dataRadiologiRajal = $radiologi[0];
             $dokterRadiologiRajal = $radiologi[1];
             $hasilRadiologiRajal = $radiologi[2];
             $dataSep = VedikaController::getSep($pasien->no_rawat, 2);
-            if ($dataSep != null) {
+            if ($dataSep) {
                 if (!empty($dataSep->no_sep)) {
                     $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
                     // dd($dataDetailEklaim);
-                } else {
+                } elseif ($dataSep->noSep) {
                     $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
+                } else {
+                    $dataDetailEklaim = null;
                 }
-                $dataKlaim = json_decode(json_encode($dataDetailEklaim));
+
+                if ($dataDetailEklaim) {
+                    $dataKlaim = json_decode(json_encode($dataDetailEklaim));
+                } else {
+                    $dataKlaim = null;
+                }
             } else {
                 $dataKlaim = null;
             }
 
-            // dd($dataKlaim);
+            // dd($dataKlaim, $dataSep);
             //Ambil data Triase dan Ringkasan IGD
             if ($pasien->nm_poli == "IGD") {
                 $triase = VedikaController::triase($pasien->no_rawat);
@@ -322,7 +330,9 @@ class VedikaController extends Controller
             $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
 
             $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
+            $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
             // dd($dataSpiro);
+            // dd($dataKlaim);
 
             return view('vedika.detailRajal', compact(
                 'pasien',
@@ -352,6 +362,7 @@ class VedikaController extends Controller
                 'dataUsg',
                 'dataUsgGynecologi',
                 'dataSpiro',
+                'dataTindakanMata',
                 'masterBerkas',
                 'dataRalan',
                 'dataOperasi',
@@ -808,6 +819,7 @@ class VedikaController extends Controller
         // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
+        $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
 
         $pdf = Pdf::loadView('vedika.detailRajal_pdf', [
             'pasien' => $pasien,
@@ -837,6 +849,7 @@ class VedikaController extends Controller
             'dataUsg' => $dataUsg,
             'dataUsgGynecologi' => $dataUsgGynecologi,
             'dataSpiro' => $dataSpiro,
+            'dataTindakanMata' => $dataTindakanMata,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
         ]);
@@ -973,6 +986,7 @@ class VedikaController extends Controller
         // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
+        $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
 
         $pdf = Pdf::loadView('vedika.detailRajal_pdf', [
             'pasien' => $pasien,
@@ -1002,6 +1016,7 @@ class VedikaController extends Controller
             'dataUsg' => $dataUsg,
             'dataUsgGynecologi' => $dataUsgGynecologi,
             'dataSpiro' => $dataSpiro,
+            'dataTindakanMata' => $dataTindakanMata,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
         ]);
@@ -4897,6 +4912,35 @@ class VedikaController extends Controller
         }
     }
 
+    public function getLaporanTindakanMata($no_rawat)
+    {
+        $data =  DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('penilaian_laporan_tindakan_ralan', 'reg_periksa.no_rawat', '=', 'penilaian_laporan_tindakan_ralan.no_rawat')
+            ->join('petugas', 'petugas.nip', '=', 'penilaian_laporan_tindakan_ralan.kd_petugas')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'penilaian_laporan_tindakan_ralan.kd_dokter')
+            ->select(
+                'penilaian_laporan_tindakan_ralan.*',
+                'reg_periksa.no_rawat',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'petugas.nama as nm_petugas',
+                'dokter.nm_dokter'
+            )
+            ->where('reg_periksa.no_rawat', '=', $no_rawat)
+            ->first();
+
+        // dd($data);
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
     public static function berkas($id)
     {
         // session()->put('ibu', 'Vedika');
@@ -5405,15 +5449,12 @@ class VedikaController extends Controller
             ->orderBy('bridging_sep.tglpulang', 'DESC')
             ->first();
 
-        if (!empty($data)) {
+        if (!empty($data) && $data->no_sep != '') {
             return $data;
         } else {
             $noSep = Vedika::getSep($id, $pelayanan);
-            // dd($noSep);
             if (!empty($noSep)) {
                 $data = SepController::getSep($noSep->no_sep);
-                // dd($data);
-
                 return $data;
             } else {
                 return null;

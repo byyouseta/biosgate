@@ -1684,7 +1684,7 @@
                                 {{ $orderRadio->alamat }}</td>
                             <td style="border: 0px solid black;vertical-align:top">Jam Pemeriksaan</td>
                             <td style="border: 0px solid black;vertical-align:top">:
-                                {{ $dokterRadiologiRajal[$urutan]->jam }}
+                                {{ $orderRadio->jam_hasil }}
                             </td>
 
                         </tr>
@@ -1704,26 +1704,29 @@
                         </tr>
                     </tbody>
                 </table>
-                @php
-                    if (isset($hasilRadiologiRajal) && isset($hasilRadiologiRajal[$urutan]->hasil)) {
-                        $paragraphs = explode("\n", $hasilRadiologiRajal[$urutan]->hasil);
-                        $tinggi = 25 * count($paragraphs);
-                    }else{
-                        $tinggi = 25;
-                    }
-                @endphp
-                <table style="width: 100%;">
-                    <tr>
-                        <textarea readonly
-                            style="
-                            min-height: {{ $tinggi }}px;
-                            resize: none;
-                            overflow-y:hidden;
-                            border:1px solid black;
-                            background-color: white;
-                        ">{{ isset($hasilRadiologiRajal) && isset($hasilRadiologiRajal[$urutan]->hasil) ? $hasilRadiologiRajal[$urutan]->hasil : '' }}</textarea>
-                    </tr>
-                </table>
+                @foreach ($hasilRadiologiRajal as $itemHasilRad)
+                    @if($itemHasilRad->jam == $orderRadio->jam_hasil)
+                        @php
+                            $paragraphs = explode("\n", $itemHasilRad->hasil);
+                            $tinggi = 25 * count($paragraphs);
+                        @endphp
+
+                        <table class="table table-bordered">
+                            <tbody class="border border-dark">
+                                <tr>
+                                    <textarea class="form-control" readonly
+                                        style="
+                                        min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
+                                        resize: none;
+                                        overflow-y:hidden;
+                                        border:1px solid black;
+                                        background-color: white;
+                                    ">{{ $itemHasilRad->hasil }}</textarea>
+                                </tr>
+                            </tbody>
+                        </table>
+                    @endif
+                @endforeach
                 <table style="width: 100%; text-align:center">
                     <tr>
                         <td style="width: 70%; border: 0px solid black"></td>

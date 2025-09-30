@@ -49,7 +49,9 @@ class SepController extends Controller
                 $response = $e->getResponse();
                 $test = json_decode($response->getBody());
 
-                dd($test);
+                if (empty($test)) {
+                    return null;
+                }
             }
         }
 

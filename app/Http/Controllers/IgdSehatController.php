@@ -594,7 +594,15 @@ class IgdSehatController extends Controller
                     "code" => "LA10137-0",
                     "display" => "5"
                 ];
+            } else {
+                $dataKondisi = [
+                    "system" => "http://loinc.org",
+                    "code" => "LA6113-0",
+                    "display" => "2"
+                ];
             }
+
+
             if (!empty($idPasien) && (!empty($idPractition)) && (!empty($formatWaktu))) {
                 $kondisi = [
                     "resourceType" => "Observation",

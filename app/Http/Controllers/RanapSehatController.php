@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\CarePlanRanap;
 use App\LogErrorSatuSehat;
 use App\ResponseIgdSatuSehat;
 use App\ResponseRanapSatuSehat;
@@ -349,6 +350,9 @@ class RanapSehatController extends Controller
                 //     $update->cara_keluar = 'IGD Pulang';
                 //     $update->save();
                 // };
+                if (CarePlanRanap::where('encounter_id', $dataTerkirim->encounter_id)->count() < 1) {
+                    RanapSehatController::sendCarePlanPulang($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
+                }
             }
         }
         // $data = IgdSehatController::sendTransportasiKedatangan();
@@ -1798,6 +1802,127 @@ class RanapSehatController extends Controller
 
                     Session::flash('error', $message);
                 }
+            }
+        }
+    }
+
+    public function sendCarePlanPulang($noRawat, $encounter)
+    {
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('resume_pasien_ranap', 'resume_pasien_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->leftJoin('pegawai', 'pegawai.nik', '=', 'resume_pasien_ranap.kd_dokter')
+            ->select(
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'pasien.nm_pasien',
+                'pasien.no_ktp as ktp_pasien',
+                'pasien.tgl_lahir',
+                'pegawai.nama as nm_dokter',
+                'pegawai.no_ktp as ktp_dokter',
+                'resume_pasien_ranap.*'
+            )
+            ->where('resume_pasien_ranap.no_rawat', $noRawat)
+            ->first();
+
+        if ($data && $data->waktu_pembuatan_resume != '0000-00-00 00:00:00') {
+
+            $idPasien = SatuSehatController::patientSehat($data->ktp_pasien);
+            $formatWaktuMulai = Carbon::parse($data->waktu_pembuatan_resume)->setTimezone('UTC')->toW3cString();
+            $idPractition = SatuSehatController::practitioner($data->ktp_dokter);
+
+            $data_json = [
+                "resourceType" => "CarePlan",
+                "title" => "Perencanaan Pemulangan Pasien",
+                "status" => "active",
+                "category" => [
+                    [
+                        "coding" => [
+                            [
+                                "system" => "http://snomed.info/sct",
+                                "code" => "736372004",
+                                "display" => "Discharge care plan"
+                            ]
+                        ]
+                    ]
+                ],
+                "intent" => "plan",
+                "description" => "Pasien akan diminta untuk kontrol pada tanggal {$data->kontrol}, " .
+                    ($data->dilanjutkan == 'Kembali Ke RS'
+                        ? "Kontrol ke RS {$data->ket_dilanjutkan}"
+                        : "Boleh kontrol difaskes lainnya"),
+                "subject" => [
+                    "reference" => "Patient/$idPasien",
+                    "display" => "$data->nm_pasien"
+                ],
+                "encounter" => [
+                    "reference" => "Encounter/$encounter"
+                ],
+                "created" => "$formatWaktuMulai",
+                "author" => [
+                    "reference" => "Practitioner/$idPractition"
+                ]
+            ];
+
+            // dd($data, $noRawat, $data_json);
+            //cari apakah masih sudah ada dilog careplant
+            $cari = CarePlanRanap::where('encounter_id', $encounter)
+                ->where('request_payload', $data_json)
+                ->first();
+
+            if (empty($cari)) {
+                SatuSehatController::getTokenSehat();
+                $access_token = Session::get('tokenSatuSehat');
+                // dd($access_token);
+                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                try {
+                    $response = $client->request('POST', 'fhir-r4/v1/CarePlan', [
+                        'headers' => [
+                            'Authorization' => "Bearer {$access_token}"
+                        ],
+                        'json' => $data_json
+                    ]);
+                } catch (ClientException $e) {
+                    // echo $e->getRequest();
+                    // echo $e->getResponse();
+                    if ($e->hasResponse()) {
+                        $response = $e->getResponse();
+
+                        // dd($response);
+                        $test = json_decode($response->getBody(), true);
+                        // dd($test->issue[0]->code, 'kirim Care Plan Pulang', $data_json);
+                        // if ($test && $test->issue) {
+                        //     $pesan_error = $test->issue[0]->code . $test->issue[0]->details->text;
+                        // } else {
+                        //     $pesan_error = "belum terdefinisi di error kirim care plan pulang ranap";
+                        // }
+                    }
+
+                    $simpanLog = new LogErrorSatuSehat();
+                    $simpanLog->subject = 'Care Plan Ranap';
+                    $simpanLog->keterangan = json_encode($test);;
+                    $simpanLog->save();
+
+                    goto skipNext;
+                }
+
+                $dataResponse = json_decode($response->getBody());
+
+                // dd($dataResponse);
+
+                if (!empty($dataResponse->id)) {
+                    $simpanResponse = new CarePlanRanap;
+                    $simpanResponse->encounter_id = $encounter;
+                    $simpanResponse->endpoint = session('base_url') . 'fhir-r4/v1/CarePlan';
+                    $simpanResponse->method = 'POST';
+                    $simpanResponse->request_payload = json_encode($data_json);
+                    $simpanResponse->response_payload = json_encode($dataResponse);
+                    // $simpanResponse->status_code = '';
+                    $simpanResponse->careplan_id = $dataResponse->id ?? null;
+                    $simpanResponse->save();
+                };
+
+                skipNext:
             }
         }
     }
