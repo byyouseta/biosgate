@@ -9,6 +9,7 @@ use App\PeriodeKlaim;
 use App\PeriodePengajuanUlang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 class KlaimController extends Controller
@@ -51,18 +52,57 @@ class KlaimController extends Controller
 
         if (empty($request->periode)) {
             $dataPengajuan = null;
+            $diagnosaGrouped = null;
+            $prosedurGrouped = null;
         } else {
             $dataPengajuan = DataPengajuanKlaim::where('periode_klaim_id', $request->periode)
                 ->where('jenis_rawat', 'Rawat Jalan')
                 ->get();
+
+            // dd($dataPengajuan->first());
+            $noRawatList = $dataPengajuan->pluck('no_rawat')->unique();
+
+            $diagnosa = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+                ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+                ->select(
+                    'diagnosa_pasien.no_rawat',
+                    'diagnosa_pasien.kd_penyakit',
+                    'diagnosa_pasien.prioritas',
+                    'diagnosa_pasien.status',
+                    'penyakit.nm_penyakit'
+                )
+                ->whereIn('diagnosa_pasien.no_rawat', $noRawatList)
+                ->where('diagnosa_pasien.status', '=', 'Ralan')
+                ->orderBy('diagnosa_pasien.no_rawat', 'ASC')
+                ->orderBy('diagnosa_pasien.prioritas', 'ASC')
+                ->get();
+
+            $prosedur = DB::connection('mysqlkhanza')->table('prosedur_pasien')
+                ->join('icd9', 'icd9.kode', '=', 'prosedur_pasien.kode')
+                ->select(
+                    'prosedur_pasien.no_rawat',
+                    'prosedur_pasien.kode',
+                    'prosedur_pasien.status',
+                    'icd9.deskripsi_panjang'
+                )
+                ->whereIn('prosedur_pasien.no_rawat', $noRawatList)
+                ->where('prosedur_pasien.status', '=', 'Ralan')
+                ->orderBy('prosedur_pasien.no_rawat', 'ASC')
+                ->orderBy('prosedur_pasien.prioritas', 'ASC')
+                ->get();
+
+            $diagnosaGrouped = $diagnosa->groupBy('no_rawat');
+            $prosedurGrouped = $prosedur->groupBy('no_rawat');
+
+            // dd($prosedurGrouped->first(10));
         }
 
-        // dd($dataPengajuan);
+
 
         $dataPeriode = PeriodeKlaim::orderBy('periode', 'DESC')
             ->get();
 
-        return view('vedika.pengajuan_rajal', compact('dataPengajuan', 'dataPeriode'));
+        return view('vedika.pengajuan_rajal', compact('dataPengajuan', 'dataPeriode', 'diagnosaGrouped', 'prosedurGrouped'));
     }
 
     public function daftarRanap(Request $request)
@@ -74,18 +114,55 @@ class KlaimController extends Controller
 
         if (empty($request->periode)) {
             $dataPengajuan = null;
+
+            $diagnosaGrouped = null;
+            $prosedurGrouped = null;
         } else {
             $dataPengajuan = DataPengajuanKlaim::where('periode_klaim_id', $request->periode)
                 ->where('jenis_rawat', 'Rawat Inap')
                 ->get();
+
+            $noRawatList = $dataPengajuan->pluck('no_rawat')->unique();
+
+            $diagnosa = DB::connection('mysqlkhanza')->table('diagnosa_pasien')
+                ->join('penyakit', 'penyakit.kd_penyakit', '=', 'diagnosa_pasien.kd_penyakit')
+                ->select(
+                    'diagnosa_pasien.no_rawat',
+                    'diagnosa_pasien.kd_penyakit',
+                    'diagnosa_pasien.prioritas',
+                    'diagnosa_pasien.status',
+                    'penyakit.nm_penyakit'
+                )
+                ->whereIn('diagnosa_pasien.no_rawat', $noRawatList)
+                ->where('diagnosa_pasien.status', '=', 'Ranap')
+                ->orderBy('diagnosa_pasien.no_rawat', 'ASC')
+                ->orderBy('diagnosa_pasien.prioritas', 'ASC')
+                ->get();
+
+            $prosedur = DB::connection('mysqlkhanza')->table('prosedur_pasien')
+                ->join('icd9', 'icd9.kode', '=', 'prosedur_pasien.kode')
+                ->select(
+                    'prosedur_pasien.no_rawat',
+                    'prosedur_pasien.kode',
+                    'prosedur_pasien.status',
+                    'icd9.deskripsi_panjang'
+                )
+                ->whereIn('prosedur_pasien.no_rawat', $noRawatList)
+                ->where('prosedur_pasien.status', '=', 'Ranap')
+                ->orderBy('prosedur_pasien.no_rawat', 'ASC')
+                ->orderBy('prosedur_pasien.prioritas', 'ASC')
+                ->get();
+
+            $diagnosaGrouped = $diagnosa->groupBy('no_rawat');
+            $prosedurGrouped = $prosedur->groupBy('no_rawat');
         }
 
-        // dd($dataPengajuan);
+        // dd($diagnosaGrouped);
 
         $dataPeriode = PeriodeKlaim::orderBy('periode', 'DESC')
             ->get();
 
-        return view('vedika.pengajuan_ranap', compact('dataPengajuan', 'dataPeriode'));
+        return view('vedika.pengajuan_ranap', compact('dataPengajuan', 'dataPeriode', 'diagnosaGrouped', 'prosedurGrouped'));
     }
 
     public function daftarUlang(Request $request)

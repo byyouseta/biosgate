@@ -11,6 +11,7 @@ use App\PeriodeKlaim;
 use App\PeriodePengajuanUlang;
 use App\sepManual;
 use App\Setting;
+use App\SoapTambahan;
 use App\TambahanRadiologi;
 use App\Vedika;
 use App\VedikaVerif;
@@ -133,6 +134,9 @@ class VedikaController extends Controller
             ->orderBy('prosedur_pasien.prioritas', 'ASC')
             ->get();
 
+        $diagnosaGrouped = $diagnosa->groupBy('no_rawat');
+        $prosedurGrouped = $prosedur->groupBy('no_rawat');
+
         // dd($noRawatList, $verifMap, $statusPengajuan, $cekBokingOp, $diagnosa, $prosedur);
 
         return view('vedika.pasien_rajal', compact(
@@ -140,8 +144,8 @@ class VedikaController extends Controller
             'statusVerif',
             'statusPengajuan',
             'cekBokingOp',
-            'diagnosa',
-            'prosedur'
+            'diagnosaGrouped',
+            'prosedurGrouped'
         ));
     }
 
@@ -239,8 +243,6 @@ class VedikaController extends Controller
             ->where('reg_periksa.no_rawat', '=', $id)
             ->first();
 
-        // dd($pasien);
-
         if ($pasien) {
             //Ambil data billing
             $billing = VedikaController::billingRajal($pasien->no_rawat);
@@ -250,7 +252,6 @@ class VedikaController extends Controller
             $prosedur = $buktiPelayanan[1];
             //Ambil data Radiologi
             $radiologi = VedikaController::radioRajal($pasien->no_rawat);
-            dd($radiologi);
             $dataRadiologiRajal = $radiologi[0];
             $dokterRadiologiRajal = $radiologi[1];
             $hasilRadiologiRajal = $radiologi[2];
@@ -258,11 +259,12 @@ class VedikaController extends Controller
             if ($dataSep) {
                 if (!empty($dataSep->no_sep)) {
                     $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
-                    // dd($dataDetailEklaim);
+                    $dataSrb = VedikaController::getSrb($dataSep->no_sep);
                 } elseif ($dataSep->noSep) {
                     $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
                 } else {
                     $dataDetailEklaim = null;
+                    $dataSrb = null;
                 }
 
                 if ($dataDetailEklaim) {
@@ -272,9 +274,10 @@ class VedikaController extends Controller
                 }
             } else {
                 $dataKlaim = null;
+                $dataSrb = null;
             }
 
-            // dd($dataKlaim, $dataSep);
+            // dd($dataSrb);
             //Ambil data Triase dan Ringkasan IGD
             if ($pasien->nm_poli == "IGD") {
                 $triase = VedikaController::triase($pasien->no_rawat);
@@ -331,13 +334,27 @@ class VedikaController extends Controller
 
             $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
             $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
-            // dd($dataSpiro);
-            // dd($dataKlaim);
+            $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
+            $historySoap = VedikaController::perawatanRajal($pasien->no_rkm_medis);
+            $tambahanSoap = SoapTambahan::where('no_rawat', $pasien->no_rawat)->get();
+
+            if ($tambahanSoap) {
+                $tambahanDataSoap = [];
+                foreach ($tambahanSoap as $listTambahan) {
+                    $dataTambahan = VedikaController::dataSoap($listTambahan->no_rawat_tambahan);
+                    if (!empty($dataTambahan)) {
+                        // Menambah data ke array masing-masing
+                        array_push($tambahanDataSoap, $dataTambahan);
+                    }
+                }
+            }
+            $tambahanDataSoap = collect($tambahanDataSoap);
 
             return view('vedika.detailRajal', compact(
                 'pasien',
                 'billing',
                 'dataKlaim',
+                'dataSrb',
                 'diagnosa',
                 'prosedur',
                 'permintaanLab',
@@ -363,6 +380,9 @@ class VedikaController extends Controller
                 'dataUsgGynecologi',
                 'dataSpiro',
                 'dataTindakanMata',
+                'dataTreadmill',
+                'historySoap',
+                'tambahanDataSoap',
                 'masterBerkas',
                 'dataRalan',
                 'dataOperasi',
@@ -563,7 +583,6 @@ class VedikaController extends Controller
                 $resumeRanap4 = null;
             }
 
-
             return view('vedika.detailRanap', compact(
                 'pasien',
                 'billing',
@@ -760,13 +779,15 @@ class VedikaController extends Controller
         if ($dataSep != null) {
             if (!empty($dataSep->no_sep)) {
                 $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
-                // dd($dataDetailEklaim);
+                $dataSrb = VedikaController::getSrb($dataSep->no_sep);
             } else {
                 $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
+                $dataSrb = null;
             }
             $dataKlaim = json_decode(json_encode($dataDetailEklaim));
         } else {
             $dataKlaim = null;
+            $dataSrb = null;
         }
         //Ambil data billing
         $billing = VedikaController::billingRajal($pasien->no_rawat);
@@ -820,12 +841,29 @@ class VedikaController extends Controller
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
         $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
+        $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
+        $tambahanSoap = SoapTambahan::where('no_rawat', $pasien->no_rawat)->get();
+
+        if ($tambahanSoap) {
+            $tambahanDataSoap = [];
+            foreach ($tambahanSoap as $listTambahan) {
+                $dataTambahan = VedikaController::dataSoap($listTambahan->no_rawat_tambahan);
+                if (!empty($dataTambahan)) {
+                    // Menambah data ke array masing-masing
+                    array_push($tambahanDataSoap, $dataTambahan);
+                }
+            }
+        }
+        $tambahanDataSoap = collect($tambahanDataSoap);
+
+        // dd($tambahanDataSoap);
 
         $pdf = Pdf::loadView('vedika.detailRajal_pdf', [
             'pasien' => $pasien,
             'billing' => $billing,
             'dataSep' => $dataSep,
             'dataKlaim' => $dataKlaim,
+            'dataSrb' => $dataSrb,
             'diagnosa' => $diagnosa,
             'prosedur' => $prosedur,
             'permintaanLab' => $permintaanLab,
@@ -850,6 +888,8 @@ class VedikaController extends Controller
             'dataUsgGynecologi' => $dataUsgGynecologi,
             'dataSpiro' => $dataSpiro,
             'dataTindakanMata' => $dataTindakanMata,
+            'dataTreadmill' => $dataTreadmill,
+            'tambahanDataSoap' => $tambahanDataSoap,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
         ]);
@@ -927,13 +967,15 @@ class VedikaController extends Controller
         if ($dataSep != null) {
             if (!empty($dataSep->no_sep)) {
                 $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
-                // dd($dataDetailEklaim);
+                $dataSrb = VedikaController::getSrb($dataSep->no_sep);
             } else {
                 $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
+                $dataSrb = null;
             }
             $dataKlaim = json_decode(json_encode($dataDetailEklaim));
         } else {
             $dataKlaim = null;
+            $dataSrb = null;
         }
         //Ambil data billing
         $billing = VedikaController::billingRajal($pasien->no_rawat);
@@ -987,12 +1029,27 @@ class VedikaController extends Controller
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
         $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
+        $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
+        $tambahanSoap = SoapTambahan::where('no_rawat', $pasien->no_rawat)->get();
+
+        if ($tambahanSoap) {
+            $tambahanDataSoap = [];
+            foreach ($tambahanSoap as $listTambahan) {
+                $dataTambahan = VedikaController::dataSoap($listTambahan->no_rawat_tambahan);
+                if (!empty($dataTambahan)) {
+                    // Menambah data ke array masing-masing
+                    array_push($tambahanDataSoap, $dataTambahan);
+                }
+            }
+        }
+        $tambahanDataSoap = collect($tambahanDataSoap);
 
         $pdf = Pdf::loadView('vedika.detailRajal_pdf', [
             'pasien' => $pasien,
             'billing' => $billing,
             'dataSep' => $dataSep,
             'dataKlaim' => $dataKlaim,
+            'dataSrb' => $dataSrb,
             'diagnosa' => $diagnosa,
             'prosedur' => $prosedur,
             'permintaanLab' => $permintaanLab,
@@ -1017,6 +1074,8 @@ class VedikaController extends Controller
             'dataUsgGynecologi' => $dataUsgGynecologi,
             'dataSpiro' => $dataSpiro,
             'dataTindakanMata' => $dataTindakanMata,
+            'dataTreadmill' => $dataTreadmill,
+            'tambahanDataSoap' => $tambahanDataSoap,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
         ]);
@@ -1045,43 +1104,114 @@ class VedikaController extends Controller
             public_path("pdfklaim/$dataSep->no_sep/$fileName")
         ];
 
-        // dd('done');
-        $berkas = VedikaController::berkas($pasien->no_rawat);
-        // dd($berkas);
+        // Kode Lama
+        // $berkas = VedikaController::berkas($pasien->no_rawat);
+        // $dataBerkas = $berkas[0];
+        // if ($dataBerkas) {
+        //     foreach ($dataBerkas as $list) {
+        //         if ($list->kode != '047') {
+        //             $ambilNama = explode('/upload/', $list->lokasi_file);
+        //             $filePath = public_path("berkas_vedika/$ambilNama[1]");
+        //             if (FileLokal::exists($filePath)) {
+        //                 // File exists
+        //                 array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+        //             } else {
+        //                 // dd('kosong');
+        //                 $cek = Storage::disk('sftp')->exists($list->lokasi_file);
+        //                 if ($cek == true) {
+        //                     // $realFile = explode('/', $id);
+        //                     //Cek file di lokal ada tidak
+        //                     $cek2 = Storage::disk()->exists($ambilNama[1]);
+        //                     if ($cek2 == false) {
+        //                         Storage::disk('local')
+        //                             ->put("$ambilNama[1]", Storage::disk('sftp')
+        //                                 ->get($list->lokasi_file));
+        //                         $contents = Storage::disk('sftp')->get($list->lokasi_file);
+        //                         file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+        //                     }
+        //                     array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
+        $berkas = VedikaController::berkas($pasien->no_rawat);
         $dataBerkas = $berkas[0];
 
-        // dd($dataBerkas);
         if ($dataBerkas) {
             foreach ($dataBerkas as $list) {
-                if ($list->kode != '047') {
-                    $ambilNama = explode('/upload/', $list->lokasi_file);
-                    $filePath = public_path("berkas_vedika/$ambilNama[1]");
-                    if (FileLokal::exists($filePath)) {
-                        // File exists
-                        array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
-                    } else {
-                        // dd('kosong');
-                        $cek = Storage::disk('sftp')->exists($list->lokasi_file);
-                        if ($cek == true) {
-                            // $realFile = explode('/', $id);
-                            //Cek file di lokal ada tidak
-                            $cek2 = Storage::disk()->exists($ambilNama[1]);
-                            if ($cek2 == false) {
-                                Storage::disk('local')
-                                    ->put("$ambilNama[1]", Storage::disk('sftp')
-                                        ->get($list->lokasi_file));
-                                $contents = Storage::disk('sftp')->get($list->lokasi_file);
-                                file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
-                            }
-                            array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                $ambilNama = explode('/upload/', $list->lokasi_file);
+                $namaFileAsli = $ambilNama[1] ?? basename($list->lokasi_file);
+
+                // Bersihkan nama file dari karakter ilegal dan spasi
+                $namaFileAman = preg_replace('/[\/\\\\\?\*\:\|\"\<\>\s]/', '_', $namaFileAsli);
+
+                // Pastikan folder tujuan ada
+                $tujuanFolder = public_path('berkas_vedika');
+                if (!file_exists($tujuanFolder)) {
+                    mkdir($tujuanFolder, 0777, true);
+                }
+
+                $filePath = "$tujuanFolder/$namaFileAman";
+
+                // Jika file sudah ada di lokal, pakai itu
+                if (FileLokal::exists($filePath)) {
+                    array_push($pdfFiles, $filePath);
+                } else {
+                    // Cek apakah file tersedia di SFTP
+                    $cek = Storage::disk('sftp')->exists($list->lokasi_file);
+                    if ($cek) {
+                        try {
+                            // Ambil isi file dari SFTP
+                            $contents = Storage::disk('sftp')->get($list->lokasi_file);
+
+                            // Simpan ke local storage Laravel
+                            Storage::disk('local')->put("berkas_vedika/$namaFileAman", $contents);
+
+                            // Simpan juga ke folder public agar bisa diakses langsung
+                            file_put_contents($filePath, $contents);
+
+                            // Tambahkan ke daftar file
+                            array_push($pdfFiles, $filePath);
+
+                            // Log berhasil
+                            // activity()
+                            //     ->event('file_downloaded')
+                            //     ->performedOn($pasien)
+                            //     ->withProperties([
+                            //         'file' => $list->lokasi_file,
+                            //         'saved_as' => $namaFileAman,
+                            //         'status' => 'success',
+                            //         'time' => Carbon::now()->toDateTimeString(),
+                            //     ])
+                            //     ->log("Berhasil mengunduh dan menyimpan file dari SFTP");
+                        } catch (\Exception $e) {
+                            activity()
+                                ->event('file_download_failed')
+                                ->performedOn($pasien)
+                                ->withProperties([
+                                    'file' => $list->lokasi_file,
+                                    'error' => $e->getMessage(),
+                                    'status' => 'failed',
+                                    'time' => Carbon::now()->toDateTimeString(),
+                                ])
+                                ->log("Gagal mengambil file dari SFTP");
                         }
+                    } else {
+                        activity()
+                            ->event('file_not_found_sftp')
+                            ->performedOn($pasien)
+                            ->withProperties([
+                                'file' => $list->lokasi_file,
+                                'status' => 'missing',
+                                'time' => Carbon::now()->toDateTimeString(),
+                            ])
+                            ->log("File tidak ditemukan di SFTP");
                     }
                 }
             }
         }
-
-        // dd($pdfFiles);
 
         $outputFilePath = public_path("pdfklaim/$dataSep->no_sep/$dataSep->no_sep.pdf");
 
@@ -1549,36 +1679,110 @@ class VedikaController extends Controller
             public_path("pdfklaim/$dataSep->no_sep/$fileName")
         ];
 
-        // dd('done');
-        $berkas = VedikaController::berkas($pasien->no_rawat);
-        // dd($berkas);
+        // Kode lama
+        // $berkas = VedikaController::berkas($pasien->no_rawat);
+        // $dataBerkas = $berkas[0];
+        // if ($dataBerkas) {
+        //     foreach ($dataBerkas as $list) {
+        //         if ($list->kode != '047') {
+        //             $ambilNama = explode('/upload/', $list->lokasi_file);
+        //             $filePath = public_path("berkas_vedika/$ambilNama[1]");
+        //             if (FileLokal::exists($filePath)) {
+        //                 // File exists
+        //                 array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+        //             } else {
+        //                 // dd('kosong');
+        //                 $cek = Storage::disk('sftp')->exists($list->lokasi_file);
+        //                 if ($cek == true) {
+        //                     // $realFile = explode('/', $id);
+        //                     //Cek file di lokal ada tidak
+        //                     $cek2 = Storage::disk()->exists($ambilNama[1]);
+        //                     if ($cek2 == false) {
+        //                         Storage::disk('local')
+        //                             ->put("$ambilNama[1]", Storage::disk('sftp')
+        //                                 ->get($list->lokasi_file));
+        //                         $contents = Storage::disk('sftp')->get($list->lokasi_file);
+        //                         file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+        //                     }
+        //                     array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
+        $berkas = VedikaController::berkas($pasien->no_rawat);
         $dataBerkas = $berkas[0];
 
-        // dd($dataBerkas);
         if ($dataBerkas) {
             foreach ($dataBerkas as $list) {
                 if ($list->kode != '047') {
                     $ambilNama = explode('/upload/', $list->lokasi_file);
-                    $filePath = public_path("berkas_vedika/$ambilNama[1]");
+                    $namaFileAsli = $ambilNama[1] ?? basename($list->lokasi_file);
+
+                    // Bersihkan nama file dari karakter ilegal dan spasi
+                    $namaFileAman = preg_replace('/[\/\\\\\?\*\:\|\"\<\>\s]/', '_', $namaFileAsli);
+                    // Pastikan folder tujuan ada
+                    $tujuanFolder = public_path('berkas_vedika');
+                    if (!file_exists($tujuanFolder)) {
+                        mkdir($tujuanFolder, 0777, true);
+                    }
+
+                    $filePath = "$tujuanFolder/$namaFileAman";
+
+                    // Jika file sudah ada di lokal, pakai itu
                     if (FileLokal::exists($filePath)) {
-                        // File exists
-                        array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                        array_push($pdfFiles, $filePath);
                     } else {
-                        // dd('kosong');
+                        // Cek apakah file tersedia di SFTP
                         $cek = Storage::disk('sftp')->exists($list->lokasi_file);
-                        if ($cek == true) {
-                            // $realFile = explode('/', $id);
-                            //Cek file di lokal ada tidak
-                            $cek2 = Storage::disk()->exists($ambilNama[1]);
-                            if ($cek2 == false) {
-                                Storage::disk('local')
-                                    ->put("$ambilNama[1]", Storage::disk('sftp')
-                                        ->get($list->lokasi_file));
+                        if ($cek) {
+                            try {
+                                // Ambil isi file dari SFTP
                                 $contents = Storage::disk('sftp')->get($list->lokasi_file);
-                                file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+
+                                // Simpan ke local storage Laravel
+                                Storage::disk('local')->put("berkas_vedika/$namaFileAman", $contents);
+
+                                // Simpan juga ke folder public agar bisa diakses langsung
+                                file_put_contents($filePath, $contents);
+
+                                // Tambahkan ke daftar file
+                                array_push($pdfFiles, $filePath);
+
+                                // Log berhasil
+                                // activity()
+                                //     ->event('file_downloaded')
+                                //     ->performedOn($pasien)
+                                //     ->withProperties([
+                                //         'file' => $list->lokasi_file,
+                                //         'saved_as' => $namaFileAman,
+                                //         'status' => 'success',
+                                //         'time' => Carbon::now()->toDateTimeString(),
+                                //     ])
+                                //     ->log("Berhasil mengunduh dan menyimpan file dari SFTP");
+                            } catch (\Exception $e) {
+                                activity()
+                                    ->event('file_download_failed')
+                                    ->performedOn($pasien)
+                                    ->withProperties([
+                                        'file' => $list->lokasi_file,
+                                        'error' => $e->getMessage(),
+                                        'status' => 'failed',
+                                        'time' => Carbon::now()->toDateTimeString(),
+                                    ])
+                                    ->log("Gagal mengambil file dari SFTP");
                             }
-                            array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                        } else {
+                            activity()
+                                ->event('file_not_found_sftp')
+                                ->performedOn($pasien)
+                                ->withProperties([
+                                    'file' => $list->lokasi_file,
+                                    'status' => 'missing',
+                                    'time' => Carbon::now()->toDateTimeString(),
+                                ])
+                                ->log("File tidak ditemukan di SFTP");
                         }
                     }
                 }
@@ -2055,31 +2259,108 @@ class VedikaController extends Controller
             public_path("pdfklaim/$dataSep->no_sep/$fileName")
         ];
 
-        $berkas = VedikaController::berkas($pasien->no_rawat);
+        // $berkas = VedikaController::berkas($pasien->no_rawat);
 
+        // $dataBerkas = $berkas[0];
+
+        // if ($dataBerkas) {
+        //     foreach ($dataBerkas as $list) {
+        //         $ambilNama = explode('/upload/', $list->lokasi_file);
+        //         $filePath = public_path("berkas_vedika/$ambilNama[1]");
+        //         if (FileLokal::exists($filePath)) {
+        //             // File exists
+        //             array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+        //         } else {
+        //             $cek = Storage::disk('sftp')->exists($list->lokasi_file);
+        //             if ($cek == true) {
+        //                 // $realFile = explode('/', $id);
+        //                 //Cek file di lokal ada tidak
+        //                 $cek2 = Storage::disk()->exists($ambilNama[1]);
+        //                 if ($cek2 == false) {
+        //                     Storage::disk('local')
+        //                         ->put("$ambilNama[1]", Storage::disk('sftp')
+        //                             ->get($list->lokasi_file));
+        //                     $contents = Storage::disk('sftp')->get($list->lokasi_file);
+        //                     file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+        //                 }
+        //                 array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+        //             }
+        //         }
+        //     }
+        // }
+
+        $berkas = VedikaController::berkas($pasien->no_rawat);
         $dataBerkas = $berkas[0];
 
         if ($dataBerkas) {
             foreach ($dataBerkas as $list) {
                 $ambilNama = explode('/upload/', $list->lokasi_file);
-                $filePath = public_path("berkas_vedika/$ambilNama[1]");
+                $namaFileAsli = $ambilNama[1] ?? basename($list->lokasi_file);
+
+                // Bersihkan nama file dari karakter ilegal dan spasi
+                $namaFileAman = preg_replace('/[\/\\\\\?\*\:\|\"\<\>\s]/', '_', $namaFileAsli);
+
+                // Pastikan folder tujuan ada
+                $tujuanFolder = public_path('berkas_vedika');
+                if (!file_exists($tujuanFolder)) {
+                    mkdir($tujuanFolder, 0777, true);
+                }
+
+                $filePath = "$tujuanFolder/$namaFileAman";
+
+                // Jika file sudah ada di lokal, pakai itu
                 if (FileLokal::exists($filePath)) {
-                    // File exists
-                    array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                    array_push($pdfFiles, $filePath);
                 } else {
+                    // Cek apakah file tersedia di SFTP
                     $cek = Storage::disk('sftp')->exists($list->lokasi_file);
-                    if ($cek == true) {
-                        // $realFile = explode('/', $id);
-                        //Cek file di lokal ada tidak
-                        $cek2 = Storage::disk()->exists($ambilNama[1]);
-                        if ($cek2 == false) {
-                            Storage::disk('local')
-                                ->put("$ambilNama[1]", Storage::disk('sftp')
-                                    ->get($list->lokasi_file));
+                    if ($cek) {
+                        try {
+                            // Ambil isi file dari SFTP
                             $contents = Storage::disk('sftp')->get($list->lokasi_file);
-                            file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+
+                            // Simpan ke local storage Laravel
+                            Storage::disk('local')->put("berkas_vedika/$namaFileAman", $contents);
+
+                            // Simpan juga ke folder public agar bisa diakses langsung
+                            file_put_contents($filePath, $contents);
+
+                            // Tambahkan ke daftar file
+                            array_push($pdfFiles, $filePath);
+
+                            // Log berhasil
+                            // activity()
+                            //     ->event('file_downloaded')
+                            //     ->performedOn($pasien)
+                            //     ->withProperties([
+                            //         'file' => $list->lokasi_file,
+                            //         'saved_as' => $namaFileAman,
+                            //         'status' => 'success',
+                            //         'time' => Carbon::now()->toDateTimeString(),
+                            //     ])
+                            //     ->log("Berhasil mengunduh dan menyimpan file dari SFTP");
+                        } catch (\Exception $e) {
+                            activity()
+                                ->event('file_download_failed')
+                                ->performedOn($pasien)
+                                ->withProperties([
+                                    'file' => $list->lokasi_file,
+                                    'error' => $e->getMessage(),
+                                    'status' => 'failed',
+                                    'time' => Carbon::now()->toDateTimeString(),
+                                ])
+                                ->log("Gagal mengambil file dari SFTP");
                         }
-                        array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                    } else {
+                        activity()
+                            ->event('file_not_found_sftp')
+                            ->performedOn($pasien)
+                            ->withProperties([
+                                'file' => $list->lokasi_file,
+                                'status' => 'missing',
+                                'time' => Carbon::now()->toDateTimeString(),
+                            ])
+                            ->log("File tidak ditemukan di SFTP");
                     }
                 }
             }
@@ -2157,11 +2438,7 @@ class VedikaController extends Controller
         $dokterRadiologiRajal = $radiologi[1];
         $hasilRadiologiRajal = $radiologi[2];
 
-        //Data USG
-        $dataUsg = VedikaController::getUsg($pasien->no_rawat);
-        // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
-        $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
-        $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
+
         //Ambil data Triase dan Ringkasan IGD
         if ($pasien->nm_poli == "IGD") {
             $triase = VedikaController::triase($pasien->no_rawat);
@@ -2197,6 +2474,13 @@ class VedikaController extends Controller
         $soap = VedikaController::dataSoap($pasien->no_rawat);
         $dataOperasi = VedikaController::OperasiRajal($pasien->no_rawat);
         // dd($pasien, $billing);
+        //Data USG
+        $dataUsg = VedikaController::getUsg($pasien->no_rawat);
+        // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
+        $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
+        $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
+        $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
+        $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
 
         $pdf = Pdf::loadView('vedika.detailRajal_pdf', [
             'pasien' => $pasien,
@@ -2227,6 +2511,9 @@ class VedikaController extends Controller
             'dataOperasi' => $dataOperasi,
             // 'masterBerkas' => $masterBerkas,
             'dataRalan' => $dataRalan,
+            'dataUsg' => $dataUsg,
+            'dataTindakanMata' => $dataTindakanMata,
+            'dataTreadmill' => $dataTreadmill,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
         ]);
@@ -2255,35 +2542,111 @@ class VedikaController extends Controller
             public_path("pdfklaim/$dataSep->no_sep/$fileName")
         ];
 
-        // dd('done');
-        $berkas = VedikaController::berkas($pasien->no_rawat);
-        // dd($berkas);
+        // Kode Lama
+        // $berkas = VedikaController::berkas($pasien->no_rawat);
 
+        // $dataBerkas = $berkas[0];
+
+        // if ($dataBerkas) {
+        //     foreach ($dataBerkas as $list) {
+        //         $ambilNama = explode('/upload/', $list->lokasi_file);
+        //         $filePath = public_path("berkas_vedika/$ambilNama[1]");
+        //         if (FileLokal::exists($filePath)) {
+        //             // File exists
+        //             array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+        //         } else {
+        //             // dd('kosong');
+        //             $cek = Storage::disk('sftp')->exists($list->lokasi_file);
+        //             if ($cek == true) {
+        //                 // $realFile = explode('/', $id);
+        //                 //Cek file di lokal ada tidak
+        //                 $cek2 = Storage::disk()->exists($ambilNama[1]);
+        //                 if ($cek2 == false) {
+        //                     Storage::disk('local')
+        //                         ->put("$ambilNama[1]", Storage::disk('sftp')
+        //                             ->get($list->lokasi_file));
+        //                     $contents = Storage::disk('sftp')->get($list->lokasi_file);
+        //                     file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+        //                 }
+        //                 array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+        //             }
+        //         }
+        //     }
+        // }
+
+
+        $berkas = VedikaController::berkas($pasien->no_rawat);
         $dataBerkas = $berkas[0];
 
-        // dd($dataBerkas);
         if ($dataBerkas) {
             foreach ($dataBerkas as $list) {
                 $ambilNama = explode('/upload/', $list->lokasi_file);
-                $filePath = public_path("berkas_vedika/$ambilNama[1]");
+                $namaFileAsli = $ambilNama[1] ?? basename($list->lokasi_file);
+
+                // Bersihkan nama file dari karakter ilegal dan spasi
+                $namaFileAman = preg_replace('/[\/\\\\\?\*\:\|\"\<\>\s]/', '_', $namaFileAsli);
+
+                // Pastikan folder tujuan ada
+                $tujuanFolder = public_path('berkas_vedika');
+                if (!file_exists($tujuanFolder)) {
+                    mkdir($tujuanFolder, 0777, true);
+                }
+
+                $filePath = "$tujuanFolder/$namaFileAman";
+
+                // Jika file sudah ada di lokal, pakai itu
                 if (FileLokal::exists($filePath)) {
-                    // File exists
-                    array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                    array_push($pdfFiles, $filePath);
                 } else {
-                    // dd('kosong');
+                    // Cek apakah file tersedia di SFTP
                     $cek = Storage::disk('sftp')->exists($list->lokasi_file);
-                    if ($cek == true) {
-                        // $realFile = explode('/', $id);
-                        //Cek file di lokal ada tidak
-                        $cek2 = Storage::disk()->exists($ambilNama[1]);
-                        if ($cek2 == false) {
-                            Storage::disk('local')
-                                ->put("$ambilNama[1]", Storage::disk('sftp')
-                                    ->get($list->lokasi_file));
+                    if ($cek) {
+                        try {
+                            // Ambil isi file dari SFTP
                             $contents = Storage::disk('sftp')->get($list->lokasi_file);
-                            file_put_contents("berkas_vedika/$ambilNama[1]", $contents);
+
+                            // Simpan ke local storage Laravel
+                            Storage::disk('local')->put("berkas_vedika/$namaFileAman", $contents);
+
+                            // Simpan juga ke folder public agar bisa diakses langsung
+                            file_put_contents($filePath, $contents);
+
+                            // Tambahkan ke daftar file
+                            array_push($pdfFiles, $filePath);
+
+                            // Log berhasil
+                            // activity()
+                            //     ->event('file_downloaded')
+                            //     ->performedOn($pasien)
+                            //     ->withProperties([
+                            //         'file' => $list->lokasi_file,
+                            //         'saved_as' => $namaFileAman,
+                            //         'status' => 'success',
+                            //         'time' => Carbon::now()->toDateTimeString(),
+                            //     ])
+                            //     ->log("Berhasil mengunduh dan menyimpan file dari SFTP");
+                        } catch (\Exception $e) {
+                            activity()
+                                ->event('file_download_failed')
+                                ->performedOn($pasien)
+                                ->withProperties([
+                                    'file' => $list->lokasi_file,
+                                    'error' => $e->getMessage(),
+                                    'status' => 'failed',
+                                    'time' => Carbon::now()->toDateTimeString(),
+                                ])
+                                ->log("Gagal mengambil file dari SFTP");
                         }
-                        array_push($pdfFiles, public_path("berkas_vedika/$ambilNama[1]"));
+                    } else {
+                        activity()
+                            ->event('file_not_found_sftp')
+                            ->performedOn($pasien)
+                            ->withProperties([
+                                'file' => $list->lokasi_file,
+                                'status' => 'missing',
+                                'time' => Carbon::now()->toDateTimeString(),
+                            ])
+                            ->log("File tidak ditemukan di SFTP");
                     }
                 }
             }
@@ -3977,6 +4340,47 @@ class VedikaController extends Controller
         }
     }
 
+    public function perawatanRajal($no_rm)
+    {
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'reg_periksa.kd_dokter')
+            // Menggunakan closure untuk multiple join conditions
+            ->leftJoin('pemeriksaan_ralan', function ($join) {
+                $join->on('reg_periksa.no_rawat', '=', 'pemeriksaan_ralan.no_rawat')
+                    // Tambahkan kondisi kedua di sini
+                    ->on('reg_periksa.kd_dokter', '=', 'pemeriksaan_ralan.nip');
+            })
+            ->select(
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'pasien.alamat',
+                'reg_periksa.almt_pj',
+                'reg_periksa.umurdaftar',
+                'reg_periksa.sttsumur',
+                'reg_periksa.no_rawat',
+                'reg_periksa.kd_poli',
+                'reg_periksa.tgl_registrasi',
+                'poliklinik.nm_poli',
+                'dokter.nm_dokter',
+                'pemeriksaan_ralan.*'
+            )
+            ->where('pasien.no_rkm_medis', '=', $no_rm)
+            ->orderBy('reg_periksa.no_rawat', 'DESC')
+            ->get();
+
+        // dd($data);
+
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
     public function tambahRadiologi($id)
     {
         $pecah = explode('_', Crypt::decrypt($id));
@@ -4001,6 +4405,33 @@ class VedikaController extends Controller
             ->delete();
 
         Session::flash('sukses', 'Data radiologi berhasil dihapus');
+
+        return redirect()->back();
+    }
+
+    public function tambahSoap($id)
+    {
+        $pecah = explode('_', Crypt::decrypt($id));
+
+        $simpan = new SoapTambahan();
+        $simpan->no_rawat = $pecah[0];
+        $simpan->no_rawat_tambahan = $pecah[1];
+        $simpan->save();
+
+        Session::flash('sukses', 'Data SOAP berhasil ditambahkan');
+
+        return redirect()->back();
+    }
+
+    public function deleteSoap($id)
+    {
+        $pecah = explode('_', Crypt::decrypt($id));
+
+        $delete = SoapTambahan::where('no_rawat', $pecah[0])
+            ->where('no_rawat_tambahan', $pecah[1])
+            ->delete();
+
+        Session::flash('sukses', 'Data SOAP berhasil dihapus');
 
         return redirect()->back();
     }
@@ -4941,6 +5372,37 @@ class VedikaController extends Controller
         }
     }
 
+    public function getTreatmill($no_rawat)
+    {
+        $data =  DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('penilaian_treadmill', 'reg_periksa.no_rawat', '=', 'penilaian_treadmill.no_rawat')
+            ->leftJoin('petugas', 'petugas.nip', '=', 'penilaian_treadmill.kd_petugas')
+            ->leftJoin('dokter', 'dokter.kd_dokter', '=', 'penilaian_treadmill.kd_dokter')
+            ->leftJoin('pemeriksaan_ralan', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
+            ->select(
+                'penilaian_treadmill.*',
+                'reg_periksa.no_rawat',
+                'pemeriksaan_ralan.berat',
+                'pemeriksaan_ralan.tinggi',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'petugas.nama as nm_petugas',
+                'dokter.nm_dokter'
+            )
+            ->where('reg_periksa.no_rawat', '=', $no_rawat)
+            ->first();
+
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
     public static function berkas($id)
     {
         // session()->put('ibu', 'Vedika');
@@ -5008,6 +5470,7 @@ class VedikaController extends Controller
                             'berkas_digital_perawatan.no_rawat'
                         )
                         ->where('berkas_digital_perawatan.no_rawat', '=', $listRm->no_rawat)
+                        ->orderBy('master_berkas_digital.nama', 'ASC')
                         ->get();
 
                     foreach ($listBerkas as $listArray) {
@@ -5115,6 +5578,7 @@ class VedikaController extends Controller
         // dd($berkas);
 
         $master =  DB::connection('mysqlkhanza')->table('master_berkas_digital')
+            ->orderBy('master_berkas_digital.nama', 'ASC')
             ->get();
         $path = Setting::where('nama', 'webappz_berkasrawat')->first();
 
@@ -5265,7 +5729,7 @@ class VedikaController extends Controller
         // dd($request);
         $str = $request->master_berkas;
         $split = explode("-", $str);
-        $nama_master = str_replace(' ', '_', $split[1]);
+        $nama_master = preg_replace('/[\/\\\\\?\*\:\|\"\<\>\s]/', '_', $split[1]);
 
         $data['no_rawat'] = $request->no_rawat;
         $data['kode'] = $split[0];
@@ -5352,15 +5816,6 @@ class VedikaController extends Controller
     public function berkasDelete($id)
     {
         $id = Crypt::decrypt($id);
-        // $delete = BerkasVedika::find($id);
-
-        // $file = public_path($delete->lokasi_berkas . '/' . $delete->file);
-
-        // if (File::exists($file)) {
-        //     File::delete($file);
-        // } else {
-        //     dd('file tidak eksis', $file);
-        // }
         $berkas = DB::connection('mysqlkhanza')->table('berkas_digital_perawatan')
             ->select(
                 'berkas_digital_perawatan.lokasi_file',
@@ -5369,8 +5824,14 @@ class VedikaController extends Controller
             ->where('berkas_digital_perawatan.lokasi_file', '=', $id)
             ->first();
         if (Storage::disk('sftp')->exists($berkas->lokasi_file)) {
-            // dd('eksis');
             Storage::disk('sftp')->delete($berkas->lokasi_file);
+
+            $status = 'File ditemukan dan berhasil dihapus';
+        } else {
+            $status = 'File tidak ditemukan';
+        }
+
+        try {
             $berkas = DB::connection('mysqlkhanza')->table('berkas_digital_perawatan')
                 ->select(
                     'berkas_digital_perawatan.lokasi_file',
@@ -5379,13 +5840,11 @@ class VedikaController extends Controller
                 ->where('berkas_digital_perawatan.lokasi_file', '=', $id)
                 ->delete();
 
-            Session::flash('sukses', 'Data Berhasil dihapus!');
-        } else {
-            // dd('tidak eksis');
-            Session::flash('error', 'Data tidak ditemukan');
+            Session::flash('sukses', $status);
+        } catch (\Exception $e) {
+            dd($e);
+            Session::flash('error', $status);
         }
-
-        // dd($berkas);
 
         return redirect()->back();
     }
@@ -5459,6 +5918,37 @@ class VedikaController extends Controller
             } else {
                 return null;
             }
+        }
+    }
+
+    public function getSrb($no_sep)
+    {
+        $data = DB::connection('mysqlkhanza')->table('bridging_sep')
+            ->join('bridging_srb_bpjs', 'bridging_srb_bpjs.no_sep', '=', 'bridging_sep.no_sep')
+            ->select(
+                'bridging_sep.no_sep',
+                'bridging_sep.no_rawat',
+                'bridging_sep.diagawal',
+                'bridging_sep.nmdiagnosaawal',
+                'bridging_sep.no_kartu',
+                'bridging_sep.nama_pasien',
+                'bridging_sep.tanggal_lahir',
+                'bridging_srb_bpjs.*',
+            )
+            ->where('bridging_sep.no_sep', '=', $no_sep)
+            ->first();
+
+        $dataObat = DB::connection('mysqlkhanza')->table('bridging_srb_bpjs_obat')
+            ->select(
+                'bridging_srb_bpjs_obat.*'
+            )
+            ->where('bridging_srb_bpjs_obat.no_sep', '=', $no_sep)
+            ->get();
+
+        if (!empty($data)) {
+            return array($data, $dataObat);
+        } else {
+            return null;
         }
     }
 

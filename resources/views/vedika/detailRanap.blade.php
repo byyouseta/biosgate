@@ -2586,7 +2586,7 @@
         {{-- End Ringksan IGD --}}
 
         {{-- Data Penilaian Awal IGD --}}
-        @if (!empty($dataRingkasan))
+        @if (!empty($dataRingkasan))       
             <div class="card">
                 <div class="card-header">Penilaian Awal Medis IGD</div>
                 <div class="card-body">
@@ -2821,6 +2821,7 @@
                                 <td class="border border-dark border-top-0 border-left-0 align-bottom" colspan="2">
                                     {{ $dataRingkasan->nm_dokter }}</td>
                             </tr>
+                            
                         </tbody>
                     </table>
                 </div>
@@ -3108,6 +3109,7 @@
                                     </tr>
                                 </tbody>
                             </table>
+                            
                             @php
                                 $dokter_jaga = App\Vedika::getPegawai($skor_psi->kd_dokter);
                                 $dokter_dpjp = App\Vedika::getPegawai($skor_psi->kd_dpjp);
@@ -3133,6 +3135,7 @@
                                     "\n" .
                                     \Carbon\Carbon::parse($skor_psi->tanggal)->format('d-m-Y');
                             @endphp
+                            
                             <table style="width: 100%">
                                 <tbody>
                                     <tr>
@@ -3394,6 +3397,7 @@
                 </div>
             </div>
         @endif
+        
         {{-- Data Spiro --}}
         @if($dataSpiro)
             <div class="card">
@@ -3695,6 +3699,7 @@
                 </div>
             </div>
         @endif
+        
         {{-- Data Transfusi --}}
         @if($dataTransfusi)
             <div class="card card-primary card-outline card-outline-tabs">
@@ -4265,6 +4270,7 @@
                 </div>
             </div>
         @endif
+       
         {{-- Data OBSERVASI FIBRINOLITIK --}}
         @if($dataObserFibri->count()>0)
             <div class="card">
@@ -4513,7 +4519,7 @@
                                     <td style="width: 30%; ">: {{ $pasien->no_rawat }}</td>
                                     <td style="padding-left: 100px;">Umur</td>
                                     <td style="padding-left: 50px;">:
-                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataObserFibri->first()->tanggal))->format('%y Th') }} </td>
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataChecklistFibri->tanggal))->format('%y Th') }} </td>
                                 </tr>
                                 <tr>
                                     <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
@@ -4529,13 +4535,13 @@
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Tanggal</td>
-                                    <td style="border-bottom: 0px solid black;">: {{ \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="border-bottom: 0px solid black;">: {{ \Carbon\Carbon::parse($dataChecklistFibri->tanggal)->format('d-m-Y') }}</td>
                                     <td style="padding-left: 100px; vertical-align:top;">Alamat</td>
                                     <td style="padding-left: 50px;">: {{ $pasien->alamat }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 1px solid black;">Jam</td>
-                                    <td style="border-bottom: 1px solid black;" colspan="3">: {{$dataObserFibri->first()->jam}} </td>
+                                    <td style="border-bottom: 1px solid black;" colspan="3">: {{$dataChecklistFibri->jam}} </td>
                                 </tr>
                             </thead>
                             <tbody>
@@ -4694,7 +4700,7 @@
                 </div>
             </div>
         @endif
-
+ 
         {{-- Pasien Operasi --}}
         {{-- Data Operasi Multi Tab --}}
         @if ($dataOperasi2 != null && $dataOperasi1)

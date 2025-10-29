@@ -145,6 +145,9 @@
                                                                 // $cekBokingOp = App\Vedika::getBookingOperasi(
                                                                 //     $data->no_rawat
                                                                 // );
+                                                                // if ($data->no_rawat == '2025/09/01/000296') {
+                                                                //     dd($diagnosaGrouped->get($data->no_rawat)->count());
+                                                                // }
                                                             @endphp
                                                             @can('vedika-upload')
                                                                 @if (!empty($statusVerif[$data->no_rawat]))
@@ -165,7 +168,7 @@
                                                                         data-placement="bottom" title="Berkas ditemukan">Eklaim
                                                                         <i class="fas fa-check-circle"></i></span>
                                                                 @endif
-                                                                @if ($diagnosa->where('no_rawat', $data->no_rawat)->count() > 0)
+                                                                @if ($diagnosaGrouped->get($data->no_rawat) && $diagnosaGrouped->get($data->no_rawat)->count() > 0)
                                                                     <span class="badge bg-purple" data-toggle="tooltip"
                                                                         data-placement="bottom" title="Berkas ditemukan">Diag
                                                                         <i class="fas fa-check-circle"></i></span>
@@ -204,6 +207,12 @@
                                                         </div>
                                                     </td>
                                                     <td>
+                                                        {{ collect(\Illuminate\Support\Arr::get($diagnosaGrouped, $data->no_rawat, []))->pluck('kd_penyakit')->implode(', ') }}
+                                                    </td>
+                                                    <td>
+                                                        {{ collect(\Illuminate\Support\Arr::get($prosedurGrouped, $data->no_rawat, []))->pluck('kode')->implode(', ') }}
+                                                    </td>
+                                                    {{-- <td>
                                                         @if (!empty($diagnosa->where('no_rawat', $data->no_rawat)))
                                                             @foreach ($diagnosa->where('no_rawat', $data->no_rawat) as $index => $dataDiagnosa)
                                                                 @if (!$loop->last)
@@ -224,7 +233,7 @@
                                                                 @endif
                                                             @endforeach
                                                         @endif
-                                                    </td>
+                                                    </td> --}}
                                                 </tr>
                                             @endif
                                         @endforeach

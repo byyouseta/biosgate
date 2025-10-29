@@ -774,6 +774,7 @@
             <div style="page-break-after: always;"></div>
         </div>
     @endif
+
     {{-- Halaman Billing --}}
     @if ($billing->count() > 0)
         <div style="top: -30px">
@@ -2018,7 +2019,8 @@
                     <tr>
                         <td style="border-left: 1px solid black;; border-right: 1px solid black;" colspan="3">
                             <b>Obat
-                                yang dibawa pulang:</b></td>
+                                yang dibawa pulang:</b>
+                        </td>
                     </tr>
                     @php
                         $obat = explode("\n", $resumeIgd->obat_pulang);
@@ -2923,16 +2925,119 @@
                             {{ $soap->rtl }}
                         </td>
                     </tr>
+                    @if ($pasien->nm_poli == 'REHABILITASI MEDIK')
+                        <tr>
+                            <th style="border: 1px solid black;;">Implementasi</th>
+                            <td style="border: 1px solid black;; padding-left:5pt;" colspan="5">
+                                {{ $soap->instruksi }}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="border: 1px solid black;;">Evaluasi</th>
+                            <td style="border: 1px solid black;; padding-left:5pt;" colspan="5">
+                                {{ $soap->evaluasi }}
+                            </td>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+    @endif
+
+    @if ($tambahanDataSoap->count() > 0)
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
+        <div class="watermark">
+            {{ $watermark }}
+        </div>
+        <div>
+            <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 0;">
+                <thead>
                     <tr>
-                        <th style="border: 1px solid black;;">Implementasi</th>
-                        <td style="border: 1px solid black;; padding-left:5pt;" colspan="5">
-                            {{ $soap->instruksi }}
+                        <td style="vertical-align: middle; padding: 0; border: 3px solid black;; border-top-width: 5px; border-left: none; border-right: none; text-align: center;"
+                            colspan="6">
+                            <div style="font-size: 16pt">SOAP</div>
                         </td>
                     </tr>
                     <tr>
-                        <th style="border: 1px solid black;;">Evaluasi</th>
+                        <td style="vertical-align: middle; padding: 0; width: 15%;">
+                            Tanggal
+                        </td>
+                        <td style="vertical-align: middle; padding: 0;" colspan="2">
+                            : {{ $soap->tgl_perawatan }}
+                        </td>
+                        <td style="vertical-align: middle; padding: 0; width: 15%;">
+                            Nama Petugas/Profesi
+                        </td>
+                        <td style="vertical-align: middle; padding: 0;" colspan="2">
+                            : {{ $soap->petugas }} / {{ $soap->jabatan_petugas }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align: middle; padding: 0;">
+                            Nama Pasien
+                        </td>
+                        <td style="vertical-align: middle; padding: 0;" colspan="2">
+                            : {{ $pasien->nm_pasien }}
+                        </td>
+                        <td style="vertical-align: middle; padding: 0;">
+                            No. Rekam Medis
+                        </td>
+                        <td style="vertical-align: middle; padding: 0;" colspan="2">
+                            : {{ $pasien->no_rkm_medis }}
+                        </td>
+                    </tr>
+                </thead>
+                <tbody style="margin-top: 10px;">
+                    <tr>
+                        <th style="border: 1px solid black;; vertical-align:top; ">Subjek</th>
                         <td style="border: 1px solid black;; padding-left:5pt;" colspan="5">
-                            {{ $soap->evaluasi }}
+                            {{ $soap->keluhan }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="border: 1px solid black;;">Objek</th>
+                        <td style="border: 1px solid black;; padding-left:5pt;" colspan="5">
+                            {{ $soap->pemeriksaan }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="border: 1px solid black;; border-bottom: none;"></th>
+                        <th style="border: 1px solid black;;">Suhu</th>
+                        <th style="border: 1px solid black;;">Tensi</th>
+                        <th style="border: 1px solid black;;">Nadi(/menit)</th>
+                        <th style="border: 1px solid black;;">Respirasi(/menit)</th>
+                        <th style="border: 1px solid black;; border-bottom: none;"></th>
+                    </tr>
+                    <tr>
+                        <td style="text-align: right; border: 1px solid black;; border-top: none;"></td>
+                        <td style="text-align: right; border: 1px solid black;;">{{ $soap->suhu_tubuh }}</td>
+                        <td style="text-align: right; border: 1px solid black;;">{{ $soap->tensi }}</td>
+                        <td style="text-align: right; border: 1px solid black;;">{{ $soap->nadi }}</td>
+                        <td style="text-align: right; border: 1px solid black;; width: 20%;">
+                            {{ $soap->respirasi }}
+                        </td>
+                        <td style="text-align: right; border: 1px solid black;; border-top: none; width: 20%;">&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="border: 1px solid black;;">Alergi</th>
+                        <td style="border: 1px solid black;; padding-left:5pt;" colspan="5">
+                            {{ $soap->alergi }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="border: 1px solid black;;">Asessmen</th>
+                        <td style="border: 1px solid black;; padding-left:5pt;" colspan="5">
+                            {{ $soap->penilaian }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th style="border: 1px solid black;;">Plan</th>
+                        <td style="border: 1px solid black;; padding-left:5pt;" colspan="5">
+                            {{ $soap->rtl }}
                         </td>
                     </tr>
                 </tbody>
@@ -2965,7 +3070,8 @@
                     </tr>
                     <tr>
                         <td style="padding-left: 25px; border-bottom: 1px solid black;;">Nama Pasien</td>
-                        <td style="border-bottom: 1px solid black;;" colspan="3">: {{ $pasien->nm_pasien }}</td>
+                        <td style="border-bottom: 1px solid black;;" colspan="3">: {{ $pasien->nm_pasien }}
+                        </td>
                     </tr>
                 </thead>
                 <tbody>
@@ -3048,7 +3154,8 @@
                     </tr>
                     <tr>
                         <td style="padding-left: 25px; border-bottom: 1px solid black;;">Nama Pasien</td>
-                        <td style="border-bottom: 1px solid black;;" colspan="3">: {{ $pasien->nm_pasien }}</td>
+                        <td style="border-bottom: 1px solid black;;" colspan="3">: {{ $pasien->nm_pasien }}
+                        </td>
                     </tr>
                 </thead>
                 <tbody>
@@ -3083,7 +3190,8 @@
                     </tr>
                     <tr>
                         <td style="text-align:center; border: 1px solid black;;">Tanggal dan Jam</td>
-                        <td style="text-align:center; border: 1px solid black;;" colspan="3">Nama Dokter dan Tanda
+                        <td style="text-align:center; border: 1px solid black;;" colspan="3">Nama Dokter dan
+                            Tanda
                             Tangan</td>
                     </tr>
 
@@ -3146,7 +3254,8 @@
                         <td style="padding-left: 20px;">: {{ $dataSpiro->tb }} Cm</td>
                     </tr>
                     <tr>
-                        <td style="padding-left: 25px; border-bottom: 0px solid black; vertical-align:top;">Alamat</td>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black; vertical-align:top;">Alamat
+                        </td>
                         <td style="border-bottom: 0px solid black;;">: {{ $pasien->alamat }} </td>
                         <td style="padding-left: 20px; ">Berat Badan</td>
                         <td style="padding-left: 20px;">: {{ $dataSpiro->bb }} Cm</td>
@@ -3387,7 +3496,7 @@
             </table>
         </div>
     @endif
-    @if($dataTindakanMata)
+    @if ($dataTindakanMata)
         <div style="float: none;">
             <div style="page-break-after: always;"></div>
         </div>
@@ -3396,10 +3505,12 @@
         </div>
         <div>
             <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP">
-            <table style="width: 100%; margin-bottom:50px; margin-top:10px;" class="table table-borderless table-sm">
+            <table style="width: 100%; margin-bottom:50px; margin-top:10px;"
+                class="table table-borderless table-sm">
                 <thead>
                     <tr>
-                        <td style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;" colspan="4">
+                        <td style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;"
+                            colspan="4">
                             <h3><b>TINDAKAN</b></h3>
                         </td>
                     </tr>
@@ -3409,13 +3520,14 @@
                         <td style="width: 20%; padding-left: 25px;">No. Rawat</td>
                         <td style="width: 20%; ">: {{ $dataTindakanMata->no_rawat }}</td>
                         <td style="width: 20%; padding-left: 0px; ">Tanggal Lahir</td>
-                        <td style="width: 40%; padding-left: 0px;">: {{ \Carbon\Carbon::parse($dataTindakanMata->tgl_lahir)->format('d-m-Y') }}</td>
+                        <td style="width: 40%; padding-left: 0px;">:
+                            {{ \Carbon\Carbon::parse($dataTindakanMata->tgl_lahir)->format('d-m-Y') }}</td>
                     </tr>
                     <tr>
                         <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
                         <td style="width: 30%; ">: {{ $dataTindakanMata->no_rkm_medis }}</td>
                         <td style="padding-left: 0px; ">Alamat</td>
-                        <td style="padding-left: 0px;">: {{$pasien->alamat}}</td>
+                        <td style="padding-left: 0px;">: {{ $pasien->alamat }}</td>
                     </tr>
                     <tr>
                         <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
@@ -3424,19 +3536,24 @@
                     <tr>
                         <td style="padding-left: 25px; border-bottom: 0px solid black;">Umur</td>
                         <td style="border-bottom: 0px solid black;">:
-                            {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataTindakanMata->tanggal))->format('%y Th') }} </td>
+                            {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataTindakanMata->tanggal))->format('%y Th') }}
+                        </td>
                         <td style="padding-left: 0px; ">Tanggal</td>
-                        <td style="padding-left: 0px;">: {{ \Carbon\Carbon::parse($dataTindakanMata->tanggal)->format('d-m-Y') }}</td>
+                        <td style="padding-left: 0px;">:
+                            {{ \Carbon\Carbon::parse($dataTindakanMata->tanggal)->format('d-m-Y') }}</td>
                     </tr>
                     <tr>
                         <td style="padding-left: 25px; border-bottom: 0px solid black;">JK</td>
-                        <td style="border-bottom: 0px solid black;">: {{$dataTindakanMata->jk == 'L'? 'Laki-laki':'Perempuan'}} </td>
+                        <td style="border-bottom: 0px solid black;">:
+                            {{ $dataTindakanMata->jk == 'L' ? 'Laki-laki' : 'Perempuan' }} </td>
                         <td style="padding-left: 0px; ">Jam</td>
                         <td style="padding-left: 0px;">: {{ $dataTindakanMata->jam }} Cm</td>
                     </tr>
                     <tr>
-                        <td style="width:25%; padding-left: 25px; border-top:1px solid black; padding-top:10px;">Dokter Operator</td>
-                        <td style="width:75%; border-top:1px solid black; padding-top:10px;" colspan="3">: {{ $dataTindakanMata->nm_dokter }}</td>
+                        <td style="width:25%; padding-left: 25px; border-top:1px solid black; padding-top:10px;">
+                            Dokter Operator</td>
+                        <td style="width:75%; border-top:1px solid black; padding-top:10px;" colspan="3">:
+                            {{ $dataTindakanMata->nm_dokter }}</td>
                     </tr>
                     <tr>
                         <td style="padding-left: 25px;">Asisten Operator</td>
@@ -3444,7 +3561,8 @@
                     </tr>
                     <tr>
                         <td style="padding-left: 25px;">Tanggal Tindakan</td>
-                        <td colspan="3">: {{ \Carbon\Carbon::parse($dataTindakanMata->tanggal_tindakan)->format('d-m-Y')}}</td>
+                        <td colspan="3">:
+                            {{ \Carbon\Carbon::parse($dataTindakanMata->tanggal_tindakan)->format('d-m-Y') }}</td>
                     </tr>
                     <tr>
                         <td style="padding-left: 25px;">Tindakan</td>
@@ -3466,55 +3584,61 @@
                     <td style="padding-left: 25px; width:50%;" colspan="2">Komplikasi Selama Pembedahan :</td>
                 </tr>
                 <tr>
-                    <td colspan="2" style="padding-left: 25px; white-space: pre-line;">{{ $dataTindakanMata->uraian_pembedahan }}</td>
-                    <td colspan="2" style="padding-left: 25px; white-space: pre-line;">{{ $dataTindakanMata->komplikasi }}</td>
+                    <td colspan="2" style="padding-left: 25px; white-space: pre-line;">
+                        {{ $dataTindakanMata->uraian_pembedahan }}</td>
+                    <td colspan="2" style="padding-left: 25px; white-space: pre-line;">
+                        {{ $dataTindakanMata->komplikasi }}</td>
                 </tr>
             </table>
             @php
                 $qr_dokter =
-                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
                 elektronik oleh' .
-                "\n" .
-                $dataTindakanMata->nm_dokter .
-                "\n" .
-                'ID ' .
-                $dataTindakanMata->kd_dokter .
-                "\n" .
-                \Carbon\Carbon::parse($dataTindakanMata->tanggal)->format('d-m-Y');
+                    "\n" .
+                    $dataTindakanMata->nm_dokter .
+                    "\n" .
+                    'ID ' .
+                    $dataTindakanMata->kd_dokter .
+                    "\n" .
+                    \Carbon\Carbon::parse($dataTindakanMata->tanggal)->format('d-m-Y');
 
                 $qrcode_dokter = base64_encode(
                     QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter),
                 );
 
                 $qr_petugas =
-                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
                 elektronik oleh' .
-                "\n" .
-                $dataTindakanMata->nm_petugas .
-                "\n" .
-                'ID ' .
-                $dataTindakanMata->kd_petugas .
-                "\n" .
-                \Carbon\Carbon::parse($dataTindakanMata->tanggal)->format('d-m-Y');
+                    "\n" .
+                    $dataTindakanMata->nm_petugas .
+                    "\n" .
+                    'ID ' .
+                    $dataTindakanMata->kd_petugas .
+                    "\n" .
+                    \Carbon\Carbon::parse($dataTindakanMata->tanggal)->format('d-m-Y');
 
                 $qrcode_petugas = base64_encode(
                     QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_petugas),
                 );
             @endphp
 
-            <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black" class="table table-borderless table-sm">
+            <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black"
+                class="table table-borderless table-sm">
                 <tbody>
                     <tr>
                         <td colspan="2"></td>
-                        <td  style="text-align: center;">Surakarta, {{ \Carbon\Carbon::parse($dataTindakanMata->tanggal)->format('d-m-Y') }}</td>
+                        <td style="text-align: center;">Surakarta,
+                            {{ \Carbon\Carbon::parse($dataTindakanMata->tanggal)->format('d-m-Y') }}</td>
                     </tr>
                     <tr>
                         <td style="text-align: center;" colspan="2">Petugas</td>
                         <td style="text-align: center;">Dokter Pemeriksa</td>
                     </tr>
                     <tr>
-                        <td style="text-align: center;" colspan="2"><img src="data:image/png;base64, {!! $qrcode_petugas !!}"></td>
-                        <td style="text-align: center;"><img src="data:image/png;base64, {!! $qrcode_dokter !!}"></td>
+                        <td style="text-align: center;" colspan="2"><img
+                                src="data:image/png;base64, {!! $qrcode_petugas !!}"></td>
+                        <td style="text-align: center;"><img src="data:image/png;base64, {!! $qrcode_dokter !!}">
+                        </td>
                     </tr>
                     <tr>
                         <td style="text-align: center;" colspan="2">{{ $dataTindakanMata->nm_petugas }}</td>
@@ -3524,6 +3648,324 @@
             </table>
         </div>
     @endif
+    @if ($dataTreadmill)
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
+        <div class="watermark">
+            {{ $watermark }}
+        </div>
+        <div>
+            <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP">
+            <table style="width: 100%; margin-bottom:5px; margin-top:10px;">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;"
+                            colspan="4">
+                            <h4>HASIL PEMERIKSAAN TREADMILL</h4>
+                        </th>
+                    </tr>
+                    <tr>
+                        <td style="width: 20%; padding-left: 25px;">No. Rawat</td>
+                        <td style="width: 30%; ">: {{ $dataTreadmill->no_rawat }}</td>
+                        <td style="padding-left:20px; width: 15%;">Tanggal Lahir</td>
+                        <td style="padding-left: 10px;">:
+                            {{ \Carbon\Carbon::parse($dataTreadmill->tgl_lahir)->format('d-m-Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                        <td style="width: 30%; ">: {{ $dataTreadmill->no_rkm_medis }}</td>
+                        <td style="padding-left: 20px; ">Alamat</td>
+                        <td style="padding-left: 10px;">: {{ $pasien->alamat }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
+                        <td style="border-bottom: 0px solid black;">: {{ $pasien->nm_pasien }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black;">Umur</td>
+                        <td style="border-bottom: 0px solid black;">:
+                            {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataTreadmill->tanggal))->format('%y Th') }}
+                        </td>
+                        <td style="padding-left: 20px; ">Tanggal</td>
+                        <td style="padding-left: 10px;">:
+                            {{ \Carbon\Carbon::parse($dataTreadmill->tanggal)->format('d F Y H:i:s') }} WIB
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black;">JK</td>
+                        <td style="border-bottom: 0px solid black;">:
+                            {{ $dataTreadmill->jk == 'L' ? 'Laki-laki' : 'Perempuan' }} </td>
+                        <td style="padding-left: 20px; ">Berat Badan</td>
+                        <td style="padding-left: 10px;">: {{ $dataTreadmill->berat }} kg &emsp; Tinggi Badan
+                            : {{ $dataTreadmill->tinggi }} cm</td>
+                    </tr>
+                </thead>
+            </table>
+            <table style="border: 0px solid black; width:100%;">
+                <tr>
+                    <td style="padding-left: 25px; vertical-align:top; width: 20%;">Keluhan</td>
+                    <td style="padding-left: 25px;" colspan="3">: Selama dan sesudah ULJ
+                        tidak ada keluhan chest pain. ULJ dihentikan oleh karena
+                        {{ $dataTreadmill->keluhan_dihentikan_karena }}. THR {{ $dataTreadmill->keluhan_thr }}
+                        Tercapai pada stage {{ $dataTreadmill->keluhan_tercapai_padastage }} menit
+                        {{ $dataTreadmill->keluhan_menit }}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 25px;">ECG</td>
+                    <td style="padding-left: 25px;" colspan="3"></td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 25px;">Resting</td>
+                    <td style="padding-left: 25px;" colspan="3">:</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px;" colspan="3">- {{ $dataTreadmill->ecg_resting_1 }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px;" colspan="3">- {{ $dataTreadmill->ecg_resting_2 }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px;" colspan="3">- {{ $dataTreadmill->ecg_resting_3 }}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 25px;">Exercise</td>
+                    <td style="padding-left: 25px;" colspan="3">:</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px;" colspan="3">- {{ $dataTreadmill->exercise_1 }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px;" colspan="3">- {{ $dataTreadmill->exercise_2 }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px;" colspan="3">- {{ $dataTreadmill->exercise_3 }} menit ke
+                        {{ $dataTreadmill->exercise_3_ket }}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 25px;">Recovery</td>
+                    <td style="padding-left: 25px;" colspan="3">:</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px;" colspan="3">- {{ $dataTreadmill->recovery_1 }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px;" colspan="3">- {{ $dataTreadmill->recovery_2 }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px;" colspan="3">- {{ $dataTreadmill->recovery_3 }}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 25px; vertical-align:top;">Kesan</td>
+                    <td style="padding-left: 25px;" colspan="3">: {{ $dataTreadmill->kesan_1 }} pada
+                        {{ $dataTreadmill->kesan_pada }}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 25px; vertical-align:top;">HEMODINAMIK</td>
+                    <td style="padding-left: 25px;" colspan="3">: Naik nadi bertahap dari
+                        {{ $dataTreadmill->hemodinamik_naikbertahap }} /menit saat resting menjadi
+                        {{ $dataTreadmill->hemodinamik_menjadi }} pada akhir ULJ. Dan kembali mendeteksi resting pada
+                        menit {{ $dataTreadmill->hemodinamik_menit }}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 25px; vertical-align:top;">Kesan</td>
+                    <td style="padding-left: 25px;" colspan="3">: Perubahan Hemodinamika
+                        {{ $dataTreadmill->kesan_2 }}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 25px;">KESIMPULAN</td>
+                    <td style="padding-left: 25px;" colspan="3">:</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px; width:30%;">- Hasil ULJ dengan Threadmill</td>
+                    <td style="" colspan="2">: {{ $dataTreadmill->kesimpulan_hasil_ulj }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px; width:30%;">- Tingkat kesegaran jasmani </td>
+                    <td style="" colspan="2">: {{ $dataTreadmill->kesimpulan_kesegaran_jasmani }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px; width:30%;">- Fungsional Kelas</td>
+                    <td style="" colspan="2">: {{ $dataTreadmill->kesimpulan_fungsional }}</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td style="padding-left: 25px; width:30%;">- Kapasitas Aerobik</td>
+                    <td style="" colspan="2">: {{ $dataTreadmill->kesimpulan_kapasitas }}</td>
+                </tr>
+                <tr>
+                    <td style="padding-left: 25px;">ANJURAN</td>
+                    <td style="padding-left: 25px;" colspan="3">: {{ $dataTreadmill->anjuran }}</td>
+                </tr>
+            </table>
+            @php
+                $qr_dokter =
+                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                elektronik oleh' .
+                    "\n" .
+                    $dataTreadmill->nm_dokter .
+                    "\n" .
+                    'ID ' .
+                    $dataTreadmill->kd_dokter .
+                    "\n" .
+                    \Carbon\Carbon::parse($dataTreadmill->tanggal)->format('d-m-Y');
+
+                $qrcode_dokter = base64_encode(
+                    QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter),
+                );
+            @endphp
+
+            <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black">
+                <tbody>
+                    <tr>
+                        <td colspan="2" style="width: 60%; border: 0px solid black;">&nbsp;</td>
+                        <td style="text-align: center; width:40%;">Surakarta,
+                            {{ \Carbon\Carbon::parse($dataTreadmill->tanggal)->format('d-m-Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;" colspan="2">&nbsp;</td>
+                        <td style="text-align: center;">Dokter Pemeriksa</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;" colspan="2">&nbsp;</td>
+                        <td style="text-align: center;"><img src="data:image/png;base64, {!! $qrcode_dokter !!}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;" colspan="2">&nbsp;</td>
+                        <td style="text-align: center;">{{ $dataTreadmill->nm_dokter }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    @endif
+    {{-- DATA SRB --}}
+    @if (!empty($dataSrb[0]))
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
+        <div>
+            <table style="margin-top: 15pt;">
+                <tr>
+                    <td style="width:25%; border:0pt solid black;; vertical-align: top; padding-top:5pt"
+                        rowspan="2"><img src="{{ asset('image/logoBPJS.png') }}" alt="Logo BPJS"
+                            width="250" style="border:0pt solid black;; vertical-align: top">
+                    </td>
+                    <td style=" border:0pt solid black;; width:40%">
+                        <div
+                            style="padding-top: 0pt; padding-bottom:0pt; vertical-align:bottom; margin-top:0pt; margin-left:5pt; font-size:14pt">
+                            SURAT RUJUK BALIK (PRB)</div>
+                    </td>
+                    <td style="width:30%" class="align-center" rowspan="3">
+                        No.SRB : {{ $dataSrb[0]->no_srb }}<br>
+                        Tanggal : {{ \Carbon\Carbon::parse($dataSrb[0]->tgl_srb)->format('d F Y') }}
+                    </td>
+                </tr>
+                <tr>
+                    <td style=" border:0pt solid black;;">
+                        <div
+                            style="padding-top: 2pt; padding-bottom:0pt; vertical-align:top;margin-left:5pt; font-size:12pt">
+                            RSUP SURAKARTA</div>
+                    </td>
+                </tr>
+            </table>
+            <table class="table table-borderless mb-0 table-sm">
+                <tr>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td style="width:60%" style="vertical-align:top;" colspan="2">Teman Sejawat yang Terhormat
+                    </td>
+                    <td style="width:40%" style="vertical-align:top;" colspan="2">R/</td>
+                </tr>
+                <tr>
+                    <td style="vertical-align: top;" colspan="2">Mohon Pemeriksaan dan Penanganan Lebih Lanjut:
+                    </td>
+                    <td style="vertical-align: top;" colspan="2" rowspan="6">
+                        @foreach ($dataSrb[1] as $index => $item)
+                            {{ ++$index }}. {{ $item->signa1 }}x{{ $item->signa2 }}
+                            {{ $item->nm_obat }} {{ $item->jumlah }}<br>
+                        @endforeach
+                    </td>
+                </tr>
+                <tr>
+                    <td style="vertical-align: top;">No. Kartu</td>
+                    <td style="vertical-align: top;">: {{ $dataSrb[0]->no_kartu }}</td>
+                </tr>
+                <tr>
+                    <td style="vertical-align: top;">Nama Pasien</td>
+                    <td style="vertical-align: top;">: {{ $dataSrb[0]->nama_pasien }}</td>
+                </tr>
+
+                <tr>
+                    <td style="vertical-align: top;">Alamat</td>
+                    <td style="vertical-align: top;">: {{ $dataSrb[0]->alamat }}</td>
+                </tr>
+                <tr>
+                    <td style="vertical-align: top;">Diagnosa</td>
+                    <td style="vertical-align: top;" colspan="3">: {{ $dataSrb[0]->diagawal }}
+                        {{ $dataSrb[0]->nmdiagnosaawal }}</td>
+                </tr>
+                <tr>
+                    <td style="vertical-align:top;">Program PRB</td>
+                    <td style="vertical-align:top;" colspan="3">: {{ $dataSrb[0]->namaprogram }}</td>
+                </tr>
+                <tr>
+                    <td style="vertical-align:top;">Keterangan</td>
+                    <td style="vertical-align:top;" colspan="3">: {{ $dataSrb[0]->keterangan }}</td>
+                </tr>
+                <tr>
+                    <td style="vertical-align:top;" colspan="4">Saran Pengelolaan Lanjutan di FKTP :
+                        {{ $dataSrb[0]->saran }}</td>
+                </tr>
+                <tr>
+                    <td colspan="3" style="vertical-align:top;">Demikian atas bantuannya diucapkan banyak terima
+                        kasih.</td>
+                    </td>
+                    @php
+                        $qr_dokter =
+                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                elektronik oleh' .
+                            "\n" .
+                            $dataSrb[0]->nmdpjp .
+                            "\n" .
+                            'ID ' .
+                            $dataSrb[0]->kodedpjp .
+                            "\n" .
+                            \Carbon\Carbon::parse($dataSrb[0]->tgl_srb)->format('d-m-Y');
+                        $qrcode_pasien = base64_encode(
+                            QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter),
+                        );
+                    @endphp
+
+                    <td class="pt-0 pb-0 pl-3" rowspan="3">
+                        <div style="vertical-align:top;"></div>
+                        <div style="vertical-align:top;">Mengetahui</div>
+                        <div style="margin-top: 5px;">
+                            <img src="data:image/png;base64, {!! $qrcode_pasien !!}">
+                        </div>
+                        <div style="vertical-align:top;">
+                            <h4>{{ $dataSrb[0]->nmdpjp }}</h4>
+                        </div>
+
+                    </td>
+                </tr>
+            </table>
+        </div>
+    @endif
+    {{-- END DATA SRB --}}
     {{-- </main> --}}
     {{-- <footer>
         Dicetak dari Vedika@BiosGateRSUP pada {{ \Carbon\Carbon::now()->format('d/m/Y h:i:s') }}

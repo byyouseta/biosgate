@@ -15,13 +15,16 @@ use App\Setting;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\ClientException;
 use Guzzle\Http\Exception\ClientErrorResponseException;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
+use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Env;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use PhpParser\Node\Expr\Empty_;
@@ -1376,8 +1379,34 @@ class SatuSehatController extends Controller
 
                     SatuSehatController::getTokenSehat();
                     $access_token = Session::get('tokenSatuSehat');
-                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                    // $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                     try {
+                        $baseUrl = session('base_url');
+                        $client = new Client(['base_uri' => $baseUrl, 'timeout' => 5]);
+
+                        // 2️⃣ Cek konektivitas endpoint dulu (HEAD / ping)
+                        try {
+                            $checkResponse = $client->request('GET', 'fhir-r4/v1/metadata', [
+                                'headers' => [
+                                    'Authorization' => "Bearer {$access_token}"
+                                ],
+                            ]);
+
+                            if ($checkResponse->getStatusCode() !== 200) {
+                                Session::flash('error', 'Server Satu Sehat tidak dapat dijangkau (status != 200).');
+                                return;
+                            }
+                        } catch (RequestException $pingError) {
+                            // Jika gagal koneksi, log & batalkan
+                            $error = new LogErrorSatuSehat();
+                            $error->subject = 'Bundle Ralan';
+                            $error->keterangan = "Server Satu Sehat tidak dapat dijangkau (" . $pingError->getMessage() . ")";
+                            $error->save();
+
+                            Session::flash('error', 'Server Satu Sehat tidak dapat dijangkau. Pengiriman dibatalkan.');
+                            return;
+                        }
+
                         $response = $client->request('POST', 'fhir-r4/v1', [
                             'headers' => [
                                 'Authorization' => "Bearer {$access_token}"
@@ -2532,8 +2561,34 @@ class SatuSehatController extends Controller
                 // dd($dataBundle);
                 SatuSehatController::getTokenSehat();
                 $access_token = Session::get('tokenSatuSehat');
-                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                // $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                 try {
+                    $baseUrl = session('base_url');
+                    $client = new Client(['base_uri' => $baseUrl, 'timeout' => 5]);
+
+                    // 2️⃣ Cek konektivitas endpoint dulu (HEAD / ping)
+                    try {
+                        $checkResponse = $client->request('GET', 'fhir-r4/v1/metadata', [
+                            'headers' => [
+                                'Authorization' => "Bearer {$access_token}"
+                            ],
+                        ]);
+
+                        if ($checkResponse->getStatusCode() !== 200) {
+                            Session::flash('error', 'Server Satu Sehat tidak dapat dijangkau (status != 200).');
+                            return;
+                        }
+                    } catch (RequestException $pingError) {
+                        // Jika gagal koneksi, log & batalkan
+                        $error = new LogErrorSatuSehat();
+                        $error->subject = 'Bundle Ralan';
+                        $error->keterangan = "Server Satu Sehat tidak dapat dijangkau (" . $pingError->getMessage() . ")";
+                        $error->save();
+
+                        Session::flash('error', 'Server Satu Sehat tidak dapat dijangkau. Pengiriman dibatalkan.');
+                        return;
+                    }
+
                     $response = $client->request('POST', 'fhir-r4/v1', [
                         'headers' => [
                             'Authorization' => "Bearer {$access_token}"
@@ -6048,12 +6103,13 @@ class SatuSehatController extends Controller
             ->first();
 
         $idEncounter = SatuSehatController::getEncounterId($dataKunjungan->no_rawat);
-        $waktuPerawatan = new Carbon("$data->tgl_perawatan $data->jam_rawat");
-        $formatWaktuPerawatan = $waktuPerawatan->setTimezone('UTC')->toW3cString();
 
         // dd($data, $idEncounter);
 
         if ($data && $idEncounter != null) {
+            $waktuPerawatan = new Carbon("$data->tgl_perawatan $data->jam_rawat");
+            $formatWaktuPerawatan = $waktuPerawatan->setTimezone('UTC')->toW3cString();
+
             if ($data->instruksi != null || $data->intruksi != '-') {
 
                 $data_json = [
@@ -7720,6 +7776,9 @@ class SatuSehatController extends Controller
                     'client_secret' => $setting->key,
                 ]
             ]);
+        } catch (ConnectException $e) {
+            // Gagal konek ke server (timeout, DNS gagal, dll)
+            return back()->with('error', 'Koneksi ke server gagal atau waktu habis.');
         } catch (ClientException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
@@ -7727,10 +7786,14 @@ class SatuSehatController extends Controller
             }
 
             // $id = Crypt::encrypt($id);
-            // dd($test);
+            dd($test);
             Session::flash('error', $test->message);
 
             return redirect()->back()->withInput();
+        } catch (\Throwable $e) {
+            // Menangkap semua error lainnya (lebih luas dari Exception)
+            Log::error('Throwable: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan internal: ' . $e->getMessage());
         }
 
         $data = json_decode($response->getBody());
@@ -7784,6 +7847,45 @@ class SatuSehatController extends Controller
                 $access_token = Session::get('tokenSatuSehat');
                 // dd($access_token);
                 try {
+                    $baseUrl = session('base_url');
+                    $client = new Client(['base_uri' => $baseUrl, 'timeout' => 5]);
+
+                    // 2️⃣ Cek konektivitas endpoint dulu (HEAD / ping)
+                    try {
+                        $checkResponse = $client->request('GET', 'fhir-r4/v1/metadata', [
+                            'headers' => [
+                                'Authorization' => "Bearer {$access_token}"
+                            ],
+                        ]);
+
+                        if ($checkResponse->getStatusCode() !== 200) {
+                            Session::flash('error', 'Server Satu Sehat tidak dapat dijangkau (status != 200).');
+                            return;
+                        }
+                    } catch (ConnectException $e) {
+                        // Gagal konek ke server (timeout, DNS gagal, dll)
+                        $error = new LogErrorSatuSehat();
+                        $error->subject = 'ID Sehat';
+                        $error->keterangan = "Server Satu Sehat tidak dapat dijangkau (" . $e->getMessage() . ")";
+                        $error->save();
+
+                        Session::flash('error', 'Server Satu Sehat tidak dapat dijangkau. Pengiriman dibatalkan.');
+                        return null;
+                    } catch (RequestException $pingError) {
+                        // Jika gagal koneksi, log & batalkan
+                        $error = new LogErrorSatuSehat();
+                        $error->subject = 'ID Sehat';
+                        $error->keterangan = "Server Satu Sehat tidak dapat dijangkau (" . $pingError->getMessage() . ")";
+                        $error->save();
+
+                        Session::flash('error', 'Server Satu Sehat tidak dapat dijangkau. Pengiriman dibatalkan.');
+                        return;
+                    } catch (\Throwable $e) {
+                        // Menangkap semua error lainnya (lebih luas dari Exception)
+                        Log::error('Throwable: ' . $e->getMessage());
+                        return redirect()->back()->with('error', 'Terjadi kesalahan internal: ' . $e->getMessage());
+                    }
+
                     $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
                     $response = $client->request('GET', 'fhir-r4/v1/Patient?identifier=https://fhir.kemkes.go.id/id/nik|' . $id, [
                         'headers' => [
@@ -8287,7 +8389,7 @@ class SatuSehatController extends Controller
                 ->values() // reset index agar dimulai dari 0
                 ->take(2); // step 2: ambil 2 pertama
 
-            // dd($filtered);
+            // dd($filtered, $diagnosaExclude);
 
             if (!empty($filtered[1]))
                 return $filtered[1];

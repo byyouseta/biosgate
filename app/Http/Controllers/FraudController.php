@@ -60,6 +60,47 @@ class FraudController extends Controller
         return view('vedika.fraud_ranap', compact('dataFraud', 'dataPeriode'));
     }
 
+    public function temuan(Request $request)
+    {
+        session()->put('ibu', 'Vedika');
+        session()->put('anak', 'Temuan Fraud');
+        session()->forget('cucu');
+
+        if (empty($request->periode)) {
+            $dataFraud = collect();
+        } else {
+            if ($request->jenis == 'rajal') {
+                $dataFraud = FraudRajal::where('periode_klaim_id', $request->periode)
+                    ->get();
+            } else {
+                $dataFraud = FraudRanap::where('periode_klaim_id', $request->periode)
+                    ->get();
+            }
+        }
+
+        $dataFraud = $dataFraud->filter(function ($item) {
+            return $item->up_coding == 1
+                || $item->phantom_billing == 1
+                || $item->cloning == 1
+                || $item->inflated_bills == 1
+                || $item->pemecahan == 1
+                || $item->rujukan_semu == 1
+                || $item->repeat_billing == 1
+                || $item->prolonged_los == 1
+                || $item->manipulasi_kels == 1
+                || $item->re_admisi == 1
+                || $item->kesesuian_tindakan == 1
+                || $item->tagihan_tindakan == 1;
+        });
+
+        // dd($dataFraud);
+
+        $dataPeriode = PeriodeKlaim::orderBy('periode', 'DESC')
+            ->get();
+
+        return view('vedika.temuan_fraud', compact('dataFraud', 'dataPeriode'));
+    }
+
     public function store($id, $idd)
     {
         $id = Crypt::decrypt($id);

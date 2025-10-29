@@ -31,9 +31,9 @@
         <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
             <div class="container">
                 <a href="/survei" class="navbar-brand">
-                    <img src="{{ asset('image/LogoRSUP.png') }}" alt="RSUP Surakarta Logo"
-                        class="brand-image img-circle elevation-3" style="opacity: .8">
-                    <span class="brand-text font-weight-light">RSUP Surakarta</span>
+                    <img src="{{ asset('image/Logo_Baru_RSUP.png') }}" alt="RSUP Surakarta Logo" class="brand-image"
+                        style="margin-top:0px;">
+                    <span class="brand-text font-weight-light"></span>
                 </a>
 
                 <button class="navbar-toggler order-1" type="button" data-toggle="collapse"

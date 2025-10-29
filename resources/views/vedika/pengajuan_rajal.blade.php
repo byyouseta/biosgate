@@ -32,7 +32,7 @@
                                 </div>
                                 <div class="col-sm-3">
                                     <div class="float-right">
-                                        @if(!empty($dataPengajuan))
+                                        @if (!empty($dataPengajuan))
                                             <button class="btn btn-primary btn-sm" data-toggle="modal"
                                                 data-target="#modal-berkas-klaim">
                                                 <i class="fas fa-file-download"></i> Download
@@ -62,7 +62,7 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <div>
+                            <div class="table-responsive">
                                 <table class="table table-bordered table-hover table-sm" id="example2">
                                     <thead>
                                         <tr>
@@ -70,12 +70,10 @@
                                             <th class="align-middle">No.SEP</th>
                                             <th class="align-middle">No.Kartu</th>
                                             <th class="align-middle">Nama Pasien</th>
-                                            {{-- <th class="align-middle">Alamat</th> --}}
                                             <th class="align-middle">Tgl Registrasi</th>
                                             <th class="align-middle">Nama Poli</th>
-                                            {{-- <th class="align-middle">Dokter</th> --}}
-                                            {{-- <th class="align-middle">D.U</th> --}}
-                                            {{-- <th class="align-middle">Berkas</th> --}}
+                                            <th class="align-middle">Diagnosa</th>
+                                            <th class="align-middle">Procedur</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -113,6 +111,12 @@
                                                     </td>
                                                     <td class="align-middle">{{ $data->tgl_registrasi }}</td>
                                                     <td class="align-middle">{{ $data->nama_poli }}</td>
+                                                    <td>
+                                                        {{ collect(\Illuminate\Support\Arr::get($diagnosaGrouped, $data->no_rawat, []))->pluck('kd_penyakit')->implode(', ') }}
+                                                    </td>
+                                                    <td>
+                                                        {{ collect(\Illuminate\Support\Arr::get($prosedurGrouped, $data->no_rawat, []))->pluck('kode')->implode(', ') }}
+                                                    </td>
                                                 </tr>
                                             @endforeach
                                         @endif
@@ -129,39 +133,39 @@
         </div>
         <!-- /.container-fluid -->
     </section>
-    @if(!empty($dataPengajuan))
-    <div class="modal fade" id="modal-berkas-klaim">
-        <div class="modal-dialog modal-sm">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Berkas Klaim</h4>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <!-- text input -->
-                        <div class="col-12">
-                            @can('vedika-upload')
-                                <a href="/vedika/pengajuan/{{ Crypt::encrypt(Request::get('periode')) }}/gabungberkasall"
-                                    class="btn btn-success btn-sm btn-block">
-                                    <i class="fas fa-sync-alt"></i> Kumpulkan & Gabung Berkas</a>
-                                <a href="/vedika/pengajuan/{{ Crypt::encrypt(Request::get('periode')) }}/makeziprajal"
-                                    class="btn btn-warning btn-sm btn-block">
-                                    <i class="far fa-file-archive"></i> Arsipkan Berkas Rajal</a>
-                            @endcan
-                            <a href="/vedika/pengajuan/rajal/{{ Crypt::encrypt(Request::get('periode')) }}/downloadzip"
-                                class="btn btn-primary btn-sm btn-block">
-                                <i class="fas fa-file-download"></i> Bulk Download</a>
+    @if (!empty($dataPengajuan))
+        <div class="modal fade" id="modal-berkas-klaim">
+            <div class="modal-dialog modal-sm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Berkas Klaim</h4>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <!-- text input -->
+                            <div class="col-12">
+                                @can('vedika-upload')
+                                    <a href="/vedika/pengajuan/{{ Crypt::encrypt(Request::get('periode')) }}/gabungberkasall"
+                                        class="btn btn-success btn-sm btn-block">
+                                        <i class="fas fa-sync-alt"></i> Kumpulkan & Gabung Berkas</a>
+                                    <a href="/vedika/pengajuan/{{ Crypt::encrypt(Request::get('periode')) }}/makeziprajal"
+                                        class="btn btn-warning btn-sm btn-block">
+                                        <i class="far fa-file-archive"></i> Arsipkan Berkas Rajal</a>
+                                @endcan
+                                <a href="/vedika/pengajuan/rajal/{{ Crypt::encrypt(Request::get('periode')) }}/downloadzip"
+                                    class="btn btn-primary btn-sm btn-block">
+                                    <i class="fas fa-file-download"></i> Bulk Download</a>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <!-- /.modal-content -->
             </div>
-            <!-- /.modal-content -->
+            <!-- /.modal-dialog -->
         </div>
-        <!-- /.modal-dialog -->
-    </div>
     @endif
 @endsection
 @section('plugin')

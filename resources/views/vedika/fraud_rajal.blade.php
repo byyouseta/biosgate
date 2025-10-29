@@ -76,13 +76,13 @@
                                                     if (!empty($data->dataPengajuan->no_rawat)) {
                                                         //Ambil data untuk Bukti Pelayanan
                                                         $buktiPelayanan = \App\Http\Controllers\VedikaController::buktiPelayanan(
-                                                            $data->dataPengajuan->no_rawat
+                                                            $data->dataPengajuan->no_rawat,
                                                         );
                                                         $diagnosa = $buktiPelayanan[0];
                                                         $prosedur = $buktiPelayanan[1];
                                                         $norm_pasien = $buktiPelayanan[2]->no_rkm_medis;
                                                     }
-
+                                                    // dd($data);
                                                 @endphp
                                                 @if (!empty($data->dataPengajuan->no_rawat))
                                                     <tr>
@@ -108,6 +108,11 @@
                                                                 target="_blank">
                                                                 <span class="badge bg-primary"><i
                                                                         class="fas fa-check-double"></i></span></a>
+                                                            @if (isset($data->up_coding) || isset($data->re_admisi))
+                                                                <span class="badge bg-success" data-toggle="tooltip"
+                                                                    data-placement="bottom" title="Sudah dicek"><i
+                                                                        class="fas fa-check-circle"></i></span>
+                                                            @endif
                                                         </td>
                                                         <td class="align-middle">
                                                             @if (!empty($diagnosa))

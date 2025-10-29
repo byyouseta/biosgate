@@ -14,27 +14,35 @@
     <section class="content">
         <div class="container-fluid">
             <div class="row">
-
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
                             <div class="form-group row">
-                                <div class="col-sm-7">
-                                    <label>Data Fraud Rajal/IGD</label>
+                                <div class="col-sm-5">
+                                    <label>Data Temuan Fraud</label>
                                 </div>
                                 <div class="col-sm-2">
                                     @if (!empty(Request::get('periode')))
                                         <div class="float-right">
-                                            <a href="/vedika/fraud/{{ Crypt::encrypt(Request::get('periode')) }}/exportranap"
+                                            <a href="/vedika/fraud/{{ Crypt::encrypt(Request::get('periode')) }}/{{ Request::get('jenis') == 'rajal' ? 'export' : 'exportranap' }}"
                                                 class="btn btn-success btn-flat" target="_blank">
                                                 <i class="far fa-file-excel"></i> Export</a>
                                             </a>
                                         </div>
                                     @endif
                                 </div>
-                                <div class="col-sm-3">
-                                    <form action="/vedika/fraud/ranap" method="GET">
+                                <div class="col-sm-5">
+                                    <form action="/vedika/fraud/temuan" method="GET">
                                         <div class="input-group">
+                                            <select name="jenis" class="form-control" required>
+                                                <option>Jenis</option>
+                                                <option value="rajal"
+                                                    {{ Request::get('jenis') == 'rajal' ? 'selected' : '' }}>Rawat Jalan
+                                                </option>
+                                                <option value="ranap"
+                                                    {{ Request::get('jenis') == 'ranap' ? 'selected' : '' }}>Rawat Inap
+                                                </option>
+                                            </select>
                                             <select name="periode" class="form-control" required>
                                                 <option value="">Pilih Periode</option>
                                                 @foreach ($dataPeriode as $periode)
@@ -58,13 +66,9 @@
                                 <table class="table table-bordered table-hover table-sm" id="example2">
                                     <thead>
                                         <tr>
-                                            {{-- <th class="align-middle">No.RM</th> --}}
                                             <th class="align-middle">No.RM</th>
                                             <th class="align-middle">Nama Pasien</th>
                                             <th class="align-middle">No.SEP</th>
-                                            {{-- <th class="align-middle">Alamat</th> --}}
-                                            {{-- <th class="align-middle">Tgl Registrasi</th>
-                                        <th class="align-middle">Nama Poli</th> --}}
                                             <th class="align-middle">Kode ICD X</th>
                                             <th class="align-middle">Kode ICD IX</th>
                                         </tr>
@@ -82,7 +86,6 @@
                                                         $prosedur = $buktiPelayanan[1];
                                                         $norm_pasien = $buktiPelayanan[2]->no_rkm_medis;
                                                     }
-
                                                 @endphp
                                                 @if (!empty($data->dataPengajuan->no_rawat))
                                                     <tr>
@@ -90,7 +93,7 @@
                                                         <td class="align-middle">{{ $data->dataPengajuan->nama_pasien }}
                                                         </td>
                                                         <td class="align-middle">{{ $data->dataPengajuan->no_sep }}
-                                                            <a href="/vedika/ranap/{{ Crypt::encrypt($data->dataPengajuan->no_rawat) }}/detail"
+                                                            <a href="/vedika/rajal/{{ Crypt::encrypt($data->dataPengajuan->no_rawat) }}/detail"
                                                                 class="btn btn-sm " data-toggle="tooltip"
                                                                 data-placement="bottom" title="Detail Informasi"
                                                                 target="_blank">
@@ -102,7 +105,7 @@
                                                                 <span class="badge bg-purple"><i
                                                                         class="fas fa-check-circle"></i> Eklaim
                                                                     Form</span></a>
-                                                            <a href="/vedika/fraud/{{ Crypt::encrypt($data->id) }}/detailranap"
+                                                            <a href="/vedika/fraud/{{ Crypt::encrypt($data->id) }}/{{ Request::get('jenis') == 'rajal' ? 'detail' : 'detailranap' }}"
                                                                 class="btn btn-sm " data-toggle="tooltip"
                                                                 data-placement="bottom" title="Check List Fraud"
                                                                 target="_blank">
@@ -132,10 +135,8 @@
                                                 @endif
                                             @endforeach
                                         @endif
-
                                     </tbody>
                                 </table>
-
                             </div>
                         </div>
                     </div>
@@ -161,28 +162,8 @@
                     </div>
                     <div class="modal-body">
                         <div class="row">
-                            <div class="table-responsive">
-                                <table class="table table-bordered table-sm unwrap" id="example" style="width:100%">
-                                    <thead>
-                                        <tr>
-                                            <th class="align-middle">Select</th>
-                                            <th class="align-middle">No.RM</th>
-                                            <th class="align-middle">No.SEP</th>
-                                            <th class="align-middle">No.Kartu</th>
-                                            <th class="align-middle">Nama Pasien</th>
-                                            {{-- <th class="align-middle">Alamat</th> --}}
-                                            <th class="align-middle">Tgl Registrasi</th>
-                                            <th class="align-middle">Nama Poli</th>
-                                            {{-- <th class="align-middle">Dokter</th> --}}
-                                            {{-- <th class="align-middle">D.U</th> --}}
-                                            {{-- <th class="align-middle">Berkas</th> --}}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
 
-                                    </tbody>
-                                </table>
-                                {{-- <div class="col-6">
+                            {{-- <div class="col-6">
                                 <div class="form-group">
                                     <label>No Rawat pasien</label>
                                     <input type="text" class="form-control" value="{{ $pasien->no_rawat }}"
@@ -191,8 +172,8 @@
                                 <div class="form-group">
                                     <label>No SEP</label>
                                     <input type="text" class="form-control"
-                                        value="{{ !empty($dataSep->no_sep) ? $dataSep->no_sep : '' }}" name="no_sep" {{
-                                        !empty($dataSep->no_sep) ? 'readonly' : 'required' }} />
+                                        value="{{ !empty($dataSep->no_sep) ? $dataSep->no_sep : '' }}" name="no_sep"
+                                        {{ !empty($dataSep->no_sep) ? 'readonly' : 'required' }} />
                                 </div>
                                 <div class="form-group">
                                     <label>No Kartu</label>
@@ -236,11 +217,10 @@
                                     <select name="periode" class="form-control" required>
                                         <option value="">Pilih</option>
                                         @foreach ($periodeKlaim as $periode)
-                                        <option value="{{ $periode->id }}">{{ $periode->periode }}</option>
+                                            <option value="{{ $periode->id }}">{{ $periode->periode }}</option>
                                         @endforeach
                                     </select>
                                 </div> --}}
-                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

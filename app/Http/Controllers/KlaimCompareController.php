@@ -171,7 +171,8 @@ class KlaimCompareController extends Controller
             ->orderBy('prosedur_pasien.prioritas', 'ASC')
             ->get();
 
-        // dd($prosedur);
+        $diagnosaGrouped = $diagnosa->groupBy('no_rawat');
+        $prosedurGrouped = $prosedur->groupBy('no_rawat');
 
         $pengajuanMap = DataPengajuanKlaim::whereIn('no_sep', $gabungSepList)->get();
         $dataPengajuan = $pengajuanMap->keyBy('no_sep');
@@ -185,8 +186,8 @@ class KlaimCompareController extends Controller
             'kronis',
             'cair',
             'dataPending',
-            'diagnosa',
-            'prosedur',
+            'diagnosaGrouped',
+            'prosedurGrouped',
             'dataPengajuan'
         ));
     }

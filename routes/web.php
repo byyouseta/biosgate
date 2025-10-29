@@ -243,6 +243,9 @@ Route::get('/vedika/ranap/{id}/berkas', 'VedikaController@berkasRanap')->name('v
 Route::get('/vedika/{id}/tambahradiologi', 'VedikaController@tambahRadiologi')->name('vedika.tambahRadiologi');
 Route::get('/vedika/{id}/deleteradiologi', 'VedikaController@deleteRadiologi')->name('vedika.deleteRadiologi');
 
+Route::get('/vedika/{id}/tambahsoap', 'VedikaController@tambahSoap')->name('vedika.tambahSoap');
+Route::get('/vedika/{id}/deletesoap', 'VedikaController@deleteSoap')->name('vedika.deleteSoap');
+
 Route::get('/vedika/obatkronis', 'VedikaController@pasienkronis')->name('vedika.pasienkronis');
 Route::get('/vedika/obatkronis/{id}/detail', 'VedikaController@detailCronis')->name('vedika.detailCronis');
 
@@ -281,6 +284,7 @@ Route::get('/vedika/pengajuankronis/{periode}/downloadzip', 'VedikaController@do
 
 Route::get('/vedika/fraud/rajal', 'FraudController@rajal')->name('vedika.fraudRajal');
 Route::get('/vedika/fraud/ranap', 'FraudController@ranap')->name('vedika.fraudRanap');
+Route::get('/vedika/fraud/temuan', 'FraudController@temuan')->name('vedika.fraudTemuan');
 Route::get('/vedika/fraud/{id}/{idd}/store', 'FraudController@store')->name('vedika.fraudStore');
 Route::get('/vedika/fraud/{id}/{idd}/storeranap', 'FraudController@storeranap')->name('vedika.fraudStoreRanap');
 Route::get('/vedika/fraud/{id}/delete', 'FraudController@delete')->name('vedika.fraudDelete');
