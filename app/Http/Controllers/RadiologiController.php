@@ -31,7 +31,7 @@ class RadiologiController extends Controller
 
             $dataPengunjung = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
                 ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
-                ->join('radiologi_ascension', 'radiologi_ascension.noorder', '=', 'permintaan_radiologi.noorder')
+                ->leftJoin('radiologi_ascension', 'radiologi_ascension.noorder', '=', 'permintaan_radiologi.noorder')
                 ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_radiologi.no_rawat')
                 ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
                 ->select(
@@ -64,7 +64,7 @@ class RadiologiController extends Controller
 
             $dataPengunjung = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
                 ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
-                ->join('radiologi_ascension', 'radiologi_ascension.noorder', '=', 'permintaan_radiologi.noorder')
+                ->leftJoin('radiologi_ascension', 'radiologi_ascension.noorder', '=', 'permintaan_radiologi.noorder')
                 ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_radiologi.no_rawat')
                 ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
                 ->select(
@@ -124,7 +124,7 @@ class RadiologiController extends Controller
             // ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
             ->get();
 
-        // dd($dataPengunjung);
+        dd($dataPengunjung);
 
         foreach ($dataPengunjung as $pasienRadio) {
             $checkService = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)->count();

@@ -262,6 +262,7 @@ class VedikaController extends Controller
                     $dataSrb = VedikaController::getSrb($dataSep->no_sep);
                 } elseif ($dataSep->noSep) {
                     $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
+                    $dataSrb = null;
                 } else {
                     $dataDetailEklaim = null;
                     $dataSrb = null;
@@ -334,6 +335,7 @@ class VedikaController extends Controller
 
             $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
             $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
+            $dataLaporanRajal = VedikaController::getLaporanTindakanRajal($pasien->no_rawat);
             $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
             $historySoap = VedikaController::perawatanRajal($pasien->no_rkm_medis);
             $tambahanSoap = SoapTambahan::where('no_rawat', $pasien->no_rawat)->get();
@@ -380,6 +382,7 @@ class VedikaController extends Controller
                 'dataUsgGynecologi',
                 'dataSpiro',
                 'dataTindakanMata',
+                'dataLaporanRajal',
                 'dataTreadmill',
                 'historySoap',
                 'tambahanDataSoap',
@@ -841,6 +844,7 @@ class VedikaController extends Controller
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
         $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
+        $dataLaporanRajal = VedikaController::getLaporanTindakanRajal($pasien->no_rawat);
         $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
         $tambahanSoap = SoapTambahan::where('no_rawat', $pasien->no_rawat)->get();
 
@@ -888,6 +892,7 @@ class VedikaController extends Controller
             'dataUsgGynecologi' => $dataUsgGynecologi,
             'dataSpiro' => $dataSpiro,
             'dataTindakanMata' => $dataTindakanMata,
+            'dataLaporanRajal' => $dataLaporanRajal,
             'dataTreadmill' => $dataTreadmill,
             'tambahanDataSoap' => $tambahanDataSoap,
             // 'pathBerkas' => $pathBerkas
@@ -1029,6 +1034,7 @@ class VedikaController extends Controller
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
         $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
+        $dataLaporanRajal = VedikaController::getLaporanTindakanRajal($pasien->no_rawat);
         $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
         $tambahanSoap = SoapTambahan::where('no_rawat', $pasien->no_rawat)->get();
 
@@ -1074,6 +1080,7 @@ class VedikaController extends Controller
             'dataUsgGynecologi' => $dataUsgGynecologi,
             'dataSpiro' => $dataSpiro,
             'dataTindakanMata' => $dataTindakanMata,
+            'dataLaporanRajal' => $dataLaporanRajal,
             'dataTreadmill' => $dataTreadmill,
             'tambahanDataSoap' => $tambahanDataSoap,
             // 'pathBerkas' => $pathBerkas
@@ -1187,25 +1194,23 @@ class VedikaController extends Controller
                             //     ])
                             //     ->log("Berhasil mengunduh dan menyimpan file dari SFTP");
                         } catch (\Exception $e) {
-                            activity()
-                                ->event('file_download_failed')
-                                ->performedOn($pasien)
+                            activity('file_download_failed')
                                 ->withProperties([
                                     'file' => $list->lokasi_file,
                                     'error' => $e->getMessage(),
                                     'status' => 'failed',
                                     'time' => Carbon::now()->toDateTimeString(),
+                                    'event' => 'file_download_failed'
                                 ])
                                 ->log("Gagal mengambil file dari SFTP");
                         }
                     } else {
-                        activity()
-                            ->event('file_not_found_sftp')
-                            ->performedOn($pasien)
+                        activity('vedika_rajal_pdf')
                             ->withProperties([
                                 'file' => $list->lokasi_file,
                                 'status' => 'missing',
-                                'time' => Carbon::now()->toDateTimeString(),
+                                'time' => now()->toDateTimeString(),
+                                'event' => 'file_not_found_sftp', // taruh event di properties
                             ])
                             ->log("File tidak ditemukan di SFTP");
                     }
@@ -1762,25 +1767,23 @@ class VedikaController extends Controller
                                 //     ])
                                 //     ->log("Berhasil mengunduh dan menyimpan file dari SFTP");
                             } catch (\Exception $e) {
-                                activity()
-                                    ->event('file_download_failed')
-                                    ->performedOn($pasien)
+                                activity('file_download_failed')
                                     ->withProperties([
                                         'file' => $list->lokasi_file,
                                         'error' => $e->getMessage(),
                                         'status' => 'failed',
                                         'time' => Carbon::now()->toDateTimeString(),
+                                        'event' => 'file_download_failed',
                                     ])
                                     ->log("Gagal mengambil file dari SFTP");
                             }
                         } else {
-                            activity()
-                                ->event('file_not_found_sftp')
-                                ->performedOn($pasien)
+                            activity('file_not_found_sftp')
                                 ->withProperties([
                                     'file' => $list->lokasi_file,
                                     'status' => 'missing',
                                     'time' => Carbon::now()->toDateTimeString(),
+                                    'event' => 'file_not_found_sftp',
                                 ])
                                 ->log("File tidak ditemukan di SFTP");
                         }
@@ -5344,6 +5347,35 @@ class VedikaController extends Controller
     }
 
     public function getLaporanTindakanMata($no_rawat)
+    {
+        $data =  DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')
+            ->join('penilaian_laporan_tindakan_mata', 'reg_periksa.no_rawat', '=', 'penilaian_laporan_tindakan_mata.no_rawat')
+            ->join('petugas', 'petugas.nip', '=', 'penilaian_laporan_tindakan_mata.kd_petugas')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'penilaian_laporan_tindakan_mata.kd_dokter')
+            ->select(
+                'penilaian_laporan_tindakan_mata.*',
+                'reg_periksa.no_rawat',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'petugas.nama as nm_petugas',
+                'dokter.nm_dokter'
+            )
+            ->where('reg_periksa.no_rawat', '=', $no_rawat)
+            ->first();
+
+        // dd($data);
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public function getLaporanTindakanRajal($no_rawat)
     {
         $data =  DB::connection('mysqlkhanza')->table('reg_periksa')
             ->join('pasien', 'reg_periksa.no_rkm_medis', '=', 'pasien.no_rkm_medis')

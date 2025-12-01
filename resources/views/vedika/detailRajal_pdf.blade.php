@@ -3648,6 +3648,158 @@
             </table>
         </div>
     @endif
+    @if ($dataLaporanRajal)
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
+        <div class="watermark">
+            {{ $watermark }}
+        </div>
+        <div>
+            <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP">
+            <table style="width: 100%; margin-bottom:50px; margin-top:10px;"
+                class="table table-borderless table-sm">
+                <thead>
+                    <tr>
+                        <td style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;"
+                            colspan="4">
+                            <h3><b>TINDAKAN</b></h3>
+                        </td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="width: 20%; padding-left: 25px;">No. Rawat</td>
+                        <td style="width: 20%; ">: {{ $dataLaporanRajal->no_rawat }}</td>
+                        <td style="width: 20%; padding-left: 0px; ">Tanggal Lahir</td>
+                        <td style="width: 40%; padding-left: 0px;">:
+                            {{ \Carbon\Carbon::parse($dataLaporanRajal->tgl_lahir)->format('d-m-Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                        <td style="width: 30%; ">: {{ $dataLaporanRajal->no_rkm_medis }}</td>
+                        <td style="padding-left: 0px; ">Alamat</td>
+                        <td style="padding-left: 0px;">: {{ $pasien->alamat }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
+                        <td style="border-bottom: 0px solid black;">: {{ $pasien->nm_pasien }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black;">Umur</td>
+                        <td style="border-bottom: 0px solid black;">:
+                            {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataLaporanRajal->tanggal))->format('%y Th') }}
+                        </td>
+                        <td style="padding-left: 0px; ">Tanggal</td>
+                        <td style="padding-left: 0px;">:
+                            {{ \Carbon\Carbon::parse($dataLaporanRajal->tanggal)->format('d-m-Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black;">JK</td>
+                        <td style="border-bottom: 0px solid black;">:
+                            {{ $dataLaporanRajal->jk == 'L' ? 'Laki-laki' : 'Perempuan' }} </td>
+                        <td style="padding-left: 0px; ">Jam</td>
+                        <td style="padding-left: 0px;">: {{ $dataLaporanRajal->jam }} Cm</td>
+                    </tr>
+                    <tr>
+                        <td style="width:25%; padding-left: 25px; border-top:1px solid black; padding-top:10px;">
+                            Dokter Operator</td>
+                        <td style="width:75%; border-top:1px solid black; padding-top:10px;" colspan="3">:
+                            {{ $dataLaporanRajal->nm_dokter }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px;">Asisten Operator</td>
+                        <td colspan="3">: {{ $dataLaporanRajal->nm_petugas }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px;">Tanggal Tindakan</td>
+                        <td colspan="3">:
+                            {{ \Carbon\Carbon::parse($dataLaporanRajal->tanggal_tindakan)->format('d-m-Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px;">Tindakan</td>
+                        <td colspan="3">: {{ $dataLaporanRajal->tindakan }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px;">Jam Mulai</td>
+                        <td colspan="3">: {{ $dataLaporanRajal->jam_mulai }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px;">Jam Selesai</td>
+                        <td colspan="3">: {{ $dataLaporanRajal->jam_selesai }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <table class="table table-borderless table-sm">
+                <tr>
+                    <td style="padding-left: 25px; width:50%;" colspan="2">Uraian Pembedahan :</td>
+                    <td style="padding-left: 25px; width:50%;" colspan="2">Komplikasi Selama Pembedahan :</td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="padding-left: 25px; white-space: pre-line;">
+                        {{ $dataLaporanRajal->uraian_pembedahan }}</td>
+                    <td colspan="2" style="padding-left: 25px; white-space: pre-line;">
+                        {{ $dataLaporanRajal->komplikasi }}</td>
+                </tr>
+            </table>
+            @php
+                $qr_dokter =
+                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                elektronik oleh' .
+                    "\n" .
+                    $dataLaporanRajal->nm_dokter .
+                    "\n" .
+                    'ID ' .
+                    $dataLaporanRajal->kd_dokter .
+                    "\n" .
+                    \Carbon\Carbon::parse($dataLaporanRajal->tanggal)->format('d-m-Y');
+
+                $qrcode_dokter = base64_encode(
+                    QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter),
+                );
+
+                $qr_petugas =
+                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                elektronik oleh' .
+                    "\n" .
+                    $dataLaporanRajal->nm_petugas .
+                    "\n" .
+                    'ID ' .
+                    $dataLaporanRajal->kd_petugas .
+                    "\n" .
+                    \Carbon\Carbon::parse($dataLaporanRajal->tanggal)->format('d-m-Y');
+
+                $qrcode_petugas = base64_encode(
+                    QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_petugas),
+                );
+            @endphp
+
+            <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black"
+                class="table table-borderless table-sm">
+                <tbody>
+                    <tr>
+                        <td colspan="2"></td>
+                        <td style="text-align: center;">Surakarta,
+                            {{ \Carbon\Carbon::parse($dataLaporanRajal->tanggal)->format('d-m-Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;" colspan="2">Petugas</td>
+                        <td style="text-align: center;">Dokter Pemeriksa</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;" colspan="2"><img
+                                src="data:image/png;base64, {!! $qrcode_petugas !!}"></td>
+                        <td style="text-align: center;"><img src="data:image/png;base64, {!! $qrcode_dokter !!}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;" colspan="2">{{ $dataLaporanRajal->nm_petugas }}</td>
+                        <td style="text-align: center;">{{ $dataLaporanRajal->nm_dokter }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    @endif
     @if ($dataTreadmill)
         <div style="float: none;">
             <div style="page-break-after: always;"></div>

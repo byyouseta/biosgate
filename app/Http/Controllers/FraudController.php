@@ -90,7 +90,8 @@ class FraudController extends Controller
                 || $item->manipulasi_kels == 1
                 || $item->re_admisi == 1
                 || $item->kesesuian_tindakan == 1
-                || $item->tagihan_tindakan == 1;
+                || $item->tagihan_tindakan == 1
+                || $item->klarifikasi != null;
         });
 
         // dd($dataFraud);

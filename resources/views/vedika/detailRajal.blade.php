@@ -2222,8 +2222,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td class="pl-5 pt-0 pb-0 border border-dark border-bottom-0 border-top-0"
-                                    colspan="3">
+                                <td class="pl-5 pt-0 pb-0 border border-dark border-bottom-0 border-top-0" colspan="3">
                                     {{ $resumeIgd->edukasi }}</td>
                             </tr>
                             <tr>
@@ -2250,8 +2249,7 @@
                                         "\n" .
                                         \Carbon\Carbon::parse($resumeIgd->tgl_selesai)->format('d-m-Y');
                                 @endphp
-                                <td class="pt-0 pb-0 pl-5 border border-dark border-bottom-0 border-top-0"
-                                    colspan="3">
+                                <td class="pt-0 pb-0 pl-5 border border-dark border-bottom-0 border-top-0" colspan="3">
                                     {!! QrCode::size(100)->generate($qr_dokter) !!} </td>
                             </tr>
                             <tr>
@@ -4078,6 +4076,188 @@
                                     <td style="text-align: center;" colspan="2">{{ $dataTindakanMata->nm_petugas }}
                                     </td>
                                     <td style="text-align: center;">{{ $dataTindakanMata->nm_dokter }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        @endif
+        @if ($dataLaporanRajal)
+            <div class="card">
+                <div class="card-header">Laporan Tindakan</div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-3">
+                        <thead>
+                            <tr>
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
+                                </td>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                    (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                        width="17">
+                                    https://web.rsupsurakarta.co.id
+                                </td>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div class="row justify-content-center">
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px;"
+                            class="table table-borderless table-sm">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;"
+                                        colspan="4">
+                                        <h5><b>LAPORAN TINDAKAN</b></h5>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">No. Rawat</td>
+                                    <td style="width: 30%; ">: {{ $dataLaporanRajal->no_rawat }}</td>
+                                    <td style="padding-left: 100px; ">Tanggal Lahir</td>
+                                    <td style="padding-left: 50px;">:
+                                        {{ \Carbon\Carbon::parse($dataLaporanRajal->tgl_lahir)->format('d-m-Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                                    <td style="width: 30%; ">: {{ $dataLaporanRajal->no_rkm_medis }}</td>
+                                    <td style="padding-left: 100px; ">Alamat</td>
+                                    <td style="padding-left: 50px;">: {{ $pasien->alamat }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
+                                    <td style="border-bottom: 0px solid black;">: {{ $pasien->nm_pasien }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Umur</td>
+                                    <td style="border-bottom: 0px solid black;">:
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataLaporanRajal->tanggal))->format('%y Th') }}
+                                    </td>
+                                    <td style="padding-left: 100px; ">Tanggal</td>
+                                    <td style="padding-left: 50px;">:
+                                        {{ \Carbon\Carbon::parse($dataLaporanRajal->tanggal)->format('d-m-Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">JK</td>
+                                    <td style="border-bottom: 0px solid black;">:
+                                        {{ $dataLaporanRajal->jk == 'L' ? 'Laki-laki' : 'Perempuan' }} </td>
+                                    <td style="padding-left: 100px; ">Jam</td>
+                                    <td style="padding-left: 50px;">: {{ $dataLaporanRajal->jam }} Cm</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="width:25%; padding-left: 25px; border-top:1px solid black; padding-top:10px;">
+                                        Dokter Operator</td>
+                                    <td style="width:75%; border-top:1px solid black; padding-top:10px;" colspan="3">
+                                        : {{ $dataLaporanRajal->nm_dokter }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px;">Asisten Operator</td>
+                                    <td colspan="3">: {{ $dataLaporanRajal->nm_petugas }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px;">Tanggal Tindakan</td>
+                                    <td colspan="3">:
+                                        {{ \Carbon\Carbon::parse($dataLaporanRajal->tanggal_tindakan)->format('d-m-Y') }}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px;">Tindakan</td>
+                                    <td colspan="3">: {{ $dataLaporanRajal->tindakan }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px;">Jam Mulai</td>
+                                    <td colspan="3">: {{ $dataLaporanRajal->jam_mulai }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px;">Jam Selesai</td>
+                                    <td colspan="3">: {{ $dataLaporanRajal->jam_selesai }}</td>
+                                </tr>
+                            </thead>
+                        </table>
+                        <table class="table table-borderless table-sm">
+                            <tr>
+                                <td style="padding-left: 25px; width:50%;" colspan="2">Uraian Pembedahan :</td>
+                                <td style="padding-left: 25px; width:50%;" colspan="2">Komplikasi Selama Pembedahan :
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="2" style="padding-left: 25px; white-space: pre-line;">
+                                    {{ $dataLaporanRajal->uraian_pembedahan }}</td>
+                                <td colspan="2" style="padding-left: 25px; white-space: pre-line;">
+                                    {{ $dataLaporanRajal->komplikasi }}</td>
+                            </tr>
+                        </table>
+                        @php
+                            $qr_dokter =
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                elektronik oleh' .
+                                "\n" .
+                                $dataLaporanRajal->nm_dokter .
+                                "\n" .
+                                'ID ' .
+                                $dataLaporanRajal->kd_dokter .
+                                "\n" .
+                                \Carbon\Carbon::parse($dataLaporanRajal->tanggal)->format('d-m-Y');
+                            $qr_petugas =
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                elektronik oleh' .
+                                "\n" .
+                                $dataLaporanRajal->nm_petugas .
+                                "\n" .
+                                'ID ' .
+                                $dataLaporanRajal->kd_petugas .
+                                "\n" .
+                                \Carbon\Carbon::parse($dataLaporanRajal->tanggal)->format('d-m-Y');
+                        @endphp
+
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black"
+                            class="table table-borderless table-sm">
+                            <tbody>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td style="text-align: center;">Surakarta,
+                                        {{ \Carbon\Carbon::parse($dataLaporanRajal->tanggal)->format('d-m-Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center;" colspan="2">Petugas</td>
+                                    <td style="text-align: center;">Dokter Pemeriksa</td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center;" colspan="2">{!! QrCode::size(100)->generate($qr_petugas) !!}</td>
+                                    <td style="text-align: center;">{!! QrCode::size(100)->generate($qr_dokter) !!}</td>
+                                </tr>
+                                {{-- <tr>
+                                        <td colspan="2">{{ $dataTindakanMata->kd_petugas }}</td>
+                                        <td style="text-align: center;">{{ $dataTindakanMata->kd_dokter }}</td>
+                                    </tr> --}}
+                                <tr>
+                                    <td style="text-align: center;" colspan="2">{{ $dataLaporanRajal->nm_petugas }}
+                                    </td>
+                                    <td style="text-align: center;">{{ $dataLaporanRajal->nm_dokter }}</td>
                                 </tr>
                             </tbody>
                         </table>

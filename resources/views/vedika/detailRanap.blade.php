@@ -68,7 +68,8 @@
                                     class="btn btn-primary btn-sm" target="_blank">
                                     <i class="far fa-file-pdf"></i> PDF</a>
                                 </a>
-                                <button class="btn btn-secondary btn-sm" data-toggle="modal" data-target="#modal-gabung-file">
+                                <button class="btn btn-secondary btn-sm" data-toggle="modal"
+                                    data-target="#modal-gabung-file">
                                     <i class="fas fa-file-download"></i> Gabung PDF</a>
                                 </button>
                             </div>
@@ -105,7 +106,8 @@
                                         </tr>
                                         <tr>
                                             <td style="width:10%" class="pt-0 pb-0">No. SEP</td>
-                                            <td style="width:50%" class="pt-0 pb-0">: {{ $dataSep->no_sep ? $dataSep->no_sep:'-' }}</td>
+                                            <td style="width:50%" class="pt-0 pb-0">:
+                                                {{ $dataSep->no_sep ? $dataSep->no_sep : '-' }}</td>
                                             <td class="pt-0 pb-0 text-center" colspan="2"></td>
                                             {{-- <td class="pt-0 pb-0"></td> --}}
                                         </tr>
@@ -258,7 +260,7 @@
                             @php
                                 $peserta = \app\Http\Controllers\SepController::peserta(
                                     $dataSep->peserta->noKartu,
-                                    $dataSep->tglSep
+                                    $dataSep->tglSep,
                                 );
                                 $kontrol = \app\Http\Controllers\SepController::getSep2($dataSep->noSep);
                             @endphp
@@ -1085,7 +1087,7 @@
                                                         {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }} /
                                                         {{-- {{ $data->umurdaftar }} {{ $data->sttsumur }} --}}
                                                         {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Th %m Bl %d Hr') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Th %m Bl %d Hr') }}
                                                     </td>
                                                     <td class="pt-0 pb-0">Jam Permintaan</td>
                                                     <td class="pt-0 pb-0">: {{ $order->jam_permintaan }}</td>
@@ -1106,7 +1108,8 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="pt-0 pb-0">Dokter Pengirim</td>
-                                                    <td class="pt-0 pb-0">: {{ $order->nm_dokter ? $order->nm_dokter:'' }}
+                                                    <td class="pt-0 pb-0">:
+                                                        {{ $order->nm_dokter ? $order->nm_dokter : '' }}
                                                     </td>
                                                     @if ($order->status == 'ranap')
                                                         <td class="pt-0 pb-0">Kamar</td>
@@ -1212,27 +1215,26 @@
                                                     @php
                                                         $dokterLab = \App\Vedika::getDokter(
                                                             $order->tgl_hasil,
-                                                            $order->jam_hasil
+                                                            $order->jam_hasil,
                                                         );
 
-                                                        if($dokterLab){
-                                                           $dokter_lab = $dokterLab->nm_dokter;
+                                                        if ($dokterLab) {
+                                                            $dokter_lab = $dokterLab->nm_dokter;
                                                             $kd_dokter_lab = $dokterLab->kd_dokter;
-                                                        }else{
+                                                        } else {
                                                             $dokter_lab = '';
                                                             $kd_dokter_lab = '';
                                                         }
 
-
                                                         $petugasLab = \App\Vedika::getPetugas(
                                                             $order->tgl_hasil,
-                                                            $order->jam_hasil
+                                                            $order->jam_hasil,
                                                         );
 
-                                                        if($petugasLab){
+                                                        if ($petugasLab) {
                                                             $petugas_lab = $petugasLab->nama;
                                                             $kd_petugas_lab = $petugasLab->nip;
-                                                        }else{
+                                                        } else {
                                                             $petugas_lab = '';
                                                             $kd_petugas_lab = '';
                                                         }
@@ -1327,10 +1329,10 @@
                             @endif
                             @foreach ($dataRadiologiRanap as $order)
                                 <li class="nav-item">
-                                    <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
-                                        id="custom-tabs-four-home-tab" data-toggle="pill"
-                                        href="#custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}" role="tab"
-                                        aria-controls="custom-tabs-four-home" aria-selected="true"> Hasil
+                                    <a class="nav-link {{ $index == 0 ? 'active' : '' }}" id="custom-tabs-four-home-tab"
+                                        data-toggle="pill"
+                                        href="#custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}"
+                                        role="tab" aria-controls="custom-tabs-four-home" aria-selected="true"> Hasil
                                         Radiologi {{ $order->noorder }}</a>
                                 </li>
                                 @php
@@ -1406,8 +1408,8 @@
                                             </tr>
                                             <tr>
                                                 <td class="align-middle py-0">
-                                                    <img src="{{ asset('image/world-wide-web.png') }}"
-                                                        alt="pin lokasi" width="17">
+                                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                        width="17">
                                                     https://web.rsupsurakarta.co.id
                                                 </td>
                                             </tr>
@@ -1484,7 +1486,7 @@
 
                                         </table>
                                         @foreach ($hasilRadiologiRajal as $itemHasilRad)
-                                            @if($itemHasilRad->jam == $radioRajal->jam_hasil)
+                                            @if ($itemHasilRad->jam == $radioRajal->jam_hasil)
                                                 @php
                                                     $paragraphs = explode("\n", $itemHasilRad->hasil);
                                                     $tinggi = 25 * count($paragraphs);
@@ -1527,7 +1529,7 @@
                                                             $dokterRadiologiRajal[$urutan]->kd_dokter .
                                                             "\n" .
                                                             \Carbon\Carbon::parse(
-                                                                $dokterRadiologiRajal[$urutan]->tgl_periksa
+                                                                $dokterRadiologiRajal[$urutan]->tgl_periksa,
                                                             )->format('d-m-Y');
                                                     @endphp
                                                     <td class="text-center pt-0 pb-0" style="width: 70%"></td>
@@ -1551,12 +1553,13 @@
                             @endif
                             @foreach ($dataRadiologiRanap as $urutan => $order)
                                 <div class="tab-pane fade show {{ $index2 == 0 ? 'active' : '' }}"
-                                    id="custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}" role="tabpanel"
+                                    id="custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}"
+                                    role="tabpanel"
                                     aria-labelledby="#custom-tabs-lap-{{ $order->noorder }}-{{ $order->kd_jenis_prw }}">
                                     @php
                                         $dokterRadiologi = \App\Vedika::getRadioDokter(
                                             $order->no_rawat,
-                                            $order->jam_hasil
+                                            $order->jam_hasil,
                                         );
                                     @endphp
 
@@ -1669,7 +1672,7 @@
 
                                     </table>
                                     @foreach ($hasilRadiologiRanap as $dataHasil)
-                                    {{-- @if($hasilRadiologiRanap)
+                                        {{-- @if ($hasilRadiologiRanap)
                                         @php
                                         dd($hasilRadiologiRanap, $order);
                                             $mentah = collect($hasilRadiologiRanap);
@@ -1698,7 +1701,7 @@
                                                 </tbody>
                                             </table>
                                         @endif
-                                    {{-- @endif --}}
+                                        {{-- @endif --}}
                                     @endforeach
 
                                     @if (!empty($dokterRadiologiRanap[$urutan]->nm_dokter))
@@ -1720,7 +1723,7 @@
                                                         $dokterRadiologiRanap[$urutan]->kd_dokter .
                                                         "\n" .
                                                         \Carbon\Carbon::parse(
-                                                            $dokterRadiologiRanap[$urutan]->tgl_periksa
+                                                            $dokterRadiologiRanap[$urutan]->tgl_periksa,
                                                         )->format('d-m-Y');
                                                 @endphp
                                                 <td class="text-center pt-0 pb-0" style="width: 70%"></td>
@@ -1786,8 +1789,8 @@
                                             </tr>
                                             <tr>
                                                 <td class="align-middle py-0">
-                                                    <img src="{{ asset('image/world-wide-web.png') }}"
-                                                        alt="pin lokasi" width="17">
+                                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                        width="17">
                                                     https://web.rsupsurakarta.co.id
                                                 </td>
                                             </tr>
@@ -1832,7 +1835,7 @@
                                                         {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
                                                         /
                                                         {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($tambahanData->tgl_hasil))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Th %m Bl %d Hr') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Th %m Bl %d Hr') }}
                                                     </td>
                                                     <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
                                                     <td class="pt-0 pb-0">:
@@ -1906,7 +1909,7 @@
                                                             $tambahanDokterRadiologi[$urutan]->kd_dokter .
                                                             "\n" .
                                                             \Carbon\Carbon::parse(
-                                                                $tambahanDokterRadiologi[$urutan]->tgl_periksa
+                                                                $tambahanDokterRadiologi[$urutan]->tgl_periksa,
                                                             )->format('d-m-Y');
                                                     @endphp
                                                     <td class="text-center pt-0 pb-0" style="width: 70%"></td>
@@ -2586,7 +2589,7 @@
         {{-- End Ringksan IGD --}}
 
         {{-- Data Penilaian Awal IGD --}}
-        @if (!empty($dataRingkasan))       
+        @if (!empty($dataRingkasan))
             <div class="card">
                 <div class="card-header">Penilaian Awal Medis IGD</div>
                 <div class="card-body">
@@ -2624,7 +2627,7 @@
                                     style="width: 10%">Jenis Kelamin
                                 </th>
                                 <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-0">:
-                                    {{ $dataRingkasan->jk == 'L' ? 'Laki-laki':'Perempuan' }}</th>
+                                    {{ $dataRingkasan->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</th>
                                 <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-0"
                                     style="width: 10%">Tanggal
                                 </th>
@@ -2632,10 +2635,14 @@
                                     {{ $dataRingkasan->tanggal }}</th>
                             </tr>
                             <tr>
-                                <th class="pt-0 pb-0 border border-dark border-left-1 border-right-0 border-bottom-1 border-top-0">Nama Pasien</th>
+                                <th
+                                    class="pt-0 pb-0 border border-dark border-left-1 border-right-0 border-bottom-1 border-top-0">
+                                    Nama Pasien</th>
                                 <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-top-0">
                                     : {{ $dataRingkasan->nm_pasien }}</th>
-                                <th class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-1 border-top-0 ">Tanggal Lahir</th>
+                                <th
+                                    class="pt-0 pb-0 border border-dark border-left-0 border-right-0 border-bottom-1 border-top-0 ">
+                                    Tanggal Lahir</th>
                                 <th class="pt-0 pb-0 border border-dark border-left-0 border-bottom-1 border-top-0">
                                     : {{ $dataRingkasan->tgl_lahir }}</th>
                                 <th class="pt-0 pb-0 border border-dark border-right-0 border-top-0">Anamnesis</th>
@@ -2647,28 +2654,28 @@
                             <tr>
                                 <td class="pt-0 pb-0 border border-dark" colspan="6">
                                     <b>I. RIWAYAT KESEHATAN</b><br>
-                                    <p>Keluhan Utama :  {{ $dataRingkasan->keluhan_utama }} </p>
+                                    <p>Keluhan Utama : {{ $dataRingkasan->keluhan_utama }} </p>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="pt-0 pb-0 border border-dark" colspan="6">
-                                    <p>Riwayat Penyakit Sekarang :  {{ $dataRingkasan->rps }} </p>
+                                    <p>Riwayat Penyakit Sekarang : {{ $dataRingkasan->rps }} </p>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="pt-0 pb-0 border border-dark" colspan="3">
-                                    <p>Riwayat Penyakit Dahulu :  {{ $dataRingkasan->rpd }} </p>
+                                    <p>Riwayat Penyakit Dahulu : {{ $dataRingkasan->rpd }} </p>
                                 </td>
                                 <td class="pt-0 pb-0 border border-dark" colspan="3">
-                                    <p>Riwayat Penyakit dalam Keluarga :  {{ $dataRingkasan->rpk }} </p>
+                                    <p>Riwayat Penyakit dalam Keluarga : {{ $dataRingkasan->rpk }} </p>
                                 </td>
                             </tr>
                             <tr>
                                 <td class="pt-0 pb-0 border border-dark" colspan="3" style="width: 50%;">
-                                    <p>Riwayat Pengobatan :  {{ $dataRingkasan->rpo }} </p>
+                                    <p>Riwayat Pengobatan : {{ $dataRingkasan->rpo }} </p>
                                 </td>
                                 <td class="pt-0 pb-0 border border-dark" colspan="3" style="width: 50%;">
-                                    <p>Riwayat Alergi :  {{ $dataRingkasan->alergi }} </p>
+                                    <p>Riwayat Alergi : {{ $dataRingkasan->alergi }} </p>
                                 </td>
                             </tr>
                             <tr>
@@ -2689,65 +2696,69 @@
                             </tr>
                             <tr>
                                 <td class="pt-0 pb-0 border border-dark text-center" colspan="6">
-                                    Tanda Vital :&emsp;  TD: {{ $dataRingkasan->td }}&ensp;  N: {{ $dataRingkasan->nadi }}&ensp;  R: {{ $dataRingkasan->rr }}&ensp; S: {{ $dataRingkasan->suhu }}&ensp;  SPO2: {{ $dataRingkasan->spo }}&ensp;  BB: {{ $dataRingkasan->bb }}&ensp;  TB: {{ $dataRingkasan->tb }}
+                                    Tanda Vital :&emsp; TD: {{ $dataRingkasan->td }}&ensp; N:
+                                    {{ $dataRingkasan->nadi }}&ensp; R: {{ $dataRingkasan->rr }}&ensp; S:
+                                    {{ $dataRingkasan->suhu }}&ensp; SPO2: {{ $dataRingkasan->spo }}&ensp; BB:
+                                    {{ $dataRingkasan->bb }}&ensp; TB: {{ $dataRingkasan->tb }}
                                 </td>
                             </tr>
                             <tr>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0">
                                     Kepala
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0">
                                     {{ $dataRingkasan->kepala }}
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0">
                                     Thoraks
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0">
                                     {{ $dataRingkasan->thoraks }}
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-left-0 border-right-1" colspan="2" rowspan="4">
+                                <td class="pt-0 pb-0 border border-dark border-left-0 border-right-1" colspan="2"
+                                    rowspan="4">
                                     <pre>{{ $dataRingkasan->ket_fisik }}</pre>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0">
                                     Mata
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0">
                                     {{ $dataRingkasan->mata }}
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0">
                                     Abdomen
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0">
                                     {{ $dataRingkasan->abdomen }}
                                 </td>
                             </tr>
                             <tr>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0">
                                     Gigi dan Mulut
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0">
                                     {{ $dataRingkasan->gigi }}
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-bottom-0 border-top-0">
                                     Genital & Anus
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-1 border-bottom-0 border-top-0">
                                     {{ $dataRingkasan->genital }}
                                 </td>
                             </tr>
                             <tr>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0">
                                     Leher
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0">
                                     {{ $dataRingkasan->leher }}
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-0 border-top-0">
                                     Ekstremitas
                                 </td>
-                                <td class="pt-0 pb-0 border border-dark border-right-1 border-top-0" >
+                                <td class="pt-0 pb-0 border border-dark border-right-1 border-top-0">
                                     {{ $dataRingkasan->ekstremitas }}
                                 </td>
                             </tr>
@@ -2790,16 +2801,22 @@
                                 </td>
                                 <td class="pt-0 pb-0 border border-dark" colspan="3">
                                     <b>VII. RINGKASAN PASIEN GAWAT DARURAT</b><br>
-                                    <p>Kondisi Pada Saat Keluar : {{ $resumeIgd && $resumeIgd->kondisi_pulang? $resumeIgd->kondisi_pulang:'-' }}</p>
-                                    <p>Tindak Lanjut : {{ $resumeIgd && $resumeIgd->tindak_lanjut? $resumeIgd->tindak_lanjut:'-' }}</p>
-                                    <p>Kebutuhan : {{ $resumeIgd && $resumeIgd->kebutuhan? $resumeIgd->kebutuhan:'-' }}</p>
-                                    <p>Edukasi : {{ $resumeIgd && $resumeIgd->edukasi ? $resumeIgd->edukasi:'-' }}</p>
-                                    <p>Obat Yang Dibawa Pulang : {{ $resumeIgd && $resumeIgd->obat_pulang ? $resumeIgd->obat_pulang:'-' }}</p>
+                                    <p>Kondisi Pada Saat Keluar :
+                                        {{ $resumeIgd && $resumeIgd->kondisi_pulang ? $resumeIgd->kondisi_pulang : '-' }}</p>
+                                    <p>Tindak Lanjut :
+                                        {{ $resumeIgd && $resumeIgd->tindak_lanjut ? $resumeIgd->tindak_lanjut : '-' }}</p>
+                                    <p>Kebutuhan : {{ $resumeIgd && $resumeIgd->kebutuhan ? $resumeIgd->kebutuhan : '-' }}
+                                    </p>
+                                    <p>Edukasi : {{ $resumeIgd && $resumeIgd->edukasi ? $resumeIgd->edukasi : '-' }}</p>
+                                    <p>Obat Yang Dibawa Pulang :
+                                        {{ $resumeIgd && $resumeIgd->obat_pulang ? $resumeIgd->obat_pulang : '-' }}</p>
                                 </td>
                             </tr>
                             <tr>
-                                <td class="border border-dark border-top-0 text-center" colspan="3">Tanggal dan Jam</td>
-                                <td class="border border-dark border-top-0 text-center" colspan="3">Nama Dokter dan Tanda
+                                <td class="border border-dark border-top-0 text-center" colspan="3">Tanggal dan Jam
+                                </td>
+                                <td class="border border-dark border-top-0 text-center" colspan="3">Nama Dokter dan
+                                    Tanda
                                     Tangan</td>
                             </tr>
                             <tr>
@@ -2815,13 +2832,14 @@
                                         "\n" .
                                         \Carbon\Carbon::parse($dataRingkasan->tanggal)->format('d-m-Y');
                                 @endphp
-                                <td class="border border-dark border-top-0 text-center align-middle" colspan="3">{{ \Carbon\Carbon::parse($dataRingkasan->tanggal)->format('d-m-Y H:i:s') }} WIB</td>
+                                <td class="border border-dark border-top-0 text-center align-middle" colspan="3">
+                                    {{ \Carbon\Carbon::parse($dataRingkasan->tanggal)->format('d-m-Y H:i:s') }} WIB</td>
                                 <td class="pt-1 pb-1 pl-5 border border-dark border-top-0 border-right-0">
                                     {!! QrCode::size(100)->generate($qr_dokter) !!} </td>
                                 <td class="border border-dark border-top-0 border-left-0 align-bottom" colspan="2">
                                     {{ $dataRingkasan->nm_dokter }}</td>
                             </tr>
-                            
+
                         </tbody>
                     </table>
                 </div>
@@ -2829,7 +2847,7 @@
         @endif
         {{-- End Ringksan IGD --}}
 
-        @if($skor_psi)
+        @if ($skor_psi)
             <div class="card">
                 <div class="card-header">Pneumonia Severity Index(PSI)</div>
                 <div class="card-body">
@@ -2863,7 +2881,8 @@
                             </tr>
                             <tr>
                                 <td class="align-middle py-0">
-                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                        width="17">
                                     https://web.rsupsurakarta.co.id
                                 </td>
                             </tr>
@@ -2875,42 +2894,47 @@
                         </div>
                     </div>
                     <div class="row justify-content-center">
-                    <table style="width: 100%; margin-bottom:50px; ">
-                        <thead>
-                            <tr>
-                                <th style="text-align: center;" colspan="4">
-                                    <h5><b><u>Pneumonia Saverity Index(PSI)</u></b></h5>
-                                </th>
-                            </tr>
-                            <tr>
-                                <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
-                                <td style="width: 30%; padding-left: 25px;">: {{ $pasien->no_rkm_medis }}</td>
-                                <td style="width: 20%; padding-left: 25px;">JK</td>
-                                <td style="width: 30%; padding-left: 25px;">: {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding-left: 25px;">Nama Pasien</td>
-                                <td style="padding-left: 25px;">: {{ $pasien->nm_pasien }}</td>
-                                <td style="padding-left: 25px;">Tanggal Lahir</td>
-                                <td style="padding-left: 25px;">: {{ $pasien->tgl_lahir }}</td>
-                            </tr>
-                            <tr>
-                                <td style="border-bottom: 3px solid black; padding-left: 25px;">Umur</td>
-                                <td style="border-bottom: 3px solid black; padding-left: 25px;">:
-                                    {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y Th') }}
-                                </td>
-                                <td style="border-bottom: 3px solid black; padding-left: 25px;">Alamat</td>
-                                <td style="border-bottom: 3px solid black; padding-left: 25px;">: {{ $pasien->alamat }}</td>
-                            </tr>
-                        </thead>
-                    </table>
+                        <table style="width: 100%; margin-bottom:50px; ">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center;" colspan="4">
+                                        <h5><b><u>Pneumonia Saverity Index(PSI)</u></b></h5>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                                    <td style="width: 30%; padding-left: 25px;">: {{ $pasien->no_rkm_medis }}</td>
+                                    <td style="width: 20%; padding-left: 25px;">JK</td>
+                                    <td style="width: 30%; padding-left: 25px;">:
+                                        {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px;">Nama Pasien</td>
+                                    <td style="padding-left: 25px;">: {{ $pasien->nm_pasien }}</td>
+                                    <td style="padding-left: 25px;">Tanggal Lahir</td>
+                                    <td style="padding-left: 25px;">: {{ $pasien->tgl_lahir }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">Umur</td>
+                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">:
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y Th') }}
+                                    </td>
+                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">Alamat</td>
+                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">:
+                                        {{ $pasien->alamat }}</td>
+                                </tr>
+                            </thead>
+                        </table>
                         <div class="col-8">
                             <table style="width: 100%; margin-bottom:25px;" cellspacing="0" cellpadding="5">
                                 <tbody>
                                     <tr>
-                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 70%">Karakteristik pasien</td>
-                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 20%">Nilai</td>
-                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 10%">Skor PSI</td>
+                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 70%">
+                                            Karakteristik pasien</td>
+                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 20%">
+                                            Nilai</td>
+                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 10%">
+                                            Skor PSI</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;font-weight:bold;">Faktor demografik</td>
@@ -2925,17 +2949,20 @@
                                     <tr>
                                         <td style="border:1px solid black;">Laki-laki</td>
                                         <td style="border:1px solid black;text-align: center">Umur(tahun)</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_usia }}</td>
+                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_usia }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Perempuan</td>
                                         <td style="border:1px solid black;text-align: center">Umur(tahun)-10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_jenis_kelamin }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_jenis_kelamin }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Penghuni panti werda</td>
                                         <td style="border:1px solid black;text-align: center">+ 10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_panti_werda }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_panti_werda }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;font-weight:bold;">Penyakit komorbid</td>
@@ -2945,27 +2972,32 @@
                                     <tr>
                                         <td style="border:1px solid black;">Keganasan</td>
                                         <td style="border:1px solid black;text-align: center">+ 30</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_keganasan }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_keganasan }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Penyakit Hati</td>
                                         <td style="border:1px solid black;text-align: center">+ 20</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_penyakit_hati }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_penyakit_hati }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Penyakit jantung kongestif</td>
                                         <td style="border:1px solid black;text-align: center">+ 10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_penyakit_jantung }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_penyakit_jantung }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Penyakit serebro vaskular</td>
                                         <td style="border:1px solid black;text-align: center">+ 10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_penyakit_serebro }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_penyakit_serebro }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Penyakit ginjal</td>
                                         <td style="border:1px solid black;text-align: center">+ 10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_penyakit_ginjal }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_penyakit_ginjal }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black; font-weight:bold;">Pemeriksaan fisis</td>
@@ -2975,71 +3007,86 @@
                                     <tr>
                                         <td style="border:1px solid black;">Gangguan kesadaran </td>
                                         <td style="border:1px solid black;text-align: center">+ 20</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_gangguan_kesadaran }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_gangguan_kesadaran }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Frekuensi nafas > 30 x/menit </td>
                                         <td style="border:1px solid black;text-align: center">+ 20</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_frekuensi_nafas }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_frekuensi_nafas }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Tekanan darah sistolik < 90 mmHg </td>
                                         <td style="border:1px solid black;text-align: center">+ 20</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_sistolik }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_sistolik }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Suhu tubuh < 30 &#8451; atau 40 &#8451;</td>
                                         <td style="border:1px solid black;text-align: center">+ 15</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_suhu_tubuh }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_suhu_tubuh }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Frekuensi nadi > 12 x/menit </td>
                                         <td style="border:1px solid black;text-align: center">+ 10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_nadi }}</td>
+                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_nadi }}
+                                        </td>
                                     </tr>
                                     <tr>
-                                        <td  style="border:1px solid black; font-weight:bold;">Hasil laboratorium</td>
+                                        <td style="border:1px solid black; font-weight:bold;">Hasil laboratorium</td>
                                         <td style="border:1px solid black;"></td>
                                         <td style="border:1px solid black;"></td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">pH < 7.35 </td>
                                         <td style="border:1px solid black;text-align: center">+ 30</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_ph }}</td>
+                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_ph }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Ureum > 64.2 mg/dL </td>
                                         <td style="border:1px solid black;text-align: center">+ 20</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_ureum }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_ureum }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Natrium < 130 mEq/dL </td>
                                         <td style="border:1px solid black;text-align: center">+ 20</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_natrium }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_natrium }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Glukosa > 250 mg/dL</td>
                                         <td style="border:1px solid black;text-align: center">+ 10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_glukosa }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_glukosa }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Hematokrit < 30&#37;</td>
                                         <td style="border:1px solid black;text-align: center">+ 10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_hematokrit }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_hematokrit }}</td>
                                     </tr>
                                     <tr>
-                                        <td style="border:1px solid black;">Tekanan O<sub>2</sub> darah arteri < 60 mmHg</td>
+                                        <td style="border:1px solid black;">Tekanan O<sub>2</sub> darah arteri < 60
+                                                mmHg</td>
                                         <td style="border:1px solid black;text-align: center">+ 10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_tekanan_o2 }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_tekanan_o2 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;">Efusi pleura</td>
                                         <td style="border:1px solid black;; text-align: center">+ 10</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->skor_efusi_pleura }}</td>
+                                        <td style="border:1px solid black;text-align: center">
+                                            {{ $skor_psi->skor_efusi_pleura }}</td>
                                     </tr>
                                     <tr>
-                                        <td style="border:1px solid black;font-weight:bold;text-align:center;" colspan="2">Total Skoring</td>
-                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->total }}</td>
+                                        <td style="border:1px solid black;font-weight:bold;text-align:center;"
+                                            colspan="2">Total Skoring</td>
+                                        <td style="border:1px solid black;text-align: center">{{ $skor_psi->total }}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -3049,7 +3096,8 @@
                             <ol type="1" class="ml-3"> <!-- Ordered list pertama menggunakan angka -->
                                 <li>Skor PSI lebih dari 70.</li>
                                 <li>
-                                    Bila skor PSI kurang dari 70, pasien tetap perlu dirawat inap bila dijumpai salah satu dari kriteria di bawah ini:
+                                    Bila skor PSI kurang dari 70, pasien tetap perlu dirawat inap bila dijumpai salah satu
+                                    dari kriteria di bawah ini:
                                     <ol type="a"> <!-- Ordered list kedua menggunakan alfabet -->
                                         <li>Frekuensi nafas > 30 x/menit</li>
                                         <li>PaO2/FiO2 kurang dari 250 mmHg</li>
@@ -3064,9 +3112,10 @@
                             <table cellspacing="0" cellpadding="5" class="ml-3" style="width: 100%;">
                                 <thead>
                                     <tr>
-                                        <td colspan="5" style="text-align: center;">Tabel 4. Derajat skor risiko PSI</td>
+                                        <td colspan="5" style="text-align: center;">Tabel 4. Derajat skor risiko PSI
+                                        </td>
                                     </tr>
-                                    <tr >
+                                    <tr>
                                         <th style="border: 1px solid black; text-align: center">Total Poin Risiko</th>
                                         <th style="border: 1px solid black; text-align: center">Kelas Risiko</th>
                                         <th style="border: 1px solid black; text-align: center">Angka Kematian</th>
@@ -3109,7 +3158,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            
+
                             @php
                                 $dokter_jaga = App\Vedika::getPegawai($skor_psi->kd_dokter);
                                 $dokter_dpjp = App\Vedika::getPegawai($skor_psi->kd_dpjp);
@@ -3135,7 +3184,7 @@
                                     "\n" .
                                     \Carbon\Carbon::parse($skor_psi->tanggal)->format('d-m-Y');
                             @endphp
-                            
+
                             <table style="width: 100%">
                                 <tbody>
                                     <tr>
@@ -3165,7 +3214,7 @@
                 </div>
             </div>
         @endif
-        @if($skor_curb)
+        @if ($skor_curb)
             <div class="card">
                 <div class="card-header">FORMULIR PENILAIAN KRITERIA CURB-65</div>
                 <div class="card-body">
@@ -3199,7 +3248,8 @@
                             </tr>
                             <tr>
                                 <td class="align-middle py-0">
-                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                        width="17">
                                     https://web.rsupsurakarta.co.id
                                 </td>
                             </tr>
@@ -3222,7 +3272,8 @@
                                     <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
                                     <td style="width: 30%; padding-left: 25px;">: {{ $pasien->no_rkm_medis }}</td>
                                     <td style="width: 20%; padding-left: 25px;">JK</td>
-                                    <td style="width: 30%; padding-left: 25px;">: {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                                    <td style="width: 30%; padding-left: 25px;">:
+                                        {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px;">Nama Pasien</td>
@@ -3236,7 +3287,8 @@
                                         {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y Th') }}
                                     </td>
                                     <td style="border-bottom: 3px solid black; padding-left: 25px;">Alamat</td>
-                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">: {{ $pasien->alamat }}</td>
+                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">:
+                                        {{ $pasien->alamat }}</td>
                                 </tr>
                             </thead>
                         </table>
@@ -3244,10 +3296,14 @@
                             <table style="width: 100%; margin-bottom:25px;" cellspacing="0" cellpadding="5">
                                 <tbody>
                                     <tr>
-                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 5%">No.</td>
-                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 30%">CURB-65</td>
-                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 50%">GAMBARAN KLINIS</td>
-                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 15%">SKOR</td>
+                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 5%">
+                                            No.</td>
+                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 30%">
+                                            CURB-65</td>
+                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 50%">
+                                            GAMBARAN KLINIS</td>
+                                        <td style="border:1px solid black;font-weight:bold;text-align:center; width: 15%">
+                                            SKOR</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;font-weight:bold;text-align:center;">1.</td>
@@ -3277,72 +3333,99 @@
                                         <td style="border:1px solid black; font-weight:bold;text-align:center;">5.</td>
                                         <td style="border:1px solid black; text-align:center;">65</td>
                                         <td style="border:1px solid black;">Umur > 65 Tahun</td>
-                                        <td style="border:1px solid black; text-align:center;">{{ $skor_curb->U65 }}</td>
+                                        <td style="border:1px solid black; text-align:center;">{{ $skor_curb->U65 }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black; "></td>
-                                        <td style="border:1px solid black; font-weight:bold; text-align:right;" colspan="2">Total</td>
-                                        <td style="border:1px solid black; text-align:center;">{{ $skor_curb->total }}</td>
+                                        <td style="border:1px solid black; font-weight:bold; text-align:right;"
+                                            colspan="2">Total</td>
+                                        <td style="border:1px solid black; text-align:center;">{{ $skor_curb->total }}
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black; "></td>
-                                        <td style="border:1px solid black; font-weight:bold; text-align:center;" colspan="2">Respons</td>
-                                        <td style="border:1px solid black; font-weight:bold; text-align:center;">Nilai</td>
+                                        <td style="border:1px solid black; font-weight:bold; text-align:center;"
+                                            colspan="2">Respons</td>
+                                        <td style="border:1px solid black; font-weight:bold; text-align:center;">Nilai
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Umur</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res1 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res1 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Tanggal Lahir</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res2 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res2 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Waktu</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res3 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res3 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Tahun Sekarang</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res4 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res4 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Nama Rumah Sakit</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res5 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res5 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Dapat mengidentifikasi 2 orang</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res6 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res6 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Alamat Rumah</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res7 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res7 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Tanggal Kemerdekaan</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res8 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res8 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Nama Presiden</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res9 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res9 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border-left:1px solid black; border-right:1px solid black;"></td>
                                         <td style="" colspan="2">Hitung Mundul < 20</td>
-                                        <td style="border-left:1px solid black; border-right:1px solid black; text-align:center;">{{ $skor_curb->res10 }}</td>
+                                        <td
+                                            style="border-left:1px solid black; border-right:1px solid black; text-align:center;">
+                                            {{ $skor_curb->res10 }}</td>
                                     </tr>
                                     <tr>
                                         <td style="border:1px solid black;"></td>
-                                        <td style="border:1px solid black; font-weight:bold; text-align:right;" colspan="2">Total</td>
-                                        <td style="border:1px solid black; text-align:center;">{{ $skor_curb->totalrespon }}</td>
+                                        <td style="border:1px solid black; font-weight:bold; text-align:right;"
+                                            colspan="2">Total</td>
+                                        <td style="border:1px solid black; text-align:center;">
+                                            {{ $skor_curb->totalrespon }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -3373,22 +3456,26 @@
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td style="width: 40%; text-align:center; padding-left:50px;">Surakarta, {{ \Carbon\Carbon::parse($skor_curb->tanggal)->format('d-m-Y') }}</td>
+                                        <td style="width: 40%; text-align:center; padding-left:50px;">Surakarta,
+                                            {{ \Carbon\Carbon::parse($skor_curb->tanggal)->format('d-m-Y') }}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td style="width: 40%; text-align:center;padding-left:50px;">{!! QrCode::size(100)->generate($qr_dokter) !!}</td>
+                                        <td style="width: 40%; text-align:center;padding-left:50px;">
+                                            {!! QrCode::size(100)->generate($qr_dokter) !!}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td style="width: 40%; text-align:center;padding-left:50px;">{{ $skor_curb->kd_dokter }}</td>
+                                        <td style="width: 40%; text-align:center;padding-left:50px;">
+                                            {{ $skor_curb->kd_dokter }}</td>
                                     </tr>
                                     <tr>
                                         <td></td>
                                         <td></td>
-                                        <td style="width: 40%; text-align:center;padding-left:50px;">{{ $skor_curb->nama }}</td>
+                                        <td style="width: 40%; text-align:center;padding-left:50px;">
+                                            {{ $skor_curb->nama }}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -3397,9 +3484,9 @@
                 </div>
             </div>
         @endif
-        
+
         {{-- Data Spiro --}}
-        @if($dataSpiro)
+        @if ($dataSpiro)
             <div class="card">
                 <div class="card-header">Pemeriksaan Spirometri</div>
                 <div class="card-body">
@@ -3433,17 +3520,20 @@
                             </tr>
                             <tr>
                                 <td class="align-middle py-0">
-                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                        width="17">
                                     https://web.rsupsurakarta.co.id
                                 </td>
                             </tr>
                         </thead>
                     </table>
                     <div class="row justify-content-center">
-                        <table style="width: 100%; margin-bottom:50px; margin-top:10px;" class="table table-borderless table-sm">
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px;"
+                            class="table table-borderless table-sm">
                             <thead>
                                 <tr>
-                                    <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;" colspan="4">
+                                    <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;"
+                                        colspan="4">
                                         <h5><b>PEMERIKSAAN SPIROMETRI</b></h5>
                                     </th>
                                 </tr>
@@ -3456,7 +3546,8 @@
                                     <td style="width: 20%; padding-left: 25px;">No. Rawat</td>
                                     <td style="width: 30%; ">: {{ $pasien->no_rawat }}</td>
                                     <td style="padding-left: 100px; ">Tanggal Periksa</td>
-                                    <td style="padding-left: 50px;">: {{ \Carbon\Carbon::parse($dataSpiro->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="padding-left: 50px;">:
+                                        {{ \Carbon\Carbon::parse($dataSpiro->tanggal)->format('d-m-Y') }}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
@@ -3473,20 +3564,22 @@
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Umur</td>
                                     <td style="border-bottom: 0px solid black;">:
-                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataSpiro->tanggal))->format('%y Th') }} </td>
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataSpiro->tanggal))->format('%y Th') }}
+                                    </td>
                                     <td style="padding-left: 100px; ">Tinggi Badan</td>
                                     <td style="padding-left: 50px;">: {{ $dataSpiro->tb }} Cm</td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Alamat</td>
-                                    <td style="border-bottom: 0px solid black;">: {{$pasien->alamat}} </td>
+                                    <td style="border-bottom: 0px solid black;">: {{ $pasien->alamat }} </td>
                                     <td style="padding-left: 100px; ">Berat Badan</td>
                                     <td style="padding-left: 50px;">: {{ $dataSpiro->bb }} Cm</td>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td style="border-top: 1px solid black;" colspan="4">B. RIWAYAT PEKERJAAN / KEBIASAAN</td>
+                                    <td style="border-top: 1px solid black;" colspan="4">B. RIWAYAT PEKERJAAN /
+                                        KEBIASAAN</td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px;">Pekerjaan</td>
@@ -3508,7 +3601,8 @@
                             <thead>
                                 <tr>
                                     <th rowspan="2" style="vertical-align: middle; text-align:center;">No</th>
-                                    <th rowspan="2" style="vertical-align: middle; text-align:center;">Pemeriksaan</th>
+                                    <th rowspan="2" style="vertical-align: middle; text-align:center;">Pemeriksaan
+                                    </th>
                                     <th colspan="7" style="text-align: center">Nilai</th>
                                 </tr>
                                 <tr>
@@ -3525,14 +3619,15 @@
                                     <td rowspan="3">Kapasitas Vital</td>
                                     <td style="text-align:center;">1</td>
                                     <td style="text-align: center;">{{ $dataSpiro->pemeriksaan_1a }}</td>
-                                    <td rowspan="3" style="width: 5%; text-align:center; vertical-align:middle;">{{ $dataSpiro->prediksi_1a }}</td>
+                                    <td rowspan="3" style="width: 5%; text-align:center; vertical-align:middle;">
+                                        {{ $dataSpiro->prediksi_1a }}</td>
                                     <td rowspan="3" style="background-color:beige"></td>
                                     <td rowspan="3" colspan="2" style="background-color:beige"></td>
                                     <td rowspan="4"></td>
                                 </tr>
                                 <tr>
                                     <td style="text-align:center;">2</td>
-                                    <td  style="text-align:center;">{{ $dataSpiro->pemeriksaan_1b }}</td>
+                                    <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_1b }}</td>
                                 </tr>
                                 <tr>
                                     <td style="text-align:center;">3</td>
@@ -3551,7 +3646,8 @@
                                     <td rowspan="3">Kapasital Vital Paksa</td>
                                     <td style="text-align:center;">1</td>
                                     <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_3a }}</td>
-                                    <td rowspan="3" style="text-align:center; vertical-align:middle;">{{ $dataSpiro->prediksi_3a }}</td>
+                                    <td rowspan="3" style="text-align:center; vertical-align:middle;">
+                                        {{ $dataSpiro->prediksi_3a }}</td>
                                     <td rowspan="3" style="background-color:beige"></td>
                                     <td rowspan="3" colspan="2" style="background-color:beige"></td>
                                     <td rowspan="4"></td>
@@ -3578,7 +3674,8 @@
                                         Detik 1 ( 1 VEP )</td>
                                     <td style="text-align:center;">1</td>
                                     <td style="text-align:center;">{{ $dataSpiro->pemeriksaan_5a }}</td>
-                                    <td rowspan="3" style="text-align:center; vertical-align:middle;">{{ $dataSpiro->prediksi_5a }}</td>
+                                    <td rowspan="3" style="text-align:center; vertical-align:middle;">
+                                        {{ $dataSpiro->prediksi_5a }}</td>
                                     <td rowspan="3" style="background-color:beige"></td>
                                     <td style="width: 3%; text-align:center;">1</td>
                                     <td style="text-align:right;">{{ $dataSpiro->uji_5a }} Ml</td>
@@ -3636,25 +3733,26 @@
                                     <td>Air Trapping</td>
                                     <td colspan="2" style="background-color:beige"></td>
                                     <td style="background-color:beige"></td>
-                                    <td  style="background-color:beige"></td>
+                                    <td style="background-color:beige"></td>
                                     <td colspan="2" style="background-color:beige"></td>
                                 </tr>
                             </tbody>
                         </table>
                         @php
-                                    $qr_dokter =
-                                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                            $qr_dokter =
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
                                     elektronik oleh' .
-                                    "\n" .
-                                    $dataSpiro->nama .
-                                    "\n" .
-                                    'ID ' .
-                                    $dataSpiro->kd_dokter .
-                                    "\n" .
-                                    \Carbon\Carbon::parse($dataSpiro->tanggal)->format('d-m-Y');
-                                @endphp
+                                "\n" .
+                                $dataSpiro->nama .
+                                "\n" .
+                                'ID ' .
+                                $dataSpiro->kd_dokter .
+                                "\n" .
+                                \Carbon\Carbon::parse($dataSpiro->tanggal)->format('d-m-Y');
+                        @endphp
 
-                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black" class="table table-borderless table-sm">
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black"
+                            class="table table-borderless table-sm">
                             <tbody>
                                 <tr>
                                     <td colspan="2">C. KESIMPULAN / HASIL :</td>
@@ -3675,7 +3773,8 @@
                                 </tr>
                                 <tr>
                                     <td colspan="2"></td>
-                                    <td  style="text-align: center;">Surakarta, {{ \Carbon\Carbon::parse($dataSpiro->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="text-align: center;">Surakarta,
+                                        {{ \Carbon\Carbon::parse($dataSpiro->tanggal)->format('d-m-Y') }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2"></td>
@@ -3699,9 +3798,9 @@
                 </div>
             </div>
         @endif
-        
+
         {{-- Data Transfusi --}}
-        @if($dataTransfusi)
+        @if ($dataTransfusi)
             <div class="card card-primary card-outline card-outline-tabs">
                 <div class="card-header p-0 border-bottom-0">
                     <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
@@ -3709,9 +3808,9 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ $index == 0 ? 'active' : '' }}" id="custom-tabs-four-home-tab"
                                     data-toggle="pill"
-                                    href="#custom-tabs-lap-{{ $listTransfusi->nomor_kantong}}-{{ \Carbon\Carbon::parse($listTransfusi->tanggal)->format('dmY') }}"
+                                    href="#custom-tabs-lap-{{ $listTransfusi->nomor_kantong }}-{{ \Carbon\Carbon::parse($listTransfusi->tanggal)->format('dmY') }}"
                                     role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">
-                                    Kantong Darah {{ $listTransfusi->nomor_kantong}}</a>
+                                    Kantong Darah {{ $listTransfusi->nomor_kantong }}</a>
                             </li>
                         @endforeach
                     </ul>
@@ -3727,8 +3826,8 @@
                                     <thead>
                                         <tr>
                                             <td class="align-top" style="width:60%" rowspan="4"><img
-                                                    src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
-                                                    width="350">
+                                                    src="{{ asset('image/kemenkes_logo_horisontal.png') }}"
+                                                    alt="Logo RSUP" width="350">
                                             </td>
                                             <td class="pt-1 pb-0 align-middle"
                                                 style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
@@ -3740,29 +3839,34 @@
                                         </tr>
                                         <tr>
                                             <td class="align-middle py-0">
-                                                <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                                <img src="{{ asset('image/gps.png') }}" alt="pin lokasi"
+                                                    width="20"> Jalan
                                                 Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
                                             </td>
                                         </tr>
                                         <tr>
                                             <td class="align-middle py-0">
-                                                <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                                <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi"
+                                                    width="17">
                                                 (0271)
                                                 713055
                                             </td>
                                         </tr>
                                         <tr>
                                             <td class="align-middle py-0">
-                                                <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                                <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                                    width="17">
                                                 https://web.rsupsurakarta.co.id
                                             </td>
                                         </tr>
                                     </thead>
                                 </table>
-                                <table style="width: 100%; margin-top:10px; margin-bottom:-2px;" class="table table-borderless table-sm">
+                                <table style="width: 100%; margin-top:10px; margin-bottom:-2px;"
+                                    class="table table-borderless table-sm">
                                     <thead>
                                         <tr>
-                                            <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black; border-left: 1px solid black; border-right: 1px solid black;" colspan="5">
+                                            <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black; border-left: 1px solid black; border-right: 1px solid black;"
+                                                colspan="5">
                                                 <h5><b>MONITORING TRANSFUSI DARAH / PRODUK DARAH</b></h5>
                                             </th>
                                         </tr>
@@ -3771,9 +3875,11 @@
                                                 Identitas Pasien
                                             </td>
                                             <td style="" colspan="2">
-                                                : {{ $listTransfusi->nm_pasien }} / {{ $listTransfusi->no_rkm_medis }} / {{ $listTransfusi->jk }}
+                                                : {{ $listTransfusi->nm_pasien }} / {{ $listTransfusi->no_rkm_medis }} /
+                                                {{ $listTransfusi->jk }}
                                             </td>
-                                            <td style="border-right: 1px solid black;" class="text-bold" colspan="2">
+                                            <td style="border-right: 1px solid black;" class="text-bold"
+                                                colspan="2">
                                                 PETUGAS BANK DARAH
                                             </td>
                                         </tr>
@@ -3812,7 +3918,8 @@
                                             <td style="" colspan="2">
                                                 : {{ $listTransfusi->jenis_darah }}
                                             </td>
-                                            <td style="border-right: 1px solid black;" class="text-bold" colspan="2">
+                                            <td style="border-right: 1px solid black;" class="text-bold"
+                                                colspan="2">
                                                 PENERIMA DARAH
                                             </td>
                                         </tr>
@@ -3839,7 +3946,8 @@
                                                 Waktu Transfusi
                                             </td>
                                             <td style="border-right: 1px solid black;" class="">
-                                                : {{ $listTransfusi->tgl_transfusi }} {{ $listTransfusi->jam_transfusi }}
+                                                : {{ $listTransfusi->tgl_transfusi }}
+                                                {{ $listTransfusi->jam_transfusi }}
                                             </td>
                                         </tr>
                                     </thead>
@@ -3847,59 +3955,113 @@
                                 <table class="table table-borderless table-sm" style="border: 1px solid black;">
                                     <tbody>
                                         <tr>
-                                            <td style="vertical-align: middle; text-align:center; width:20%; border: 1px solid black;"><b>KONDISI</b></td>
-                                            <td colspan="2" style="vertical-align: middle; text-align:center;width:20%; border: 1px solid black;"><b>SEBELUM TRANSFUSI</b><br>{{ $listTransfusi->jam_st }} WIB</td>
-                                            <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>15-30 MENIT TRANSFUSI</b><br>{{ $listTransfusi->jam_mt }} WIB</td>
-                                            <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>2 JAM TRANSFUSI</b><br>{{ $listTransfusi->jam_t }} WIB</td>
-                                            <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>PASCA TRANSFUSI</b><br>{{ $listTransfusi->jam_pt }} WIB</td>
+                                            <td
+                                                style="vertical-align: middle; text-align:center; width:20%; border: 1px solid black;">
+                                                <b>KONDISI</b></td>
+                                            <td colspan="2"
+                                                style="vertical-align: middle; text-align:center;width:20%; border: 1px solid black;">
+                                                <b>SEBELUM TRANSFUSI</b><br>{{ $listTransfusi->jam_st }} WIB</td>
+                                            <td colspan="2"
+                                                style="text-align: center; width:20%; border: 1px solid black;"><b>15-30
+                                                    MENIT TRANSFUSI</b><br>{{ $listTransfusi->jam_mt }} WIB</td>
+                                            <td colspan="2"
+                                                style="text-align: center; width:20%; border: 1px solid black;"><b>2 JAM
+                                                    TRANSFUSI</b><br>{{ $listTransfusi->jam_t }} WIB</td>
+                                            <td colspan="2"
+                                                style="text-align: center; width:20%; border: 1px solid black;"><b>PASCA
+                                                    TRANSFUSI</b><br>{{ $listTransfusi->jam_pt }} WIB</td>
                                         </tr>
                                         <tr>
-                                            <td style="vertical-align: middle; text-align:center;border: 1px solid black;">Keadaan Umum</td>
-                                            <td colspan="2" style="vertical-align: middle; text-align:center;border: 1px solid black;">{{ $listTransfusi->ku_st }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->ku_mt }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->ku_t }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->ku_pt }}</td>
+                                            <td
+                                                style="vertical-align: middle; text-align:center;border: 1px solid black;">
+                                                Keadaan Umum</td>
+                                            <td colspan="2"
+                                                style="vertical-align: middle; text-align:center;border: 1px solid black;">
+                                                {{ $listTransfusi->ku_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->ku_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->ku_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->ku_pt }}</td>
                                         </tr>
                                         <tr>
-                                            <td style="vertical-align: middle; text-align:center;border: 1px solid black;">Suhu Tubuh</td>
-                                            <td colspan="2" style="vertical-align: middle; text-align:center;border: 1px solid black;">{{ $listTransfusi->st_st }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->st_mt }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->st_t }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->st_pt }}</td>
+                                            <td
+                                                style="vertical-align: middle; text-align:center;border: 1px solid black;">
+                                                Suhu Tubuh</td>
+                                            <td colspan="2"
+                                                style="vertical-align: middle; text-align:center;border: 1px solid black;">
+                                                {{ $listTransfusi->st_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->st_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->st_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->st_pt }}</td>
                                         </tr>
                                         <tr>
-                                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;">Nadi</td>
-                                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->nadi_st }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->nadi_mt }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->nadi_t }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->nadi_pt }}</td>
+                                            <td
+                                                style="vertical-align: middle; text-align:center; border: 1px solid black;">
+                                                Nadi</td>
+                                            <td colspan="2"
+                                                style="vertical-align: middle; text-align:center; border: 1px solid black;">
+                                                {{ $listTransfusi->nadi_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->nadi_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->nadi_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->nadi_pt }}</td>
                                         </tr>
                                         <tr>
-                                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;">Tekanan Darah</td>
-                                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->td_st }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->td_mt }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->td_t }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->td_pt }}</td>
+                                            <td
+                                                style="vertical-align: middle; text-align:center; border: 1px solid black;">
+                                                Tekanan Darah</td>
+                                            <td colspan="2"
+                                                style="vertical-align: middle; text-align:center; border: 1px solid black;">
+                                                {{ $listTransfusi->td_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->td_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->td_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->td_pt }}</td>
                                         </tr>
                                         <tr>
-                                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;"><i>Respiratory Rate</i></td>
-                                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->rr_st }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->rr_mt }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->rr_t }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->rr_pt }}</td>
+                                            <td
+                                                style="vertical-align: middle; text-align:center; border: 1px solid black;">
+                                                <i>Respiratory Rate</i></td>
+                                            <td colspan="2"
+                                                style="vertical-align: middle; text-align:center; border: 1px solid black;">
+                                                {{ $listTransfusi->rr_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->rr_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->rr_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->rr_pt }}</td>
                                         </tr>
                                         <tr>
-                                            <td style="vertical-align: middle; text-align:center; border: 1px solid black;">Volume & Warna Urine</td>
-                                            <td colspan="2" style="vertical-align: middle; text-align:center; border: 1px solid black;">{{ $listTransfusi->vol_st }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->vol_mt }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->vol_t }}</td>
-                                            <td colspan="2" style="text-align: center; border: 1px solid black;">{{ $listTransfusi->vol_pt }}</td>
+                                            <td
+                                                style="vertical-align: middle; text-align:center; border: 1px solid black;">
+                                                Volume & Warna Urine</td>
+                                            <td colspan="2"
+                                                style="vertical-align: middle; text-align:center; border: 1px solid black;">
+                                                {{ $listTransfusi->vol_st }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->vol_mt }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->vol_t }}</td>
+                                            <td colspan="2" style="text-align: center; border: 1px solid black;">
+                                                {{ $listTransfusi->vol_pt }}</td>
                                         </tr>
                                         <tr>
-                                            <td style="vertical-align: middle; border: 1px solid black;" rowspan="5">Gejala dan tanda reaksi transfusi yang ditemukan &#42;&#41;</td>
+                                            <td style="vertical-align: middle; border: 1px solid black;" rowspan="5">
+                                                Gejala dan tanda reaksi transfusi yang ditemukan &#42;&#41;</td>
                                             <td style="border-left: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_1 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         urtikaria
@@ -3908,7 +4070,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_6 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         nyeri dada
@@ -3917,7 +4080,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_10 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         urtikaria
@@ -3926,7 +4090,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_15 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         nyeri dada
@@ -3935,7 +4100,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_19 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         urtikaria
@@ -3944,7 +4110,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_24 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         nyeri dada
@@ -3953,7 +4120,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_28 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         urtikaria
@@ -3962,7 +4130,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_33 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         nyeri dada
@@ -3973,7 +4142,8 @@
                                         <tr>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_2 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         demam
@@ -3982,7 +4152,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_7 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         nyeri kepala
@@ -3991,7 +4162,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_11 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         demam
@@ -4000,7 +4172,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_16 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         nyeri kepala
@@ -4009,7 +4182,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_20 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         demam
@@ -4018,7 +4192,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_25 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         nyeri kepala
@@ -4027,7 +4202,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_29 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         demam
@@ -4036,7 +4212,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_34 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         nyeri kepala
@@ -4047,7 +4224,8 @@
                                         <tr>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_3 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         gatal
@@ -4056,7 +4234,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_8 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         Syok &#42;&#42;
@@ -4065,7 +4244,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_12 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         gatal
@@ -4074,7 +4254,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_17 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         Syok &#42;&#42;
@@ -4083,7 +4264,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_21 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         gatal
@@ -4092,7 +4274,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_26 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         Syok &#42;&#42;
@@ -4101,7 +4284,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_30 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         gatal
@@ -4110,7 +4294,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_35 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         Syok &#42;&#42;
@@ -4121,7 +4306,8 @@
                                         <tr>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_4 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         takikardi
@@ -4130,7 +4316,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_9 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         sesak napas &#42;&#42;
@@ -4139,7 +4326,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_13 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         takikardi
@@ -4148,7 +4336,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_18 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         sesak napas &#42;&#42;
@@ -4157,7 +4346,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_22 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         takikardi
@@ -4166,7 +4356,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_27 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         sesak napas &#42;&#42;
@@ -4175,7 +4366,8 @@
                                             </td>
                                             <td style="">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_31 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         takikardi
@@ -4184,7 +4376,8 @@
                                             </td>
                                             <td style="border-right: 1px solid black;">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_36 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         sesak napas &#42;&#42;
@@ -4193,36 +4386,44 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;"
+                                                colspan="2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_5 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         hematuria / Hemoglobinuria&#42;&#42;
                                                     </label>
                                                 </div>
                                             </td>
-                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;"
+                                                colspan="2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_14 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         hematuria / Hemoglobinuria&#42;&#42;
                                                     </label>
                                                 </div>
                                             </td>
-                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;"
+                                                colspan="2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_23 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         hematuria / Hemoglobinuria&#42;&#42;
                                                     </label>
                                                 </div>
                                             </td>
-                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;" colspan="2">
+                                            <td style="border-right: 1px solid black; border-bottom: 1px solid black;"
+                                                colspan="2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" onclick="return false;"
+                                                    <input class="form-check-input" type="checkbox"
+                                                        onclick="return false;"
                                                         {{ $listTransfusi->gr_32 == 'true' ? 'checked' : '' }}>
                                                     <label class="form-check-label" for="defaultCheck1">
                                                         hematuria / Hemoglobinuria&#42;&#42;
@@ -4231,27 +4432,30 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td style="padding-left:25px;" colspan="3">Nama Perawat yang melakukan transfusi <br> <i>(double check)</i>
+                                            <td style="padding-left:25px;" colspan="3">Nama Perawat yang melakukan
+                                                transfusi <br> <i>(double check)</i>
                                             </td>
                                             <td style="" colspan="3">
                                                 1&#41; {{ $listTransfusi->petugas2 }} <br>
                                                 2&#41; {{ $listTransfusi->petugas3 }} <br>
                                             </td>
                                             <td style="text-align:center;" colspan="3">
-                                                Surakarta, {{ \Carbon\Carbon::parse($listTransfusi->tanggal)->format('d-m-Y') }} <br> Petugas Transfusi
+                                                Surakarta,
+                                                {{ \Carbon\Carbon::parse($listTransfusi->tanggal)->format('d-m-Y') }} <br>
+                                                Petugas Transfusi
                                             </td>
                                         </tr>
                                         @php
                                             $qr_petugas =
-                                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
                                             elektronik oleh' .
-                                            "\n" .
-                                            $listTransfusi->petugas2 .
-                                            "\n" .
-                                            'ID ' .
-                                            $listTransfusi->kd_petugas_2 .
-                                            "\n" .
-                                            \Carbon\Carbon::parse($listTransfusi->tanggal)->format('d-m-Y');
+                                                "\n" .
+                                                $listTransfusi->petugas2 .
+                                                "\n" .
+                                                'ID ' .
+                                                $listTransfusi->kd_petugas_2 .
+                                                "\n" .
+                                                \Carbon\Carbon::parse($listTransfusi->tanggal)->format('d-m-Y');
                                         @endphp
                                         <tr>
                                             <td style="padding-left:25px; vertical-align:middle;" colspan="6">
@@ -4270,9 +4474,9 @@
                 </div>
             </div>
         @endif
-       
+
         {{-- Data OBSERVASI FIBRINOLITIK --}}
-        @if($dataObserFibri->count()>0)
+        @if ($dataObserFibri->count() > 0)
             <div class="card">
                 <div class="card-header">Lembar Observasi Fibrinolitik</div>
                 <div class="card-body">
@@ -4306,17 +4510,20 @@
                             </tr>
                             <tr>
                                 <td class="align-middle py-0">
-                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                        width="17">
                                     https://web.rsupsurakarta.co.id
                                 </td>
                             </tr>
                         </thead>
                     </table>
                     <div class="row justify-content-center">
-                        <table style="width: 100%; margin-bottom:50px; margin-top:10px;" class="table table-borderless table-sm">
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px;"
+                            class="table table-borderless table-sm">
                             <thead>
                                 <tr>
-                                    <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;" colspan="4">
+                                    <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;"
+                                        colspan="4">
                                         <h5><b>LEMBAR OBSERVASI FIBRINOLITIK</b></h5>
                                     </th>
                                 </tr>
@@ -4325,7 +4532,8 @@
                                     <td style="width: 30%; ">: {{ $pasien->no_rawat }}</td>
                                     <td style="padding-left: 100px;">Umur</td>
                                     <td style="padding-left: 50px;">:
-                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataObserFibri->first()->tanggal))->format('%y Th') }} </td>
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataObserFibri->first()->tanggal))->format('%y Th') }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
@@ -4337,51 +4545,67 @@
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
                                     <td style="border-bottom: 0px solid black;">: {{ $pasien->nm_pasien }}</td>
                                     <td style="padding-left: 100px;;">Tanggal Lahir</td>
-                                    <td style="padding-left: 50px;">: {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
+                                    <td style="padding-left: 50px;">:
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Tanggal</td>
-                                    <td style="border-bottom: 0px solid black;">: {{ \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="border-bottom: 0px solid black;">:
+                                        {{ \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y') }}
+                                    </td>
                                     <td style="padding-left: 100px; ">Alamat</td>
                                     <td style="padding-left: 50px;">: {{ $pasien->alamat }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 1px solid black;">Jam</td>
-                                    <td style="border-bottom: 1px solid black;" colspan="3">: {{$dataObserFibri->first()->jam}} </td>
+                                    <td style="border-bottom: 1px solid black;" colspan="3">:
+                                        {{ $dataObserFibri->first()->jam }} </td>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Ruang Rawat</td>
-                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->ruang_rawat}} </td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">:
+                                        {{ $dataObserFibri->first()->ruang_rawat }} </td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">DPJP Pasien</td>
-                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->nm_dokter}} </td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">:
+                                        {{ $dataObserFibri->first()->nm_dokter }} </td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Diagnosa</td>
-                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->diagnosa}} </td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">:
+                                        {{ $dataObserFibri->first()->diagnosa }} </td>
                                 </tr>
                                 <tr>
-                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Jenis Fibrinolitik</td>
-                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->jenis_fibrinolitik}} </td>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Jenis Fibrinolitik
+                                    </td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">:
+                                        {{ $dataObserFibri->first()->jenis_fibrinolitik }} </td>
                                 </tr>
                                 <tr>
-                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kontra Indikasi Absolut</td>
-                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->kontra_absolut}} </td>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kontra Indikasi
+                                        Absolut</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">:
+                                        {{ $dataObserFibri->first()->kontra_absolut }} </td>
                                 </tr>
                                 <tr>
-                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kontra Indikasi Relatif</td>
-                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->kontra_relatif}} </td>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kontra Indikasi
+                                        Relatif</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">:
+                                        {{ $dataObserFibri->first()->kontra_relatif }} </td>
                                 </tr>
                                 <tr>
-                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">EKG 12 Lead pre fibrinolitik</td>
-                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->ekg_fibrinolitik}} </td>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">EKG 12 Lead pre
+                                        fibrinolitik</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">:
+                                        {{ $dataObserFibri->first()->ekg_fibrinolitik }} </td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Premedikasi</td>
-                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{$dataObserFibri->first()->premedikasi}} </td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">:
+                                        {{ $dataObserFibri->first()->premedikasi }} </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -4420,32 +4644,35 @@
 
                         @php
                             $qr_dokter =
-                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
                             elektronik oleh' .
-                            "\n" .
-                            $dataObserFibri->first()->nm_dokter .
-                            "\n" .
-                            'ID ' .
-                            $dataObserFibri->first()->kd_dokter .
-                            "\n" .
-                            \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y');
+                                "\n" .
+                                $dataObserFibri->first()->nm_dokter .
+                                "\n" .
+                                'ID ' .
+                                $dataObserFibri->first()->kd_dokter .
+                                "\n" .
+                                \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y');
                             $qr_petugas =
-                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
                             elektronik oleh' .
-                            "\n" .
-                            $dataObserFibri->first()->nm_petugas .
-                            "\n" .
-                            'ID ' .
-                            $dataObserFibri->first()->kd_petugas .
-                            "\n" .
-                            \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y');
+                                "\n" .
+                                $dataObserFibri->first()->nm_petugas .
+                                "\n" .
+                                'ID ' .
+                                $dataObserFibri->first()->kd_petugas .
+                                "\n" .
+                                \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y');
                         @endphp
 
-                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black" class="table table-borderless table-sm">
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black"
+                            class="table table-borderless table-sm">
                             <tbody>
                                 <tr>
                                     <td colspan="2"></td>
-                                    <td style="text-align: center;">Surakarta, {{ \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="text-align: center;">Surakarta,
+                                        {{ \Carbon\Carbon::parse($dataObserFibri->first()->tanggal)->format('d-m-Y') }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td colspan="2"style="text-align: center;">Dokter</td>
@@ -4456,7 +4683,8 @@
                                     <td style="text-align: center;">{!! QrCode::size(100)->generate($qr_petugas) !!}</td>
                                 </tr>
                                 <tr>
-                                    <td colspan="2"style="text-align: center;">{{ $dataObserFibri->first()->nm_dokter }}</td>
+                                    <td colspan="2"style="text-align: center;">
+                                        {{ $dataObserFibri->first()->nm_dokter }}</td>
                                     <td style="text-align: center;">{{ $dataObserFibri->first()->nm_petugas }}</td>
                                 </tr>
                             </tbody>
@@ -4466,7 +4694,7 @@
             </div>
         @endif
         {{-- Data Checklist FIBRINOLITIK --}}
-        @if($dataChecklistFibri)
+        @if ($dataChecklistFibri)
             <div class="card">
                 <div class="card-header">Lembar Observasi Fibrinolitik</div>
                 <div class="card-body">
@@ -4500,17 +4728,20 @@
                             </tr>
                             <tr>
                                 <td class="align-middle py-0">
-                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi" width="17">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                        width="17">
                                     https://web.rsupsurakarta.co.id
                                 </td>
                             </tr>
                         </thead>
                     </table>
                     <div class="row justify-content-center">
-                        <table style="width: 100%; margin-bottom:0px; margin-top:10px;" class="table table-borderless table-sm">
+                        <table style="width: 100%; margin-bottom:0px; margin-top:10px;"
+                            class="table table-borderless table-sm">
                             <thead>
                                 <tr>
-                                    <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;" colspan="4">
+                                    <th style="text-align: center; border-bottom: 1px solid black; border-top: 3px solid black;"
+                                        colspan="4">
                                         <h5><b>CHECKLIST FIBRINOLITIK</b></h5>
                                     </th>
                                 </tr>
@@ -4519,35 +4750,42 @@
                                     <td style="width: 30%; ">: {{ $pasien->no_rawat }}</td>
                                     <td style="padding-left: 100px;">Umur</td>
                                     <td style="padding-left: 50px;">:
-                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataChecklistFibri->tanggal))->format('%y Th') }} </td>
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($dataChecklistFibri->tanggal))->format('%y Th') }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
                                     <td style="width: 30%; ">: {{ $pasien->no_rkm_medis }}</td>
                                     <td style="padding-left: 100px; ">JK</td>
-                                    <td style="padding-left: 50px;">: {{ $pasien->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
+                                    <td style="padding-left: 50px;">: {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
                                     <td style="border-bottom: 0px solid black;">: {{ $pasien->nm_pasien }}</td>
                                     <td style="padding-left: 100px;;">Tanggal Lahir</td>
-                                    <td style="padding-left: 50px;">: {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
+                                    <td style="padding-left: 50px;">:
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Tanggal</td>
-                                    <td style="border-bottom: 0px solid black;">: {{ \Carbon\Carbon::parse($dataChecklistFibri->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="border-bottom: 0px solid black;">:
+                                        {{ \Carbon\Carbon::parse($dataChecklistFibri->tanggal)->format('d-m-Y') }}</td>
                                     <td style="padding-left: 100px; vertical-align:top;">Alamat</td>
                                     <td style="padding-left: 50px;">: {{ $pasien->alamat }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 1px solid black;">Jam</td>
-                                    <td style="border-bottom: 1px solid black;" colspan="3">: {{$dataChecklistFibri->jam}} </td>
+                                    <td style="border-bottom: 1px solid black;" colspan="3">:
+                                        {{ $dataChecklistFibri->jam }} </td>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
                                     <td colspan="4">
-                                        <img src="{{ asset('image/skema-fibrinolitic.jpg') }}" alt="" class="text-center" style="width: 50%; text-align:center; display:block; margin:auto;">
+                                        <img src="{{ asset('image/skema-fibrinolitic.jpg') }}" alt=""
+                                            class="text-center"
+                                            style="width: 50%; text-align:center; display:block; margin:auto;">
                                     </td>
                                 </tr>
                             </tbody>
@@ -4566,98 +4804,103 @@
                                     <tr>
                                         <td>a &#41;</td>
                                         <td>TD Sistolik > 200 mmHg atau Diastolik > 100-110 mmHg</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_a == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_a == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_a == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_a == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>b &#41;</td>
                                         <td>Perbedaan TD Sistolik lengan kanan dan kiri > 15 mmHg</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_b == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_b == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_b == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_b == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>c &#41;</td>
                                         <td>Riwayat penyakit sistem saraf pusat struktural</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_c == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_c == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_c == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_c == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>d &#41;</td>
-                                        <td>Riwayat trauma tertutup signifikan pada kepala/wajah dalam 3 minggu terakhir</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_d == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_d == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td>Riwayat trauma tertutup signifikan pada kepala/wajah dalam 3 minggu terakhir
+                                        </td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_d == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_d == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>e &#41;</td>
                                         <td>Stroke &#62; 3 jam atau &#60;3 bulan </td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_e == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_e == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_e == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_e == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>f &#41;</td>
-                                        <td>Trauma mayor, pembedahan (termasuk bedah laser mata), perdarahan GI/GU dalam 2-4 minggu terakhir</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_f == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_f == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td>Trauma mayor, pembedahan (termasuk bedah laser mata), perdarahan GI/GU dalam 2-4
+                                            minggu terakhir</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_f == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_f == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>g &#41;</td>
                                         <td>Riwayat perdarahan Intrakranial</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_g == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_g == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_g == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_g == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>h &#41;</td>
                                         <td>Perdarahan, masalah pembekuan, atau penggunaan antikoagulan</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_h == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_h == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_h == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_h == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>i &#41;</td>
                                         <td>Wanita hamil</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_i == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_i == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_i == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_i == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>j &#41;</td>
-                                        <td>Penyakit sistemik serius (misalnya kanker tingkat lanjut, penyakit hati atau ginjal berat)</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_j == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_j == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td>Penyakit sistemik serius (misalnya kanker tingkat lanjut, penyakit hati atau
+                                            ginjal berat)</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_j == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L2_j == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
-                                    <td colspan="4">
-                                        <img src="{{ asset('image/skema-fibrinolitic-lanjut.jpg') }}" alt="" class="text-center" style="width: 50%; text-align:center; display:block; margin:auto;">
-                                    </td>
+                                        <td colspan="4">
+                                            <img src="{{ asset('image/skema-fibrinolitic-lanjut.jpg') }}"
+                                                alt="" class="text-center"
+                                                style="width: 50%; text-align:center; display:block; margin:auto;">
+                                        </td>
                                     <tr>
                                         <td>a &#41;</td>
                                         <td>Laju jantung >= 100x/menit dan TD Sistolik < 100 mmHg</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_a == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_a == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_a == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_a == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>b &#41;</td>
                                         <td>Edema paru (ronki basah)</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_b == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_b == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_b == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_b == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>c &#41;</td>
                                         <td>Tanda-tanda syok (dingin , lembab)</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_c == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_c == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_c == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_c == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>d &#41;</td>
                                         <td>Kontra indikasi terapi fibrinolisis</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_d == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_d == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_d == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_d == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
                                     <tr>
                                         <td>e &#41;</td>
                                         <td>Memerlukan RJP</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_e == 'true' ? '<i class="fas fa-check"></i>':'' !!}</td>
-                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_e == 'false' ? '<i class="fas fa-check"></i>':'' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_e == 'true' ? '<i class="fas fa-check"></i>' : '' !!}</td>
+                                        <td style='text-align:center;'>{!! $dataChecklistFibri->L3_e == 'false' ? '<i class="fas fa-check"></i>' : '' !!}</td>
                                     </tr>
-                                </tr>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -4665,22 +4908,24 @@
 
                         @php
                             $qr_petugas =
-                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
                             elektronik oleh' .
-                            "\n" .
-                            $dataChecklistFibri->nm_petugas .
-                            "\n" .
-                            'ID ' .
-                            $dataChecklistFibri->kd_petugas .
-                            "\n" .
-                            \Carbon\Carbon::parse($dataChecklistFibri->tanggal)->format('d-m-Y');
+                                "\n" .
+                                $dataChecklistFibri->nm_petugas .
+                                "\n" .
+                                'ID ' .
+                                $dataChecklistFibri->kd_petugas .
+                                "\n" .
+                                \Carbon\Carbon::parse($dataChecklistFibri->tanggal)->format('d-m-Y');
                         @endphp
 
-                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black" class="table table-borderless table-sm">
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black"
+                            class="table table-borderless table-sm">
                             <tbody>
                                 <tr>
                                     <td colspan="2" style="width: 50%;"></td>
-                                    <td style="text-align: center;">Surakarta, {{ \Carbon\Carbon::parse($dataChecklistFibri->tanggal)->format('d-m-Y') }}</td>
+                                    <td style="text-align: center;">Surakarta,
+                                        {{ \Carbon\Carbon::parse($dataChecklistFibri->tanggal)->format('d-m-Y') }}</td>
                                 </tr>
                                 <tr>
                                     <td colspan="2"style="text-align: center;"></td>
@@ -4700,7 +4945,7 @@
                 </div>
             </div>
         @endif
- 
+
         {{-- Pasien Operasi --}}
         {{-- Data Operasi Multi Tab --}}
         @if ($dataOperasi2 != null && $dataOperasi1)
@@ -4710,8 +4955,8 @@
                         <ul class="nav nav-tabs" id="custom-tabs-four-tab" role="tablist">
                             @foreach ($dataOperasi2 as $index => $listOperasi)
                                 <li class="nav-item">
-                                    <a class="nav-link {{ $index == 0 ? 'active' : '' }}" id="custom-tabs-four-home-tab"
-                                        data-toggle="pill"
+                                    <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
+                                        id="custom-tabs-four-home-tab" data-toggle="pill"
                                         href="#custom-tabs-lap-{{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('YmdHis') }}"
                                         role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">
                                         Data
@@ -4794,7 +5039,7 @@
                                                 <td class="align-middle py-0" colspan="2">
                                                     :
                                                     {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($listOperasi->tgl_operasi))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Th %m Bl %d Hr') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Th %m Bl %d Hr') }}
                                                 </td>
                                                 <td class="align-middle py-0">
                                                     Ruang
@@ -4975,7 +5220,7 @@
                                                 <td class="align-middle py-0" colspan="3">
                                                     :
                                                     {{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('d/m/Y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            H:i:s') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                H:i:s') }}
                                                 </td>
                                                 <td
                                                     class="align-middle py-0 border border-dark border-bottom-0 border-right-0 border-top-0">
@@ -5096,13 +5341,11 @@
                                                     {!! $listOperasi->instrumen != '-' ? \App\Vedika::getPegawai($listOperasi->instrumen)->nama : '-' !!}
                                                 </td>
                                                 <td class="align-middle py-0 pl-5" colspan="2">
-                                                    {!! $listOperasi->asisten_anestesi != '-'
-                                                        ? \App\Vedika::getPegawai($listOperasi->asisten_anestesi)->nama
-                                                        : '-' !!}
+                                                    {!! $listOperasi->asisten_anestesi != '-' ? \App\Vedika::getPegawai($listOperasi->asisten_anestesi)->nama : '-' !!}
                                                 </td>
                                                 <td
                                                     class="align-middle py-0 text-center border border-dark border-bottom-0 border-right-0 border-top-0">
-                                                    {{ isset($listOperasi->permintaan_pa) ? $listOperasi->permintaan_pa:'-' }}
+                                                    {{ isset($listOperasi->permintaan_pa) ? $listOperasi->permintaan_pa : '-' }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -5173,7 +5416,7 @@
                                             </tr>
                                             <tr>
                                                 <td class="align-middle py-0" colspan="5">
-                                                    {{ isset($listOperasi->diagnosa_preop) ? $listOperasi->diagnosa_preop:'-' }}
+                                                    {{ isset($listOperasi->diagnosa_preop) ? $listOperasi->diagnosa_preop : '-' }}
                                                 </td>
                                                 <td
                                                     class="align-middle py-0 border border-dark border-bottom-0 border-right-0 border-top-0">
@@ -5190,11 +5433,11 @@
                                             </tr>
                                             <tr>
                                                 <td class="align-middle py-0" colspan="5">
-                                                    {{ isset($listOperasi->jaringan_dieksekusi)? $listOperasi->jaringan_dieksekusi:'-' }}
+                                                    {{ isset($listOperasi->jaringan_dieksekusi) ? $listOperasi->jaringan_dieksekusi : '-' }}
                                                 </td>
                                                 <td
                                                     class="align-middle py-0 text-center border border-dark border-bottom-0 border-right-0 border-top-0">
-                                                    {{ isset($listOperasi->selesaioperasi) ? \Carbon\Carbon::parse($listOperasi->selesaioperasi)->format('d/m/Y H:i:s'):'-' }}
+                                                    {{ isset($listOperasi->selesaioperasi) ? \Carbon\Carbon::parse($listOperasi->selesaioperasi)->format('d/m/Y H:i:s') : '-' }}
                                                 </td>
                                             </tr>
                                             <tr>
@@ -5207,7 +5450,7 @@
                                             </tr>
                                             <tr>
                                                 <td class="align-middle py-0" colspan="5">
-                                                    {{ isset($listOperasi->diagnosa_postop)?$listOperasi->diagnosa_postop:'-' }}
+                                                    {{ isset($listOperasi->diagnosa_postop) ? $listOperasi->diagnosa_postop : '-' }}
                                                 </td>
                                                 <td
                                                     class="align-middle py-0 border border-dark border-bottom-0 border-right-0 border-top-0">
@@ -5223,11 +5466,11 @@
                                             @php
                                                 $dokterOperator = \App\Vedika::getPegawai($listOperasi->operator1)
                                                     ->nama;
-                                                    if(isset($listOperasi->laporan_operasi)){
-                                                        $draf = preg_split('/\r\n|\r|\n/', $listOperasi->laporan_operasi);
-                                                    }else{
-                                                        $draf = null;
-                                                    }
+                                                if (isset($listOperasi->laporan_operasi)) {
+                                                    $draf = preg_split('/\r\n|\r|\n/', $listOperasi->laporan_operasi);
+                                                } else {
+                                                    $draf = null;
+                                                }
                                                 $qr_dokter =
                                                     'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
                                         elektronik oleh' .
@@ -5237,13 +5480,15 @@
                                                     'ID ' .
                                                     $listOperasi->operator1 .
                                                     "\n" .
-                                                    \Carbon\Carbon::parse(isset($listOperasi->selesaioperasi)?$listOperasi->selesaioperasi:\Carbon\Carbon::now())->format(
-                                                        'd-m-Y'
-                                                    );
+                                                    \Carbon\Carbon::parse(
+                                                        isset($listOperasi->selesaioperasi)
+                                                            ? $listOperasi->selesaioperasi
+                                                            : \Carbon\Carbon::now(),
+                                                    )->format('d-m-Y');
                                             @endphp
                                             <tr>
                                                 <td class="align-middle py-0" colspan="5">
-                                                    @if(isset($draf))
+                                                    @if (isset($draf))
                                                         @foreach ($draf as $laporan)
                                                             {{ $laporan }}<br>
                                                         @endforeach
@@ -5272,7 +5517,7 @@
         {{-- End of laporan Operasi --}}
 
         {{-- Data Anestesi --}}
-        @if($dataAnestesi)
+        @if ($dataAnestesi)
             <div class="card">
                 <div class="card-header">Asesmen Prasedasi</div>
                 <div class="card-body">
@@ -5317,13 +5562,15 @@
                     <table class="table table-borderless table-sm mb-2">
                         <thead>
                             <tr>
-                                <th class="align-middle text-center pb-1" colspan="2" rowspan="6" style="width: 40%; border: 1px solid black;">
+                                <th class="align-middle text-center pb-1" colspan="2" rowspan="6"
+                                    style="width: 40%; border: 1px solid black;">
                                     <h5><b>ASESMEN PRASEDASI DAN ANESTESI</b></h5>
                                 </th>
                                 <td style="width: 20%; border-top: 1px solid black;">
                                     No. Rawat
                                 </td>
-                                <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->no_rawat }}</td>
+                                <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">:
+                                    {{ $dataAnestesi->no_rawat }}</td>
                             </tr>
                             <tr>
                                 <td>
@@ -5335,25 +5582,30 @@
                                 <td>
                                     Nama Pasien
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->nm_pasien }}/ Th/ {{ $dataAnestesi->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->nm_pasien }}/ Th/
+                                    {{ $dataAnestesi->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Tanggal Lahir
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ \Carbon\Carbon::parse($dataAnestesi->tgl_lahir)->format('d-m-Y') }}</td>
+                                <td style="border-right: 1px solid black;">:
+                                    {{ \Carbon\Carbon::parse($dataAnestesi->tgl_lahir)->format('d-m-Y') }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Alamat
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->alamat }}, {{ $dataAnestesi->kelurahan }}, {{ $dataAnestesi->kecamatan }}, {{ $dataAnestesi->kabupaten }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi->alamat }},
+                                    {{ $dataAnestesi->kelurahan }}, {{ $dataAnestesi->kecamatan }},
+                                    {{ $dataAnestesi->kabupaten }}</td>
                             </tr>
                             <tr>
                                 <td style="border-bottom: 1px solid black; ">
                                     Ruang Rawat
                                 </td>
-                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi->nm_bangsal }}</td>
+                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;">:
+                                    {{ $dataAnestesi->nm_bangsal }}</td>
                             </tr>
                         </thead>
                     </table>
@@ -5404,31 +5656,37 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;">
+                                <td colspan="2"
+                                    style="border-right: 1px solid black; border-bottom: 1px solid black;">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" onclick="return false;"
                                             {{ $dataAnestesi->obat_dikonsumsi == 'Ada' ? 'checked' : '' }}>
                                         <label class="form-check-label" for="defaultCheck1">
-                                            Ada {{ $dataAnestesi->obat_dikonsumsi_ket?  $dataAnestesi->obat_dikonsumsi_ket:'-' }}
+                                            Ada
+                                            {{ $dataAnestesi->obat_dikonsumsi_ket ? $dataAnestesi->obat_dikonsumsi_ket : '-' }}
                                         </label>
                                     </div>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="border-left: 1px solid black;">Riwayat Alergi</td>
-                                <td >: {{ $dataAnestesi->riwayat_alergi }} {{ $dataAnestesi->riwayat_alergi_ket }}</td>
+                                <td>: {{ $dataAnestesi->riwayat_alergi }} {{ $dataAnestesi->riwayat_alergi_ket }}</td>
                                 <td>Riwayat Merokok</td>
                                 <td style="border-right: 1px solid black;">: {{ $dataAnestesi->riwayat_merokok }}</td>
                             </tr>
                             <tr>
                                 <td style="border-left: 1px solid black;">Riwayat Penyakit</td>
-                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->riwayat_penyakit }} {{ $dataAnestesi->riwayat_penyakit_ket }}</td>
+                                <td colspan="3" style="border-right: 1px solid black;">:
+                                    {{ $dataAnestesi->riwayat_penyakit }} {{ $dataAnestesi->riwayat_penyakit_ket }}</td>
                             </tr>
                             <tr>
-                                <td style="border-left: 1px solid black; border-bottom: 1px solid black">Riwayat Anestesi</td>
-                                <td style="border-bottom: 1px solid black">: {{ $dataAnestesi->riwayat_anestesi }} {{ $dataAnestesi->jenis_anestesi }}</td>
+                                <td style="border-left: 1px solid black; border-bottom: 1px solid black">Riwayat Anestesi
+                                </td>
+                                <td style="border-bottom: 1px solid black">: {{ $dataAnestesi->riwayat_anestesi }}
+                                    {{ $dataAnestesi->jenis_anestesi }}</td>
                                 <td style="border-bottom: 1px solid black">Komplikasi Anestesi</td>
-                                <td style="border-right: 1px solid black; border-bottom: 1px solid black">: {{ $dataAnestesi->komplikasi_anestesi }}</td>
+                                <td style="border-right: 1px solid black; border-bottom: 1px solid black">:
+                                    {{ $dataAnestesi->komplikasi_anestesi }}</td>
                             </tr>
                             <tr>
                                 <td style="border-left:1px solid black;border-right: 1px solid black;" colspan="4">
@@ -5436,60 +5694,79 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td style="border-left:1px solid black;">B1/Breathing : {{ $dataAnestesi->fisik_b1 }}</td>
+                                <td style="border-left:1px solid black;">B1/Breathing : {{ $dataAnestesi->fisik_b1 }}
+                                </td>
                                 <td>alat pembebas jalan napas</td>
                                 <td>: {{ $dataAnestesi->fisik_alat }}</td>
-                                <td style="border-right: 1px solid black;">RR : {{ $dataAnestesi->fisik_rr }} X/menit </td>
+                                <td style="border-right: 1px solid black;">RR : {{ $dataAnestesi->fisik_rr }} X/menit
+                                </td>
                             </tr>
                             <tr>
-                                <td style="border-left:1px solid black;">Vesikuler : {{ $dataAnestesi->fisik_vesikuler }}</td>
+                                <td style="border-left:1px solid black;">Vesikuler :
+                                    {{ $dataAnestesi->fisik_vesikuler }}</td>
                                 <td>Rhonki : {{ $dataAnestesi->fisik_rhonki }}</td>
                                 <td>Wheezing</td>
-                                <td style="border-right: 1px solid black;">: (+){{ $dataAnestesi->fisik_wheezing_plus }} (-){{ $dataAnestesi->fisik_wheezing_min }}</td>
+                                <td style="border-right: 1px solid black;">: (+){{ $dataAnestesi->fisik_wheezing_plus }}
+                                    (-){{ $dataAnestesi->fisik_wheezing_min }}</td>
                             </tr>
                             <tr>
-                                <td style="border-left:1px solid black;">B2/Blood : TD : {{ $dataAnestesi->fisik_td }}</td>
+                                <td style="border-left:1px solid black;">B2/Blood : TD : {{ $dataAnestesi->fisik_td }}
+                                </td>
                                 <td>, HR : {{ $dataAnestesi->fisik_hr }} {{ $dataAnestesi->fisik_hr_ket }}</td>
                                 <td>, {{ $dataAnestesi->fisik_hr_ket }}</td>
-                                <td style="border-right: 1px solid black;">Konjingtiva: {{ $dataAnestesi->fisik_konjungtiva }}</td>
+                                <td style="border-right: 1px solid black;">Konjingtiva:
+                                    {{ $dataAnestesi->fisik_konjungtiva }}</td>
                             </tr>
                             <tr>
-                                <td style="border-left:1px solid black;">B3/Brain : GCS E:{{ $dataAnestesi->fisik_gcse }}</td>
-                                <td>M: {{ $dataAnestesi->fisik_gcsm }}   V: {{ $dataAnestesi->fisik_gcsv }}</td>
+                                <td style="border-left:1px solid black;">B3/Brain : GCS
+                                    E:{{ $dataAnestesi->fisik_gcse }}</td>
+                                <td>M: {{ $dataAnestesi->fisik_gcsm }} V: {{ $dataAnestesi->fisik_gcsv }}</td>
                                 <td>Pupil: {{ $dataAnestesi->fisik_pupil }}</td>
-                                <td style="border-right: 1px solid black;">Hemiparese : {{ $dataAnestesi->fisik_hemiparese }} X/menit </td>
+                                <td style="border-right: 1px solid black;">Hemiparese :
+                                    {{ $dataAnestesi->fisik_hemiparese }} X/menit </td>
                             </tr>
                             <tr>
-                                <td style="border-left:1px solid black;">B4/Badder : Produksi Urin:{{ $dataAnestesi->fisik_urin }} cc/jam</td>
-                                <td style="border-right: 1px solid black;" colspan="3">, Warna Urine : {{ $dataAnestesi->fisik_warnaurin }}</td>
+                                <td style="border-left:1px solid black;">B4/Badder : Produksi
+                                    Urin:{{ $dataAnestesi->fisik_urin }} cc/jam</td>
+                                <td style="border-right: 1px solid black;" colspan="3">, Warna Urine :
+                                    {{ $dataAnestesi->fisik_warnaurin }}</td>
                             </tr>
                             <tr>
-                                <td style="border-left:1px solid black;">B5/Bowel : Perut Distensi/kembung:{{ $dataAnestesi->fisik_perut }}</td>
+                                <td style="border-left:1px solid black;">B5/Bowel : Perut
+                                    Distensi/kembung:{{ $dataAnestesi->fisik_perut }}</td>
                                 <td>Diare : {{ $dataAnestesi->fisik_diare }}</td>
-                                <td style="border-right: 1px solid black;" colspan="2">Muntah : {{ $dataAnestesi->fisik_muntah }}</td>
+                                <td style="border-right: 1px solid black;" colspan="2">Muntah :
+                                    {{ $dataAnestesi->fisik_muntah }}</td>
                             </tr>
                             <tr>
-                                <td style="border-bottom: 1px solid black; border-left: 1px solid black;">B6/Bone : Alat Bantu Jalan:{{ $dataAnestesi->fisik_alatbantu }} cc/jam</td>
-                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;" colspan="3">Fraktur : {{ $dataAnestesi->fisik_fraktur }}</td>
+                                <td style="border-bottom: 1px solid black; border-left: 1px solid black;">B6/Bone : Alat
+                                    Bantu Jalan:{{ $dataAnestesi->fisik_alatbantu }} cc/jam</td>
+                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;"
+                                    colspan="3">Fraktur : {{ $dataAnestesi->fisik_fraktur }}</td>
                             </tr>
                             <tr>
                                 <td style="border-left:1px solid black;">Laboratorium</td>
-                                <td colspan="3" style="border-right:1px solid black;">: {{ $dataAnestesi->penunjang_lab }}</td>
+                                <td colspan="3" style="border-right:1px solid black;">:
+                                    {{ $dataAnestesi->penunjang_lab }}</td>
                             </tr>
                             <tr>
                                 <td style="border-left:1px solid black;">Radiologi</td>
-                                <td colspan="3" style="border-right:1px solid black;">: {{ $dataAnestesi->penunjang_rad }}</td>
+                                <td colspan="3" style="border-right:1px solid black;">:
+                                    {{ $dataAnestesi->penunjang_rad }}</td>
                             </tr>
                             <tr>
-                                <td style="border-left:1px solid black; border-bottom: 1px solid black;">Elektrokardiografi</td>
-                                <td colspan="3" style="border-bottom:1px solid black; border-right:1px solid black;">: {{ $dataAnestesi->penunjang_elektro }}</td>
+                                <td style="border-left:1px solid black; border-bottom: 1px solid black;">
+                                    Elektrokardiografi</td>
+                                <td colspan="3" style="border-bottom:1px solid black; border-right:1px solid black;">
+                                    : {{ $dataAnestesi->penunjang_elektro }}</td>
                             </tr>
                             <tr>
                                 <td style="border-left:1px solid black;">Status Fisik</td>
                                 <td colspan="3" style="border-right:1px solid black;">:</td>
                             </tr>
                             <tr>
-                                <td class="text-center" colspan="4" style="border-left:1px solid black; border-right:1px solid black; border-bottom: 1px solid black;">
+                                <td class="text-center" colspan="4"
+                                    style="border-left:1px solid black; border-right:1px solid black; border-bottom: 1px solid black;">
                                     <div style="display: inline-flex; gap: 20px;">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" onclick="return false;"
@@ -5552,39 +5829,50 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="text-align: center; border-left: 1px solid black; border-right: 1px solid black;">PERENCANA TINDAKAN ANESTESI</td>
+                                <td colspan="4"
+                                    style="text-align: center; border-left: 1px solid black; border-right: 1px solid black;">
+                                    PERENCANA TINDAKAN ANESTESI</td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">Rencana Tindakan Anestesi</td>
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">
+                                    Rencana Tindakan Anestesi</td>
                             </tr>
                             <tr>
                                 <td style="border-left: 1px solid black;">GA</td>
-                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->rencana_ga }}</td>
+                                <td colspan="3" style="border-right: 1px solid black;">:
+                                    {{ $dataAnestesi->rencana_ga }}</td>
                             </tr>
                             <tr>
                                 <td style="border-left: 1px solid black;">Regional</td>
-                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->rencana_reg }}</td>
+                                <td colspan="3" style="border-right: 1px solid black;">:
+                                    {{ $dataAnestesi->rencana_reg }}</td>
                             </tr>
                             <tr>
                                 <td style="border-left: 1px solid black;">Blok</td>
-                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->rencana_blok }}</td>
+                                <td colspan="3" style="border-right: 1px solid black;">:
+                                    {{ $dataAnestesi->rencana_blok }}</td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">Alat / bahan khusus yang diperlukan ( obat-obatan dan cairan) :</td>
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">
+                                    Alat / bahan khusus yang diperlukan ( obat-obatan dan cairan) :</td>
                             </tr>
                             <tr>
                                 <td style="border-left: 1px solid black;">Obat - obatan</td>
-                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->obat_obatan }} {{ $dataAnestesi->obat_obatan_ket }}</td>
+                                <td colspan="3" style="border-right: 1px solid black;">:
+                                    {{ $dataAnestesi->obat_obatan }} {{ $dataAnestesi->obat_obatan_ket }}</td>
                             </tr>
                             <tr>
                                 <td style="border-left: 1px solid black;">Cairan</td>
-                                <td colspan="3" style="border-right: 1px solid black;">: {{ $dataAnestesi->cairan }} {{ $dataAnestesi->cairan_ket }}</td>
+                                <td colspan="3" style="border-right: 1px solid black;">:
+                                    {{ $dataAnestesi->cairan }} {{ $dataAnestesi->cairan_ket }}</td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">Prosedur monitoring khusus saat tindakan anestesi :</td>
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">
+                                    Prosedur monitoring khusus saat tindakan anestesi :</td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">
+                                <td colspan="4"
+                                    style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" onclick="return false;"
                                             {{ $dataAnestesi->monitoring_khusus == 'Tidak' ? 'checked' : '' }}>
@@ -5602,10 +5890,12 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">Rencana perawatan setelah tindakan :</td>
+                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black;">
+                                    Rencana perawatan setelah tindakan :</td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">
+                                <td colspan="4"
+                                    style="border-left: 1px solid black; border-right: 1px solid black; border-bottom: 1px solid black;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" onclick="return false;"
                                             {{ $dataAnestesi->rencana_perawatan_inap == 'true' ? 'checked' : '' }}>
@@ -5686,7 +5976,7 @@
             </div>
         @endif
 
-        @if($dataAnestesi2)
+        @if ($dataAnestesi2)
             <div class="card">
                 <div class="card-header">Asesmen Pra Induksi</div>
                 <div class="card-body">
@@ -5731,13 +6021,15 @@
                     <table class="table table-borderless table-sm mb-2">
                         <thead>
                             <tr>
-                                <th class="align-middle text-center pb-1" colspan="2" rowspan="6" style="width: 40%; border: 1px solid black;">
+                                <th class="align-middle text-center pb-1" colspan="2" rowspan="6"
+                                    style="width: 40%; border: 1px solid black;">
                                     <h5><b>ASESMEN PRA INDUKSI</b></h5>
                                 </th>
                                 <td style="width: 20%; border-top: 1px solid black;">
                                     No. Rawat
                                 </td>
-                                <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi2->no_rawat }}</td>
+                                <td style="width: 40%; border-top: 1px solid black; border-right: 1px solid black;">:
+                                    {{ $dataAnestesi2->no_rawat }}</td>
                             </tr>
                             <tr>
                                 <td>
@@ -5749,32 +6041,39 @@
                                 <td>
                                     Nama Pasien
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->nm_pasien }}/ Th/ {{ $dataAnestesi2->jk == 'L'? 'Laki-laki':'Perempuan' }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->nm_pasien }}/ Th/
+                                    {{ $dataAnestesi2->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Tanggal Lahir
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ \Carbon\Carbon::parse($dataAnestesi2->tgl_lahir)->format('d-m-Y') }}</td>
+                                <td style="border-right: 1px solid black;">:
+                                    {{ \Carbon\Carbon::parse($dataAnestesi2->tgl_lahir)->format('d-m-Y') }}</td>
                             </tr>
                             <tr>
                                 <td>
                                     Alamat
                                 </td>
-                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->alamat }}, {{ $dataAnestesi2->kelurahan }}, {{ $dataAnestesi2->kecamatan }}, {{ $dataAnestesi2->kabupaten }}</td>
+                                <td style="border-right: 1px solid black;">: {{ $dataAnestesi2->alamat }},
+                                    {{ $dataAnestesi2->kelurahan }}, {{ $dataAnestesi2->kecamatan }},
+                                    {{ $dataAnestesi2->kabupaten }}</td>
                             </tr>
                             <tr>
                                 <td style="border-bottom: 1px solid black; ">
                                     Ruang Rawat
                                 </td>
-                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;">: {{ $dataAnestesi2->nm_bangsal }}</td>
+                                <td style="border-bottom: 1px solid black; border-right: 1px solid black;">:
+                                    {{ $dataAnestesi2->nm_bangsal }}</td>
                             </tr>
                         </thead>
                     </table>
                     <table class="table table-borderless table-sm" style="width: 100%;">
                         <tbody>
-                            <tr >
-                                <td colspan="4" style="border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;" >Keadaan Prainduksi :</td>
+                            <tr>
+                                <td colspan="4"
+                                    style="border-left: 1px solid black; border-top: 1px solid black; border-right: 1px solid black;">
+                                    Keadaan Prainduksi :</td>
                             </tr>
                             <tr>
                                 <td style="border-left: 1px solid black;">BB : {{ $dataAnestesi2->bb }} Kg</td>
@@ -5783,7 +6082,8 @@
                                 <td style="border-right: 1px solid black;">HB : {{ $dataAnestesi2->hb }} </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="border-left: 1px solid black;">TD : {{ $dataAnestesi2->td }} mmHg</td>
+                                <td colspan="2" style="border-left: 1px solid black;">TD : {{ $dataAnestesi2->td }}
+                                    mmHg</td>
                                 <td>Suhu : {{ $dataAnestesi2->suhu }} C</td>
                                 <td style="border-right: 1px solid black;">VAS : {{ $dataAnestesi2->vas }} </td>
                             </tr>
@@ -5815,7 +6115,8 @@
                                 <td style="border-right: 1px solid black;">Lain : {{ $dataAnestesi2->lain }} </td>
                             </tr>
                             <tr>
-                                <td style="border-left: 1px solid black; border-top: 1px solid black;">Pemeriksaan Fisik</td>
+                                <td style="border-left: 1px solid black; border-top: 1px solid black;">Pemeriksaan Fisik
+                                </td>
                                 <td colspan="3" style="border-right: 1px solid black; border-top: 1px solid black;">
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="checkbox" onclick="return false;"
@@ -5882,7 +6183,8 @@
                                 <td style="border-right: 1px solid black;"></td>
                             </tr>
                             <tr>
-                                <td style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;" colspan="4">
+                                <td style="border-top: 1px solid black; border-left: 1px solid black; border-right: 1px solid black;"
+                                    colspan="4">
                                     Anamnesis:
                                     <div style="display: inline-flex; gap: 20px;">
                                         <div class="form-check form-check-inline">
@@ -5903,8 +6205,9 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td style="border-left: 1px solid black; border-top: 1px solid black;">Status Fisik Asa</td>
-                                <td class="text-center"  style="border-top: 1px solid black;">
+                                <td style="border-left: 1px solid black; border-top: 1px solid black;">Status Fisik Asa
+                                </td>
+                                <td class="text-center" style="border-top: 1px solid black;">
                                     <div style="display: inline-flex; gap: 20px;">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" onclick="return false;"
@@ -5950,13 +6253,17 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td style="border-top: 1px solid black;border-right: 1px solid black;" colspan="2">Penyulit Praanestesi : {{ $dataAnestesi2->penyulit_praanestesi }}</td>
+                                <td style="border-top: 1px solid black;border-right: 1px solid black;" colspan="2">
+                                    Penyulit Praanestesi : {{ $dataAnestesi2->penyulit_praanestesi }}</td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left: 1px solid black;border-top: 1px solid black;border-right: 1px solid black;">Checklist Sebelum Induksi :</td>
+                                <td colspan="4"
+                                    style="border-left: 1px solid black;border-top: 1px solid black;border-right: 1px solid black;">
+                                    Checklist Sebelum Induksi :</td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left:1px solid black; border-right:1px solid black; border-bottom: 1px solid black;">
+                                <td colspan="4"
+                                    style="border-left:1px solid black; border-right:1px solid black; border-bottom: 1px solid black;">
                                     <div style="display: inline-flex; gap: 20px;">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" onclick="return false;"
@@ -5997,7 +6304,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left:1px solid black;border-right:1px solid black;">Teknik Anestesi</td>
+                                <td colspan="4" style="border-left:1px solid black;border-right:1px solid black;">
+                                    Teknik Anestesi</td>
                             </tr>
                             <tr>
                                 <td colspan="4" style="border-left:1px solid black; border-right:1px solid black;">
@@ -6093,10 +6401,13 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td colspan="3" style="border-right:1px solid black; border-bottom: 1px solid black;">{{ $dataAnestesi2->anestesi_lain_ket }}</td>
+                                <td colspan="3"
+                                    style="border-right:1px solid black; border-bottom: 1px solid black;">
+                                    {{ $dataAnestesi2->anestesi_lain_ket }}</td>
                             </tr>
                             <tr>
-                                <td colspan="4" style="border-left: 1px solid black;border-right: 1px solid black; ">Monitoring :</td>
+                                <td colspan="4" style="border-left: 1px solid black;border-right: 1px solid black; ">
+                                    Monitoring :</td>
                             </tr>
                             <tr>
                                 <td style="border-left: 1px solid black;">
@@ -6151,7 +6462,7 @@
                                             <input class="form-check-input" type="checkbox" onclick="return false;"
                                                 {{ $dataAnestesi2->monitoring_5 == 'true' ? 'checked' : '' }}>
                                             <label class="form-check-label" for="defaultCheck1">
-                                                CVC  mmHg
+                                                CVC mmHg
                                             </label>
                                         </div>
                                     </div>
@@ -6180,7 +6491,8 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td colspan="2" style="border-left: 1px solid black; border-bottom: 1px solid black;">
+                                <td colspan="2"
+                                    style="border-left: 1px solid black; border-bottom: 1px solid black;">
                                     <div style="display: inline-flex; gap: 20px;">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" onclick="return false;"
@@ -6191,7 +6503,8 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td colspan="2" style="border-right: 1px solid black; border-bottom: 1px solid black;">
+                                <td colspan="2"
+                                    style="border-right: 1px solid black; border-bottom: 1px solid black;">
                                     <div style="display: inline-flex; gap: 20px;">
                                         <div class="form-check form-check-inline">
                                             <input class="form-check-input" type="checkbox" onclick="return false;"
@@ -6250,8 +6563,8 @@
         @if ($resumeRanap1 && $resumeRanap2 && $resumeRanap3 && $resumeRanap4)
             <style>
                 /* pre {
-                                                                    white-space: pre-wrap !important;
-                                                                } */
+                                                                        white-space: pre-wrap !important;
+                                                                    } */
 
                 pre {
                     font-family: 'Source Sans Pro';
@@ -6332,7 +6645,7 @@
                                 <td class="align-middle py-0">Umur</td>
                                 <td class="align-middle py-0">:
                                     {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    Th %m Bl') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Th %m Bl') }}
                                 </td>
                                 <td class="align-middle py-0">Jenis Kelamin</td>
                                 <td class="align-middle py-0">: {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
@@ -6344,7 +6657,7 @@
                                     {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->format('d-m-Y') }}</td>
                                 <td class="align-middle py-0">Tanggal Masuk</td>
                                 <td class="align-middle py-0">:
-                                    {{ $resumeRanap2->first()->waktu_masuk_ranap != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($resumeRanap2->first()->waktu_masuk_ranap)->format('d-m-Y'):'-' }}
+                                    {{ $resumeRanap2->first()->waktu_masuk_ranap != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($resumeRanap2->first()->waktu_masuk_ranap)->format('d-m-Y') : '-' }}
                                 </td>
                             </tr>
                             <tr>
@@ -6352,7 +6665,7 @@
                                 <td class="align-middle py-0">: {{ $pasien->alamat }}</td>
                                 <td class="align-middle py-0">Tanggal Keluar</td>
                                 <td class="align-middle py-0">:
-                                    {{ $resumeRanap2->first()->waktu_keluar_ranap != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($resumeRanap2->last()->waktu_keluar_ranap)->format('d-m-Y'):'-' }}
+                                    {{ $resumeRanap2->first()->waktu_keluar_ranap != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($resumeRanap2->last()->waktu_keluar_ranap)->format('d-m-Y') : '-' }}
                                 </td>
                             </tr>
                             <tr>
@@ -6372,7 +6685,7 @@
                                 <td class="align-top py-0" style="width: 2%">:</td>
                                 <td class="align-top py-0"
                                     style="width: 78%; word-wrap: break-word; word-break: break-all;">
-                                    {{ $resumeRanap1->keluhan_utama }}
+                                     {!! nl2br(e( $resumeRanap1->keluhan_utama )) !!}
                                 </td>
                             </tr>
                             <tr>
@@ -6401,7 +6714,7 @@
                                 <td class="align-top py-0" style="width: 2%">:</td>
                                 <td class="align-top py-0"
                                     style="width: 78%;  word-wrap: break-word; text-align:justify">
-                                    {{ $resumeRanap1->pemeriksaan_fisik }}
+                                     {!! nl2br(e($resumeRanap1->pemeriksaan_fisik)) !!}
                                 </td>
                             </tr>
                             <tr>
@@ -6410,7 +6723,7 @@
                                 <td class="align-top py-0" style="width: 2%">:</td>
                                 <td class="align-top py-0"
                                     style="width: 78%;  word-wrap: break-word; text-align:justify">
-                                    {{ $resumeRanap1->pemeriksaan_penunjang }}
+                                    {!! nl2br(e($resumeRanap1->pemeriksaan_penunjang)) !!}
                                 </td>
                             </tr>
                             <tr>
@@ -6418,14 +6731,14 @@
                                 </td>
                                 <td class="align-top py-0" style="width: 2%">:</td>
                                 <td class="align-top py-0" style="width: 78%">
-                                    {{ $resumeRanap1->hasil_laborat }}
+                                     {!! nl2br(e($resumeRanap1->hasil_laborat)) !!}
                                 </td>
                             </tr>
                             <tr>
                                 <td class="align-top py-0" style="width: 20%">Obat-obatan Selama Perawatan</td>
                                 <td class="align-top py-0" style="width: 2%">:</td>
                                 <td class="align-top py-0" style="width: 78%">
-                                    {{ $resumeRanap1->obat_di_rs }}
+                                    {!! nl2br(e($resumeRanap1->obat_di_rs)) !!}
                                 </td>
                             </tr>
                             <tr>
@@ -6433,7 +6746,7 @@
                                 </td>
                                 <td class="align-top py-0" style="width: 2%">:</td>
                                 <td class="align-top py-0" style="width: 78%">
-                                    {{ $resumeRanap1->tindakan_dan_operasi }}
+                                    {!! nl2br(e($resumeRanap1->tindakan_dan_operasi)) !!}
                                 </td>
                             </tr>
                             <tr>
@@ -6565,7 +6878,7 @@
                                                         $dataProsedurLainnya = $resumeRanap4->where(
                                                             'prioritas',
                                                             '>',
-                                                            3
+                                                            3,
                                                         );
                                                         $last = $dataProsedurLainnya->count();
                                                         echo '(';
@@ -6722,11 +7035,11 @@
                                     <td>{{ $berkas->nama }}</td>
                                     <td>
                                         @php
-                                        $nama = explode('pages/upload/',$berkas->lokasi_file);
-                                        $cekAda = Storage::disk('sftp')->exists($berkas->lokasi_file);
+                                            $nama = explode('pages/upload/', $berkas->lokasi_file);
+                                            $cekAda = Storage::disk('sftp')->exists($berkas->lokasi_file);
                                         @endphp
                                         {{ $nama[1] }}
-                                        @if($cekAda)
+                                        @if ($cekAda)
                                             <span class="badge badge-success"><i class="fas fa-check-circle"></i></span>
                                         @else
                                             <span class="badge badge-danger"><i class="fas fa-times-circle"></i></span>
@@ -6861,11 +7174,11 @@
                             <a href="/vedika/ranap/{{ Crypt::encrypt($pasien->no_rawat) }}/downloadpdf"
                                 class="btn btn-success btn-sm btn-block" target="_blank">
                                 <i class="fas fa-sync-alt"></i></i> Gabung PDF</a>
-                            @if($dataSep)
-                                <a href="/vedika/ranap/{{ !empty($dataSep->no_sep)? Crypt::encrypt($dataSep->no_sep):Crypt::encrypt($dataSep->noSep) }}/viewgabungpdf"
+                            @if ($dataSep)
+                                <a href="/vedika/ranap/{{ !empty($dataSep->no_sep) ? Crypt::encrypt($dataSep->no_sep) : Crypt::encrypt($dataSep->noSep) }}/viewgabungpdf"
                                     class="btn btn-danger btn-sm btn-block" target="_blank">
                                     <i class="fas fa-file-download"></i> Buka PDF</a>
-                                <a href="/vedika/ranap/{{ !empty($dataSep->no_sep)? Crypt::encrypt($dataSep->no_sep):Crypt::encrypt($dataSep->noSep) }}/deletepdf"
+                                <a href="/vedika/ranap/{{ !empty($dataSep->no_sep) ? Crypt::encrypt($dataSep->no_sep) : Crypt::encrypt($dataSep->noSep) }}/deletepdf"
                                     class="btn btn-secondary btn-sm btn-block">
                                     <i class="fas fa-trash"></i> Hapus File PDF</a>
                             @endif
@@ -7096,7 +7409,7 @@
                                         <label>No SEP</label>
                                         <input type="text" class="form-control"
                                             value="{{ !empty($dataSep->no_sep) ? $dataSep->no_sep : '' }}"
-                                            name="no_sep" readonly/>
+                                            name="no_sep" readonly />
                                     </div>
                                     <div class="form-group">
                                         <label>No Kartu</label>
@@ -7184,8 +7497,8 @@
                                 <div class="form-group">
                                     <label>No SEP</label>
                                     <input type="text" class="form-control"
-                                        value="{{ !empty($dataSep->no_sep) ? $dataSep->no_sep : '' }}"
-                                        name="no_sep" {{ !empty($dataSep->no_sep) ? 'readonly' : 'required' }} />
+                                        value="{{ !empty($dataSep->no_sep) ? $dataSep->no_sep : '' }}" name="no_sep"
+                                        {{ !empty($dataSep->no_sep) ? 'readonly' : 'required' }} />
                                 </div>
                                 <div class="form-group">
                                     <label>No Kartu</label>
@@ -7199,8 +7512,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Jenis Rawat</label>
-                                    <input type="text" class="form-control" value="Rawat Inap"
-                                        name="jenis_rawat" readonly />
+                                    <input type="text" class="form-control" value="Rawat Inap" name="jenis_rawat"
+                                        readonly />
                                 </div>
                             </div>
                             <div class="col-6">
@@ -7216,8 +7529,8 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Tgl Registrasi</label>
-                                    <input type="text" class="form-control"
-                                        value="{{ $pasien->tgl_registrasi }}" name="tgl_registrasi" readonly />
+                                    <input type="text" class="form-control" value="{{ $pasien->tgl_registrasi }}"
+                                        name="tgl_registrasi" readonly />
                                 </div>
                                 <div class="form-group">
                                     <label>Kamar</label>
@@ -7230,7 +7543,8 @@
                                     <select name="periode" class="form-control" required>
                                         <option value="">Pilih</option>
                                         @foreach ($periodePending as $periodeUlang)
-                                            <option value="{{ $periodeUlang->id }}">{{ $periodeUlang->periode }}</option>
+                                            <option value="{{ $periodeUlang->id }}">{{ $periodeUlang->periode }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -7238,45 +7552,45 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default float-left"
-                            data-dismiss="modal">Tutup</button>
+                        <button type="button" class="btn btn-default float-left" data-dismiss="modal">Tutup</button>
                         <button type="Submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
-                    <div class="modal-body">
-                        <div class="row">
-                            <div class="col-12">
-                                <table class="table table-bordered mb-0 table-sm">
-                                    <thead>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <table class="table table-bordered mb-0 table-sm">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 5%;">No</th>
+                                        <th class="text-center">Periode</th>
+                                        <th class="text-center" style="width: 20%;">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse ($dataPengajuanPending as $indek=>$listPengajuan)
                                         <tr>
-                                            <th class="text-center" style="width: 5%;">No</th>
-                                            <th class="text-center" >Periode</th>
-                                            <th class="text-center" style="width: 20%;">Aksi</th>
+                                            <td class="text-center">{{ ++$indek }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($listPengajuan->periodePengajuanUlang->periode)->format('F Y') }}
+                                            </td>
+                                            <td class="text-center">
+                                                <a href="/vedika/pengajuanpending/{{ Crypt::encrypt($listPengajuan->id) }}/delete"
+                                                    class="btn btn-danger btn-sm delete-confirm @cannot('vedika-delete') disabled @endcannot"
+                                                    data-toggle="tooltip" data-placement="bottom" title="Delete">
+                                                    <i class="fas fa-ban"></i>
+                                                </a>
+                                            </td>
                                         </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($dataPengajuanPending as $indek=>$listPengajuan)
-                                            <tr>
-                                                <td class="text-center">{{ ++$indek }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($listPengajuan->periodePengajuanUlang->periode)->format('F Y') }}</td>
-                                                <td class="text-center">
-                                                    <a href="/vedika/pengajuanpending/{{ Crypt::encrypt($listPengajuan->id) }}/delete"
-                                                        class="btn btn-danger btn-sm delete-confirm @cannot('vedika-delete') disabled @endcannot"
-                                                        data-toggle="tooltip" data-placement="bottom" title="Delete">
-                                                        <i class="fas fa-ban"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="3" class="text-center">Data tidak ditemukan</td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
+                                    @empty
+                                        <tr>
+                                            <td colspan="3" class="text-center">Data tidak ditemukan</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
                     </div>
+                </div>
             </div>
         </div>
     </div>
@@ -7310,7 +7624,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($historyRadiologi as $dataHistory)
-                                        @if($dataHistory->no_rawat != $pasien->no_rawat)
+                                        @if ($dataHistory->no_rawat != $pasien->no_rawat)
                                             <tr>
                                                 <td>{{ $dataHistory->no_rawat }}</td>
                                                 <td>{{ $dataHistory->noorder }}</td>
@@ -7321,13 +7635,17 @@
                                                 <td>{{ $dataHistory->tgl_hasil }}</td>
                                                 <td>{{ $dataHistory->jam_hasil }}</td>
                                                 <td class="text-center">
-                                                    @if($tambahanRadiologi->where('no_order',$dataHistory->noorder)->first())
-                                                    <a href="/vedika/{{ Crypt::encrypt($pasien->no_rawat.'_'.$dataHistory->no_rawat.'_'.$dataHistory->noorder) }}/deleteradiologi" data-toggle="tooltip" data-placement="bottom"
-                                                        title="Hapus"><span class="badge badge-danger"><i class="fas fa-times-circle"></i></span>
-                                                    </a>
+                                                    @if ($tambahanRadiologi->where('no_order', $dataHistory->noorder)->first())
+                                                        <a href="/vedika/{{ Crypt::encrypt($pasien->no_rawat . '_' . $dataHistory->no_rawat . '_' . $dataHistory->noorder) }}/deleteradiologi"
+                                                            data-toggle="tooltip" data-placement="bottom"
+                                                            title="Hapus"><span class="badge badge-danger"><i
+                                                                    class="fas fa-times-circle"></i></span>
+                                                        </a>
                                                     @else
-                                                        <a href="/vedika/{{ Crypt::encrypt($pasien->no_rawat.'_'.$dataHistory->no_rawat.'_'.$dataHistory->noorder) }}/tambahradiologi" data-toggle="tooltip" data-placement="bottom"
-                                                            title="Tambah"><span class="badge badge-success"><i class="fas fa-plus-circle"></i></span>
+                                                        <a href="/vedika/{{ Crypt::encrypt($pasien->no_rawat . '_' . $dataHistory->no_rawat . '_' . $dataHistory->noorder) }}/tambahradiologi"
+                                                            data-toggle="tooltip" data-placement="bottom"
+                                                            title="Tambah"><span class="badge badge-success"><i
+                                                                    class="fas fa-plus-circle"></i></span>
                                                         </a>
                                                     @endif
                                                 </td>

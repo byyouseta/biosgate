@@ -226,14 +226,14 @@
                             Penyakit</td>
                         <td style="width: 2%; vertical-align:top; ">:</td>
                         <td style="width: 78%; word-wrap: break-word; word-break: break-all; vertical-align:top;">
-                            {{ $resumeRanap1->keluhan_utama }}
+                            {!! nl2br(e($resumeRanap1->keluhan_utama)) !!}
                         </td>
                     </tr>
                     <tr>
                         <td style="width: 20%; vertical-align:top;">Diagnosis Masuk</td>
                         <td style="width: 2%; vertical-align:top;">:</td>
                         <td style="width: 78%; vertical-align:top;">
-                            {{ $resumeRanap1->diagnosa_awal }}
+                            {!! nl2br(e($resumeRanap1->diagnosa_awal)) !!}
                         </td>
                     </tr>
                     <tr>
@@ -254,7 +254,7 @@
                         <td style="width: 20%; vertical-align:top;">Pemeriksaan Fisik</td>
                         <td style="width: 2%; vertical-align:top;">:</td>
                         <td style="width: 78%;  word-wrap: break-word; text-align:justify; vertical-align:top;">
-                            {{ $resumeRanap1->pemeriksaan_fisik }}
+                            {!! nl2br(e($resumeRanap1->pemeriksaan_fisik)) !!}
                         </td>
                     </tr>
                     <tr>
@@ -263,7 +263,7 @@
                         </td>
                         <td style="width: 2%; vertical-align:top;">:</td>
                         <td style="width: 78%;  word-wrap: break-word; text-align:justify; vertical-align:top;">
-                            {{ $resumeRanap1->pemeriksaan_penunjang }}
+                            {!! nl2br(e($resumeRanap1->pemeriksaan_penunjang)) !!}
                         </td>
                     </tr>
                     <tr>
@@ -272,7 +272,7 @@
                         </td>
                         <td style="width: 2%; vertical-align:top;">:</td>
                         <td style="width: 78%; vertical-align:top;">
-                            {{ $resumeRanap1->hasil_laborat }}
+                            {!! nl2br(e($resumeRanap1->hasil_laborat)) !!}
                         </td>
                     </tr>
                     <tr>
@@ -280,7 +280,7 @@
                             Perawatan</td>
                         <td style="width: 2%; vertical-align:top;">:</td>
                         <td style="width: 78%; vertical-align:top;">
-                            {{ $resumeRanap1->obat_di_rs }}
+                            {!! nl2br(e($resumeRanap1->obat_di_rs)) !!}
                         </td>
                     </tr>
                     <tr>
@@ -289,7 +289,7 @@
                         </td>
                         <td style="width: 2%; vertical-align:top;">:</td>
                         <td style="width: 78%; vertical-align:top;">
-                            {{ $resumeRanap1->tindakan_dan_operasi }}
+                            {!! nl2br(e($resumeRanap1->tindakan_dan_operasi)) !!}
                         </td>
                     </tr>
                     <tr>
