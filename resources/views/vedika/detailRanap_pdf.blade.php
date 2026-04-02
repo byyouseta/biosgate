@@ -1706,24 +1706,13 @@
                 </table>
                 @foreach ($hasilRadiologiRajal as $itemHasilRad)
                     @if ($itemHasilRad->jam == $orderRadio->jam_hasil)
-                        @php
-                            $paragraphs = explode("\n", $itemHasilRad->hasil);
-                            $tinggi = 25 * count($paragraphs);
-                        @endphp
-
-                        <table class="table table-bordered">
-                            <tbody class="border border-dark">
-                                <tr>
-                                    <textarea class="form-control" readonly
-                                        style="
-                                        min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
-                                        resize: none;
-                                        overflow-y:hidden;
-                                        border:1px solid black;
-                                        background-color: white;
-                                    ">{{ $itemHasilRad->hasil }}</textarea>
-                                </tr>
-                            </tbody>
+                        <table
+                            style="width:100%; border-collapse: collapse; margin-bottom:10px; border: 1px solid black;">
+                            <tr>
+                                <td>
+                                    <pre style="white-space: pre-wrap; word-wrap: break-word; overflow: hidden; padding-left: 10pt;">{{ $itemHasilRad->hasil ?? '-' }}</pre>
+                                </td>
+                            </tr>
                         </table>
                     @endif
                 @endforeach
@@ -1846,13 +1835,6 @@
                 </table>
                 @foreach ($hasilRadiologiRanap as $dataHasil)
                     @if (!empty($dataHasil->hasil) && $dataHasil->jam == $orderRadio->jam_hasil)
-                        @php
-
-                            $paragraphs = explode("\n", $dataHasil->hasil);
-                            $tinggi = 25 * count($paragraphs);
-
-                        @endphp
-
                         <table style="width: 100%">
                             <tbody>
                                 <tr>
@@ -1977,7 +1959,7 @@
                         </tr>
                     </tbody>
                 </table>
-                @php
+                {{-- @php
                     if ($tambahanHasilRadiologi) {
                         $paragraphs = explode("\n", $tambahanHasilRadiologi[$urutan]->hasil);
                         $tinggi = 25 * count($paragraphs);
@@ -1995,6 +1977,14 @@
                             border:1px solid black;
                             background-color: white;
                         ">{{ $tambahanHasilRadiologi != null ? $tambahanHasilRadiologi[$urutan]->hasil : '' }}</textarea>
+                    </tr>
+
+                </table> --}}
+                <table style="width:100%; border-collapse: collapse; margin-bottom:10px; border: 1px solid black;">
+                    <tr>
+                        <td>
+                            <pre style="white-space: pre-wrap; word-wrap: break-word; overflow: hidden; padding-left: 10pt;">{{ $tambahanHasilRadiologi != null ? $tambahanHasilRadiologi[$urutan]->hasil : '' }}</pre>
+                        </td>
                     </tr>
                 </table>
                 <table style="width: 100%; text-align:center">
@@ -2504,6 +2494,129 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    @endif
+
+    @if ($dataDehidrasi)
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
+        <div class="watermark">
+            {{ $watermark }}
+        </div>
+        <div>
+            <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP">
+            <hr class='new4' />
+            <table style="border: 0px solid black; width:100%; margin-bottom:25px; border-collapse: collapse;"
+                cellpadding="5">
+                <thead>
+                    <tr>
+                        <th style="border-bottom: 3px solid black;text-align: center; width:100%" colspan="4">
+                            <h3>
+                                <center>PEMERIKSAAN DERAJAT DEHIDRASI<center>
+                            </h3>
+                        </th>
+                    </tr>
+                    <tr>
+                        <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                        <td style="width: 30%; padding-left: 25px;">: {{ $pasien->no_rkm_medis }}</td>
+                        <td style="width: 20%; padding-left: 25px;">JK</td>
+                        <td style="width: 30%; padding-left: 25px;">:
+                            {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px;">Nama Pasien</td>
+                        <td style="padding-left: 25px;">: {{ $pasien->nm_pasien }}</td>
+                        <td style="padding-left: 25px;">Tanggal Lahir</td>
+                        <td style="padding-left: 25px;">: {{ $pasien->tgl_lahir }}</td>
+                    </tr>
+                    <tr>
+                        <td style="border-bottom: 2px solid black; padding-left: 25px;">Umur</td>
+                        <td style="border-bottom: 2px solid black; padding-left: 25px;">:
+                            {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y Th') }}
+                        </td>
+                        <td style="border-bottom: 2px solid black; padding-left: 25px;">Alamat</td>
+                        <td style="border-bottom: 2px solid black; padding-left: 25px;">:
+                            {{ $pasien->alamat }}</td>
+                    </tr>
+                </thead>
+            </table>
+            <table style="width:100%; margin-bottom:25px; border-collapse: collapse;" cellpadding="5">
+                <thead>
+                    <tr>
+                        <th style="text-align: center;border: 1px solid black;">No</th>
+                        <th style="text-align: center;border: 1px solid black;">GEJALA</th>
+                        <th style="text-align: center;border: 1px solid black;">DERAJAT DEHIDRASI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">1.</td>
+                        <td style="border: 1px solid black;">Status Mental</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->status_mental }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">2.</td>
+                        <td style="border: 1px solid black;">Rasa Haus</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->rasa_haus }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">3.</td>
+                        <td style="border: 1px solid black;">Denyut Jantung</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->denyut_jantung }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">4.</td>
+                        <td style="border: 1px solid black;">Kualitas denyut nadi</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->kualitas_denyut_nadi }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">5.</td>
+                        <td style="border: 1px solid black;">Pernapasan</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->pernapasan }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">6.</td>
+                        <td style="border: 1px solid black;">Mata</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->mata }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">7.</td>
+                        <td style="border: 1px solid black;">Air Mata</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->air_mata }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">8.</td>
+                        <td style="border: 1px solid black;">Mulut dan Lidah</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->mulut_lidah }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">9.</td>
+                        <td style="border: 1px solid black;">Turgor Kulit</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->turgor_kulit }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">10.</td>
+                        <td style="border: 1px solid black;">Isian Kapiler</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->isian_kapiler }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">11.</td>
+                        <td style="border: 1px solid black;">Ekstrimitas</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->ekstrimitas }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;">12.</td>
+                        <td style="border: 1px solid black;">Output Urin</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->output_urin }}</td>
+                    </tr>
+                    <tr>
+                        <td style="text-align: center;border: 1px solid black;" colspan="2">Kesimpulan</td>
+                        <td style="border: 1px solid black;">{{ $dataDehidrasi->kesimpulan }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
         </div>
     @endif
 
@@ -3059,7 +3172,8 @@
                         </tr>
                     </tbody>
                 </table>
-                <div style="text-align: center; font-size:10pt; padding-bottom:25px;">Dikutip dari Iksan M et al.</div>
+                <div style="text-align: center; font-size:10pt; padding-bottom:25px;">Dikutip dari Iksan M et al.
+                </div>
                 @php
                     $dokter_jaga = App\Vedika::getPegawai($skor_psi->kd_dokter);
                     $dokter_dpjp = App\Vedika::getPegawai($skor_psi->kd_dpjp);
@@ -3170,7 +3284,8 @@
                             </td>
                             <td style="border:1px solid black;font-weight:bold;text-align:center; width: 50%">GAMBARAN
                                 KLINIS</td>
-                            <td style="border:1px solid black;font-weight:bold;text-align:center; width: 15%">SKOR</td>
+                            <td style="border:1px solid black;font-weight:bold;text-align:center; width: 15%">SKOR
+                            </td>
                         </tr>
                         <tr>
                             <td style="border:1px solid black;font-weight:bold;text-align:center;">1.</td>
@@ -3443,16 +3558,20 @@
                         <tr>
                             <td
                                 style="vertical-align: middle; text-align:center; width:20%; border: 1px solid black;">
-                                <b>KONDISI</b></td>
+                                <b>KONDISI</b>
+                            </td>
                             <td colspan="2"
                                 style="vertical-align: middle; text-align:center;width:20%; border: 1px solid black;">
-                                <b>SEBELUM TRANSFUSI</b><br>{{ $listTransfusi->jam_st }} WIB</td>
+                                <b>SEBELUM TRANSFUSI</b><br>{{ $listTransfusi->jam_st }} WIB
+                            </td>
                             <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;">
-                                <b>15-30 MENIT TRANSFUSI</b><br>{{ $listTransfusi->jam_mt }} WIB</td>
+                                <b>15-30 MENIT TRANSFUSI</b><br>{{ $listTransfusi->jam_mt }} WIB
+                            </td>
                             <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;"><b>2
                                     JAM TRANSFUSI</b><br>{{ $listTransfusi->jam_t }} WIB</td>
                             <td colspan="2" style="text-align: center; width:20%; border: 1px solid black;">
-                                <b>PASCA TRANSFUSI</b><br>{{ $listTransfusi->jam_pt }} WIB</td>
+                                <b>PASCA TRANSFUSI</b><br>{{ $listTransfusi->jam_pt }} WIB
+                            </td>
                         </tr>
                         <tr>
                             <td style="vertical-align: middle; text-align:center;border: 1px solid black;">Keadaan
@@ -3507,7 +3626,8 @@
                         </tr>
                         <tr>
                             <td style="vertical-align: middle; text-align:center; border: 1px solid black;">
-                                <i>Respiratory Rate</i></td>
+                                <i>Respiratory Rate</i>
+                            </td>
                             <td colspan="2"
                                 style="vertical-align: middle; text-align:center; border: 1px solid black;">
                                 {{ $listTransfusi->rr_st }}</td>

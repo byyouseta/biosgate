@@ -16,8 +16,8 @@ class KfaController extends Controller
     public function cari(Request $request)
     {
         session()->put('ibu', 'Satu Sehat');
-        session()->put('anak', 'API KFA');
-        session()->forget('cucu');
+        session()->put('anak', 'Tool Satu Sehat');
+        session()->put('cucu', 'API KFA');
         set_time_limit(0);
 
 
@@ -31,9 +31,7 @@ class KfaController extends Controller
 
             $idRS = env('IDRS');
             //Send data
-            SatuSehatController::getTokenSehat();
-            $access_token = Session::get('tokenSatuSehat');
-            // dd('kososng');
+            $access_token = SatuSehatController::getTokenSehat();
             $client = new \GuzzleHttp\Client(['base_uri' => env('URL_APIKFA')]);
             try {
                 $response = $client->request('GET', "/kfa-v2/products/all?page=1&size=100&product_type=farmasi&keyword=$cari", [
@@ -65,7 +63,7 @@ class KfaController extends Controller
                 // dd((object)$dataResponse->items->data);
                 $data = (object)$dataResponse->items->data;
 
-                Session::flash('sukses', "Data ditemukan.");
+                // Session::flash('sukses', "Data ditemukan.");
             } else {
                 $data = null;
 

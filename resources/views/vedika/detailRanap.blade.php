@@ -73,6 +73,21 @@
                                     <i class="fas fa-file-download"></i> Gabung PDF</a>
                                 </button>
                             </div>
+                            @if ($dataPengajuanPending->count() > 0)
+                                <br>
+                                Status Pengajuan Pending :
+                                @foreach ($dataPengajuanPending as $item)
+                                    {{ \Carbon\Carbon::parse($item->periodePengajuanUlang->periode)->format('F Y') }}
+                                    <a href="/vedika/pengajuanpending/{{ Crypt::encrypt($item->id) }}/delete"
+                                        class="text-danger delete-confirm @cannot('vedika-pengajuan-delete') disabled @endcannot"
+                                        data-toggle="tooltip" data-placement="bottom" title="Delete">
+                                        <i class="fas fa-ban"></i>
+                                    </a>
+                                    @if (!$loop->last)
+                                        ,
+                                    @endif
+                                @endforeach
+                            @endif
                         </div>
                     </div>
                     {{-- DATA SEP --}}
@@ -1087,7 +1102,7 @@
                                                         {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }} /
                                                         {{-- {{ $data->umurdaftar }} {{ $data->sttsumur }} --}}
                                                         {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Th %m Bl %d Hr') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Th %m Bl %d Hr') }}
                                                     </td>
                                                     <td class="pt-0 pb-0">Jam Permintaan</td>
                                                     <td class="pt-0 pb-0">: {{ $order->jam_permintaan }}</td>
@@ -1672,12 +1687,6 @@
 
                                     </table>
                                     @foreach ($hasilRadiologiRanap as $dataHasil)
-                                        {{-- @if ($hasilRadiologiRanap)
-                                        @php
-                                        dd($hasilRadiologiRanap, $order);
-                                            $mentah = collect($hasilRadiologiRanap);
-                                            $dataHasil = $mentah->where('jam', $order->jam_hasil);
-                                        @endphp --}}
                                         @if (!empty($dataHasil->hasil) && $dataHasil->jam === $order->jam_hasil)
                                             @php
                                                 $paragraphs = explode("\n", $dataHasil->hasil);
@@ -1701,7 +1710,6 @@
                                                 </tbody>
                                             </table>
                                         @endif
-                                        {{-- @endif --}}
                                     @endforeach
 
                                     @if (!empty($dokterRadiologiRanap[$urutan]->nm_dokter))
@@ -1835,7 +1843,7 @@
                                                         {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
                                                         /
                                                         {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($tambahanData->tgl_hasil))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Th %m Bl %d Hr') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Th %m Bl %d Hr') }}
                                                     </td>
                                                     <td class="pt-0 pb-0">Tgl.Pemeriksaan</td>
                                                     <td class="pt-0 pb-0">:
@@ -2437,6 +2445,7 @@
         </div>
         @endif
         {{-- End Data Triase --}}
+
         {{-- Data Ringkasan IGD --}}
         @if (!empty($resumeIgd))
             <div class="card">
@@ -2802,9 +2811,11 @@
                                 <td class="pt-0 pb-0 border border-dark" colspan="3">
                                     <b>VII. RINGKASAN PASIEN GAWAT DARURAT</b><br>
                                     <p>Kondisi Pada Saat Keluar :
-                                        {{ $resumeIgd && $resumeIgd->kondisi_pulang ? $resumeIgd->kondisi_pulang : '-' }}</p>
+                                        {{ $resumeIgd && $resumeIgd->kondisi_pulang ? $resumeIgd->kondisi_pulang : '-' }}
+                                    </p>
                                     <p>Tindak Lanjut :
-                                        {{ $resumeIgd && $resumeIgd->tindak_lanjut ? $resumeIgd->tindak_lanjut : '-' }}</p>
+                                        {{ $resumeIgd && $resumeIgd->tindak_lanjut ? $resumeIgd->tindak_lanjut : '-' }}
+                                    </p>
                                     <p>Kebutuhan : {{ $resumeIgd && $resumeIgd->kebutuhan ? $resumeIgd->kebutuhan : '-' }}
                                     </p>
                                     <p>Edukasi : {{ $resumeIgd && $resumeIgd->edukasi ? $resumeIgd->edukasi : '-' }}</p>
@@ -2846,6 +2857,166 @@
             </div>
         @endif
         {{-- End Ringksan IGD --}}
+
+        @if ($dataDehidrasi)
+            <div class="card">
+                <div class="card-header">PEMERIKSAAN DERAJAT DEHIDRASI</div>
+                <div class="card-body">
+                    <table class="table table-borderless mb-3">
+                        <thead>
+                            <tr>
+                                <td class="align-top" style="width:60%" rowspan="4"><img
+                                        src="{{ asset('image/kemenkes_logo_horisontal.png') }}" alt="Logo RSUP"
+                                        width="350">
+                                </td>
+                                <td class="pt-1 pb-0 align-middle"
+                                    style="font-family: 'Segoe UI', Arial, sans-serif; font-weight: bold;">
+                                    <div style="font-size: 18pt; color:#14bccc;">Kementerian
+                                        Kesehatan</div>
+                                    <div style="font-size: 14pt; color:#057c86; margin-top:-5pt">RS Surakarta
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/gps.png') }}" alt="pin lokasi" width="20"> Jalan
+                                    Prof. Dr. R.Soeharso Nomor 28 Surakarta 57144
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/telephone.png') }}" alt="pin lokasi" width="17">
+                                    (0271)
+                                    713055
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="align-middle py-0">
+                                    <img src="{{ asset('image/world-wide-web.png') }}" alt="pin lokasi"
+                                        width="17">
+                                    https://web.rsupsurakarta.co.id
+                                </td>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div class="progress progress-xs mt-0 pt-0">
+                        <div class="progress-bar progress-bar bg-black" role="progressbar" aria-valuenow="100"
+                            aria-valuemin="0" aria-valuemax="100" style="width: 100%">
+                        </div>
+                    </div>
+                    <div class="row justify-content-center">
+                        <table style="width: 100%; margin-bottom:50px; ">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: center;" colspan="4">
+                                        <h5><b><u>PEMERIKSAAN DERAJAT DEHIDRASI</u></b></h5>
+                                    </th>
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
+                                    <td style="width: 30%; padding-left: 25px;">: {{ $pasien->no_rkm_medis }}</td>
+                                    <td style="width: 20%; padding-left: 25px;">JK</td>
+                                    <td style="width: 30%; padding-left: 25px;">:
+                                        {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px;">Nama Pasien</td>
+                                    <td style="padding-left: 25px;">: {{ $pasien->nm_pasien }}</td>
+                                    <td style="padding-left: 25px;">Tanggal Lahir</td>
+                                    <td style="padding-left: 25px;">: {{ $pasien->tgl_lahir }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">Umur</td>
+                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">:
+                                        {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y Th') }}
+                                    </td>
+                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">Alamat</td>
+                                    <td style="border-bottom: 3px solid black; padding-left: 25px;">:
+                                        {{ $pasien->alamat }}</td>
+                                </tr>
+                            </thead>
+                        </table>
+                        <div class="col-8">
+                            <table style="width: 100%; margin-bottom:25px;" cellspacing="0" cellpadding="5" class="table table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th class='text-center'>No</th>
+                                        <th class='text-center'>GEJALA</th>
+                                        <th class='text-center'>DERAJAT DEHIDRASI</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td class='text-center'>1.</td>
+                                        <td>Status Mental</td>
+                                        <td>{{ $dataDehidrasi->status_mental }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>2.</td>
+                                        <td>Rasa Haus</td>
+                                        <td>{{ $dataDehidrasi->rasa_haus }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>3.</td>
+                                        <td>Denyut Jantung</td>
+                                        <td>{{ $dataDehidrasi->denyut_jantung }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>4.</td>
+                                        <td>Kualitas denyut nadi</td>
+                                        <td>{{ $dataDehidrasi->kualitas_denyut_nadi }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>5.</td>
+                                        <td>Pernapasan</td>
+                                        <td>{{ $dataDehidrasi->pernapasan }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>6.</td>
+                                        <td>Mata</td>
+                                        <td>{{ $dataDehidrasi->mata }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>7.</td>
+                                        <td>Air Mata</td>
+                                        <td>{{ $dataDehidrasi->air_mata }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>8.</td>
+                                        <td>Mulut dan Lidah</td>
+                                        <td>{{ $dataDehidrasi->mulut_lidah }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>9.</td>
+                                        <td>Turgor Kulit</td>
+                                        <td>{{ $dataDehidrasi->turgor_kulit }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>10.</td>
+                                        <td>Isian Kapiler</td>
+                                        <td>{{ $dataDehidrasi->isian_kapiler }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>11.</td>
+                                        <td>Ekstrimitas</td>
+                                        <td>{{ $dataDehidrasi->ekstrimitas }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center'>12.</td>
+                                        <td>Output Urin</td>
+                                        <td>{{ $dataDehidrasi->output_urin }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class='text-center' colspan="2">Kesimpulan</td>
+                                        <td>{{ $dataDehidrasi->kesimpulan }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        @endif
 
         @if ($skor_psi)
             <div class="card">
@@ -3214,6 +3385,7 @@
                 </div>
             </div>
         @endif
+
         @if ($skor_curb)
             <div class="card">
                 <div class="card-header">FORMULIR PENILAIAN KRITERIA CURB-65</div>
@@ -3957,10 +4129,12 @@
                                         <tr>
                                             <td
                                                 style="vertical-align: middle; text-align:center; width:20%; border: 1px solid black;">
-                                                <b>KONDISI</b></td>
+                                                <b>KONDISI</b>
+                                            </td>
                                             <td colspan="2"
                                                 style="vertical-align: middle; text-align:center;width:20%; border: 1px solid black;">
-                                                <b>SEBELUM TRANSFUSI</b><br>{{ $listTransfusi->jam_st }} WIB</td>
+                                                <b>SEBELUM TRANSFUSI</b><br>{{ $listTransfusi->jam_st }} WIB
+                                            </td>
                                             <td colspan="2"
                                                 style="text-align: center; width:20%; border: 1px solid black;"><b>15-30
                                                     MENIT TRANSFUSI</b><br>{{ $listTransfusi->jam_mt }} WIB</td>
@@ -4030,7 +4204,8 @@
                                         <tr>
                                             <td
                                                 style="vertical-align: middle; text-align:center; border: 1px solid black;">
-                                                <i>Respiratory Rate</i></td>
+                                                <i>Respiratory Rate</i>
+                                            </td>
                                             <td colspan="2"
                                                 style="vertical-align: middle; text-align:center; border: 1px solid black;">
                                                 {{ $listTransfusi->rr_st }}</td>
@@ -4757,7 +4932,8 @@
                                     <td style="width: 20%; padding-left: 25px;">No. Rekam Medis</td>
                                     <td style="width: 30%; ">: {{ $pasien->no_rkm_medis }}</td>
                                     <td style="padding-left: 100px; ">JK</td>
-                                    <td style="padding-left: 50px;">: {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
+                                    <td style="padding-left: 50px;">:
+                                        {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -5039,7 +5215,7 @@
                                                 <td class="align-middle py-0" colspan="2">
                                                     :
                                                     {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($listOperasi->tgl_operasi))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Th %m Bl %d Hr') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Th %m Bl %d Hr') }}
                                                 </td>
                                                 <td class="align-middle py-0">
                                                     Ruang
@@ -5220,7 +5396,7 @@
                                                 <td class="align-middle py-0" colspan="3">
                                                     :
                                                     {{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('d/m/Y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                H:i:s') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    H:i:s') }}
                                                 </td>
                                                 <td
                                                     class="align-middle py-0 border border-dark border-bottom-0 border-right-0 border-top-0">
@@ -6563,8 +6739,8 @@
         @if ($resumeRanap1 && $resumeRanap2 && $resumeRanap3 && $resumeRanap4)
             <style>
                 /* pre {
-                                                                        white-space: pre-wrap !important;
-                                                                    } */
+                                                                            white-space: pre-wrap !important;
+                                                                        } */
 
                 pre {
                     font-family: 'Source Sans Pro';
@@ -6645,7 +6821,7 @@
                                 <td class="align-middle py-0">Umur</td>
                                 <td class="align-middle py-0">:
                                     {{ \Carbon\Carbon::parse($pasien->tgl_lahir)->diff(\Carbon\Carbon::parse($pasien->tgl_registrasi))->format('%y
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Th %m Bl') }}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            Th %m Bl') }}
                                 </td>
                                 <td class="align-middle py-0">Jenis Kelamin</td>
                                 <td class="align-middle py-0">: {{ $pasien->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}
@@ -6685,7 +6861,7 @@
                                 <td class="align-top py-0" style="width: 2%">:</td>
                                 <td class="align-top py-0"
                                     style="width: 78%; word-wrap: break-word; word-break: break-all;">
-                                     {!! nl2br(e( $resumeRanap1->keluhan_utama )) !!}
+                                    {!! nl2br(e($resumeRanap1->keluhan_utama)) !!}
                                 </td>
                             </tr>
                             <tr>
@@ -6714,7 +6890,7 @@
                                 <td class="align-top py-0" style="width: 2%">:</td>
                                 <td class="align-top py-0"
                                     style="width: 78%;  word-wrap: break-word; text-align:justify">
-                                     {!! nl2br(e($resumeRanap1->pemeriksaan_fisik)) !!}
+                                    {!! nl2br(e($resumeRanap1->pemeriksaan_fisik)) !!}
                                 </td>
                             </tr>
                             <tr>
@@ -6731,7 +6907,7 @@
                                 </td>
                                 <td class="align-top py-0" style="width: 2%">:</td>
                                 <td class="align-top py-0" style="width: 78%">
-                                     {!! nl2br(e($resumeRanap1->hasil_laborat)) !!}
+                                    {!! nl2br(e($resumeRanap1->hasil_laborat)) !!}
                                 </td>
                             </tr>
                             <tr>
@@ -7003,6 +7179,7 @@
             </div>
         @endif
         {{-- End Resume Ranap --}}
+
         {{-- Data Dokumen Tambahan --}}
         <div class="card">
             <div class="card-header">

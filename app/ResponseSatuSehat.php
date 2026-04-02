@@ -34,4 +34,14 @@ class ResponseSatuSehat extends Model
             return null;
         }
     }
+
+    public function responseLabSatuSehat()
+    {
+        return $this->hasMany('App\ResponseLabSatuSehat', 'noRawat', 'noRawat');
+    }
+
+    public function responseRadiologiSatuSehat()
+    {
+        return $this->hasMany('App\ResponseRadiologiSatuSehat', 'noRawat', 'noRawat');
+    }
 }

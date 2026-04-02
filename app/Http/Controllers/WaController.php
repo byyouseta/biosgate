@@ -275,11 +275,6 @@ class WaController extends Controller
     {
         $search = $request->q;
 
-        // $users = User::where('name', 'like', "%$search%")
-        //     ->select('id', 'name')
-        //     ->limit(10)
-        //     ->get();
-
         $dataPasien =  DB::connection('mysqlkhanza')->table('pasien')
             ->select(
                 'pasien.no_rkm_medis',
@@ -326,8 +321,6 @@ class WaController extends Controller
         if (substr($telp, 0, 1) === '0') {
             $telp = '62' . substr($telp, 1);
         }
-
-        // dd($telp);
 
         if ($sessionApp == true) {
             $setting = Setting::where('nama', 'pesan')->first();
@@ -383,8 +376,6 @@ class WaController extends Controller
             'pesan' => 'required',
             'default' => 'required',
         ]);
-
-        // dd($request);
 
         $simpan = new TemplatePesan();
         $simpan->nama = $request->nama;

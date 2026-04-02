@@ -14,37 +14,92 @@
 @section('content')
     <section class="content">
         @php
-            if (!empty(Request::get('tanggal'))) {
-                $tanggal = Request::get('tanggal');
+            if (!empty(Request::get('awal'))) {
+                $awal = Request::get('awal');
+                $akhir = Request::get('akhir');
             } else {
-                $tanggal = \Carbon\Carbon::now()->format('Y-m-d');
+                $awal = \Carbon\Carbon::now()->format('Y-m-d');
+                $akhir = \Carbon\Carbon::now()->format('Y-m-d');
             }
         @endphp
         <div class="container-fluid">
             <div class="row">
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fas fa-hand-holding-medical"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Kunjungan IGD</span>
+                            <span class="info-box-number">{{ $dataPasien->count() }}</span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+
+                <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-success"><i class="fas fa-paper-plane"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Terkirim Satu Sehat</span>
+                            <span class="info-box-number">
+                                <div id="terkirim"></div>
+                            </span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-primary"><i class="fas fa-id-card"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">No ID IHS</span>
+                            <span class="info-box-number">
+                                <div id="tidak-ada-ihs"></div>
+                            </span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-danger"><i class="fas fa-undo-alt"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Perlu diCheck</span>
+                            <span class="info-box-number">
+                                <div id="tidak-terkirim"></div>
+                            </span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                @php
+                    $terkirim = 0;
+                    $tidakterkirim = 0;
+                    $noihs = 0;
+                @endphp
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header">
                             <div class="card_title">Summary data terkirim
-                                <a href="/satusehat/igd/kirimencounter" class="btn btn-sm btn-primary"
-                                    target="_blank">Encounter</a>
-                                <a href="/satusehat/igd/encounterupdate" class="btn btn-sm btn-primary"
-                                    target="_blank">Update
-                                    Encounter</a>
-                                {{-- <a href="/satusehat/composition" class="btn btn-sm btn-primary" target="_blank">Api
-                                    Composition</a>
-                                <a href="/satusehat/medication" class="btn btn-sm btn-primary" target="_blank">Api
-                                    Medication</a>
-                                <a href="/satusehat/lab" class="btn btn-sm btn-primary" target="_blank">Api
-                                    Lab</a>
-                                <a href="/satusehat/labbundle" class="btn btn-sm btn-primary" target="_blank">Api
-                                    Lab (MCU/CL)</a> --}}
+
                                 <div class="float-right">
                                     <form action="/satusehat/igd" method="GET">
-                                        <div class="input-group input-group" id="tanggal" data-target-input="nearest">
-                                            <input type="text" class="form-control datetimepicker-input"
-                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
-                                                autocomplete="off" value="{{ $tanggal }}">
+                                        <div class="input-group input-group" data-target-input="nearest">
+                                            <input type="text" class="form-control datetimepicker-input" id="tanggal"
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="awal"
+                                                autocomplete="off" value="{{ $awal }}" style="max-width: 120px;">
+                                            <input type="text" class="form-control datetimepicker-input" id="tanggal2"
+                                                data-target="#tanggal2" data-toggle="datetimepicker" name="akhir"
+                                                autocomplete="off" value="{{ $akhir }}" style="max-width: 120px;">
                                             <span class="input-group-append">
                                                 <button type="submit" class="btn btn-info btn-flat btn-sm"><i
                                                         class="fas fa-search"></i> Tampilkan</button>
@@ -55,42 +110,52 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            {{-- <div style="overflow-x:auto;"> --}}
                             <table class="table table-bordered table-hover table-sm display nowrap" id="example2">
                                 <thead>
                                     <tr>
                                         <th class="align-middle">No Rawat</th>
+                                        <th class="align-middle">Nama Pasien</th>
+                                        <th class="align-middle">Status Pelayanan</th>
+                                        <th class="align-middle">Status Lanjut</th>
+                                        <th class="align-middle">ID IHS</th>
                                         <th class="align-middle">Encounter ID</th>
-                                        <th class="align-middle">Transport ID</th>
-                                        <th class="align-middle">Kondisi ID</th>
-                                        <th class="align-middle">Nyeri ID</th>
-                                        <th class="align-middle">Skala Nyeri ID</th>
-                                        <th class="align-middle">Lokasi Nyeri ID</th>
-                                        <th class="align-middle">Created Time</th>
+                                        <th class="align-middle">Kondisi Stabil</th>
+                                        <th class="align-middle">Cara Keluar</th>
+                                        <th class="align-middle">Service Request</th>
                                         <th class="align-middle">Updated Time</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($dataLog as $summary)
+                                    @foreach ($dataPasien as $summary)
                                         <tr>
-                                            <td>{{ $summary->noRawat }}</td>
-                                            <td>{{ $summary->encounter_id }}</td>
-                                            <td>{{ $summary->triase_transportasi }}</td>
-                                            <td>{{ $summary->triase_kondisi }}</td>
-                                            <td>{{ $summary->asesmen_nyeri }}</td>
-                                            <td>{{ $summary->asesmen_skala_nyeri }}</td>
-                                            <td>{{ $summary->asesmen_lokasi_nyeri }}</td>
-                                            <td>{{ $summary->created_at }}</td>
-                                            <td>{{ $summary->updated_at }}</td>
+                                            <td>{{ $summary->no_rawat }}</td>
+                                            <td>{{ $summary->nm_pasien }}</td>
+                                            <td>{{ $summary->stts }}</td>
+                                            <td>{{ $summary->status_lanjut }}</td>
+                                            <td>{{ $summary->idSehat ?? '-' }}</td>
+                                            <td>{{ $summary->dataEncounter->encounter_id ?? '-' }}</td>
+                                            <td>{{ $summary->dataEncounter->kondisi_stabil ?? '-' }}</td>
+                                            <td>{{ $summary->dataEncounter->cara_keluar ?? '-' }}</td>
+                                            <td>{{ $summary->dataEncounter->service_request ?? '-' }}</td>
+                                            <td>{{ $summary->dataEncounter->updated_at ?? '-' }}</td>
                                         </tr>
-                                    @endforeach
+                                        @php
+                                            if ($summary->dataEncounter && $summary->dataEncounter->encounter_id) {
+                                                ++$terkirim;
+                                            } else {
+                                                ++$tidakterkirim;
+                                            }
 
+                                            if (empty($summary->idSehat)) {
+                                                ++$noihs;
+                                            }
+                                        @endphp
+                                    @endforeach
                                 </tbody>
                             </table>
-                            {{-- </div> --}}
                         </div>
                     </div>
-                    <div class="card">
+                    {{-- <div class="card">
                         <div class="card-header">
                             Log Error
                         </div>
@@ -113,11 +178,10 @@
                                             <td>{{ $log->created_at }}</td>
                                         </tr>
                                     @endforeach
-
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
                 <!-- /.col -->
             </div>
@@ -142,6 +206,15 @@
     <!-- Tempusdominus Bootstrap 4 -->
     <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
     <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+    <script>
+        var terkirim = <?php echo json_encode($terkirim); ?>;
+        var tidakterkirim = <?php echo json_encode($tidakterkirim); ?>;
+        var noihs = <?php echo json_encode($noihs); ?>;
+
+        document.getElementById('terkirim').innerHTML = terkirim;
+        document.getElementById('tidak-terkirim').innerHTML = tidakterkirim;
+        document.getElementById('tidak-ada-ihs').innerHTML = noihs;
+    </script>
     <script>
         $(function() {
             $('#example2').DataTable({
@@ -168,7 +241,7 @@
             });
         });
         //Date picker
-        $('#tanggal').datetimepicker({
+        $('#tanggal,#tanggal2').datetimepicker({
             format: 'YYYY-MM-DD'
         });
     </script>

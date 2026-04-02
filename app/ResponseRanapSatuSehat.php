@@ -21,4 +21,14 @@ class ResponseRanapSatuSehat extends Model
         'kondisi_stabil',
         'cara_keluar'
     ];
+
+    public function responseRadiologiSatuSehat()
+    {
+        return $this->hasMany('App\ResponseRadiologiSatuSehat', 'noRawat', 'noRawat');
+    }
+
+    public function tindakanRanapSatuSehat()
+    {
+        return $this->hasMany('App\TindakanRanapSatuSehat', 'response_ranap_satu_sehat_id', 'id');
+    }
 }

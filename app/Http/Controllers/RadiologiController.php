@@ -3,10 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\LogErrorSatuSehat;
+use App\ResponseIgdSatuSehat;
 use App\ResponseRadiologiSatuSehat;
+use App\ResponseRanapSatuSehat;
+use App\ResponseSatuSehat;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
@@ -21,75 +25,16 @@ class RadiologiController extends Controller
     public function index(Request $request)
     {
         session()->put('ibu', 'Satu Sehat');
-        session()->put('anak', 'Rajal Satu Sehat');
-        session()->put('cucu', 'API Radiologi');
+        session()->put('anak', 'Radiologi');
+        session()->put('cucu', 'Send Radiologi');
         set_time_limit(0);
 
         if (empty($request->get('tanggal'))) {
             $pasien_tanggal = Carbon::now()->format('Y-m-d');
             $kemarin = Carbon::yesterday()->format('Y-m-d');
-
-            $dataPengunjung = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
-                ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
-                ->leftJoin('radiologi_ascension', 'radiologi_ascension.noorder', '=', 'permintaan_radiologi.noorder')
-                ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_radiologi.no_rawat')
-                ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-                ->select(
-                    'reg_periksa.no_rkm_medis',
-                    'reg_periksa.no_rawat',
-                    'reg_periksa.tgl_registrasi',
-                    'reg_periksa.jam_reg',
-                    'reg_periksa.status_lanjut',
-                    'pasien.nm_pasien',
-                    'pasien.no_ktp as ktp_pasien',
-                    'pegawai.no_ktp as ktp_dokter',
-                    'pegawai.nama as nama_dokter',
-                    'permintaan_radiologi.noorder',
-                    'permintaan_radiologi.jam_permintaan',
-                    'permintaan_radiologi.tgl_permintaan',
-                    'permintaan_radiologi.tgl_hasil',
-                    'permintaan_radiologi.jam_hasil',
-                    'radiologi_ascension.ascension'
-                )
-                ->where('reg_periksa.status_lanjut', 'Ralan')
-                ->where('reg_periksa.stts', 'Sudah')
-                ->where('permintaan_radiologi.tgl_hasil', '!=', '0000-00-00')
-                // ->where('reg_periksa.tgl_registrasi', '2024-03-07')
-                ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
-                ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
-                ->get();
         } else {
             $tanggal = new Carbon($request->get('tanggal'));
             $pasien_tanggal = Carbon::parse($tanggal)->format('Y-m-d');
-
-            $dataPengunjung = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
-                ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
-                ->leftJoin('radiologi_ascension', 'radiologi_ascension.noorder', '=', 'permintaan_radiologi.noorder')
-                ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_radiologi.no_rawat')
-                ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
-                ->select(
-                    'reg_periksa.no_rkm_medis',
-                    'reg_periksa.no_rawat',
-                    'reg_periksa.tgl_registrasi',
-                    'reg_periksa.jam_reg',
-                    'reg_periksa.status_lanjut',
-                    'pasien.nm_pasien',
-                    'pasien.no_ktp as ktp_pasien',
-                    'pegawai.no_ktp as ktp_dokter',
-                    'pegawai.nama as nama_dokter',
-                    'permintaan_radiologi.noorder',
-                    'permintaan_radiologi.jam_permintaan',
-                    'permintaan_radiologi.tgl_permintaan',
-                    'permintaan_radiologi.tgl_hasil',
-                    'permintaan_radiologi.jam_hasil',
-                    'radiologi_ascension.ascension'
-                )
-                ->where('reg_periksa.status_lanjut', 'Ralan')
-                ->where('reg_periksa.stts', 'Sudah')
-                ->where('permintaan_radiologi.tgl_hasil', '!=', '0000-00-00')
-                // ->where('reg_periksa.tgl_registrasi', '2024-03-07')
-                ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
-                ->get();
         }
 
         $idRS = env('IDRS');
@@ -98,7 +43,9 @@ class RadiologiController extends Controller
             ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
             ->join('radiologi_ascension', 'radiologi_ascension.noorder', '=', 'permintaan_radiologi.noorder')
             ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_radiologi.no_rawat')
-            ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('permintaan_pemeriksaan_radiologi', 'permintaan_pemeriksaan_radiologi.noorder', '=', 'permintaan_radiologi.noorder')
+            ->leftJoin('jns_perawatan_radiologi', 'jns_perawatan_radiologi.kd_jenis_prw', '=', 'permintaan_pemeriksaan_radiologi.kd_jenis_prw')
             ->select(
                 'reg_periksa.no_rkm_medis',
                 'reg_periksa.no_rawat',
@@ -114,47 +61,68 @@ class RadiologiController extends Controller
                 'permintaan_radiologi.tgl_permintaan',
                 'permintaan_radiologi.tgl_hasil',
                 'permintaan_radiologi.jam_hasil',
+                'permintaan_radiologi.status',
+                'jns_perawatan_radiologi.kd_jenis_prw',
+                'jns_perawatan_radiologi.nm_perawatan',
                 'radiologi_ascension.ascension'
             )
-            ->where('reg_periksa.status_lanjut', 'Ralan')
-            ->where('reg_periksa.stts', 'Sudah')
-            ->where('permintaan_radiologi.tgl_hasil', '!=', '0000-00-00')
-            // ->where('reg_periksa.tgl_registrasi', '2024-03-07')
-            ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
-            // ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
+            // ->where('reg_periksa.status_lanjut', 'Ralan')
+            ->where('permintaan_radiologi.tgl_permintaan', $pasien_tanggal)
             ->get();
 
-        dd($dataPengunjung);
-
         foreach ($dataPengunjung as $pasienRadio) {
-            $checkService = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)->count();
-            if ($checkService > 0) {
-                $dataSehat = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)->first();
+            $dataSehat = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
+                ->where('no_order', $pasienRadio->noorder)
+                ->first();
+            $mapping = RadiologiController::getMapping($pasienRadio->noorder);
+
+            if ($dataSehat && !empty($mapping)) {
+                // $dataSehat = $checkService->first();
 
                 if (($dataSehat->service_request_id != null) && ($dataSehat->imaging_study_id == null)) {
-                    // dd($dataSehat);
                     RadiologiController::getImagingStudy($pasienRadio->ascension);
                 }
                 if (($dataSehat->imaging_study_id != null) && ($dataSehat->observation_id == null)) {
-                    RadiologiController::sendObservation($pasienRadio);
+                    RadiologiController::sendObservation($pasienRadio, $mapping);
                 }
                 if (($dataSehat->imaging_study_id != null) && ($dataSehat->observation_id != null) && ($dataSehat->diagnostic_report_id == null)) {
-                    RadiologiController::sendDiagnosticReport($pasienRadio);
+                    RadiologiController::sendDiagnosticReport($pasienRadio, $mapping);
                 }
-
-                goto KirimPasienLain;
+                sleep(1);
             }
 
+            //Ceking Service Request
             $checkPacs = RadiologiController::checkPacs($pasienRadio->ascension);
-            $dataEncounter = SatuSehatController::getEncounterId($pasienRadio->no_rawat);
+            if ($pasienRadio->status == 'ralan') {
+                $dataEncounter = SatuSehatController::getEncounterId($pasienRadio->no_rawat);
+                if (empty($dataEncounter)) {
+                    $dataEncounter = ResponseIgdSatuSehat::where('noRawat', $pasienRadio->no_rawat)->first();
+                }
+            } elseif ($pasienRadio->status == 'ranap') {
+                $dataEncounter = ResponseRanapSatuSehat::where('noRawat', $pasienRadio->no_rawat)->first();
+            } else {
+                $dataEncounter = null;
+            }
             $idPasien = SatuSehatController::patientSehat($pasienRadio->ktp_pasien);
 
-            if (!empty($dataEncounter)) {
+            if (!empty($dataEncounter) && !empty($dataEncounter->encounter_id)) {
                 $idEncounter = $dataEncounter->encounter_id;
-            }
-            $mapping = RadiologiController::getMapping($pasienRadio->noorder);
 
-            if (!empty($idEncounter) && (!empty($checkPacs)) && (!empty($mapping)) && (!empty($idPasien))) {
+                if (empty($dataSehat)) {
+                    //Simpan Encounter
+                    $simpan = new ResponseRadiologiSatuSehat();
+                    $simpan->noRawat = $pasienRadio->no_rawat;
+                    $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
+                    $simpan->no_order = $pasienRadio->noorder;
+                    $simpan->accession_no = $pasienRadio->ascension;
+                    $simpan->encounter_id = $idEncounter;
+                    $simpan->save();
+                }
+            } else {
+                $idEncounter = null;
+            }
+
+            if (!empty($idEncounter) && (!empty($checkPacs)) && (!empty($mapping)) && (!empty($idPasien)) && (!empty($dataSehat)) && (empty($dataSehat->service_request_id))) {
                 if (!empty($pasienRadio->ktp_dokter)) {
                     $idPractition = SatuSehatController::practitioner($pasienRadio->ktp_dokter);
                 }
@@ -202,7 +170,7 @@ class RadiologiController extends Controller
                         "coding" => [
                             [
                                 "system" => "http://loinc.org",
-                                "code" => "$mapping->code",
+                                "code" => "$mapping->code", #service request
                                 "display" => "$mapping->display"
                             ]
                         ],
@@ -246,13 +214,9 @@ class RadiologiController extends Controller
                     // ]
                 ];
 
-                // dd($idEncounter, $pasienRadio->no_rawat, $dataService);
-
                 //Send data
-                SatuSehatController::getTokenSehat();
-                $access_token = Session::get('tokenSatuSehat');
-                // dd($access_token);
-                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                $access_token = SatuSehatController::getTokenSehat();
+                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                 try {
                     $response = $client->request('POST', 'fhir-r4/v1/ServiceRequest', [
                         'headers' => [
@@ -261,33 +225,72 @@ class RadiologiController extends Controller
                         'json' => $dataService
                     ]);
                 } catch (ClientException $e) {
-                    // echo $e->getRequest();
-                    // echo $e->getResponse();
                     if ($e->hasResponse()) {
                         $response = $e->getResponse();
 
-                        // dd($response);
                         $test = json_decode($response->getBody(true));
-                        dd($test, $dataEncounter, $dataService, 'sendEncounter');
+                        $message = $test->issue[0]->details->text;
+
+                        if ($test && $test->issue[0]->code == 'duplicate') {
+                            try {
+                                $response = $client->request('GET', 'fhir-r4/v1/ServiceRequest?encounter=' . $idEncounter, [
+                                    'headers' => [
+                                        'Authorization' => "Bearer {$access_token}"
+                                    ]
+                                ]);
+                            } catch (ClientException $e) {
+                                if ($e->hasResponse()) {
+                                    $response = $e->getResponse();
+                                }
+                                $test = json_decode($response->getBody(true));
+                                $message = $test->issue[0]->details->text;
+
+                                dd($message, $test->issue[0], $idEncounter, 'error service request radiologi on duplicate');
+                            }
+
+                            $dataResponse = json_decode($response->getBody()->getContents());
+                            if ($dataResponse && $dataResponse->entry[0]->resource->id) {
+                                $simpan = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
+                                    ->where('no_order', $pasienRadio->noorder)
+                                    ->first();
+                                if (!$simpan) {
+                                    $simpan = new ResponseRadiologiSatuSehat();
+                                    $simpan->noRawat = $pasienRadio->no_rawat;
+                                    $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
+                                    $simpan->no_order = $pasienRadio->noorder;
+                                    $simpan->accession_no = $pasienRadio->ascension;
+                                    $simpan->encounter_id = $idEncounter;
+                                }
+                                $simpan->service_request_id = $dataResponse->entry[0]->resource->id;
+                                $simpan->save();
+                            }
+                        }
+                    } else {
+                        $message = "Error tidak ada response";
                     }
 
-                    $message = "Gagal kirim Service Request pasien " . $pasienRadio->no_rawat;
-
-                    Session::flash('error', $message);
+                    LogErrorSatuSehat::create([
+                        'subject' => 'Kirim Service Request Radiologi',
+                        'keterangan' => "Pengiriman data Service Request Radiologi pasien no rawat : $pasienRadio->no_rawat, pesan : (" . $message . ")"
+                    ]);
 
                     goto KirimPasienLain;
                 }
 
-                // dd($response);
                 $dataResponse = json_decode($response->getBody());
 
-                if (!empty($dataResponse->id)) {
-                    $simpan = new ResponseRadiologiSatuSehat();
-                    $simpan->noRawat = $pasienRadio->no_rawat;
-                    $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
-                    $simpan->no_order = $pasienRadio->noorder;
-                    $simpan->accession_no = $pasienRadio->ascension;
-                    $simpan->encounter_id = $idEncounter;
+                if ($dataResponse && $dataResponse->id) {
+                    $simpan = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
+                        ->where('no_order', $pasienRadio->noorder)
+                        ->first();
+                    if (!$simpan) {
+                        $simpan = new ResponseRadiologiSatuSehat();
+                        $simpan->noRawat = $pasienRadio->no_rawat;
+                        $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
+                        $simpan->no_order = $pasienRadio->noorder;
+                        $simpan->accession_no = $pasienRadio->ascension;
+                        $simpan->encounter_id = $idEncounter;
+                    }
                     $simpan->service_request_id = $dataResponse->id;
                     $simpan->save();
                 }
@@ -295,12 +298,87 @@ class RadiologiController extends Controller
 
             KirimPasienLain:
         }
-        // dd('done');
 
-        $dataLog = ResponseRadiologiSatuSehat::whereDate('tgl_registrasi', $pasien_tanggal)->get();
-        // dd($dataLog);
+        $dataNoOrder = $dataPengunjung->pluck('noorder')->unique();
 
-        return view('satu_sehat.client_radiologi', compact('dataLog'));
+        $dataLog = ResponseRadiologiSatuSehat::whereIn('no_order', $dataNoOrder)
+            ->get();
+        // ->keyBy('noRawat');
+
+        $dataError = LogErrorSatuSehat::where('subject', 'like', '%Radiologi%')
+            ->where(function ($query) use ($pasien_tanggal) {
+                $query->whereDate('created_at', $pasien_tanggal)
+                    ->orWhereDate('created_at', Carbon::today());
+            })
+            ->orderBy('created_at', 'DESC')
+            ->limit(100)
+            ->get();
+
+        return view('satu_sehat.client_radiologi', compact('dataLog', 'dataPengunjung', 'dataError'));
+    }
+
+    public function summary(Request $request)
+    {
+        session()->put('ibu', 'Satu Sehat');
+        session()->put('anak', 'Radiologi');
+        session()->put('cucu', 'Summary Radiologi');
+        set_time_limit(0);
+
+        if (empty($request->get('tanggal_awal'))) {
+            $tanggal_awal = Carbon::now();
+            $tanggal_akhir = Carbon::now();
+        } else {
+            $tanggal_awal = new Carbon($request->get('tanggal_awal'));
+            $tanggal_akhir = new Carbon($request->get('tanggal_akhir'));
+        }
+
+        $idRS = env('IDRS');
+
+        $dataPengunjung = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
+            ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
+            ->join('radiologi_ascension', 'radiologi_ascension.noorder', '=', 'permintaan_radiologi.noorder')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_radiologi.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('permintaan_pemeriksaan_radiologi', 'permintaan_pemeriksaan_radiologi.noorder', '=', 'permintaan_radiologi.noorder')
+            ->leftJoin('jns_perawatan_radiologi', 'jns_perawatan_radiologi.kd_jenis_prw', '=', 'permintaan_pemeriksaan_radiologi.kd_jenis_prw')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.status_lanjut',
+                'pasien.nm_pasien',
+                'pasien.no_ktp as ktp_pasien',
+                'pegawai.no_ktp as ktp_dokter',
+                'pegawai.nama as nama_dokter',
+                'permintaan_radiologi.noorder',
+                'permintaan_radiologi.jam_permintaan',
+                'permintaan_radiologi.tgl_permintaan',
+                'permintaan_radiologi.tgl_hasil',
+                'permintaan_radiologi.jam_hasil',
+                'permintaan_radiologi.status',
+                'jns_perawatan_radiologi.kd_jenis_prw',
+                'jns_perawatan_radiologi.nm_perawatan',
+                'radiologi_ascension.ascension'
+            )
+            ->whereBetween('permintaan_radiologi.tgl_permintaan', [$tanggal_awal, $tanggal_akhir])
+            ->groupBy('noorder')
+            ->get();
+
+        $dataNoOrder = $dataPengunjung->pluck('noorder')->unique();
+        $dataLog = ResponseRadiologiSatuSehat::whereIn('no_order', $dataNoOrder)
+            ->get()
+            ->keyBy('no_order');
+
+        $ktpList = $dataPengunjung->pluck('ktp_pasien')->unique();
+        $idSehatMap = \App\PasienSehat::whereIn('nik', $ktpList)->pluck('satu_sehat_id', 'nik');
+
+        foreach ($dataPengunjung as $list) {
+            $list->idSehat = $idSehatMap[$list->ktp_pasien] ?? null;
+            $list->dataResponse = $dataLog[$list->noorder] ?? null;
+        }
+
+        return view('satu_sehat.summary_radiologi', compact('dataLog', 'dataPengunjung'));
     }
 
     public static function checkPacs($accession)
@@ -310,26 +388,24 @@ class RadiologiController extends Controller
         try {
             $response = $client->request('GET', "order?accessionNo=$accession");
         } catch (BadResponseException $e) {
-            // echo $e->getRequest();
-            // echo $e->getResponse();
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
 
-                // dd($response);
                 $test = json_decode($response->getBody());
-                dd($test);
+                // dd($test, 'ambil data response pacs');
             }
 
             $message = "Error ambil status data PACS";
 
             Session::flash('error', $message);
+
+            return;
         }
 
         $responseReport = json_decode($response->getBody());
         // $responseReport = (object) $responseReport;
 
         if ($responseReport->StudyDetails[0]->StudyInstanceUid != null) {
-            // dd($responseReport->StudyDetails[0]->StudyInstanceUid);
             return $responseReport->StudyDetails[0]->StudyInstanceUid;
         } else {
             return null;
@@ -338,12 +414,22 @@ class RadiologiController extends Controller
 
     public function getImagingStudy($accessionNo)
     {
+        $ping = SatuSehatController::pingSatuSehat();
+        if ($ping != TRUE) {
+            $message = "Gagal koneksi ke server satu sehat";
+
+            LogErrorSatuSehat::create([
+                'subject' => 'Get Imaging Study Radiologi',
+                'keterangan' => "Pengambilan data Imaging Study Radiologi accession No : $accessionNo, pesan : (" . $message . ")"
+            ]);
+
+            return null;
+        }
         $idRS = env('IDRS');
         //Send data
-        SatuSehatController::getTokenSehat();
-        $access_token = Session::get('tokenSatuSehat');
-        // dd($access_token);
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $access_token = SatuSehatController::getTokenSehat();
+
+        $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
         try {
             $response = $client->request('GET', "fhir-r4/v1/ImagingStudy?identifier=http://sys-ids.kemkes.go.id/acsn/$idRS|$accessionNo", [
                 'headers' => [
@@ -351,39 +437,55 @@ class RadiologiController extends Controller
                 ]
             ]);
         } catch (ClientException $e) {
-            // echo $e->getRequest();
-            // echo $e->getResponse();
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
-
-                // dd($response);
                 $test = json_decode($response->getBody());
-                dd($test, $accessionNo, 'getImagingStudy');
             }
 
             $message = "Gagal get Image Study accession " . $accessionNo;
 
-            Session::flash('error', $message);
+            logErrorSatuSehat::create([
+                'subject' => 'Get Imaging Study Radiologi',
+                'keterangan' => "Pengambilan data Imaging Study Radiologi accession No : $accessionNo, pesan : (" . $message . ")"
+            ]);
+        } catch (RequestException $e) {
 
-            // goto KirimPasienLain;
+            if ($e->hasResponse()) {
+
+                $statusCode = $e->getResponse()->getStatusCode();
+                $responseBody = $e->getResponse()->getBody()->getContents();
+
+                if ($statusCode == 429) {
+                    // RATE LIMIT
+                    LogErrorSatuSehat::create([
+                        'subject' => 'SatuSehat Rate Limit',
+                        'keterangan' => "Response Body: $responseBody"
+                    ]);
+
+                    return 'RATE_LIMIT';
+                }
+
+                LogErrorSatuSehat::create([
+                    'subject' => 'SatuSehat Error',
+                    'keterangan' => "Status Code: $statusCode, Response Body: $responseBody"
+                ]);
+            }
+
+            return 'ERROR';
         }
 
         $dataResponse = json_decode($response->getBody());
-        // dd($dataResponse);
         if (!empty($dataResponse->entry[0]->resource)) {
             $dataEkstrak = $dataResponse->entry[0]->resource;
-            // dd($dataEkstrak);
-
             if (!empty($dataEkstrak->id)) {
                 $update = ResponseRadiologiSatuSehat::where('accession_no', $accessionNo)->first();
-                // dd($update, $dataEkstrak);
                 $update->imaging_study_id = $dataEkstrak->id;
                 $update->save();
             }
         }
     }
 
-    public function sendObservation($dataOrder)
+    public function sendObservation($dataOrder, $mapping)
     {
         $idRS = env('IDRS');
         $dataLog = ResponseRadiologiSatuSehat::where('accession_no', $dataOrder->ascension)->first();
@@ -391,7 +493,6 @@ class RadiologiController extends Controller
         if (!empty($dataOrder->ktp_dokter)) {
             $idPractition = SatuSehatController::practitioner($dataOrder->ktp_dokter);
         }
-        $mapping = RadiologiController::getMapping($dataOrder->noorder);
         $waktuRequest = $dataOrder->tgl_permintaan . ' ' . $dataOrder->jam_permintaan;
         $waktu_request = new Carbon($waktuRequest);
         $formatWaktuRequest = $waktu_request->setTimezone('UTC')->toW3cString();
@@ -420,7 +521,7 @@ class RadiologiController extends Controller
                 "coding" => [
                     [
                         "system" => "http://loinc.org",
-                        "code" => "$mapping->code",
+                        "code" => "$mapping->code", //observation
                         "display" => "$mapping->display"
                     ]
                 ]
@@ -459,14 +560,13 @@ class RadiologiController extends Controller
                 [
                     "reference" => "ImagingStudy/$dataLog->imaging_study_id"
                 ]
-            ],
-            "valueString" => "Tidak ditemukan kelainan dalam Upper CT Abdomen"
+            ]
+            // ,
+            // "valueString" => "Tidak ditemukan kelainan dalam Upper CT Abdomen"
         ];
 
-        SatuSehatController::getTokenSehat();
-        $access_token = Session::get('tokenSatuSehat');
-        // dd($access_token);
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $access_token = SatuSehatController::getTokenSehat();
+        $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
         try {
             $response = $client->request('POST', 'fhir-r4/v1/Observation', [
                 'headers' => [
@@ -475,12 +575,9 @@ class RadiologiController extends Controller
                 'json' => $dataObservation
             ]);
         } catch (ClientException $e) {
-            // echo $e->getRequest();
-            // echo $e->getResponse();
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
 
-                // dd($response);
                 $test = json_decode($response->getBody());
                 dd($test, $dataObservation, 'sendObservation');
             }
@@ -490,7 +587,6 @@ class RadiologiController extends Controller
             Session::flash('error', $message);
         }
 
-        // dd($response);
         $dataResponse = json_decode($response->getBody());
 
         if (!empty($dataResponse->id)) {
@@ -502,7 +598,7 @@ class RadiologiController extends Controller
         }
     }
 
-    public function sendDiagnosticReport($dataOrder)
+    public function sendDiagnosticReport($dataOrder, $mapping)
     {
         $idRS = env('IDRS');
         $dataLog = ResponseRadiologiSatuSehat::where('accession_no', $dataOrder->ascension)->first();
@@ -510,7 +606,9 @@ class RadiologiController extends Controller
         if (!empty($dataOrder->ktp_dokter)) {
             $idPractition = SatuSehatController::practitioner($dataOrder->ktp_dokter);
         }
-        $mapping = RadiologiController::getMapping($dataOrder->noorder);
+        if (empty($mapping)) {
+            dd('mapping diagnostic report radiologi tidak ditemukan', $dataOrder);
+        }
         $hasilDiagnosa = RadiologiController::getHasil($dataOrder->no_rawat);
         $waktuHasil = $dataOrder->tgl_hasil . ' ' . $dataOrder->jam_hasil;
         $waktu_hasil = new Carbon($waktuHasil);
@@ -541,7 +639,7 @@ class RadiologiController extends Controller
                 "coding" => [
                     [
                         "system" => "http://loinc.org",
-                        "code" => "$mapping->code",
+                        "code" => "$mapping->code", //report
                         "display" => "$mapping->display"
                     ]
                 ]
@@ -580,10 +678,8 @@ class RadiologiController extends Controller
             "conclusion" => "$hasilDiagnosa->hasil"
         ];
 
-        SatuSehatController::getTokenSehat();
-        $access_token = Session::get('tokenSatuSehat');
-        // dd($access_token);
-        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+        $access_token = SatuSehatController::getTokenSehat();
+        $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
         try {
             $response = $client->request('POST', 'fhir-r4/v1/DiagnosticReport', [
                 'headers' => [
@@ -592,14 +688,38 @@ class RadiologiController extends Controller
                 'json' => $dataReport
             ]);
         } catch (ClientException $e) {
-            // echo $e->getRequest();
-            // echo $e->getResponse();
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
 
-                // dd($response);
                 $test = json_decode($response->getBody());
-                dd($test, $dataReport, 'sendObservation');
+                // dd($test, $dataReport, 'sendObservation');
+                //Jika Duplicate
+                if ($test && $test->issue[0]->code == 'duplicate') {
+                    try {
+                        $response = $client->request('GET', 'fhir-r4/v1/DiagnosticReport?encounter=' . $dataLog->encounter_id, [
+                            'headers' => [
+                                'Authorization' => "Bearer {$access_token}"
+                            ]
+                        ]);
+                    } catch (ClientException $e) {
+                        if ($e->hasResponse()) {
+                            $response = $e->getResponse();
+                        }
+                        $test = json_decode($response->getBody(true));
+                        $message = $test->issue[0]->details->text;
+
+                        dd($message, $test->issue[0], $dataLog->encounter_id, 'error diagnostic report radiologi on duplicate');
+                    }
+
+                    $dataResponse = json_decode($response->getBody()->getContents());
+                    if ($dataResponse && $dataResponse->entry[0]->resource->id) {
+                        $update = ResponseRadiologiSatuSehat::where('accession_no', $dataOrder->ascension)->first();
+                        if ($update) {
+                            $update->diagnostic_report_id = $dataResponse->entry[0]->resource->id;
+                            $update->save();
+                        }
+                    }
+                }
             }
 
             $message = "Gagal kirim Service Request pasien " . $dataOrder->no_rawat;
@@ -607,7 +727,6 @@ class RadiologiController extends Controller
             Session::flash('error', $message);
         }
 
-        // dd($response);
         $dataResponse = json_decode($response->getBody());
 
         if (!empty($dataResponse->id)) {
@@ -621,8 +740,6 @@ class RadiologiController extends Controller
 
     public function getMapping($dataOrder)
     {
-        // dd($dataOrder);
-
         $data = DB::connection('mysqlkhanza')->table('fhir_rad')
             ->join('fhir_master_loinc_rad', 'fhir_master_loinc_rad.kd_loinc', '=', 'fhir_rad.kd_loinc')
             ->join('radiologi_ascension', 'radiologi_ascension.kd_jenis_prw', '=', 'fhir_rad.kd_jenis_prw')
@@ -645,8 +762,6 @@ class RadiologiController extends Controller
 
     public function getHasil($noRawat)
     {
-        // dd($dataOrder);
-
         $data = DB::connection('mysqlkhanza')->table('hasil_radiologi')
             ->select(
                 'hasil_radiologi.no_rawat',

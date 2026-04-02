@@ -125,109 +125,8 @@ class BookingPendaftaranController extends Controller
 
     public function kirimPesanPasien(Request $request)
     {
-        // dd($request);
         $idTemplate = Crypt::decrypt($request->template);
-        // dd($idTemplate, $request);
         KirimPesanJob::dispatch($request->no_rm, $request->tgl_periksa, $idTemplate);
-        // $template = TemplatePesan::find($idTemplate);
-        // $getData = DB::connection('mysqlkhanza')->table('booking_registrasi')
-        //     ->join('pasien', 'pasien.no_rkm_medis', '=', 'booking_registrasi.no_rkm_medis')
-        //     ->join('dokter', 'dokter.kd_dokter', '=', 'booking_registrasi.kd_dokter')
-        //     ->join('poliklinik', 'poliklinik.kd_poli', '=', 'booking_registrasi.kd_poli')
-        //     ->join('penjab', 'penjab.kd_pj', '=', 'booking_registrasi.kd_pj')
-        //     ->select(
-        //         'booking_registrasi.*',
-        //         'pasien.nm_pasien',
-        //         'pasien.no_tlp',
-        //         'dokter.nm_dokter',
-        //         'poliklinik.nm_poli',
-        //         'penjab.png_jawab'
-        //     )
-        //     ->where('booking_registrasi.no_rkm_medis', $request->no_rm)
-        //     ->where('booking_registrasi.tanggal_periksa', Carbon::parse($request->tgl_periksa)->format('Y-m-d'))
-        //     ->first();
-
-        // if ($getData) {
-        //     $dataPasien = [
-        //         'nama_pasien' => $getData->nm_pasien,
-        //         'no_rm' => $getData->no_rkm_medis,
-        //         'tgl_kunjungan' => Carbon::parse($getData->tanggal_periksa)->locale('id')->translatedFormat('l, d F Y'),
-        //         'nama_poli' => $getData->nm_poli,
-        //         'nama_dokter' => $getData->nm_dokter,
-        //     ];
-
-        //     $finalMessage = BookingPendaftaranController::generateMessageFromTemplate($template->pesan, $dataPasien)->pesan;
-
-        //     // dd($finalMessage);
-        // } else {
-        //     return redirect()->back()->withErrors('error', 'Data Kunjungan tidak ditemukan');
-        // }
-
-        // $status = WaController::cekStatus();
-        // // dd($request);
-
-        // if ($status == 'online') {
-        //     $sessionApp = WaController::cekSession();
-        // } else {
-        //     $message = "Server tidak bisa dijangkau!";
-
-        //     Session::flash('error', $message);
-
-        //     return redirect()->back();
-        // }
-        // // Sekarang $finalMessage bisa kamu kirim via API WhatsApp
-        // // $telp = $getData->no_tlp;
-        // $telp = '085647290127';
-
-        // if (substr($telp, 0, 1) === '0') {
-        //     $telp = '62' . substr($telp, 1);
-        // }
-
-        // // dd($telp);
-
-        // if ($sessionApp == true) {
-        //     $setting = Setting::where('nama', 'pesan')->first();
-
-        //     $client = new \GuzzleHttp\Client((['base_uri' => $setting->base_url]));
-        //     try {
-        //         $response = $client->request('POST', "/client/sendMessage/$setting->key", [
-        //             'headers' => [
-        //                 'x-api-key' => null,
-        //             ],
-        //             'json' => [
-        //                 "chatId" => "$telp@c.us",
-        //                 "contentType" => "string",
-        //                 "content" => "$finalMessage"
-        //             ]
-        //         ]);
-        //     } catch (BadResponseException $e) {
-        //         if ($e->hasResponse()) {
-        //             $response = $e->getResponse();
-        //             $test = json_decode($response->getBody());
-        //             dd($test, 'error pengiriman pesan');
-
-        //             // $message = "Medication 1 error $test";
-
-        //             Session::flash('error', $test->message);
-        //         }
-        //     }
-
-        //     $data = json_decode($response->getBody());
-
-        //     if ($data && $data->success == true) {
-        //         Session::flash('sukses', 'Pesan berhasil dikirim');
-        //     } else {
-        //         Session::flash('error', 'Pesan gagal dikirim');
-        //     }
-
-        //     return redirect()->back();
-        // } else {
-        //     $message = "Session id belum tersetting";
-
-        //     Session::flash('error', $message);
-
-        //     return redirect()->back();
-        // }
 
         Session::flash('sukses', 'Pengiriman pesan sedang berlangsung');
         return redirect()->back();
@@ -235,10 +134,9 @@ class BookingPendaftaranController extends Controller
 
     public function kirimPesanMPasien(Request $request)
     {
-        // dd($request);
         $idTemplate = Crypt::decrypt($request->template);
-        // dd($idTemplate, $request);
         KirimPesanMJob::dispatch($request->no_rm, $request->tgl_periksa, $idTemplate);
+        // BookingPendaftaranController::kirimPesanM($request->no_rm, $request->tgl_periksa, $idTemplate);
 
         Session::flash('sukses', 'Pengiriman pesan sedang berlangsung');
         return redirect()->back();
@@ -265,7 +163,6 @@ class BookingPendaftaranController extends Controller
 
         $dataPasien =  explode(',', $request->pasien_ids);
 
-        // dd($request, $dataPasien);
         foreach ($dataPasien as $kirimPesan) {
             KirimPesanJob::dispatch($kirimPesan, $request->tgl_periksa, $idTemplate);
         }
@@ -286,9 +183,11 @@ class BookingPendaftaranController extends Controller
 
         $dataPasien =  explode(',', $request->pasien_ids);
 
-        // dd($request, $dataPasien);
         foreach ($dataPasien as $kirimPesan) {
+            //Job KirimPesanMJob untuk mengirim pesan secara asynchronous
             KirimPesanMJob::dispatch($kirimPesan, $request->tgl_periksa, $idTemplate);
+            //Jika ingin langsung kirim tanpa antrian, bisa panggil method statisnya langsung
+            // BookingPendaftaranController::kirimPesanM($kirimPesan, $request->tgl_periksa, $idTemplate);
         }
 
         Session::flash('sukses', 'Pengiriman pesan sedang berlangsung');
@@ -436,7 +335,9 @@ class BookingPendaftaranController extends Controller
             return response()->json(['success' => false, 'message' => 'Session ID belum tersetting.'], 500);
         }
 
-        $telp = $getData->no_tlp;
+        // dd($getData, $finalMessage, 'data multi pesan');
+
+        $telp = $getData->nohp;
         // $telp = '085647290127';
 
         if (substr($telp, 0, 1) === '0') {

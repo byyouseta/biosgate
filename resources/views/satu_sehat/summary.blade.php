@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('head')
-    <meta http-equiv="refresh" content="600" />
+    <meta http-equiv="refresh" content="120" />
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
@@ -27,7 +27,7 @@
                         <div class="card-header">
                             <div class="card_title">Summary data terkirim
                                 <div class="float-right">
-                                    <form action="/satusehat" method="GET">
+                                    <form action="{{ url()->current() }}" method="GET">
                                         <div class="input-group input-group" id="tanggal" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
                                                 data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
@@ -47,6 +47,8 @@
                                 <thead>
                                     <tr>
                                         <th class="align-middle">No Rawat</th>
+                                        <th class="align-middle">Nama Pasien</th>
+                                        <th class="align-middle">Poliklinik</th>
                                         <th class="align-middle">Encounter ID</th>
                                         <th class="align-middle">Condition1 ID</th>
                                         <th class="align-middle">Condition2 ID</th>
@@ -63,22 +65,27 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($dataLog as $summary)
+                                    @foreach ($dataPasien as $summary)
+                                        @php
+                                            $hasil = $dataLog->where('noRawat', $summary->no_rawat)->first();
+                                        @endphp
                                         <tr>
-                                            <td>{{ $summary->noRawat }}</td>
-                                            <td>{{ $summary->encounter_id }}</td>
-                                            <td>{{ $summary->condition_id }}</td>
-                                            <td>{{ $summary->condition2_id }}</td>
-                                            <td>{{ $summary->heart_id }}</td>
-                                            <td>{{ $summary->respiratory_id }}</td>
-                                            <td>{{ $summary->systol_id }}</td>
-                                            <td>{{ $summary->diastol_id }}</td>
-                                            <td>{{ $summary->temperature_id }}</td>
-                                            <td>{{ $summary->procedure_id }}</td>
-                                            <td>{{ $summary->composition_id }}</td>
-                                            <td>{{ $summary->goal_id }}</td>
-                                            <td>{{ $summary->careplan_id }}</td>
-                                            <td>{{ $summary->created_at }}</td>
+                                            <td>{{ $summary->no_rawat }}</td>
+                                            <td>{{ $summary->nm_pasien }}</td>
+                                            <td>{{ $summary->alias_nm_poli }}</td>
+                                            <td>{{ $hasil ? $hasil->encounter_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->condition_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->condition2_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->heart_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->respiratory_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->systol_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->diastol_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->temperature_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->procedure_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->composition_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->goal_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->careplan_id : '-' }}</td>
+                                            <td>{{ $hasil ? $hasil->created_at : '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -110,7 +117,6 @@
                                             <td>{{ $log->created_at }}</td>
                                         </tr>
                                     @endforeach
-
                                 </tbody>
                             </table>
                         </div>

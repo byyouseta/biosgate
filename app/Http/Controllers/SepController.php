@@ -71,7 +71,9 @@ class SepController extends Controller
 
     public static function peserta($nokartu, $tgl)
     {
-        // $noSep = $id;
+        if ($nokartu == null || $nokartu == '' || $nokartu == '-') {
+            return null;
+        }
         $consid = env('CONS_ID');
         $secretKey = env('SECRETKEY');
         $userKey = env('USERKEY');

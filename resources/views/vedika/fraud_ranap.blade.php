@@ -20,7 +20,7 @@
                         <div class="card-header">
                             <div class="form-group row">
                                 <div class="col-sm-7">
-                                    <label>Data Fraud Rajal/IGD</label>
+                                    <label>Data Fraud Ranap</label>
                                 </div>
                                 <div class="col-sm-2">
                                     @if (!empty(Request::get('periode')))

@@ -104,6 +104,7 @@ class RedirectController extends Controller
         $request->validate([
             'phone' => 'required',
             'otp' => 'required|numeric',
+            'aplikasi' => 'required|string',
         ]);
 
         // Kirim ke WhatsApp API kamu
@@ -127,7 +128,7 @@ class RedirectController extends Controller
         // if ($sessionApp == true) {
         // $setting = Setting::where('nama', 'pesan')->first();
 
-        $formatPesan = "Untuk mengaktifkan reset Password ePayroll RSUP Surakarta, masukkan kode OTP: $request->otp. Berlaku selama 5 menit. JANGAN PERNAH membagikan kode ini kepada orang lain dalam keadaan apa pun.";
+        $formatPesan = "Untuk mengaktifkan reset Password $request->aplikasi RSUP Surakarta, masukkan kode OTP: $request->otp. Berlaku selama 5 menit. JANGAN PERNAH membagikan kode ini kepada orang lain dalam keadaan apa pun.";
 
         $client = new \GuzzleHttp\Client((['base_uri' => env('SERVER_API_WA')]));
         try {

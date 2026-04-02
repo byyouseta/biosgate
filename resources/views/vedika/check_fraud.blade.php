@@ -289,10 +289,19 @@
                                         </div>
                                     </div>
                                     <div class="col-md-12">
-                                        <div class="mb-3 mt-3 form-group" id="keterangan-keluhan-form">
+                                        <div class="mb-3 mt-3 " id="klarifikasi-form">
                                             <label for="klarifikasi">KLARIFIKASI </label>
-                                            <textarea class="form-control" placeholder="Isikan Klarifikasi" name="klarifikasi" id="klarrifikasi"
-                                                style="height: 100px">{{ $data->klarifikasi }}</textarea>
+                                            <div class="input-group">
+                                                <textarea class="form-control" placeholder="Isikan Klarifikasi" name="klarifikasi" id="klarifikasi"
+                                                    style="height: 100px">{{ $data->klarifikasi }}</textarea>
+                                                <div class="input-group-append ml-3">
+                                                    <div class="input-group-text">
+                                                        <span class="mr-2">Selesai</span>
+                                                        <input type="checkbox" name="selesai" id="check_selesai"
+                                                            {{ $data->selesai == 1 ? 'checked' : '' }}>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-12">

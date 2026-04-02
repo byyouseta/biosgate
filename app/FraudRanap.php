@@ -7,9 +7,27 @@ use Illuminate\Database\Eloquent\Model;
 class FraudRanap extends Model
 {
     protected $fillable = [
-        'data_pengajuan_klaim_id', 'periode_klaim_id', 'up_coding', 'phantom_billing', 'cloning', 'inflated_bills', 'pemecahan',
-        'rujukan_semu', 'repeat_billing', 'prolonged_los', 'manipulasi_kels',
-        're_admisi', 'kesesuaian_tindakan', 'tagihan_tindakan', 'klarifikasi', 'keterangan'
+        'data_pengajuan_klaim_id',
+        'periode_klaim_id',
+        'up_coding',
+        'phantom_billing',
+        'cloning',
+        'inflated_bills',
+        'pemecahan',
+        'rujukan_semu',
+        'repeat_billing',
+        'prolonged_los',
+        'manipulasi_kels',
+        're_admisi',
+        'kesesuaian_tindakan',
+        'tagihan_tindakan',
+        'klarifikasi',
+        'keterangan',
+        'selesai'
+    ];
+
+    protected $casts = [
+        'selesai' => 'boolean',
     ];
 
     public function periodeKlaim()

@@ -28,12 +28,15 @@
                         <div class="card-header">
                             <div class="row">
                                 <div class="col-sm-5">
-                                    <form action="/vedika/tidaklayak" method="GET" class="form-inline d-flex align-items-center">
+                                    <form action="/vedika/tidaklayak" method="GET"
+                                        class="form-inline d-flex align-items-center">
                                         <label class="mr-2">Tanggal</label>
                                         <div class="input-group date mr-2" id="tanggal" data-target-input="nearest">
-                                            <input type="text" class="form-control datetimepicker-input" data-target="#tanggal"
-                                                data-toggle="datetimepicker" name="tanggal" value="{{ $tanggal }}" autocomplete="off" />
-                                            <div class="input-group-append" data-target="#tanggal" data-toggle="datetimepicker">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
+                                                value="{{ $tanggal }}" autocomplete="off" />
+                                            <div class="input-group-append" data-target="#tanggal"
+                                                data-toggle="datetimepicker">
                                                 <div class="input-group-text"><i class="fa fa-calendar"></i></div>
                                             </div>
                                         </div>
@@ -88,7 +91,7 @@
                                             <td class="text-right">{{ $klaim->biaya_pengajuan }}</td>
                                             <td class="text-right">{{ $klaim->biaya_tarif_grouper }}</td>
                                             <td class="text-right">{{ $klaim->biaya_tarif_rs }}</td>
-                                            <td>{{ $klaim->alasan? $klaim->alasan:'-' }}</td>
+                                            <td>{{ $klaim->alasan ? $klaim->alasan : '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -110,7 +113,7 @@
                 <form method="POST" action="/vedika/tidaklayak/import" enctype="multipart/form-data">
                     @csrf
                     <div class="modal-header">
-                        <h4 class="modal-title">Import Data Penerimaan</h4>
+                        <h4 class="modal-title">Import Data </h4>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -123,8 +126,7 @@
                                     <label for="exampleInputFile">File input</label>
                                     <div class="input-group">
                                         <div class="custom-file">
-                                            <input type="file" class="custom-file-input" id="customFile"
-                                                name="file">
+                                            <input type="file" class="custom-file-input" id="customFile" name="file">
                                             <label class="custom-file-label" for="customFile">Choose file</label>
                                         </div>
 
@@ -148,23 +150,23 @@
     </div>
 @endsection
 @section('plugin')
-<script src="{{ asset('template/plugins/datatables/jquery.dataTables.min.js') }}"></script>
-<script src="{{ asset('template/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('template/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
-<script src="{{ asset('template/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('template/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
-<script src="{{ asset('template/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
-<script src="{{ asset('template/plugins/jszip/jszip.min.js') }}"></script>
-<script src="{{ asset('template/plugins/pdfmake/pdfmake.min.js') }}"></script>
-<script src="{{ asset('template/plugins/pdfmake/vfs_fonts.js') }}"></script>
-<script src="{{ asset('template/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
-<script src="{{ asset('template/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
-<script src="{{ asset('template/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
-<!-- Tempusdominus Bootstrap 4 -->
-<script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
-<script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
-<!-- bs-custom-file-input -->
-<script src="{{ asset('template/plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/jszip/jszip.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/pdfmake/pdfmake.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/pdfmake/vfs_fonts.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
+    <!-- bs-custom-file-input -->
+    <script src="{{ asset('template/plugins/bs-custom-file-input/bs-custom-file-input.min.js') }}"></script>
     <script>
         let periode = "<?php echo $tanggal; ?>";
         $(function() {

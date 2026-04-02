@@ -82,7 +82,6 @@
                                                         $prosedur = $buktiPelayanan[1];
                                                         $norm_pasien = $buktiPelayanan[2]->no_rkm_medis;
                                                     }
-                                                    // dd($data);
                                                 @endphp
                                                 @if (!empty($data->dataPengajuan->no_rawat))
                                                     <tr>

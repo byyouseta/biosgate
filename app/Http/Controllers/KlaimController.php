@@ -214,47 +214,63 @@ class KlaimController extends Controller
     public function pengajuan(Request $request)
     {
 
-        // dd($request);
+        $cek = DataPengajuanKlaim::where('no_rawat', $request->no_rawat)
+            ->where('jenis_rawat', $request->jenis_rawat)
+            ->first();
 
-        $data = new DataPengajuanKlaim();
-        $data->no_rawat = $request->no_rawat;
-        $data->no_sep = $request->no_sep;
-        $data->no_kartu = $request->no_bpjs;
-        $data->nama_pasien = $request->nama_pasien;
-        $data->jk = $request->jk;
-        $data->tgl_registrasi = $request->tgl_registrasi;
-        $data->tgl_lahir = $request->tgl_lahir;
-        $data->nama_poli = $request->nm_poli;
-        $data->jenis_rawat = $request->jenis_rawat;
-        $data->periode_klaim_id = $request->periode;
-        $data->save();
+        if ($cek) {
+            Session::flash('gagal', 'Data dengan No. Rawat ' . $request->no_rawat . ' sudah pernah diajukan!');
 
-        Session::flash('sukses', 'Data Berhasil ditambahkan!');
+            return redirect()->back();
+        } else {
+            $data = new DataPengajuanKlaim();
+            $data->no_rawat = $request->no_rawat;
+            $data->no_sep = $request->no_sep;
+            $data->no_kartu = $request->no_bpjs;
+            $data->nama_pasien = $request->nama_pasien;
+            $data->jk = $request->jk;
+            $data->tgl_registrasi = $request->tgl_registrasi;
+            $data->tgl_lahir = $request->tgl_lahir;
+            $data->nama_poli = $request->nm_poli;
+            $data->jenis_rawat = $request->jenis_rawat;
+            $data->periode_klaim_id = $request->periode;
+            $data->save();
 
-        return redirect()->back();
+            Session::flash('sukses', 'Data Berhasil ditambahkan!');
+
+            return redirect()->back();
+        }
     }
 
     public function pengajuanUlang(Request $request)
     {
 
-        // dd($request);
+        $cek = DataPengajuanUlang::where('no_rawat', $request->no_rawat)
+            ->where('jenis_rawat', $request->jenis_rawat)
+            ->first();
 
-        $data = new DataPengajuanUlang();
-        $data->no_rawat = $request->no_rawat;
-        $data->no_sep = $request->no_sep;
-        $data->no_kartu = $request->no_bpjs;
-        $data->nama_pasien = $request->nama_pasien;
-        $data->jk = $request->jk;
-        $data->tgl_registrasi = $request->tgl_registrasi;
-        $data->tgl_lahir = $request->tgl_lahir;
-        $data->nama_poli = $request->nm_poli;
-        $data->jenis_rawat = $request->jenis_rawat;
-        $data->periode_pengajuan_ulang_id = $request->periode;
-        $data->save();
+        if ($cek) {
+            Session::flash('gagal', 'Data dengan No. Rawat ' . $request->no_rawat . ' sudah pernah diajukan!');
 
-        Session::flash('sukses', 'Data Berhasil ditambahkan!');
+            return redirect()->back();
+        } else {
+            $data = new DataPengajuanUlang();
+            $data->no_rawat = $request->no_rawat;
+            $data->no_sep = $request->no_sep;
+            $data->no_kartu = $request->no_bpjs;
+            $data->nama_pasien = $request->nama_pasien;
+            $data->jk = $request->jk;
+            $data->tgl_registrasi = $request->tgl_registrasi;
+            $data->tgl_lahir = $request->tgl_lahir;
+            $data->nama_poli = $request->nm_poli;
+            $data->jenis_rawat = $request->jenis_rawat;
+            $data->periode_pengajuan_ulang_id = $request->periode;
+            $data->save();
 
-        return redirect()->back();
+            Session::flash('sukses', 'Data Berhasil ditambahkan!');
+
+            return redirect()->back();
+        }
     }
 
     public function pengajuanKronis(Request $request)

@@ -18,6 +18,68 @@
                 <div class="col-6">
                     <div class="card">
                         <div class="card-header">
+                            <div class="card_title">Check Data Kunjungan
+                                {{-- Kirim data Encounter --}}
+                                <div class="float-right">
+                                    @if ($dataPasien->kd_poli == 'MCU' || $dataPasien->kd_poli == 'LAB' || $dataPasien->kd_poli == 'PAK')
+                                        <a href="{{ route('satuSehat.singleEncounter', Crypt::encrypt($dataPasien->no_rawat)) }}"
+                                            class="btn btn-primary btn-sm"><i class="far fa-paper-plane"></i> Kirim
+                                            Encounter</a>
+                                    @elseif(empty($dataKiriman->encounter_id) &&
+                                            $dataPasien->kd_poli != 'MCU' &&
+                                            $dataPasien->kd_poli != 'LAB' &&
+                                            $dataPasien->kd_poli != 'PAK')
+                                        <a href="{{ route('satuSehat.checkRajalSend', Crypt::encrypt($dataPasien->no_rawat)) }}"
+                                            class="btn btn-primary btn-sm"><i class="far fa-paper-plane"></i> Kirim
+                                            Ulang</a>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h6>Kunjungan Pasien</h6>
+                            <table class="table table-bordered table-hover table-sm">
+                                <tr>
+                                    <th width='30%'>No Rawat</th>
+                                    <td>: {!! $dataPasien ? $dataPasien->no_rawat : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
+                                </tr>
+                                <tr>
+                                    <th width='30%'>Encounter ID</th>
+                                    <td>: {!! $dataKiriman && $dataKiriman->encounter_id
+                                        ? $dataKiriman->encounter_id
+                                        : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
+                                </tr>
+                                <tr>
+                                    <th width='30%'>Diagnosa ID</th>
+                                    <td>: {!! $dataKiriman && $dataKiriman->condition_id
+                                        ? $dataKiriman->condition_id
+                                        : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
+                                </tr>
+                                <tr>
+                                    <th width='30%'>Secondary Diagnosa</th>
+                                    <td>: {!! $dataKiriman && $dataKiriman->condition2_id
+                                        ? $dataKiriman->condition2_id
+                                        : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
+                                </tr>
+                                <tr>
+                                    <th width='30%'>Vital Sign</th>
+                                    <td>: {!! $dataKiriman && $dataKiriman->temperature_id
+                                        ? $dataKiriman->temperature_id
+                                        : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
+                                </tr>
+                                <tr>
+                                    <th width='30%'>Care Plan ID</th>
+                                    <td>: {!! $dataKiriman && $dataKiriman->careplan_id
+                                        ? $dataKiriman->careplan_id
+                                        : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card">
+                        <div class="card-header">
                             <div class="card_title">Check Data Pasien
                             </div>
                         </div>
@@ -48,7 +110,7 @@
                                     <th width='20%'>Penjamin</th>
                                     <td>: {!! $dataPasien ? $dataPasien->nama_perusahaan : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
-                                @if (empty($idSatu) && $dataPasien->nama_perusahaan == 'BPJS')
+                                @if (empty($idSatu))
                                     @php
                                         if ($dataPasien->no_peserta != '-' || $dataPasien->no_peserta != null) {
                                             $dataPeserta = \App\Http\Controllers\SepController::peserta(
@@ -93,20 +155,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card_title">Check Data Praktisi
-                                {{-- Kirim data Encounter --}}
-                                <div class="float-right">
-                                    @if ($dataPasien->kd_poli == 'MCU' || $dataPasien->kd_poli == 'LAB' || $dataPasien->kd_poli == 'PAK')
-                                        <a href="{{ route('satuSehat.singleEncounter', Crypt::encrypt($dataPasien->no_rawat)) }}"
-                                            class="btn btn-primary btn-sm"><i class="far fa-paper-plane"></i> Kirim
-                                            Encounter</a>
-                                    @else
-                                        <a href="{{ route('satuSehat.checkRajalSend', Crypt::encrypt($dataPasien->no_rawat)) }}"
-                                            class="btn btn-primary btn-sm"><i class="far fa-paper-plane"></i> Kirim
-                                            Ulang</a>
-                                    @endif
-                                </div>
                             </div>
-
                         </div>
                         <div class="card-body">
                             <h6>Data Praktisi</h6>
@@ -152,6 +201,13 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="card_title">Check Data Diagnosa
+                                @if ($dataKiriman && $dataKiriman->condition_id == null && $dataKiriman->encounter_id)
+                                    <div class="float-right">
+                                        <a href="{{ route('satuSehat.singleDiagnosa', Crypt::encrypt($dataPasien->no_rawat)) }}"
+                                            class="btn btn-primary btn-sm"><i class="far fa-paper-plane"></i> Kirim
+                                            Diagnosa</a>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="card-body">

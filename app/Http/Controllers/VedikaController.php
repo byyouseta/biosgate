@@ -255,6 +255,24 @@ class VedikaController extends Controller
             $dataRadiologiRajal = $radiologi[0];
             $dokterRadiologiRajal = $radiologi[1];
             $hasilRadiologiRajal = $radiologi[2];
+            $historyRadiologi = VedikaController::perawatanRadioRajal($pasien->no_rkm_medis);
+            $tambahanRadiologi = TambahanRadiologi::where('no_rawat', $pasien->no_rawat)->get();
+            if ($tambahanRadiologi) {
+                $tambahanDataRadiologi = [];
+                $tambahanDokterRadiologi = [];
+                $tambahanHasilRadiologi = [];
+                foreach ($tambahanRadiologi as $listTambahan) {
+                    $dataTambahan = VedikaController::radioRajal($listTambahan->no_rawat_tambahan);
+
+                    if (!empty($dataTambahan[0]) && !empty($dataTambahan[1]) && !empty($dataTambahan[2])) {
+                        // Menambah data ke array masing-masing
+                        array_push($tambahanDataRadiologi, $dataTambahan[0][0]);
+                        array_push($tambahanDokterRadiologi, $dataTambahan[1][0]);
+                        array_push($tambahanHasilRadiologi, $dataTambahan[2][0]);
+                    }
+                }
+            }
+
             $dataSep = VedikaController::getSep($pasien->no_rawat, 2);
             if ($dataSep) {
                 if (!empty($dataSep->no_sep)) {
@@ -278,7 +296,6 @@ class VedikaController extends Controller
                 $dataSrb = null;
             }
 
-            // dd($dataSrb);
             //Ambil data Triase dan Ringkasan IGD
             if ($pasien->nm_poli == "IGD") {
                 $triase = VedikaController::triase($pasien->no_rawat);
@@ -343,7 +360,11 @@ class VedikaController extends Controller
             if ($tambahanSoap) {
                 $tambahanDataSoap = [];
                 foreach ($tambahanSoap as $listTambahan) {
-                    $dataTambahan = VedikaController::dataSoap($listTambahan->no_rawat_tambahan);
+                    if ($listTambahan->kd_dokter == null) {
+                        $dataTambahan = VedikaController::dataSoap($listTambahan->no_rawat_tambahan);
+                    } else {
+                        $dataTambahan = VedikaController::dataSoapDokter($listTambahan->no_rawat_tambahan, $listTambahan->kd_dokter);
+                    }
                     if (!empty($dataTambahan)) {
                         // Menambah data ke array masing-masing
                         array_push($tambahanDataSoap, $dataTambahan);
@@ -351,6 +372,7 @@ class VedikaController extends Controller
                 }
             }
             $tambahanDataSoap = collect($tambahanDataSoap);
+            $dataSesiRehab = VedikaController::getSesiRehap($pasien->no_rawat);
 
             return view('vedika.detailRajal', compact(
                 'pasien',
@@ -365,6 +387,11 @@ class VedikaController extends Controller
                 'dataRadiologiRajal',
                 'dokterRadiologiRajal',
                 'hasilRadiologiRajal',
+                'historyRadiologi',
+                'tambahanRadiologi',
+                'tambahanDataRadiologi',
+                'tambahanDokterRadiologi',
+                'tambahanHasilRadiologi',
                 'dataTriase',
                 'primer',
                 'sekunder',
@@ -384,6 +411,7 @@ class VedikaController extends Controller
                 'dataTindakanMata',
                 'dataLaporanRajal',
                 'dataTreadmill',
+                'dataSesiRehab',
                 'historySoap',
                 'tambahanDataSoap',
                 'masterBerkas',
@@ -467,7 +495,6 @@ class VedikaController extends Controller
             $hasilRadiologiRajal = $radiologi[2];
             $historyRadiologi = VedikaController::perawatanRadioRajal($pasien->no_rkm_medis);
             $tambahanRadiologi = TambahanRadiologi::where('no_rawat', $pasien->no_rawat)->get();
-            // dd($pasien, $dataRadiologiRanap, $dokterRadiologiRanap, $hasilRadiologiRanap);
 
             if ($tambahanRadiologi) {
                 $tambahanDataRadiologi = [];
@@ -485,14 +512,10 @@ class VedikaController extends Controller
                 }
             }
 
-            // dd($tambahanDataRadiologi, $tambahanDokterRadiologi, $tambahanHasilRadiologi, $dataRadiologiRajal);
-
             $dataSep = VedikaController::getSep($pasien->no_rawat, 1);
-            // dd($dataSep);
             if ($dataSep != null) {
                 if (!empty($dataSep->no_sep)) {
                     $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
-                    // dd($dataDetailEklaim);
                 } else {
                     $dataDetailEklaim = EklaimController::getDetail($dataSep->noSep);
                 }
@@ -500,10 +523,8 @@ class VedikaController extends Controller
             } else {
                 $dataKlaim = null;
             }
-            // dd($dataSep, $dataKlaim);
             //Ambil Berkas tambahan
             $berkas = VedikaController::berkas($pasien->no_rawat);
-            // dd($berkas);
 
             $dataBerkas = $berkas[0];
             $masterBerkas = $berkas[1];
@@ -513,8 +534,6 @@ class VedikaController extends Controller
             $permintaanLab = $lab[0];
             $hasilLab = $lab[1];
             $kesanLab = $lab[2];
-
-            // dd($lab);
             //Data Obat
             // $obat = VedikaController::obat($pasien->no_rawat);
             // $resepObat = $obat[0];
@@ -527,8 +546,6 @@ class VedikaController extends Controller
 
             $dataAnestesi = VedikaController::getPrasedasi($pasien->no_rawat);
             $dataAnestesi2 = VedikaController::getPraInduksi($pasien->no_rawat);
-
-            // dd($dataAnestesi, $dataAnestesi2);
 
             //Data Pemeriksaan
             // $dataRalan = VedikaController::pemeriksaanRalan($pasien->no_rawat, $pasien->kd_dokter);
@@ -543,8 +560,10 @@ class VedikaController extends Controller
                 $ringkasan = VedikaController::ringkasanIgd($pasien->no_rawat);
                 $dataRingkasan = $ringkasan[0];
                 $resumeIgd = $ringkasan[1];
+                $dataDehidrasi = VedikaController::getDehidrasi($pasien->no_rawat);
             } else {
                 $dataTriase = $primer = $sekunder = $skala = $dataRingkasan = $resumeIgd = null;
+                $dataDehidrasi = null;
             }
 
             // Periode Klaim BPJS
@@ -620,15 +639,11 @@ class VedikaController extends Controller
                 'dataTransfusi',
                 'dataObserFibri',
                 'dataChecklistFibri',
-                // 'resepObat',
-                // 'obatJadi',
-                // 'obatRacik',
-                // 'bbPasien',
+                'dataDehidrasi',
                 'dataBerkas',
                 'dataSep',
                 'dataKlaim',
                 'masterBerkas',
-                // 'dataRalan',
                 'dataOperasi1',
                 'dataOperasi2',
                 'dataAnestesi',
@@ -803,6 +818,22 @@ class VedikaController extends Controller
         $dataRadiologiRajal = $radiologi[0];
         $dokterRadiologiRajal = $radiologi[1];
         $hasilRadiologiRajal = $radiologi[2];
+        $tambahanRadiologi = TambahanRadiologi::where('no_rawat', $pasien->no_rawat)->get();
+
+        if ($tambahanRadiologi) {
+            $tambahanDataRadiologi = [];
+            $tambahanDokterRadiologi = [];
+            $tambahanHasilRadiologi = [];
+            foreach ($tambahanRadiologi as $listTambahan) {
+                $dataTambahan = VedikaController::radioRajal($listTambahan->no_rawat_tambahan);
+                if (!empty($dataTambahan[0]) && !empty($dataTambahan[1]) && !empty($dataTambahan[2])) {
+                    // Menambah data ke array masing-masing
+                    array_push($tambahanDataRadiologi, $dataTambahan[0][0]);
+                    array_push($tambahanDokterRadiologi, $dataTambahan[1][0]);
+                    array_push($tambahanHasilRadiologi, $dataTambahan[2][0]);
+                }
+            }
+        }
         //Ambil data Triase dan Ringkasan IGD
         if ($pasien->nm_poli == "IGD") {
             $triase = VedikaController::triase($pasien->no_rawat);
@@ -859,8 +890,7 @@ class VedikaController extends Controller
             }
         }
         $tambahanDataSoap = collect($tambahanDataSoap);
-
-        // dd($tambahanDataSoap);
+        $dataSesiRehab = VedikaController::getSesiRehap($pasien->no_rawat);
 
         $pdf = Pdf::loadView('vedika.detailRajal_pdf', [
             'pasien' => $pasien,
@@ -875,6 +905,9 @@ class VedikaController extends Controller
             'dataRadiologiRajal' => $dataRadiologiRajal,
             'dokterRadiologiRajal' => $dokterRadiologiRajal,
             'hasilRadiologiRajal' => $hasilRadiologiRajal,
+            'tambahanDataRadiologi' => $tambahanDataRadiologi,
+            'tambahanDokterRadiologi' => $tambahanDokterRadiologi,
+            'tambahanHasilRadiologi' => $tambahanHasilRadiologi,
             'dataTriase' => $dataTriase,
             'primer' => $primer,
             'sekunder' => $sekunder,
@@ -894,6 +927,7 @@ class VedikaController extends Controller
             'dataTindakanMata' => $dataTindakanMata,
             'dataLaporanRajal' => $dataLaporanRajal,
             'dataTreadmill' => $dataTreadmill,
+            'dataSesiRehab' => $dataSesiRehab,
             'tambahanDataSoap' => $tambahanDataSoap,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
@@ -993,6 +1027,22 @@ class VedikaController extends Controller
         $dataRadiologiRajal = $radiologi[0];
         $dokterRadiologiRajal = $radiologi[1];
         $hasilRadiologiRajal = $radiologi[2];
+        $tambahanRadiologi = TambahanRadiologi::where('no_rawat', $pasien->no_rawat)->get();
+
+        if ($tambahanRadiologi) {
+            $tambahanDataRadiologi = [];
+            $tambahanDokterRadiologi = [];
+            $tambahanHasilRadiologi = [];
+            foreach ($tambahanRadiologi as $listTambahan) {
+                $dataTambahan = VedikaController::radioRajal($listTambahan->no_rawat_tambahan);
+                if (!empty($dataTambahan[0]) && !empty($dataTambahan[1]) && !empty($dataTambahan[2])) {
+                    // Menambah data ke array masing-masing
+                    array_push($tambahanDataRadiologi, $dataTambahan[0][0]);
+                    array_push($tambahanDokterRadiologi, $dataTambahan[1][0]);
+                    array_push($tambahanHasilRadiologi, $dataTambahan[2][0]);
+                }
+            }
+        }
         //Ambil data Triase dan Ringkasan IGD
         if ($pasien->nm_poli == "IGD") {
             $triase = VedikaController::triase($pasien->no_rawat);
@@ -1036,6 +1086,7 @@ class VedikaController extends Controller
         $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
         $dataLaporanRajal = VedikaController::getLaporanTindakanRajal($pasien->no_rawat);
         $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
+        $dataSesiRehab = VedikaController::getSesiRehap($pasien->no_rawat);
         $tambahanSoap = SoapTambahan::where('no_rawat', $pasien->no_rawat)->get();
 
         if ($tambahanSoap) {
@@ -1063,6 +1114,9 @@ class VedikaController extends Controller
             'dataRadiologiRajal' => $dataRadiologiRajal,
             'dokterRadiologiRajal' => $dokterRadiologiRajal,
             'hasilRadiologiRajal' => $hasilRadiologiRajal,
+            'tambahanDataRadiologi' => $tambahanDataRadiologi,
+            'tambahanDokterRadiologi' => $tambahanDokterRadiologi,
+            'tambahanHasilRadiologi' => $tambahanHasilRadiologi,
             'dataTriase' => $dataTriase,
             'primer' => $primer,
             'sekunder' => $sekunder,
@@ -1082,6 +1136,7 @@ class VedikaController extends Controller
             'dataTindakanMata' => $dataTindakanMata,
             'dataLaporanRajal' => $dataLaporanRajal,
             'dataTreadmill' => $dataTreadmill,
+            'dataSesiRehab' => $dataSesiRehab,
             'tambahanDataSoap' => $tambahanDataSoap,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
@@ -1300,9 +1355,7 @@ class VedikaController extends Controller
         $dataRadiologiRajal = $radiologi[0];
         $dokterRadiologiRajal = $radiologi[1];
         $hasilRadiologiRajal = $radiologi[2];
-        // dd($dataRadiologiRajal, $hasilRadiologiRajal);
         $tambahanRadiologi = TambahanRadiologi::where('no_rawat', $pasien->no_rawat)->get();
-        // dd($tambahanRadiologi, $hasilRadiologiRajal);
 
         if ($tambahanRadiologi) {
             $tambahanDataRadiologi = [];
@@ -1320,7 +1373,6 @@ class VedikaController extends Controller
         }
 
         $dataSep = VedikaController::getSep($pasien->no_rawat, 1);
-        // dd($dataSep);
         if ($dataSep != null) {
             if (!empty($dataSep->no_sep)) {
                 $dataDetailEklaim = EklaimController::getDetail($dataSep->no_sep);
@@ -1332,7 +1384,6 @@ class VedikaController extends Controller
         } else {
             $dataKlaim = null;
         }
-        // dd($dataSep, $dataKlaim);
 
         //Data Lab
         $lab = VedikaController::lab($pasien->no_rawat);
@@ -1367,8 +1418,10 @@ class VedikaController extends Controller
             $ringkasan = VedikaController::ringkasanIgd($pasien->no_rawat);
             $dataRingkasan = $ringkasan[0];
             $resumeIgd = $ringkasan[1];
+            $dataDehidrasi = VedikaController::getDehidrasi($pasien->no_rawat);
         } else {
             $dataTriase = $primer = $sekunder = $skala = $dataRingkasan = $resumeIgd = null;
+            $dataDehidrasi = null;
         }
         // Periode Klaim BPJS
         $periodeKlaim = PeriodeKlaim::where('status', 0)
@@ -1425,6 +1478,7 @@ class VedikaController extends Controller
             'dataObserFibri' => $dataObserFibri,
             'dataChecklistFibri' => $dataChecklistFibri,
             'dataTriase' => $dataTriase,
+            'dataDehidrasi' => $dataDehidrasi,
             'primer' => $primer,
             'sekunder' => $sekunder,
             'skala' => $skala,
@@ -1578,8 +1632,10 @@ class VedikaController extends Controller
             $ringkasan = VedikaController::ringkasanIgd($pasien->no_rawat);
             $dataRingkasan = $ringkasan[0];
             $resumeIgd = $ringkasan[1];
+            $dataDehidrasi = VedikaController::getDehidrasi($pasien->no_rawat);
         } else {
             $dataTriase = $primer = $sekunder = $skala = $dataRingkasan = $resumeIgd = null;
+            $dataDehidrasi = null;
         }
         // Periode Klaim BPJS
         $periodeKlaim = PeriodeKlaim::where('status', 0)
@@ -1642,6 +1698,7 @@ class VedikaController extends Controller
             'skala' => $skala,
             'dataRingkasan' => $dataRingkasan,
             'resumeIgd' => $resumeIgd,
+            'dataDehidrasi' => $dataDehidrasi,
             'skor_psi' => $skor_psi,
             'skor_curb' => $skor_curb,
             'dataKlaim' => $dataKlaim,
@@ -2441,7 +2498,6 @@ class VedikaController extends Controller
         $dokterRadiologiRajal = $radiologi[1];
         $hasilRadiologiRajal = $radiologi[2];
 
-
         //Ambil data Triase dan Ringkasan IGD
         if ($pasien->nm_poli == "IGD") {
             $triase = VedikaController::triase($pasien->no_rawat);
@@ -2484,6 +2540,7 @@ class VedikaController extends Controller
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
         $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
         $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
+        $dataSesiRehab = VedikaController::getSesiRehap($pasien->no_rawat);
 
         $pdf = Pdf::loadView('vedika.detailRajal_pdf', [
             'pasien' => $pasien,
@@ -2517,6 +2574,7 @@ class VedikaController extends Controller
             'dataUsg' => $dataUsg,
             'dataTindakanMata' => $dataTindakanMata,
             'dataTreadmill' => $dataTreadmill,
+            'dataSesiRehab' => $dataSesiRehab,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
         ]);
@@ -4368,6 +4426,7 @@ class VedikaController extends Controller
                 'reg_periksa.kd_poli',
                 'reg_periksa.tgl_registrasi',
                 'poliklinik.nm_poli',
+                'dokter.kd_dokter',
                 'dokter.nm_dokter',
                 'pemeriksaan_ralan.*'
             )
@@ -4419,6 +4478,7 @@ class VedikaController extends Controller
         $simpan = new SoapTambahan();
         $simpan->no_rawat = $pecah[0];
         $simpan->no_rawat_tambahan = $pecah[1];
+        $simpan->kd_dokter = $pecah[2];
         $simpan->save();
 
         Session::flash('sukses', 'Data SOAP berhasil ditambahkan');
@@ -4430,8 +4490,14 @@ class VedikaController extends Controller
     {
         $pecah = explode('_', Crypt::decrypt($id));
 
-        $delete = SoapTambahan::where('no_rawat', $pecah[0])
+        $data = SoapTambahan::where('no_rawat', $pecah[0])
             ->where('no_rawat_tambahan', $pecah[1])
+            ->whereNull('kd_dokter')
+            ->update(['kd_dokter' => $pecah[2]]);
+
+        SoapTambahan::where('no_rawat', $pecah[0])
+            ->where('no_rawat_tambahan', $pecah[1])
+            ->where('kd_dokter', $pecah[2])
             ->delete();
 
         Session::flash('sukses', 'Data SOAP berhasil dihapus');
@@ -5103,6 +5169,44 @@ class VedikaController extends Controller
     {
         $data = DB::connection('mysqlkhanza')->table('pemeriksaan_ralan')
             ->join('pegawai', 'pegawai.nik', '=', 'pemeriksaan_ralan.nip')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'pemeriksaan_ralan.no_rawat')
+            ->select(
+                'pemeriksaan_ralan.no_rawat',
+                'pemeriksaan_ralan.tgl_perawatan',
+                'pemeriksaan_ralan.jam_rawat',
+                'pemeriksaan_ralan.suhu_tubuh',
+                'pemeriksaan_ralan.tensi',
+                'pemeriksaan_ralan.nadi',
+                'pemeriksaan_ralan.respirasi',
+                'pemeriksaan_ralan.tinggi',
+                'pemeriksaan_ralan.berat',
+                'pemeriksaan_ralan.spo2',
+                'pemeriksaan_ralan.gcs',
+                'pemeriksaan_ralan.keluhan',
+                'pemeriksaan_ralan.pemeriksaan',
+                'pemeriksaan_ralan.alergi',
+                'pemeriksaan_ralan.rtl',
+                'pemeriksaan_ralan.penilaian',
+                'pemeriksaan_ralan.instruksi',
+                'pemeriksaan_ralan.evaluasi',
+                'reg_periksa.kd_poli',
+                'pegawai.nama as petugas',
+                'pegawai.jbtn as jabatan_petugas'
+            )
+            ->where('pemeriksaan_ralan.no_rawat', '=', $id)
+            ->first();
+
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public function dataSoapDokter($id, $dokter)
+    {
+        $data = DB::connection('mysqlkhanza')->table('pemeriksaan_ralan')
+            ->join('pegawai', 'pegawai.nik', '=', 'pemeriksaan_ralan.nip')
             ->select(
                 'pemeriksaan_ralan.no_rawat',
                 'pemeriksaan_ralan.tgl_perawatan',
@@ -5126,6 +5230,7 @@ class VedikaController extends Controller
                 'pegawai.jbtn as jabatan_petugas'
             )
             ->where('pemeriksaan_ralan.no_rawat', '=', $id)
+            ->where('pemeriksaan_ralan.nip', '=', $dokter)
             ->first();
 
         if ($data) {
@@ -5430,6 +5535,125 @@ class VedikaController extends Controller
 
         if ($data) {
             return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public function getSesiRehap($no_rawat)
+    {
+        $data =  DB::connection('mysqlkhanza')->table('penilaian_layanan_kfr_2')
+            ->join('petugas', 'petugas.nip', '=', 'penilaian_layanan_kfr_2.kd_petugas')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'penilaian_layanan_kfr_2.kd_dokter')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'penilaian_layanan_kfr_2.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->leftJoin('kelurahan', 'kelurahan.kd_kel', '=', 'pasien.kd_kel')
+            ->leftJoin('kecamatan', 'kecamatan.kd_kec', '=', 'pasien.kd_kec')
+            ->leftJoin('kabupaten', 'kabupaten.kd_kab', '=', 'pasien.kd_kab')
+            ->leftJoin('propinsi', 'propinsi.kd_prop', '=', 'pasien.kd_prop')
+            ->select(
+                'penilaian_layanan_kfr_2.*',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'kelurahan.nm_kel',
+                'kecamatan.nm_kec',
+                'kabupaten.nm_kab',
+                'propinsi.nm_prop',
+                'petugas.nama as nm_petugas',
+                'dokter.nm_dokter'
+            )
+            ->where('reg_periksa.no_rawat', '=', $no_rawat)
+            ->first();
+
+        $dataFisio =  DB::connection('mysqlkhanza')->table('penilaian_layanan_kfr_fisioterapi')
+            ->join('petugas', 'petugas.nip', '=', 'penilaian_layanan_kfr_fisioterapi.kd_petugas')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'penilaian_layanan_kfr_fisioterapi.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->leftJoin('kelurahan', 'kelurahan.kd_kel', '=', 'pasien.kd_kel')
+            ->leftJoin('kecamatan', 'kecamatan.kd_kec', '=', 'pasien.kd_kec')
+            ->leftJoin('kabupaten', 'kabupaten.kd_kab', '=', 'pasien.kd_kab')
+            ->leftJoin('propinsi', 'propinsi.kd_prop', '=', 'pasien.kd_prop')
+            ->select(
+                'penilaian_layanan_kfr_fisioterapi.*',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'kelurahan.nm_kel',
+                'kecamatan.nm_kec',
+                'kabupaten.nm_kab',
+                'propinsi.nm_prop',
+                'petugas.nama as nm_petugas'
+            )
+            ->where('reg_periksa.no_rawat', '=', $no_rawat)
+            ->first();
+
+        $dataOkupasi =  DB::connection('mysqlkhanza')->table('penilaian_layanan_kfr_okupasiterapi')
+            ->join('petugas', 'petugas.nip', '=', 'penilaian_layanan_kfr_okupasiterapi.kd_petugas')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'penilaian_layanan_kfr_okupasiterapi.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->leftJoin('kelurahan', 'kelurahan.kd_kel', '=', 'pasien.kd_kel')
+            ->leftJoin('kecamatan', 'kecamatan.kd_kec', '=', 'pasien.kd_kec')
+            ->leftJoin('kabupaten', 'kabupaten.kd_kab', '=', 'pasien.kd_kab')
+            ->leftJoin('propinsi', 'propinsi.kd_prop', '=', 'pasien.kd_prop')
+            ->select(
+                'penilaian_layanan_kfr_okupasiterapi.*',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'kelurahan.nm_kel',
+                'kecamatan.nm_kec',
+                'kabupaten.nm_kab',
+                'propinsi.nm_prop',
+                'petugas.nama as nm_petugas'
+            )
+            ->where('reg_periksa.no_rawat', '=', $no_rawat)
+            ->first();
+
+        $dataWicara =  DB::connection('mysqlkhanza')->table('penilaian_layanan_kfr_terapiwicara')
+            ->join('petugas', 'petugas.nip', '=', 'penilaian_layanan_kfr_terapiwicara.kd_petugas')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'penilaian_layanan_kfr_terapiwicara.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->leftJoin('kelurahan', 'kelurahan.kd_kel', '=', 'pasien.kd_kel')
+            ->leftJoin('kecamatan', 'kecamatan.kd_kec', '=', 'pasien.kd_kec')
+            ->leftJoin('kabupaten', 'kabupaten.kd_kab', '=', 'pasien.kd_kab')
+            ->leftJoin('propinsi', 'propinsi.kd_prop', '=', 'pasien.kd_prop')
+            ->select(
+                'penilaian_layanan_kfr_terapiwicara.*',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'kelurahan.nm_kel',
+                'kecamatan.nm_kec',
+                'kabupaten.nm_kab',
+                'propinsi.nm_prop',
+                'petugas.nama as nm_petugas'
+            )
+            ->where('reg_periksa.no_rawat', '=', $no_rawat)
+            ->first();
+
+        if (empty($data)) {
+            $dataDefaultDokter = DB::connection('mysqlkhanza')->table('set_pjkfr')
+                ->join('pegawai', 'pegawai.nik', '=', 'set_pjkfr.kd_dokterkfr')
+                ->select(
+                    'set_pjkfr.kd_dokterkfr as kd_dokter',
+                    'pegawai.nama as nm_dokter'
+                )
+                ->first();
+        } else {
+            $dataDefaultDokter = null;
+        }
+
+        if ($data || $dataFisio || $dataOkupasi || $dataWicara) {
+            return array($data, $dataFisio, $dataOkupasi, $dataWicara, $dataDefaultDokter);
         } else {
             return null;
         }
@@ -6201,6 +6425,43 @@ class VedikaController extends Controller
                 'bangsal.nm_bangsal'
             )
             ->where('reg_periksa.no_rawat', $no_rawat)
+            ->first();
+
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
+    public function getDehidrasi($no_rawat)
+    {
+        $data = DB::connection('mysqlkhanza')->table('penilaian_dehidrasi')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'penilaian_dehidrasi.kd_dokter')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'penilaian_dehidrasi.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->leftJoin('kelurahan', 'kelurahan.kd_kel', '=', 'pasien.kd_kel')
+            ->leftJoin('kecamatan', 'kecamatan.kd_kec', '=', 'pasien.kd_kec')
+            ->leftJoin('kabupaten', 'kabupaten.kd_kab', '=', 'pasien.kd_kab')
+            ->leftJoin('kamar_inap', 'kamar_inap.no_rawat', '=', 'penilaian_dehidrasi.no_rawat')
+            ->leftJoin('kamar', 'kamar.kd_kamar', '=', 'kamar_inap.kd_kamar')
+            ->leftJoin('bangsal', 'bangsal.kd_bangsal', '=', 'kamar.kd_bangsal')
+            ->select(
+                'penilaian_dehidrasi.*',
+                'dokter.nm_dokter',
+                'reg_periksa.no_rawat',
+                'reg_periksa.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'kelurahan.nm_kel as kelurahan',
+                'kecamatan.nm_kec as kecamatan',
+                'kabupaten.nm_kab as kabupaten',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'bangsal.nm_bangsal'
+            )
+            ->where('reg_periksa.no_rawat', $no_rawat)
+            ->orderBy('penilaian_dehidrasi.tanggal', 'ASC')
             ->first();
 
         if ($data) {

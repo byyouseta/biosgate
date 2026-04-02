@@ -22,29 +22,6 @@
                     </p>
                 </a>
             </li>
-            {{-- @if (Auth::user()->can('bios-kesehatan-list'))
-            <li class="nav-item @if (@session('ibu') == 'BIOS G2') menu-open @endif">
-                <a href="#" class="nav-link @if (@session('ibu') == 'BIOS G2') active @endif">
-                    <i class="nav-icon fas fa-exchange-alt "></i>
-                    <p>
-                        BIOS G2
-                        <i class="right fas fa-angle-left"></i>
-                    </p>
-                </a>
-                <ul class="nav nav-treeview">
-                    @can('bios-kesehatan-list')
-                    <li class="nav-item">
-                        <a href="/saldo" class="nav-link @if (@session('anak') == 'Layanan Kesehatan') active @endif">
-                            <i class="nav-icon fas fa-heartbeat"></i>
-                            <p>
-                                Layanan Kesehatan
-                            </p>
-                        </a>
-                    </li>
-                    @endcan
-                </ul>
-            </li>
-            @endif --}}
             @if (Auth::user()->can('facelift-kesehatan-list') ||
                     Auth::user()->can('facelift-statistik-list') ||
                     Auth::user()->can('bios-pemasukan-list') ||
@@ -172,7 +149,7 @@
                     </ul>
                 </li>
             @endif
-            @if (Auth::user()->can('pasienbaru-list') || Auth::user()->can('reff-pasien'))
+            {{-- @if (Auth::user()->can('pasienbaru-list') || Auth::user()->can('reff-pasien'))
                 <li class="nav-item @if (@session('ibu') == 'RS Online') menu-open @endif">
                     <a href="#" class="nav-link  @if (@session('ibu') == 'RS Online') active @endif">
                         <i class="nav-icon fas fa-hospital-alt"></i>
@@ -280,8 +257,8 @@
                         </li>
                     </ul>
                 </li>
-            @endif
-            @if (Auth::user()->can('kanker-rajal-list') || Auth::user()->can('kanker-ranap-list'))
+            @endif --}}
+            {{-- @if (Auth::user()->can('kanker-rajal-list') || Auth::user()->can('kanker-ranap-list'))
                 <li class="nav-item @if (@session('ibu') == 'Data Kanker') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Data Kanker') active @endif">
                         <i class="nav-icon fas fa-disease"></i>
@@ -337,7 +314,7 @@
                         @endcan
                     </ul>
                 </li>
-            @endif
+            @endif --}}
             @if (Auth::user()->can('vedika-list') || Auth::user()->can('vedika-pengajuan-list'))
                 <li class="nav-item @if (@session('ibu') == 'Vedika') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Vedika') active @endif">
@@ -441,6 +418,15 @@
                                     </p>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a href="/vedika/fraud/laporan"
+                                    class="nav-link @if (@session('anak') == 'Dashboard Fraud') active @endif">
+                                    <i class="nav-icon fas fa-chart-pie"></i>
+                                    <p>
+                                        Dashboard Fraud
+                                    </p>
+                                </a>
+                            </li>
                         @endcan
                         @can('vedika-klaim-compare')
                             <li class="nav-item">
@@ -511,7 +497,6 @@
                     </ul>
                 </li>
             @endif
-
             @if (Auth::user()->can('berkasrm-list'))
                 <li class="nav-item @if (@session('ibu') == 'Berkas RM') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Berkas RM') active @endif">
@@ -656,7 +641,7 @@
                     </ul>
                 </li>
             @endif
-            @if (Auth::user()->can('operasi-booking-list') || Auth::user()->can('operasi-jadwal-list'))
+            {{-- @if (Auth::user()->can('operasi-booking-list') || Auth::user()->can('operasi-jadwal-list'))
                 <li class="nav-item @if (@session('ibu') == 'Operasi') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Operasi') active @endif">
                         <i class="nav-icon fas fa-heartbeat"></i>
@@ -690,7 +675,7 @@
                         @endcan
                     </ul>
                 </li>
-            @endif
+            @endif --}}
             @can('pesan-list')
                 <li class="nav-item @if (@session('ibu') == 'Pesan') menu-open @endif">
                     <a href="#" class="nav-link @if (@session('ibu') == 'Pesan') active @endif">
@@ -751,7 +736,7 @@
                         </p>
                     </a>
                     <ul class="nav nav-treeview">
-                        @can('satu-sehat-create')
+                        @can('satu-sehat-rajal-list')
                             <li class="nav-item @if (@session('anak') == 'Rajal Satu Sehat') menu-is-opening menu-open @endif">
                                 <a href="#" class="nav-link @if (@session('anak') == 'Rajal Satu Sehat') active @endif">
                                     <i class="nav-icon fas fa-hand-holding-medical"></i>
@@ -761,7 +746,7 @@
                                     </p>
                                 </a>
                                 <ul class="nav nav-treeview">
-                                    <li class="nav-item">
+                                    {{-- <li class="nav-item">
                                         <a href="/satusehat"
                                             class="nav-link @if (@session('cucu') == 'Summary') active @endif">
                                             <i class="nav-icon fas fa-list-alt"></i>
@@ -769,7 +754,7 @@
                                                 Summary
                                             </p>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     <li class="nav-item">
                                         <a href="/satusehat/cek"
                                             class="nav-link @if (@session('cucu') == 'Summary Check') active @endif">
@@ -785,6 +770,24 @@
                                             <i class="nav-icon fas fa-list-alt"></i>
                                             <p>
                                                 API Bundle
+                                            </p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="/satusehat/encounter"
+                                            class="nav-link @if (@session('cucu') == 'Send Encounter') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Send Encounter
+                                            </p>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="/satusehat/encounter/update"
+                                            class="nav-link @if (@session('cucu') == 'Close Encounter') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Close Encounter
                                             </p>
                                         </a>
                                     </li>
@@ -806,7 +809,7 @@
                                             </p>
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    {{-- <li class="nav-item">
                                         <a href="/satusehat/lab"
                                             class="nav-link @if (@session('cucu') == 'API Lab') active @endif">
                                             <i class="nav-icon fas fa-list-alt"></i>
@@ -814,7 +817,7 @@
                                                 API Lab
                                             </p>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     <li class="nav-item">
                                         <a href="/satusehat/labbundle"
                                             class="nav-link @if (@session('cucu') == 'API Lab/MCU/CL') active @endif">
@@ -824,7 +827,7 @@
                                             </p>
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    {{-- <li class="nav-item">
                                         <a href="/satusehat/radiologi"
                                             class="nav-link @if (@session('cucu') == 'API Radiologi') active @endif">
                                             <i class="nav-icon fas fa-list-alt"></i>
@@ -832,39 +835,292 @@
                                                 API Radiologi
                                             </p>
                                         </a>
+                                    </li> --}}
+                                </ul>
+                            </li>
+                        @endcan
+                        @can('satu-sehat-igd-list')
+                            <li class="nav-item @if (@session('anak') == 'IGD Satu Sehat') menu-is-opening menu-open @endif">
+                                <a href="#" class="nav-link @if (@session('anak') == 'IGD Satu Sehat') active @endif">
+                                    <i class="nav-icon fas fa-ambulance"></i>
+                                    <p>
+                                        IGD
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/igd"
+                                            class="nav-link @if (@session('cucu') == 'Summary IGD') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Summary IGD
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/igd/kirimencounter"
+                                            class="nav-link @if (@session('cucu') == 'Client Kirim Encounter IGD') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Send Encounter IGD
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/igd/encounterupdate"
+                                            class="nav-link @if (@session('cucu') == 'Client Update Encounter IGD') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Close Encounter IGD
+                                            </p>
+                                        </a>
                                     </li>
                                 </ul>
                             </li>
                         @endcan
-                        @can('satu-sehat-create')
-                            <li class="nav-item">
-                                <a href="/satusehat/igd" class="nav-link @if (@session('anak') == 'IGD Satu Sehat') active @endif">
-                                    <i class="nav-icon fas fa-ambulance"></i>
-                                    <p>
-                                        IGD
-                                    </p>
-                                </a>
-                            </li>
-                        @endcan
-                        @can('satu-sehat-create')
-                            <li class="nav-item">
-                                <a href="/satusehat/ranap"
-                                    class="nav-link @if (@session('anak') == 'Ranap Satu Sehat') active @endif">
+                        @can('satu-sehat-ranap-list')
+                            <li class="nav-item @if (@session('anak') == 'Ranap Satu Sehat') menu-is-opening menu-open @endif">
+                                <a href="#" class="nav-link @if (@session('anak') == 'Ranap Satu Sehat') active @endif">
                                     <i class="nav-icon fas fa-procedures"></i>
                                     <p>
                                         Rawat Inap
+                                        <i class="right fas fa-angle-left"></i>
                                     </p>
                                 </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/ranap"
+                                            class="nav-link @if (@session('cucu') == 'Summary Ranap') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Summary Ranap
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/ranap/kirimencounter"
+                                            class="nav-link @if (@session('cucu') == 'Client Kirim Encounter Ranap') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Send Ranap IGD
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/ranap/encounterupdate"
+                                            class="nav-link @if (@session('cucu') == 'Client Update Encounter Ranap') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Close Ranap IGD
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         @endcan
-                        <li class="nav-item">
-                            <a href="/satusehat/kfa" class="nav-link @if (@session('anak') == 'API KFA') active @endif">
-                                <i class="nav-icon fas fa-pills"></i>
+                        @can('satu-sehat-radiologi-list')
+                            <li class="nav-item @if (@session('anak') == 'Radiologi') menu-is-opening menu-open @endif">
+                                <a href="#" class="nav-link @if (@session('anak') == 'Radiologi') active @endif">
+                                    <i class="nav-icon fas fa-radiation-alt"></i>
+                                    <p>
+                                        Radiologi
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/radiologi/summary"
+                                            class="nav-link @if (@session('cucu') == 'Summary Radiologi') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Summary Radiologi
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/radiologi"
+                                            class="nav-link @if (@session('cucu') == 'Send Radiologi') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Send Radiologi
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
+                        @can('satu-sehat-laboratorium-list')
+                            <li class="nav-item @if (@session('anak') == 'Laboratorium') menu-is-opening menu-open @endif">
+                                <a href="#" class="nav-link @if (@session('anak') == 'Laboratorium') active @endif">
+                                    <i class="nav-icon fas fa-vial"></i>
+                                    <p>
+                                        Laboratorium
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/lab/summary"
+                                            class="nav-link @if (@session('cucu') == 'Summary Laboratorium') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Summary Laboratorium
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/lab/servicerequest"
+                                            class="nav-link @if (@session('cucu') == 'Send Laboratorium') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Send Laboratorium
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/lab/closingservicerequest"
+                                            class="nav-link @if (@session('cucu') == 'Close Laboratorium') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Close Laboratorium
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
+                        @can('satu-sehat-obat-list')
+                            <li class="nav-item @if (@session('anak') == 'Farmasi') menu-is-opening menu-open @endif">
+                                <a href="#" class="nav-link @if (@session('anak') == 'Farmasi') active @endif">
+                                    <i class="nav-icon fas fa-pills"></i>
+                                    <p>
+                                        Farmasi
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/medication/summary"
+                                            class="nav-link @if (@session('cucu') == 'Summary Farmasi') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Summary Farmasi
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/medication/send"
+                                            class="nav-link @if (@session('cucu') == 'Send Farmasi') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Send Farmasi
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
+                        <li class="nav-item @if (@session('anak') == 'Tool Satu Sehat') menu-is-opening menu-open @endif">
+                            <a href="#" class="nav-link @if (@session('anak') == 'Tool Satu Sehat') active @endif">
+                                <i class="nav-icon fas fa-wrench"></i>
                                 <p>
-                                    API KFA
+                                    Tool
+                                    <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/satusehat/kfa"
+                                        class="nav-link @if (@session('cucu') == 'API KFA') active @endif">
+                                        <i class="nav-icon fas fa-pills"></i>
+                                        <p>
+                                            API KFA
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
+                            @can('satu-sehat-tools-mapingradiologi')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/mapingradiologi"
+                                            class="nav-link @if (@session('cucu') == 'Maping Radiologi') active @endif">
+                                            <i class="nav-icon fas fa-radiation-alt"></i>
+                                            <p>
+                                                Maping Radiologi
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endcan
+                            @can('satu-sehat-tools-mapinglab')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/mapinglab"
+                                            class="nav-link @if (@session('cucu') == 'Maping Laboratorium') active @endif">
+                                            <i class="nav-icon fas fa-vial"></i>
+                                            <p>
+                                                Maping Laboratorium
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/mapingtemplatelab"
+                                            class="nav-link @if (@session('cucu') == 'Maping Template Lab') active @endif">
+                                            <i class="nav-icon fas fa-vial"></i>
+                                            <p>
+                                                Maping Template Lab
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endcan
+                            @can('satu-sehat-tools-mapingobat')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/mapingobat"
+                                            class="nav-link @if (@session('cucu') == 'Maping Obat') active @endif">
+                                            <i class="nav-icon fas fa-tablets"></i>
+                                            <p>
+                                                Maping Obat
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endcan
+                            @can('satu-sehat-tools-nakessehat')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/nakessehat"
+                                            class="nav-link @if (@session('cucu') == 'Sync Nakes Sehat') active @endif">
+                                            <i class="nav-icon fas fa-user-nurse"></i>
+                                            <p>
+                                                Sync Nakes Sehat
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endcan
                         </li>
+
                         @can('kjsu-list')
                             <li class="nav-item">
                                 <a href="/satusehat/kjsu" class="nav-link @if (@session('anak') == 'Monitoring KJSU') active @endif">
@@ -997,16 +1253,16 @@
                                 </a>
                             </li>
                         @endcan
-                        {{-- @can('permission-list') --}}
-                        <li class="nav-item">
-                            <a href="/logs" class="nav-link @if (@session('anak') == 'User Logs') active @endif">
-                                <i class="nav-icon fas fa-address-book"></i>
-                                <p>
-                                    User Logs
-                                </p>
-                            </a>
-                        </li>
-                        {{-- @endcan --}}
+                        @can('userlog-list')
+                            <li class="nav-item">
+                                <a href="/logs" class="nav-link @if (@session('anak') == 'User Logs') active @endif">
+                                    <i class="nav-icon fas fa-address-book"></i>
+                                    <p>
+                                        User Logs
+                                    </p>
+                                </a>
+                            </li>
+                        @endcan
                         @can('geografi-list')
                             <li class="nav-item">
                                 <a href="/master/dummygeo"

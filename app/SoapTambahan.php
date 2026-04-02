@@ -8,6 +8,7 @@ class SoapTambahan extends Model
 {
     protected $fillable = [
         'no_rawat',
-        'no_rawat_tambahan'
+        'no_rawat_tambahan',
+        'kd_dokter'
     ];
 }

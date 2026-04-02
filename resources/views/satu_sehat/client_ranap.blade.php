@@ -51,8 +51,8 @@
                                         <th class="align-middle">Nadi ID</th>
                                         <th class="align-middle">Pernafasan ID</th>
                                         <th class="align-middle">Sistol ID</th>
-                                        <th class="align-middle">Diastol ID</th>
-                                        <th class="align-middle">Suhu ID</th>
+                                        <th class="align-middle">Condition ID</th>
+                                        <th class="align-middle">Procedure ID</th>
                                         <th class="align-middle">Created Time</th>
                                         <th class="align-middle">Updated Time</th>
                                     </tr>
@@ -65,8 +65,14 @@
                                             <td>{{ $summary->asesmen_nadi }}</td>
                                             <td>{{ $summary->asesmen_pernapasan }}</td>
                                             <td>{{ $summary->asesmen_sistol }}</td>
-                                            <td>{{ $summary->asesmen_diastol }}</td>
-                                            <td>{{ $summary->asesmen_suhu }}</td>
+                                            <td>{{ $summary->diagnosis_primer }}</td>
+                                            <td>
+                                                <ul style="padding-left:15px; margin:0;">
+                                                    @foreach ($summary->tindakanRanapSatuSehat as $tindakan)
+                                                        <li>{{ $tindakan->procedure_id }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </td>
                                             <td>{{ $summary->created_at }}</td>
                                             <td>{{ $summary->updated_at }}</td>
                                         </tr>

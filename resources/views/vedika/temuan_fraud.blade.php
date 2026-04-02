@@ -111,10 +111,10 @@
                                                                 target="_blank">
                                                                 <span class="badge bg-primary"><i
                                                                         class="fas fa-check-double"></i></span></a>
-                                                            @if (isset($data->up_coding) || isset($data->re_admisi))
+                                                            @if ($data->selesai == 1)
                                                                 <span class="badge bg-success" data-toggle="tooltip"
                                                                     data-placement="bottom" title="Sudah dicek"><i
-                                                                        class="fas fa-check-circle"></i></span>
+                                                                        class="fas fa-check"></i></span>
                                                             @endif
                                                         </td>
                                                         <td class="align-middle">

@@ -295,6 +295,9 @@ Route::post('/vedika/fraud/{id}/store', 'FraudController@storeRajal')->name('ved
 Route::post('/vedika/fraud/{id}/storeranap', 'FraudController@storeDetailRanap')->name('vedika.fraudStoreDetailRanap');
 Route::get('/vedika/fraud/{id}/export', 'FraudController@exportRajal')->name('vedika.exportRajal');
 Route::get('/vedika/fraud/{id}/exportranap', 'FraudController@exportRanap')->name('vedika.exportRanap');
+
+Route::get('/vedika/fraud/laporan', 'FraudController@chart')->name('vedika.FraudChart');
+
 Route::get('/vedika/klaimcompare', 'KlaimCompareController@index')->name('vedika.klaimcompare');
 Route::post('/vedika/klaimcompare/import', 'KlaimCompareController@import_excel')->name('vedika.klaimcompare.import');
 Route::get('/vedika/klaimcompare/template', 'KlaimCompareController@template')->name('vedika.klaimcompare.template');
@@ -386,17 +389,32 @@ Route::get('/tarifsimrs/operasi/template', 'TarifSimController@templateImportOpe
 Route::post('/tarifsimrs/operasi/importexcel', 'TarifSimController@importOperasi')->name('tarifsim.importOperasi');
 
 //SATU SEHAT
-Route::get('/satusehat', 'SatuSehatController@summary')->name('satuSehat.summary');
+// Route::get('/satusehat', 'SatuSehatController@summary')->name('satuSehat.summary');
 Route::get('/satusehat/bundle', 'SatuSehatController@bundleData')->name('satuSehat.bundleData');
+Route::get('/satusehat/encounter', 'SatuSehatController@sendEncounter')->name('satuSehat.sendEncounter');
+Route::get('/satusehat/encounter/update', 'SatuSehatController@closeEncounter')->name('satuSehat.closeEncounter');
 Route::get('/satusehat/{id}/encounter', 'SatuSehatController@sendSingleEncounter')->name('satuSehat.singleEncounter');
+Route::get('/satusehat/{id}/diagnosa', 'SatuSehatController@sendSingleDiagnosa')->name('satuSehat.singleDiagnosa');
 Route::get('/satusehat/composition', 'SatuSehatController@sendComposition')->name('satuSehat.composition');
-Route::get('/satusehat/medication', 'SatuSehatController@sendMedication')->name('satuSehat.medication');
-Route::get('/satusehat/lab', 'SatuSehatController@sendLab')->name('satuSehat.sendLab');
-Route::get('/satusehat/labbundle', 'SatuSehatController@bundleLab')->name('satuSehat.bundleLab');
-Route::get('/satusehat/radiologi', 'RadiologiController@index')->name('satuSehat.radiologi');
+
+Route::get('/satusehat/lab', 'LabSehatController@sendLab')->name('satuSehat.sendLab');
+Route::get('/satusehat/labbundle', 'LabSehatController@bundleLab')->name('satuSehat.bundleLab');
+Route::get('/satusehat/lab/summary', 'LabSehatController@index')->name('satuSehat.summaryLab');
+Route::get('/satusehat/lab/servicerequest', 'LabSehatController@kirimServiceRequest')->name('satuSehat.kirimServiceRequest');
+Route::get('/satusehat/lab/closingservicerequest', 'LabSehatController@closingLab')->name('satuSehat.closingServiceRequest');
+
 Route::get('/satusehat/cek', 'SatuSehatController@checkRajal')->name('satuSehat.checkRajal');
 Route::get('/satusehat/cek/{id}/detail', 'SatuSehatController@checkRajalDetail')->name('satuSehat.checkRajalDetail');
 Route::get('/satusehat/cek/{id}/send', 'SatuSehatController@sendSingleBundle')->name('satuSehat.checkRajalSend');
+
+Route::get('/satusehat/radiologi', 'RadiologiController@index')->name('satuSehat.radiologi');
+Route::get('/satusehat/radiologi/summary', 'RadiologiController@summary')->name('satuSehat.summaryRadiologi');
+
+Route::get('/satusehat/medication/summary', 'ObatSehatController@index')->name('satuSehat.summaryMedication');
+Route::get('/satusehat/medication/send', 'ObatSehatController@medicationPeriod')->name('satuSehat.sendMedication');
+Route::get('/satusehat/medication/{id}/detail', 'ObatSehatController@medicationDetail')->name('satuSehat.detailMedication');
+Route::post('/satusehat/medication/repeatsend', 'ObatSehatController@kirimUlang')->name('satuSehat.repeatSendMedication');
+Route::post('/satusehat/medication/savekfa', 'ObatSehatController@saveKfa')->name('satuSehat.saveKfa');
 
 Route::get('/satusehat/igd', 'IgdSehatController@index')->name('satuSehatIgd.index');
 Route::get('/satusehat/igd/kirimencounter', 'IgdSehatController@sendEncounter')->name('satuSehatIgd.sendEncounter');
@@ -407,6 +425,25 @@ Route::get('/satusehat/ranap/kirimencounter', 'RanapSehatController@sendEncounte
 Route::get('/satusehat/ranap/encounterupdate', 'RanapSehatController@closeEncounter')->name('satuSehatRanap.closeEncounter');
 
 Route::get('/satusehat/kfa', 'KfaController@cari')->name('satuSehat.kfa');
+Route::get('/satusehat/nakessehat', 'ToolSehatController@pegawaiSync')->name('satuSehat.pegawaiSync');
+Route::get('/satusehat/nakessehat/{id}/edit', 'ToolSehatController@pegawaiSyncEdit')->name('satuSehat.pegawaiSyncEdit');
+Route::put('/satusehat/nakessehat/{id}', 'ToolSehatController@pegawaiSyncUpdate')->name('satuSehat.pegawaiSyncUpdate');
+Route::get('/satusehat/nakessehat/sync', 'ToolSehatController@pegawaiSyncProses')->name('satuSehat.pegawaiDataSync');
+Route::get('/satusehat/mapingradiologi', 'ToolSehatController@mapingRadio')->name('satuSehat.mapingRadio');
+Route::get('/satusehat/mapingradiologi/{id}/edit', 'ToolSehatController@mapingRadioEdit')->name('satuSehat.mapingRadioEdit');
+Route::put('/satusehat/mapingradiologi', 'ToolSehatController@mapingRadioUpdate')->name('satuSehat.mapingRadioUpdate');
+
+Route::get('/satusehat/mapinglab', 'ToolSehatController@mapingLab')->name('satuSehat.mapingLab');
+Route::get('/satusehat/mapinglab/{id}/edit', 'ToolSehatController@mapingLabEdit')->name('satuSehat.mapingLabEdit');
+Route::put('/satusehat/mapinglab', 'ToolSehatController@mapingLabUpdate')->name('satuSehat.mapingLabUpdate');
+
+Route::get('/satusehat/mapingobat', 'ToolSehatController@mapingObat')->name('satuSehat.mapingObat');
+Route::get('/satusehat/mapingobat/{id}/edit', 'ToolSehatController@mapingObatEdit')->name('satuSehat.mapingObatEdit');
+Route::put('/satusehat/mapingobat', 'ToolSehatController@mapingObatUpdate')->name('satuSehat.mapingObatUpdate');
+
+Route::get('/satusehat/mapingtemplatelab', 'ToolSehatController@mapingTemplateLab')->name('satuSehat.mapingTemplateLab');
+Route::get('/satusehat/mapingtemplatelab/{id}/edit', 'ToolSehatController@mapingTemplateLabEdit')->name('satuSehat.mapingTemplateLabEdit');
+Route::put('/satusehat/mapingtemplatelab', 'ToolSehatController@mapingTemplateLabUpdate')->name('satuSehat.mapingTemplateLabUpdate');
 
 Route::get('/satusehat/kjsu', 'KjsuController@index')->name('satuSehat.kjsu');
 Route::get('/satusehat/kjsu/{id}/detail', 'KjsuController@detail')->name('satuSehat.kjsuDetail');

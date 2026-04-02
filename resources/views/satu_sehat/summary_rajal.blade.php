@@ -51,8 +51,8 @@
                     </div>
                     <!-- /.info-box -->
                 </div>
-                 <!-- /.col -->
-                 <div class="col-md-2 col-sm-6 col-12">
+                <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
                     <div class="info-box">
                         <span class="info-box-icon bg-secondary"><i class="fas fa-times"></i></span>
 
@@ -67,7 +67,7 @@
                     <!-- /.info-box -->
                 </div>
                 <!-- /.col -->
-                <div class="col-md-2 col-sm-6 col-12">
+                <div class="col-md-3 col-sm-6 col-12">
                     <div class="info-box">
                         <span class="info-box-icon bg-primary"><i class="fas fa-id-card"></i></span>
                         <div class="info-box-content">
@@ -81,7 +81,7 @@
                     <!-- /.info-box -->
                 </div>
                 <!-- /.col -->
-                <div class="col-md-2 col-sm-6 col-12">
+                <div class="col-md-3 col-sm-6 col-12">
                     <div class="info-box">
                         <span class="info-box-icon bg-danger"><i class="fas fa-undo-alt"></i></span>
 
@@ -96,10 +96,30 @@
                     <!-- /.info-box -->
                 </div>
                 <!-- /.col -->
+                <div class="col-md-3 col-sm-6 col-12">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-default"><i class="fas fa-stethoscope"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Diagnosa</span>
+                            <div class="info-box-number">
+                                <span>
+                                    <span id="diagnosa-ada" class="text-success"></span> / <span id="diagnosa-tiada"
+                                        class="text-danger"></span>
+                                </span>
+                            </div>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
                 @php
                     $terkirim = 0;
                     $tidakterkirim = 0;
                     $noihs = 0;
+                    $diagnosisAda = 0;
+                    $diagnosisTiada = 0;
                 @endphp
                 <div class="col-12">
                     <div class="card">
@@ -107,13 +127,15 @@
                             <div class="card_title">Summary Cek data terkirim
                                 <div class="float-right">
                                     <form action="/satusehat/cek" method="GET">
-                                        <div class="input-group input-group" >
-                                            <input type="text" class="form-control datetimepicker-input w-10" id="tanggal_awal" data-target-input="nearest"
-                                                data-target="#tanggal_awal" data-toggle="datetimepicker" name="tanggal_awal"
-                                                autocomplete="off" value="{{ $tanggal_awal }}">
-                                            <input type="text" class="form-control datetimepicker-input" id="tanggal_akhir" data-target-input="nearest"
-                                                data-target="#tanggal_akhir" data-toggle="datetimepicker" name="tanggal_akhir"
-                                                autocomplete="off" value="{{ $tanggal_akhir }}" style="width:30px">
+                                        <div class="input-group input-group">
+                                            <input type="text" class="form-control datetimepicker-input w-10"
+                                                id="tanggal_awal" data-target-input="nearest" data-target="#tanggal_awal"
+                                                data-toggle="datetimepicker" name="tanggal_awal" autocomplete="off"
+                                                value="{{ $tanggal_awal }}">
+                                            <input type="text" class="form-control datetimepicker-input"
+                                                id="tanggal_akhir" data-target-input="nearest" data-target="#tanggal_akhir"
+                                                data-toggle="datetimepicker" name="tanggal_akhir" autocomplete="off"
+                                                value="{{ $tanggal_akhir }}" style="width:30px">
                                             <span class="input-group-append">
                                                 <button type="submit" class="btn btn-info btn-flat btn-sm"><i
                                                         class="fas fa-search"></i> Tampilkan</button>
@@ -137,10 +159,7 @@
                                         <th class="align-middle">Poliklinik</th>
                                         <th class="align-middle">Status Pelayanan</th>
                                         <th class="align-middle">Encounter ID</th>
-                                        {{-- <th class="align-middle">Diastol ID</th>
-                                        <th class="align-middle">Temperature ID</th>
-                                        <th class="align-middle">Procedure ID</th>
-                                        <th class="align-middle">Composition ID</th> --}}
+                                        <th class="align-middle">Diagnosis ID</th>
                                         <th class="align-middle">Upload Time</th>
                                     </tr>
                                 </thead>
@@ -150,13 +169,8 @@
                                         <tr>
                                             <td>{{ $summary->no_rawat }}</td>
                                             <td>{{ $summary->nm_pasien }}</td>
-                                            {{-- <td>{{ $summary->ktp_pasien }}</td> --}}
                                             <td>
                                                 @if ($summary->ktp_pasien)
-                                                    @php
-                                                    // dd($summary);
-                                                    //     $idSehat = \App\PasienSehat::getIdSehat($summary->ktp_pasien);
-                                                    @endphp
                                                     @if ($summary->idSehat)
                                                         {{ $summary->idSehat }}
                                                     @else
@@ -180,30 +194,42 @@
                                                     <span
                                                         class="badge badge-secondary badge-sm">{{ $summary->stts }}</span>
                                                 @else
-                                                <span class="badge badge-danger badge-sm">
-                                                    {{ $summary->stts }}</span>
+                                                    <span class="badge badge-danger badge-sm">
+                                                        {{ $summary->stts }}</span>
                                                 @endif
                                             </td>
-                                            @php
-                                                // $dataEncounter = \App\ResponseSatuSehat::getEncounter(
-                                                //     $summary->no_rawat
-                                                // );
-                                            @endphp
                                             <td>
-                                                @if ($summary->dataEncounter)
-                                                    @php
-                                                        ++$terkirim;
-                                                    @endphp
+                                                @if (optional($summary->dataEncounter)->encounter_id)
+                                                    @php ++$terkirim; @endphp
                                                     {{ $summary->dataEncounter->encounter_id }}
                                                 @else
-                                                    @php
-                                                        ++$tidakterkirim;
-                                                    @endphp
+                                                    @php ++$tidakterkirim; @endphp
                                                     <a href="{{ route('satuSehat.checkRajalDetail', Crypt::encrypt($summary->no_rawat)) }}"
-                                                        class='badge badge-info badge-sm' target="_blank">Check</a>
+                                                        class="badge badge-info badge-sm" target="_blank">
+                                                        Check
+                                                    </a>
                                                 @endif
                                             </td>
-                                            <td>{{ $summary->dataEncounter ? $summary->dataEncounter->created_at : '--' }}</td>
+                                            <td>
+                                                @if ($summary->dataEncounter && $summary->dataEncounter->condition_id)
+                                                    <a href="{{ route('satuSehat.checkRajalDetail', Crypt::encrypt($summary->no_rawat)) }}"
+                                                        class='badge badge-success badge-sm' target="_blank"><i
+                                                            class="fas fa-check-circle"></i> Ada</a>
+                                                    @php
+                                                        ++$diagnosisAda;
+                                                    @endphp
+                                                @else
+                                                    <a href="{{ route('satuSehat.checkRajalDetail', Crypt::encrypt($summary->no_rawat)) }}"
+                                                        class='badge badge-danger badge-sm' target="_blank"><i
+                                                            class="fas fa-times-circle"></i> Tiada
+                                                    </a>
+                                                    @php
+                                                        ++$diagnosisTiada;
+                                                    @endphp
+                                                @endif
+                                            </td>
+                                            <td>{{ $summary->dataEncounter ? $summary->dataEncounter->created_at : '--' }}
+                                            </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -241,10 +267,14 @@
         var terkirim = <?php echo json_encode($terkirim); ?>;
         var tidakterkirim = <?php echo json_encode($tidakterkirim); ?>;
         var noihs = <?php echo json_encode($noihs); ?>;
+        var diagnosisAda = <?php echo json_encode($diagnosisAda); ?>;
+        var diagnosisTiada = <?php echo json_encode($diagnosisTiada); ?>;
 
         document.getElementById('terkirim').innerHTML = terkirim;
         document.getElementById('tidak-terkirim').innerHTML = tidakterkirim;
         document.getElementById('tidak-ada-ihs').innerHTML = noihs;
+        document.getElementById('diagnosa-ada').innerHTML = diagnosisAda;
+        document.getElementById('diagnosa-tiada').innerHTML = diagnosisTiada;
     </script>
     <script>
         $(function() {

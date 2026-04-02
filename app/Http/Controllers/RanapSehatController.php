@@ -6,6 +6,7 @@ use App\CarePlanRanap;
 use App\LogErrorSatuSehat;
 use App\ResponseIgdSatuSehat;
 use App\ResponseRanapSatuSehat;
+use App\TindakanRanapSatuSehat;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
@@ -23,24 +24,57 @@ class RanapSehatController extends Controller
     {
         session()->put('ibu', 'Satu Sehat');
         session()->put('anak', 'Ranap Satu Sehat');
-        session()->forget('cucu');
+        session()->put('cucu', 'Summary Ranap');
 
-        if (empty($request->get('tanggal'))) {
-            $tanggal = Carbon::now();
+        if (empty($request->get('awal'))) {
+            $awal = Carbon::now();
+            $akhir = Carbon::now();
         } else {
-            $tanggal = new Carbon($request->get('tanggal'));
+            $awal = new Carbon($request->get('awal'));
+            $akhir = new Carbon($request->get('akhir'));
         }
 
-        // dd($tanggal);
-
-        $dataLog = ResponseRanapSatuSehat::whereDate('tgl_registrasi', $tanggal)
+        $dataPasien = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->select(
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.stts',
+                'reg_periksa.status_bayar',
+                'pasien.nm_pasien',
+                'pasien.no_ktp as ktp_pasien',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+            )
+            ->where('reg_periksa.status_lanjut', 'Ranap')
+            ->whereDate('tgl_registrasi', '>=', $awal)
+            ->whereDate('tgl_registrasi', '<=', $akhir)
             ->get();
 
-        $errorLog = LogErrorSatuSehat::whereDate('created_at', $tanggal)->get();
 
-        // dd($errorLog);
+        $ktpList = $dataPasien->pluck('ktp_pasien')->unique();
+        $idSehatMap = \App\PasienSehat::whereIn('nik', $ktpList)->pluck('satu_sehat_id', 'nik');
 
-        return view('satu_sehat.summaryRanap', compact('dataLog', 'errorLog'));
+        $noRawatList = $dataPasien->pluck('no_rawat')->unique();
+        $encounters = \App\ResponseRanapSatuSehat::whereIn('noRawat', $noRawatList)
+            ->get()
+            ->keyBy('noRawat');
+
+        // $dataLog = ResponseRanapSatuSehat::whereDate('tgl_registrasi', '>=', $awal)
+        //     ->whereDate('tgl_registrasi', '<=', $akhir)
+        //     ->get();
+
+        $errorLog = LogErrorSatuSehat::whereDate('created_at', Carbon::now())
+            ->orWhereDate('updated_at', Carbon::now())
+            ->get();
+
+        foreach ($dataPasien as $list) {
+            $list->idSehat = $idSehatMap[$list->ktp_pasien] ?? null;
+            $list->dataEncounter = $encounters[$list->no_rawat] ?? null;
+        }
+
+        return view('satu_sehat.summaryRanap', compact('dataPasien', 'errorLog'));
     }
 
     public function sendEncounter(Request $request)
@@ -50,15 +84,19 @@ class RanapSehatController extends Controller
         session()->put('cucu', 'Client Kirim Encounter Ranap');
         set_time_limit(0);
 
-        // dd($request->get('tanggal'));
-
         if (empty($request->get('tanggal'))) {
             $pasien_tanggal = Carbon::now()->format('Y-m-d');
             $kemarin = Carbon::yesterday()->format('Y-m-d');
 
+            $sentIds = ResponseRanapSatuSehat::whereNotNull('noRawat')
+                ->whereDate('tgl_registrasi', '>=', $kemarin)
+                ->whereDate('tgl_registrasi', '<=', $pasien_tanggal)
+                ->pluck('noRawat');
+
             $data = DB::connection('mysqlkhanza')->table('reg_periksa')
                 ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
                 ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
                 ->leftJoin('dpjp_ranap', 'dpjp_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
                 ->leftJoin('pegawai', 'pegawai.nik', '=', 'dpjp_ranap.kd_dokter')
                 ->select(
@@ -71,6 +109,7 @@ class RanapSehatController extends Controller
                     'reg_periksa.stts',
                     'reg_periksa.kd_poli',
                     'reg_periksa.kd_pj',
+                    'poliklinik.nm_poli',
                     'pasien.nm_pasien',
                     'pasien.no_ktp as ktp_pasien',
                     'pasien.tgl_lahir',
@@ -81,21 +120,23 @@ class RanapSehatController extends Controller
                     'kamar_inap.tgl_masuk',
                     'kamar_inap.jam_masuk'
                 )
-                // ->where('reg_periksa.stts', 'Sudah')
-                // ->where('reg_periksa.no_rawat', '=', '2023/03/09/000107')
-                // ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
-                // ->orWhere('reg_periksa.tgl_registrasi', $kemarin)
                 ->whereBetween('reg_periksa.tgl_registrasi', [$kemarin, $pasien_tanggal])
                 ->where('reg_periksa.status_lanjut', 'Ranap')
+                ->whereNotIn('reg_periksa.no_rawat', $sentIds)
                 ->orderBy('reg_periksa.no_rawat', 'ASC')
                 ->get();
         } else {
             $tanggal = new Carbon($request->get('tanggal'));
             $pasien_tanggal = Carbon::parse($tanggal)->format('Y-m-d');
 
+            $sentIds = ResponseRanapSatuSehat::whereNotNull('noRawat')
+                ->whereDate('tgl_registrasi', $pasien_tanggal)
+                ->pluck('noRawat');
+
             $data = DB::connection('mysqlkhanza')->table('reg_periksa')
                 ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
                 ->join('kamar_inap', 'kamar_inap.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
                 ->leftJoin('dpjp_ranap', 'dpjp_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
                 ->leftJoin('pegawai', 'pegawai.nik', '=', 'dpjp_ranap.kd_dokter')
                 ->select(
@@ -108,6 +149,7 @@ class RanapSehatController extends Controller
                     'reg_periksa.stts',
                     'reg_periksa.kd_poli',
                     'reg_periksa.kd_pj',
+                    'poliklinik.nm_poli',
                     'pasien.nm_pasien',
                     'pasien.no_ktp as ktp_pasien',
                     'pasien.tgl_lahir',
@@ -120,17 +162,16 @@ class RanapSehatController extends Controller
                 )
                 ->where('reg_periksa.tgl_registrasi', $pasien_tanggal)
                 ->where('reg_periksa.status_lanjut', 'Ranap')
+                ->whereNotIn('reg_periksa.no_rawat', $sentIds)
                 ->orderBy('reg_periksa.no_rawat', 'ASC')
                 ->get();
         }
 
-        // dd($data);
-        // $pasien_tanggal = Carbon::now()->format('Y-m-d');
-        // $pasien_tanggal = "2023-10-10";
         $idRS = env('IDRS');
 
         foreach ($data as $dataPengunjung) {
             $idPasien = SatuSehatController::patientSehat($dataPengunjung->ktp_pasien);
+
             $idKamar = RanapSehatController::getIdKamar($dataPengunjung->kd_kamar);
             if (!empty($idKamar)) {
                 $pecahCode = explode(' ', $idKamar->kelas);
@@ -139,21 +180,17 @@ class RanapSehatController extends Controller
             if (!empty($dataPengunjung->ktp_dokter)) {
                 $idPractition = SatuSehatController::practitioner($dataPengunjung->ktp_dokter);
             }
+
             $idRequest = RanapSehatController::getRequestFromIgd($dataPengunjung->no_rawat);
-            // dd($idPractition, $idPasien, $idKamar);
+
             $waktuMulai = Carbon::parse($dataPengunjung->tgl_masuk . ' ' . $dataPengunjung->jam_masuk)->locale('id');
             $waktuMulai->setTimezone('UTC');
-            $formatMulai = Carbon::parse($waktuMulai)->format('Y-m-d') . 'T' . Carbon::parse($waktuMulai)->format('H:i:s') . '+00:00';
-            // dd($idPasien, $idKamar, $idRequest);
+            $formatMulai = Carbon::parse($waktuMulai)->toW3cString();
 
             $cekStatus = ResponseRanapSatuSehat::where('noRawat', $dataPengunjung->no_rawat)
                 ->count();
 
-            if (($cekStatus == 0) && (!empty($idPasien)) && (!empty($idPractition)) && (!empty($idRequest)) && (!empty($idKamar->id_ihs))) {
-
-                // if (!empty($idPasien)) {
-                //     dd($cekStatus, $idPasien, $idPractition, $idRequest, $idKamar, $dataPengunjung);
-                // }
+            if (($cekStatus == 0) && (!empty($idPasien)) && (!empty($idPractition)) && (!empty($idKamar->id_ihs))) {
 
                 $dataEncounter = [
                     "resourceType" => "Encounter",
@@ -244,19 +281,21 @@ class RanapSehatController extends Controller
                     ],
                     "serviceProvider" => [
                         "reference" => "Organization/$idRS"
-                    ],
-                    "basedOn" => [
-                        [
-                            "reference" => "ServiceRequest/$idRequest"
-                        ]
                     ]
+
                 ];
 
+                if (!empty($idRequest)) {
+                    $dataEncounter['basedOn'] = [
+                        [
+                            'reference' => "ServiceRequest/{$idRequest}"
+                        ]
+                    ];
+                }
+
                 //Send data
-                SatuSehatController::getTokenSehat();
-                $access_token = Session::get('tokenSatuSehat');
-                // dd($access_token);
-                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                $access_token = SatuSehatController::getTokenSehat();
+                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                 try {
                     $response = $client->request('POST', 'fhir-r4/v1/Encounter', [
                         'headers' => [
@@ -265,14 +304,12 @@ class RanapSehatController extends Controller
                         'json' => $dataEncounter
                     ]);
                 } catch (ClientException $e) {
-                    // echo $e->getRequest();
-                    // echo $e->getResponse();
                     if ($e->hasResponse()) {
                         $response = $e->getResponse();
 
-                        // dd($response);
                         $test = json_decode($response->getBody());
-                        // dd($test, $dataEncounter);
+
+                        dd($test);
                     }
 
                     $message = "Gagal kirim encounter Ranap pasien " . $dataPengunjung->no_rawat;
@@ -282,11 +319,7 @@ class RanapSehatController extends Controller
                     goto KirimPasienLain;
                 }
 
-                // dd($response);
-
                 $data = json_decode($response->getBody());
-
-                // dd($data);
 
                 if (!empty($data->id)) {
                     $simpan = new ResponseRanapSatuSehat();
@@ -301,22 +334,28 @@ class RanapSehatController extends Controller
         }
 
         $dataLog = ResponseRanapSatuSehat::whereDate('tgl_registrasi', $pasien_tanggal)->get();
-        // dd($dataLog);
 
         return view('satu_sehat.client_ranap', compact('dataLog'));
     }
 
-    public function closeEncounter()
+    public function closeEncounter(Request $request)
     {
         session()->put('ibu', 'Satu Sehat');
         session()->put('anak', 'Ranap Satu Sehat');
         session()->put('cucu', 'Client Update Encounter Ranap');
         set_time_limit(0);
 
+        if (empty($request->get('tanggal'))) {
+            $pasien_tanggal = Carbon::now()->format('Y-m-d');
+            $kemarin = Carbon::yesterday()->format('Y-m-d');
+        } else {
+            $tanggal = new Carbon($request->get('tanggal'));
+            $pasien_tanggal = Carbon::parse($tanggal)->format('Y-m-d');
+            $kemarin = Carbon::parse($tanggal)->subDay()->format('Y-m-d');
+        }
+
         $dataEncounter = ResponseRanapSatuSehat::where('kondisi_stabil', null)
             ->get();
-
-        // dd($dataEncounter);
 
         foreach ($dataEncounter as $dataTerkirim) {
             $cekPulang = DB::connection('mysqlkhanza')->table('reg_periksa')
@@ -329,20 +368,18 @@ class RanapSehatController extends Controller
                 ->where('reg_periksa.no_rawat', $dataTerkirim->noRawat)
                 ->first();
 
-            // dd($cekPulang);
             if (isset($cekPulang) && ($cekPulang->status_bayar == 'Sudah Bayar')) {
 
                 if ($dataTerkirim->asesmen_nadi == null) {
                     RanapSehatController::sendVitalSign($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
-                    // RanapSehatController::copySalahKeIgd($dataTerkirim->noRawat);
                 }
                 if ($dataTerkirim->diagnosis_primer == null) {
                     RanapSehatController::sendDiagnosa($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
                 }
+                if ($dataTerkirim->tindakanRanapSatuSehat->count() == 0) {
+                    RanapSehatController::sendTindakan($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
+                }
                 if ($dataTerkirim->kondisi_stabil == null) {
-                    // if ($dataTerkirim->noRawat == '2024/03/04/000388') {
-                    //     dd($dataTerkirim);
-                    // }
                     RanapSehatController::sendUpdateKepulangan($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
                 }
                 // if ($dataTerkirim->kondisi_stabil != null) {
@@ -360,8 +397,6 @@ class RanapSehatController extends Controller
             ->orderBy('updated_at', 'DESC')
             ->limit(30)
             ->get();
-        // $dataLog = ResponseIgdSatuSehat::whereDate('tgl_registrasi', $pasien_tanggal)->get();
-        // dd($dataLog);
 
         return view('satu_sehat.client_ranap', compact('dataLog'));
     }
@@ -381,7 +416,6 @@ class RanapSehatController extends Controller
             ->where('kamar.kd_kamar', $idKamar)
             ->first();
 
-        // dd($data);
         if (!empty($data)) {
             return $data;
         } else {
@@ -516,10 +550,10 @@ class RanapSehatController extends Controller
                     ];
 
                     //Send data
-                    SatuSehatController::getTokenSehat();
-                    $access_token = Session::get('tokenSatuSehat');
+                    // SatuSehatController::getTokenSehat();
+                    $access_token = SatuSehatController::getTokenSehat();
                     // dd($access_token);
-                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                    $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                     try {
                         $response = $client->request('POST', 'fhir-r4/v1/Observation', [
                             'headers' => [
@@ -603,9 +637,9 @@ class RanapSehatController extends Controller
                     ];
 
                     //kirim data pernafasan
-                    SatuSehatController::getTokenSehat();
-                    $access_token = Session::get('tokenSatuSehat');
-                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                    // SatuSehatController::getTokenSehat();
+                    $access_token = SatuSehatController::getTokenSehat();
+                    $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                     try {
                         $response = $client->request('POST', 'fhir-r4/v1/Observation', [
                             'headers' => [
@@ -698,9 +732,9 @@ class RanapSehatController extends Controller
                     ];
 
                     //kirim data sistole
-                    SatuSehatController::getTokenSehat();
-                    $access_token = Session::get('tokenSatuSehat');
-                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                    // SatuSehatController::getTokenSehat();
+                    $access_token = SatuSehatController::getTokenSehat();
+                    $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                     try {
                         $response = $client->request('POST', 'fhir-r4/v1/Observation', [
                             'headers' => [
@@ -791,9 +825,9 @@ class RanapSehatController extends Controller
                     ];
 
                     //kirim data diastole
-                    SatuSehatController::getTokenSehat();
-                    $access_token = Session::get('tokenSatuSehat');
-                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                    // SatuSehatController::getTokenSehat();
+                    $access_token = SatuSehatController::getTokenSehat();
+                    $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                     try {
                         $response = $client->request('POST', 'fhir-r4/v1/Observation', [
                             'headers' => [
@@ -877,9 +911,9 @@ class RanapSehatController extends Controller
                     ];
 
                     //kirim data suhu
-                    SatuSehatController::getTokenSehat();
-                    $access_token = Session::get('tokenSatuSehat');
-                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                    // SatuSehatController::getTokenSehat();
+                    $access_token = SatuSehatController::getTokenSehat();
+                    $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                     try {
                         $response = $client->request('POST', 'fhir-r4/v1/Observation', [
                             'headers' => [
@@ -1004,10 +1038,10 @@ class RanapSehatController extends Controller
                     // ]
                 ];
                 //Send data
-                SatuSehatController::getTokenSehat();
-                $access_token = Session::get('tokenSatuSehat');
+                // SatuSehatController::getTokenSehat();
+                $access_token = SatuSehatController::getTokenSehat();
                 // dd($access_token);
-                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                 try {
                     $response = $client->request('POST', 'fhir-r4/v1/Condition', [
                         'headers' => [
@@ -1119,10 +1153,10 @@ class RanapSehatController extends Controller
                         // ]
                     ];
                     //Send data
-                    SatuSehatController::getTokenSehat();
-                    $access_token = Session::get('tokenSatuSehat');
+                    // SatuSehatController::getTokenSehat();
+                    $access_token = SatuSehatController::getTokenSehat();
                     // dd($access_token);
-                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                    $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                     try {
                         $response = $client->request('POST', 'fhir-r4/v1/Condition', [
                             'headers' => [
@@ -1286,10 +1320,10 @@ class RanapSehatController extends Controller
                             // ]
                         ];
                         //Send data
-                        SatuSehatController::getTokenSehat();
-                        $access_token = Session::get('tokenSatuSehat');
+                        // SatuSehatController::getTokenSehat();
+                        $access_token = SatuSehatController::getTokenSehat();
                         // dd($access_token);
-                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                        $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                         try {
                             $response = $client->request('POST', 'fhir-r4/v1/Condition', [
                                 'headers' => [
@@ -1374,10 +1408,10 @@ class RanapSehatController extends Controller
                             // ]
                         ];
                         //Send data
-                        SatuSehatController::getTokenSehat();
-                        $access_token = Session::get('tokenSatuSehat');
+                        // SatuSehatController::getTokenSehat();
+                        $access_token = SatuSehatController::getTokenSehat();
                         // dd($access_token);
-                        $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                        $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                         try {
                             $response = $client->request('POST', 'fhir-r4/v1/Condition', [
                                 'headers' => [
@@ -1608,10 +1642,10 @@ class RanapSehatController extends Controller
                     ]
                 ];
 
-                SatuSehatController::getTokenSehat();
-                $access_token = Session::get('tokenSatuSehat');
+                // SatuSehatController::getTokenSehat();
+                $access_token = SatuSehatController::getTokenSehat();
                 // dd($access_token);
-                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                 try {
                     $response = $client->request('POST', 'fhir-r4/v1/Condition', [
                         'headers' => [
@@ -1620,13 +1654,12 @@ class RanapSehatController extends Controller
                         'json' => $dataKondisiMeninggalkan
                     ]);
                 } catch (ClientException $e) {
-                    // echo $e->getRequest();
-                    // echo $e->getResponse();
                     if ($e->hasResponse()) {
                         $response = $e->getResponse();
 
-                        // dd($response);
                         $test = json_decode($response->getBody());
+                        // dd($tes);
+
                         dd($test, 'status Meninggalkan', $dataKondisiMeninggalkan);
                     }
 
@@ -1768,18 +1801,21 @@ class RanapSehatController extends Controller
                     ],
                     "serviceProvider" => [
                         "reference" => "Organization/$idRS"
-                    ],
-                    "basedOn" => [
-                        [
-                            "reference" => "ServiceRequest/$idRequest"
-                        ]
                     ]
                 ];
 
-                SatuSehatController::getTokenSehat();
-                $access_token = Session::get('tokenSatuSehat');
+                if (!empty($idRequest)) {
+                    $updateEncounter['basedOn'] = [
+                        [
+                            'reference' => "ServiceRequest/{$idRequest}"
+                        ]
+                    ];
+                }
+
+                // SatuSehatController::getTokenSehat();
+                $access_token = SatuSehatController::getTokenSehat();
                 // dd($access_token);
-                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                 try {
                     $response = $client->request('PUT', "fhir-r4/v1/Encounter/$encounter", [
                         'headers' => [
@@ -1788,19 +1824,21 @@ class RanapSehatController extends Controller
                         'json' => $updateEncounter
                     ]);
                 } catch (ClientException $e) {
-                    // echo $e->getRequest();
-                    // echo $e->getResponse();
                     if ($e->hasResponse()) {
                         $response = $e->getResponse();
+                        // $test = json_decode($response->getBody());
+                        // dd($test, 'status update encounter Meninggalkan Ranap ', $updateEncounter);
+                        $body = (string) $response->getBody();
+                        $test = json_decode($body);
+                        if (!empty($test->issue[0]->code)) {
+                            $message = $test->issue[0]->details->text;
 
-                        // dd($response);
-                        $test = json_decode($response->getBody());
-                        dd($test, 'status update encounter Meninggalkan Ranap ', $updateEncounter);
+                            $error = new LogErrorSatuSehat();
+                            $error->subject = 'Error update close encouter';
+                            $error->keterangan = "pesan :' . $message";
+                            $error->save();
+                        }
                     }
-
-                    $message = "Gagal update encounter pasien Ranap " . $noRawat;
-
-                    Session::flash('error', $message);
                 }
             }
         }
@@ -1871,10 +1909,9 @@ class RanapSehatController extends Controller
                 ->first();
 
             if (empty($cari)) {
-                SatuSehatController::getTokenSehat();
-                $access_token = Session::get('tokenSatuSehat');
-                // dd($access_token);
-                $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                // SatuSehatController::getTokenSehat();
+                $access_token = SatuSehatController::getTokenSehat();
+                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                 try {
                     $response = $client->request('POST', 'fhir-r4/v1/CarePlan', [
                         'headers' => [
@@ -1890,12 +1927,26 @@ class RanapSehatController extends Controller
 
                         // dd($response);
                         $test = json_decode($response->getBody(), true);
-                        // dd($test->issue[0]->code, 'kirim Care Plan Pulang', $data_json);
-                        // if ($test && $test->issue) {
-                        //     $pesan_error = $test->issue[0]->code . $test->issue[0]->details->text;
-                        // } else {
-                        //     $pesan_error = "belum terdefinisi di error kirim care plan pulang ranap";
-                        // }
+                        // dd($test, $test['issue'], 'kirim Care Plan Pulang', $data_json);
+                        if ($test && $test['issue'] && $test['issue'][0]['code'] == 'duplicate') {
+                            //jika duplicate tetap simpan log
+                            $check = CarePlanRanap::where('encounter_id', $encounter)
+                                ->where('request_payload', json_encode($data_json))
+                                ->first();
+                            if (empty($check)) {
+                                $simpanResponse = new CarePlanRanap;
+                                $simpanResponse->encounter_id = $encounter;
+                                $simpanResponse->endpoint = cache()->get('base_url') . 'fhir-r4/v1/CarePlan';
+                                $simpanResponse->method = 'POST';
+                                $simpanResponse->request_payload = json_encode($data_json);
+                                $simpanResponse->response_payload = json_encode($test);
+                                // $simpanResponse->status_code = '';
+                                $simpanResponse->careplan_id = $test->id ?? 'duplicate';
+                                $simpanResponse->save();
+                            }
+                        } else {
+                            goto skipNext;
+                        }
                     }
 
                     $simpanLog = new LogErrorSatuSehat();
@@ -1913,7 +1964,7 @@ class RanapSehatController extends Controller
                 if (!empty($dataResponse->id)) {
                     $simpanResponse = new CarePlanRanap;
                     $simpanResponse->encounter_id = $encounter;
-                    $simpanResponse->endpoint = session('base_url') . 'fhir-r4/v1/CarePlan';
+                    $simpanResponse->endpoint = cache()->get('base_url') . 'fhir-r4/v1/CarePlan';
                     $simpanResponse->method = 'POST';
                     $simpanResponse->request_payload = json_encode($data_json);
                     $simpanResponse->response_payload = json_encode($dataResponse);
@@ -1937,5 +1988,143 @@ class RanapSehatController extends Controller
         $dataRanap->asesmen_pernapasan = $dataIgd->asesmen_pernapasan;
         $dataRanap->asesmen_suhu = $dataIgd->asesmen_suhu;
         $dataRanap->save();
+    }
+
+    public function sendTindakan($noRawat, $encounter)
+    {
+        $tindakan = DB::connection('mysqlkhanza')->table('prosedur_pasien_inacbg')
+            ->join('icd9', 'prosedur_pasien_inacbg.kode', '=', 'icd9.kode')
+            ->where('prosedur_pasien_inacbg.no_rawat', $noRawat)
+            ->where('prosedur_pasien_inacbg.status', 'Ranap')
+            ->orderBy('prosedur_pasien_inacbg.prioritas', 'ASC')
+            ->get();
+
+        if ($tindakan->count() > 0) {
+            $getPasien = DB::connection('mysqlkhanza')->table('reg_periksa')
+                ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                ->leftJoin('dpjp_ranap', 'dpjp_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->leftJoin('pegawai', 'pegawai.nik', '=', 'dpjp_ranap.kd_dokter')
+                ->select(
+                    'pasien.nm_pasien',
+                    'pasien.no_ktp as ktp_pasien',
+                    'pasien.tgl_lahir',
+                    'pasien.jk',
+                    'reg_periksa.tgl_registrasi',
+                    'reg_periksa.jam_reg',
+                    'pegawai.no_ktp as ktp_dokter',
+                    'pegawai.nama as nama_dokter'
+                )
+                ->where('reg_periksa.no_rawat', $noRawat)
+                ->first();
+
+            if ($getPasien) {
+                $idPasien = SatuSehatController::patientSehat($getPasien->ktp_pasien);
+                $formatWaktu = Carbon::parse("$getPasien->tgl_registrasi $getPasien->jam_reg")->setTimezone('UTC')->toW3cString();
+                $idPractition = SatuSehatController::practitioner($getPasien->ktp_dokter);
+                $dataEncounter = ResponseRanapSatuSehat::where('encounter_id', $encounter)->first();
+
+                if (!empty($idPasien) && (!empty($idPractition))) {
+                    foreach ($tindakan as $data) {
+                        $json = [
+                            "resourceType" => "Procedure",
+                            "status" => "completed",
+                            "code" => [
+                                "coding" => [
+                                    [
+                                        "system" => "http://hl7.org/fhir/sid/icd-9-cm",
+                                        "code" => "$data->kode",
+                                        "display" => "$data->deskripsi_panjang"
+                                    ]
+                                ]
+                            ],
+                            "subject" => [
+                                "reference" => "Patient/$idPasien"
+                            ],
+                            "encounter" => [
+                                "reference" => "Encounter/$encounter"
+                            ],
+                            "performedDateTime" => "$formatWaktu"
+                        ];
+
+                        $access_token = SatuSehatController::getTokenSehat();
+                        $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
+                        try {
+                            $response = $client->request('POST', "fhir-r4/v1/Procedure", [
+                                'headers' => [
+                                    'Authorization' => "Bearer {$access_token}"
+                                ],
+                                'json' => $json
+                            ]);
+                        } catch (ClientException $e) {
+                            if ($e->hasResponse()) {
+                                $response = $e->getResponse();
+                                $test = json_decode($response->getBody());
+                                if ($test->issue[0]->code == 'duplicate') {
+                                    try {
+                                        $responseProsedure = $client->request('GET', 'fhir-r4/v1/Procedure?encounter=' . $encounter, [
+                                            'headers' => [
+                                                'Authorization' => "Bearer {$access_token}"
+                                            ]
+                                        ]);
+                                    } catch (ClientException $e) {
+                                        if ($e->hasResponse()) {
+                                            $response = $e->getResponse();
+                                            $test = json_decode($response->getBody());
+                                            dd($test, 'error ambil procedure duplicate IGD');
+                                        }
+                                    }
+                                    $dataResponseProcedure = json_decode($responseProsedure->getBody());
+
+                                    foreach ($dataResponseProcedure->entry as $prosedure) {
+                                        foreach ($prosedure->resource->code->coding as $coding) {
+                                            if ($coding->code == $data->kode) {
+                                                $update = new TindakanRanapSatuSehat();
+                                                $update->response_ranap_satu_sehat_id = $dataEncounter->id;
+                                                $update->procedure_id = $prosedure->resource->id;
+                                                $update->save();
+                                            }
+                                        }
+                                    }
+
+                                    goto KirimNextProcedure;
+                                } else {
+                                    $message = $test->issue[0]->details->text;
+
+                                    LogErrorSatuSehat::create([
+                                        'subject' => 'Kirim status Tindakan Ranap',
+                                        'keterangan' => "Pengiriman data tindakan pasien no rawat : $noRawat (" . $message . ")"
+                                    ]);
+                                }
+                            }
+
+                            $message = "Gagal kirim tindakan pasien IGD " . $noRawat;
+
+                            LogErrorSatuSehat::create([
+                                'subjek' => 'Tindakan IGD',
+                                'keterangan' => $message . ' - ' . $noRawat
+                            ]);
+                        }
+
+                        $dataResponse = json_decode($response->getBody());
+
+                        if (!empty($dataResponse->id)) {
+                            TindakanRanapSatuSehat::create([
+                                'response_ranap_satu_sehat_id' => $dataEncounter->id,
+                                'procedure_id' => $dataResponse->id
+                            ]);
+                        };
+
+                        KirimNextProcedure:
+                    }
+                } else {
+                    $message = "Gagal kirim tindakan pasien Ranap " . $noRawat . " karena data tidak lengkap (idPasien, formatWaktu, idPractition, diagnosis_awal)";
+
+                    LogErrorSatuSehat::create([
+                        'subject' => 'Tindakan Ranap',
+                        'keterangan' => $message . ' - ' . $noRawat
+                    ]);
+                }
+            }
+        }
     }
 }

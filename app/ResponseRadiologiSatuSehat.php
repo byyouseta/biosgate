@@ -29,4 +29,14 @@ class ResponseRadiologiSatuSehat extends Model
             return null;
         }
     }
+
+    public function responseSatuSehat()
+    {
+        return $this->belongsTo('App\ResponseSatuSehat', 'noRawat', 'noRawat');
+    }
+
+    public function responseRanapSatuSehat()
+    {
+        return $this->belongsTo('App\ResponseRanapSatuSehat', 'noRawat', 'noRawat');
+    }
 }

@@ -27,7 +27,7 @@
                         <div class="card-header">
                             <div class="card_title">{{ Session::get('cucu') }}
                                 <div class="float-right">
-                                    <form action="/satusehat/igd/encounter" method="GET">
+                                    <form action="{{ $action }}" method="GET">
                                         <div class="input-group input-group" id="tanggal" data-target-input="nearest">
                                             <input type="text" class="form-control datetimepicker-input"
                                                 data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
@@ -53,6 +53,8 @@
                                         <th class="align-middle">Nyeri ID</th>
                                         <th class="align-middle">Skala Nyeri ID</th>
                                         <th class="align-middle">Lokasi Nyeri ID</th>
+                                        <th class="align-middle">Diagnosis ID</th>
+                                        <th class="align-middle">Procedure</th>
                                         <th class="align-middle">Created Time</th>
                                         <th class="align-middle">Updated Time</th>
                                     </tr>
@@ -67,11 +69,18 @@
                                             <td>{{ $summary->asesmen_nyeri }}</td>
                                             <td>{{ $summary->asesmen_skala_nyeri }}</td>
                                             <td>{{ $summary->asesmen_lokasi_nyeri }}</td>
+                                            <td>{{ $summary->diagnosis_awal }}</td>
+                                            <td>
+                                                <ul style="padding-left:15px; margin:0;">
+                                                    @foreach ($summary->tindakanIgdSatuSehat as $tindakan)
+                                                        <li>{{ $tindakan->procedure_id }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </td>
                                             <td>{{ $summary->created_at }}</td>
                                             <td>{{ $summary->updated_at }}</td>
                                         </tr>
                                     @endforeach
-
                                 </tbody>
                             </table>
                             {{-- </div> --}}

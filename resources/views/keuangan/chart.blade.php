@@ -25,15 +25,11 @@
                             @endphp
                         @else
                             @php
-                                $tanggal = \Carbon\Carbon::now()
-                                    ->locale('id')
-                                    ->format('Y-m-d');
+                                $tanggal = \Carbon\Carbon::now()->locale('id')->format('Y-m-d');
                             @endphp
                         @endif
                         @php
-                            $kemarin = \Carbon\Carbon::parse($tanggal)
-                                ->yesterday()
-                                ->format('Y-m-d');
+                            $kemarin = \Carbon\Carbon::parse($tanggal)->yesterday()->format('Y-m-d');
                         @endphp
                         <div class="card-body">
                             <form action="/saldo/laporan" method="GET">
@@ -89,8 +85,6 @@
                 </div> --}}
                 <!-- /.col (LEFT) -->
                 <div class="col-md-12">
-
-
                     {{-- <!-- BAR CHART -->
                     <div class="card card-success">
                         <div class="card-header">

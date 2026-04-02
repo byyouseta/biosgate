@@ -1,7 +1,7 @@
 @extends('layouts.master')
 
 @section('head')
-    <meta http-equiv="refresh" content="600" />
+    <meta http-equiv="refresh" content="300" />
     <!-- DataTables -->
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css') }}">
     <link rel="stylesheet" href="{{ asset('template/plugins/datatables-responsive/css/responsive.bootstrap4.min.css') }}">
@@ -47,36 +47,80 @@
                                 <thead>
                                     <tr>
                                         <th class="align-middle">No Rawat</th>
-                                        <th class="align-middle">Accession No</th>
                                         <th class="align-middle">Nama Pasien</th>
+                                        <th class="align-middle">Kode Periksa</th>
+                                        <th class="align-middle">Nama Pemeriksaan</th>
+                                        <th class="align-middle">Jenis Pelayanan</th>
+                                        <th class="align-middle">Accession No</th>
                                         <th class="align-middle">No Order</th>
-                                        <th class="align-middle">Service ID</th>
+                                        <th class="align-middle">Encounter ID</th>
+                                        <th class="align-middle">Service Request ID</th>
                                         <th class="align-middle">Study ID</th>
                                         <th class="align-middle">Observation ID</th>
                                         <th class="align-middle">Diagnostic Report ID</th>
-                                        <th class="align-middle">Upload Time</th>
+                                        <th class="align-middle">Update Terakhir</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($dataLog as $summary)
-                                    @php
-                                        $pasien = \App\ResponseRadiologiSatuSehat::getDataPasien($summary->noRawat);
-                                    @endphp
+                                    @foreach ($dataPengunjung as $summary)
+                                        @php
+                                            $dataRonsen = $dataLog->where('no_order', $summary->noorder)->first();
+                                        @endphp
                                         <tr>
-                                            <td>{{ $summary->noRawat }}</td>
-                                            <td>{{ $summary->accession_no }}</td>
-                                            <td>{{ $pasien->nm_pasien }}</td>
-                                            <td>{{ $summary->no_order }}</td>
-                                            <td>{{ $summary->service_request_id }}</td>
-                                            <td>{{ $summary->imaging_study_id }}</td>
-                                            <td>{{ $summary->observation_id }}</td>
-                                            <td>{{ $summary->diagnostic_report_id }}</td>
-                                            <td>{{ $summary->created_at }}</td>
+                                            <td>{{ $summary->no_rawat }}</td>
+                                            <td>{{ $summary->nm_pasien }}</td>
+                                            <td>{{ $summary->kd_jenis_prw }}</td>
+                                            <td>{{ $summary->nm_perawatan }}</td>
+                                            <td>{{ $summary->status }}</td>
+                                            <td>{{ $summary->ascension }}</td>
+                                            <td>{{ $summary->noorder }}</td>
+                                            {{-- <td>
+                                                @if ($summary->status == 'ralan')
+                                                    {{ $dataRonsen->responseSatuSehat->encounter_id ?? '-' }}
+                                                @elseif($summary->status == 'ranap')
+                                                    {{ $dataRonsen->responseRanapSatuSehat->encounter_id ?? '-' }}
+                                                    @php
+                                                        dd($dataRonsen->responseRanapSatuSehat);
+                                                    @endphp
+                                                @endif
+                                            </td> --}}
+                                            <td>{{ $dataRonsen->encounter_id ?? '-' }}</td>
+                                            <td>{{ $dataRonsen->service_request_id ?? '-' }}</td>
+                                            <td>{{ $dataRonsen->imaging_study_id ?? '-' }}</td>
+                                            <td>{{ $dataRonsen->observation_id ?? '-' }}</td>
+                                            <td>{{ $dataRonsen->diagnostic_report_id ?? '-' }}</td>
+                                            <td>{{ $dataRonsen->updated_at ?? '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                             {{-- </div> --}}
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card_title">Log Error Pengiriman Data Radiologi
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-bordered table-hover table-sm display nowrap" id="example">
+                                <thead>
+                                    <tr>
+                                        <th class="align-middle">Subject</th>
+                                        <th class="align-middle">Keterangan</th>
+                                        <th class="align-middle">Created Time</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($dataError as $log)
+                                        <tr>
+                                            <td>{{ $log->subject }}</td>
+                                            <td>{{ $log->keterangan }}</td>
+                                            <td>{{ $log->created_at }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -120,18 +164,18 @@
                 "scrollX": true,
             });
             $('#example').DataTable({
-                "paging": false,
+                "paging": true,
                 "lengthChange": false,
-                "searching": false,
-                "ordering": false,
-                "order": [
-                    [6, 'desc']
-                ],
-                "info": false,
+                "searching": true,
+                "ordering": true,
+                // "order": [
+                //     [6, 'desc']
+                // ],
+                "info": true,
                 "autoWidth": false,
                 "responsive": false,
-                "scrollY": "300px",
-                "scrollX": false,
+                "scrollY": false,
+                "scrollX": true,
             });
         });
         //Date picker

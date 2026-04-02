@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\DataPengajuanKlaim;
 use App\Exports\FraudRajalExport;
 use App\FraudRajal;
 use App\FraudRanap;
+use App\Pemasukan;
+use App\Pengeluaran;
 use App\PeriodeKlaim;
+use App\SaldoKeuangan;
+use App\SaldoOperasional;
+use App\SaldoPengelolaan;
+use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Excel;
+use Illuminate\Support\Facades\DB;
 
 class FraudController extends Controller
 {
@@ -209,6 +218,7 @@ class FraudController extends Controller
         $update->tagihan_tindakan = $request->tagihan_tindakan;
         $update->klarifikasi = $request->klarifikasi;
         $update->keterangan = $request->keterangan;
+        $update->selesai = $request->selesai ? true : false;
         $update->save();
 
         Session::flash('sukses', 'Data Berhasil disimpan!');
@@ -235,6 +245,7 @@ class FraudController extends Controller
         $update->tagihan_tindakan = $request->tagihan_tindakan;
         $update->klarifikasi = $request->klarifikasi;
         $update->keterangan = $request->keterangan;
+        $update->selesai = $request->selesai ? true : false;
         $update->save();
 
         Session::flash('sukses', 'Data Berhasil disimpan!');
@@ -274,5 +285,268 @@ class FraudController extends Controller
         return Excel::download(new FraudRajalExport($data), 'DataFraudExcel.xlsx');
 
         // return Excel::download(new ExportReport("loan_report.repayments_report_pdf", $data));
+    }
+
+    public function chart(Request $request)
+    {
+        session()->put('ibu', 'Vedika');
+        session()->put('anak', 'Dashboard Fraud');
+        session()->forget('cucu');
+
+        // $users = User::select(DB::raw("COUNT(*) as count"), DB::raw("MONTHNAME(created_at) as month_name"))
+        //     ->whereYear('created_at', date('Y'))
+        //     ->groupBy(DB::raw("month_name"))
+        //     ->orderBy('id', 'ASC')
+        //     ->pluck('count', 'month_name');
+
+        if (empty($request->get('tanggal'))) {
+            $tanggal = Carbon::now();
+            $namaBulan = $tanggal->monthName;
+            $jmlHari = $tanggal->daysInMonth;
+            $bulanTahun = $tanggal->format('Y-m');
+            $tahun = $tanggal->format('Y');
+        } else {
+            $tanggal = $request->get('tanggal');
+            $namaBulan = Carbon::parse($tanggal)->monthName;
+            $jmlHari = Carbon::parse($tanggal)->daysInMonth;
+            $bulanTahun = Carbon::parse($tanggal)->format('Y-m');
+            $tahun = Carbon::parse($tanggal)->format('Y');
+        }
+
+        $labels = [];
+        $dataBulanRajal = [];
+        $dataBulanRanap = [];
+        $labelsBulan = [];
+
+        // dd($users);
+        //sampel vs temuan fraud
+        $dataPengajuanRajal = DataPengajuanKlaim::whereHas('periodeKlaim', function ($q) use ($bulanTahun) {
+            $q->where('periode', 'like', "%$bulanTahun%");
+        })
+            ->where('jenis_rawat', 'Rawat Jalan')
+            ->get();
+
+        $dataFraud = FraudRajal::whereHas('periodeKlaim', function ($q) use ($bulanTahun) {
+            $q->where('periode', 'like', "%$bulanTahun%");
+        })
+            ->get();
+
+        $potensiFraudRajal = FraudRajal::whereHas('periodeKlaim', function ($q) use ($bulanTahun) {
+            $q->where('periode', 'like', "%$bulanTahun%");
+        })
+            ->where(function ($q) {
+                $q->where('up_coding', 1)
+                    ->orWhere('phantom_billing', 1)
+                    ->orWhere('cloning', 1)
+                    ->orWhere('inflated_bills', 1)
+                    ->orWhere('pemecahan', 1)
+                    ->orWhere('rujukan_semu', 1)
+                    ->orWhere('repeat_billing', 1)
+                    ->orWhere('prolonged_los', 1)
+                    ->orWhere('manipulasi_kels', 1)
+                    ->orWhere('re_admisi', 1)
+                    ->orWhere('kesesuaian_tindakan', 1)
+                    ->orWhere('tagihan_tindakan', 1)
+                    ->orWhereNotNull('klarifikasi');
+            })
+            ->get();
+
+        $selesaiFraudRajal = FraudRajal::whereHas('periodeKlaim', function ($q) use ($bulanTahun) {
+            $q->where('periode', 'like', "%$bulanTahun%");
+        })
+            ->where('selesai', true)
+            ->get();
+
+        $dataTable1 = [
+            'Total Pengajuan Klaim Rajal' => $dataPengajuanRajal->count(),
+            'Total Sampel' => $dataFraud->count(),
+            'Total Potensi Fraud' => $potensiFraudRajal->count(),
+            'Total Selesai Cek' => $selesaiFraudRajal->count(),
+        ];
+
+        $dataPengajuanRanap = DataPengajuanKlaim::whereHas('periodeKlaim', function ($q) use ($bulanTahun) {
+            $q->where('periode', 'like', "%$bulanTahun%");
+        })
+            ->where('jenis_rawat', 'Rawat Inap')
+            ->get();
+
+        $dataFraudRanap = FraudRanap::whereHas('periodeKlaim', function ($q) use ($bulanTahun) {
+            $q->where('periode', 'like', "%$bulanTahun%");
+        })
+            ->get();
+
+        $potensiFraudRanap = FraudRanap::whereHas('periodeKlaim', function ($q) use ($bulanTahun) {
+            $q->where('periode', 'like', "%$bulanTahun%");
+        })
+            ->where(function ($q) {
+                $q->where('up_coding', 1)
+                    ->orWhere('phantom_billing', 1)
+                    ->orWhere('cloning', 1)
+                    ->orWhere('inflated_bills', 1)
+                    ->orWhere('pemecahan', 1)
+                    ->orWhere('rujukan_semu', 1)
+                    ->orWhere('repeat_billing', 1)
+                    ->orWhere('prolonged_los', 1)
+                    ->orWhere('manipulasi_kels', 1)
+                    ->orWhere('re_admisi', 1)
+                    ->orWhere('kesesuaian_tindakan', 1)
+                    ->orWhere('tagihan_tindakan', 1)
+                    ->orWhereNotNull('klarifikasi');
+            })
+            ->get();
+
+        $selesaiFraudRanap = FraudRanap::whereHas('periodeKlaim', function ($q) use ($bulanTahun) {
+            $q->where('periode', 'like', "%$bulanTahun%");
+        })
+            ->where('selesai', true)
+            ->get();
+
+        $dataTable2 = [
+            'Total Pengajuan Klaim Ranap' => $dataPengajuanRanap->count(),
+            'Total Sampel' => $dataFraudRanap->count(),
+            'Total Potensi Fraud' => $potensiFraudRanap->count(),
+            'Total Selesai Cek' => $selesaiFraudRanap->count(),
+        ];
+
+        $labelsFraudKriteria = [
+            'Up Coding',
+            'Phantom Billing',
+            'Cloning',
+            'Inflated Bills',
+            'Pemecahan',
+            'Rujukan Semu',
+            'Repeat Billing',
+            'Prolonged LOS',
+            'Manipulasi Kelas',
+            'Re-Admisi',
+            'Kesesuaian Tindakan',
+            'Tagihan Tindakan',
+            'Klarifikasi'
+        ];
+
+        $dataFraudKriteriaRajal = [];
+        $dataFraudKriteriaRanap = [];
+
+        foreach ($labelsFraudKriteria as $kriteria) {
+            switch ($kriteria) {
+                case 'Up Coding':
+                    $jumlah = $potensiFraudRajal->where('up_coding', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('up_coding', 1)->count();
+                    break;
+                case 'Phantom Billing':
+                    $jumlah = $potensiFraudRajal->where('phantom_billing', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('phantom_billing', 1)->count();
+                    break;
+                case 'Cloning':
+                    $jumlah = $potensiFraudRajal->where('cloning', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('cloning', 1)->count();
+                    break;
+                case 'Inflated Bills':
+                    $jumlah = $potensiFraudRajal->where('inflated_bills', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('inflated_bills', 1)->count();
+                    break;
+                case 'Pemecahan':
+                    $jumlah = $potensiFraudRajal->where('pemecahan', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('pemecahan', 1)->count();
+                    break;
+                case 'Rujukan Semu':
+                    $jumlah = $potensiFraudRajal->where('rujukan_semu', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('rujukan_semu', 1)->count();
+                    break;
+                case 'Repeat Billing':
+                    $jumlah = $potensiFraudRajal->where('repeat_billing', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('repeat_billing', 1)->count();
+                    break;
+                case 'Prolonged LOS':
+                    $jumlah = $potensiFraudRajal->where('prolonged_los', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('prolonged_los', 1)->count();
+                    break;
+                case 'Manipulasi Kelas':
+                    $jumlah = $potensiFraudRajal->where('manipulasi_kels', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('manipulasi_kels', 1)->count();
+                    break;
+                case 'Re-Admisi':
+                    $jumlah = $potensiFraudRajal->where('re_admisi', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('re_admisi', 1)->count();
+                    break;
+                case 'Kesesuaian Tindakan':
+                    $jumlah = $potensiFraudRajal->where('kesesuaian_tindakan', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('kesesuaian_tindakan', 1)->count();
+                    break;
+                case 'Tagihan Tindakan':
+                    $jumlah = $potensiFraudRajal->where('tagihan_tindakan', 1)->count();
+                    $jumlahRanap = $potensiFraudRanap->where('tagihan_tindakan', 1)->count();
+                    break;
+                case 'Klarifikasi':
+                    $jumlah = $potensiFraudRajal->whereNotNull('klarifikasi')->count();
+                    $jumlahRanap = $potensiFraudRanap->whereNotNull('klarifikasi')->count();
+                    break;
+                default:
+                    $jumlah = $jumlahRanap = 0;
+                    break;
+            }
+            array_push($dataFraudKriteriaRajal, $jumlah);
+            array_push($dataFraudKriteriaRanap, $jumlahRanap);
+        }
+
+        for ($i = 1; $i <= 12; $i++) {
+            $bulanBulan = new Carbon("$tahun-$i-1");
+            $formatBulan = $bulanBulan->format('Y-m');
+            $namaBulan = $bulanBulan->locale('id')->monthName;
+            array_push($labelsBulan, $namaBulan);
+
+            $cekRanap = FraudRanap::whereHas('periodeKlaim', function ($q) use ($formatBulan) {
+                $q->where('periode', 'like', "%$formatBulan%");
+            })
+                ->where(function ($q) {
+                    $q->where('up_coding', 1)
+                        ->orWhere('phantom_billing', 1)
+                        ->orWhere('cloning', 1)
+                        ->orWhere('inflated_bills', 1)
+                        ->orWhere('pemecahan', 1)
+                        ->orWhere('rujukan_semu', 1)
+                        ->orWhere('repeat_billing', 1)
+                        ->orWhere('prolonged_los', 1)
+                        ->orWhere('manipulasi_kels', 1)
+                        ->orWhere('re_admisi', 1)
+                        ->orWhere('kesesuaian_tindakan', 1)
+                        ->orWhere('tagihan_tindakan', 1)
+                        ->orWhereNotNull('klarifikasi');
+                })
+                ->count();
+
+            array_push($dataBulanRanap, $cekRanap);
+            $cekRajal = FraudRajal::whereHas('periodeKlaim', function ($q) use ($formatBulan) {
+                $q->where('periode', 'like', "%$formatBulan%");
+            })
+                ->where(function ($q) {
+                    $q->where('up_coding', 1)
+                        ->orWhere('phantom_billing', 1)
+                        ->orWhere('cloning', 1)
+                        ->orWhere('inflated_bills', 1)
+                        ->orWhere('pemecahan', 1)
+                        ->orWhere('rujukan_semu', 1)
+                        ->orWhere('repeat_billing', 1)
+                        ->orWhere('prolonged_los', 1)
+                        ->orWhere('manipulasi_kels', 1)
+                        ->orWhere('re_admisi', 1)
+                        ->orWhere('kesesuaian_tindakan', 1)
+                        ->orWhere('tagihan_tindakan', 1)
+                        ->orWhereNotNull('klarifikasi');
+                })
+                ->count();
+            array_push($dataBulanRajal, $cekRajal);
+        }
+
+        return view('vedika.chart_fraud', compact(
+            'labelsFraudKriteria',
+            'dataFraudKriteriaRajal',
+            'dataFraudKriteriaRanap',
+            'dataTable1',
+            'dataTable2',
+            'labelsBulan',
+            'dataBulanRajal',
+            'dataBulanRanap'
+        ));
     }
 }
