@@ -293,6 +293,35 @@ class KlaimCompareController extends Controller
                                 'updated_at' => now()
                             ]);
                     }
+                } else {
+                    $cekSepVklaim = SepController::getSep($dataEklaim['no_sep']);
+                    $cekDataEklaim = EklaimController::getDetail($dataEklaim['no_sep']);
+
+                    if (!empty($cekSepVklaim) && !empty($cekDataEklaim)) {
+
+                        $simpan = new KlaimPending();
+                        $simpan->no_sep = $dataEklaim['no_sep'];
+                        $simpan->tgl_sep = $cekSepVklaim->tglSep;
+                        $simpan->tgl_pulang = Carbon::createFromFormat('d/m/Y', $cekDataEklaim['tgl_pulang'])->format('Y-m-d');
+                        $simpan->kelas_rawat = $cekDataEklaim['kelas_rawat'];
+                        $simpan->poli = $cekSepVklaim->poli;
+                        $simpan->status = '4#Klaim Tidak Layak';
+                        $simpan->biaya_pengajuan = $cekDataEklaim['grouper']['response_inacbg']['base_tariff'];
+                        $simpan->biaya_tarif_grouper = $cekDataEklaim['grouper']['response_inacbg']['tariff'];
+                        $simpan->biaya_tarif_rs = $cekDataEklaim['grouper']['response_inacbg']['tariff'];
+                        $simpan->biaya_disetujui = 0;
+                        $simpan->jenis_rawat = $cekDataEklaim['jenis_rawat'] == '2' ? 'RJ' : 'RI';
+                        $simpan->save();
+
+                        DB::connection('mysqlpayroll')->table('alasan_pendings')
+                            ->updateOrInsert([
+                                'no_sep' => $dataEklaim['no_sep']
+                            ], [
+                                'alasan' => $dataEklaim['alasan'],
+                                'created_at' => now(),
+                                'updated_at' => now()
+                            ]);
+                    }
                 }
             }
 

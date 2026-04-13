@@ -51,7 +51,7 @@
                         <div class="info-box-content">
                             <span class="info-box-text">Terkirim Satu Sehat</span>
                             <span class="info-box-number">
-                                <div id="terkirim">{{ $dataLog->where('service_request_id', '!=', null)->count() }}</div>
+                                <div id="terkirim">{{ $dataLog->where('imaging_study_id', '!=', null)->count() }}</div>
                             </span>
                         </div>
                         <!-- /.info-box-content -->
@@ -80,7 +80,7 @@
                             <span class="info-box-number">
                                 <div id="ketercapaian">
                                     @if ($permintaan > 0)
-                                        {{ number_format((($dataLog->where('idSehat', null)->count() + $dataPengunjung->where('idSehat', null)->count()) / $permintaan) * 100, 2, '.', '') }}%
+                                        {{ number_format((($dataPengunjung->where('idSehat', null)->count() + $dataLog->where('imaging_study_id', '!=', null)->count()) / $permintaan) * 100, 2, '.', '') }}%
                                     @else
                                         0.00%
                                     @endif

@@ -38,6 +38,7 @@ class RadiologiController extends Controller
         }
 
         $idRS = env('IDRS');
+        $exclude = ['USG', 'Print', 'Re-Expertise', 'Expertise', 'Konsultasi'];
 
         $dataPengunjung = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
             ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
@@ -66,8 +67,12 @@ class RadiologiController extends Controller
                 'jns_perawatan_radiologi.nm_perawatan',
                 'radiologi_ascension.ascension'
             )
-            // ->where('reg_periksa.status_lanjut', 'Ralan')
             ->where('permintaan_radiologi.tgl_permintaan', $pasien_tanggal)
+            ->where(function ($query) use ($exclude) {
+                foreach ($exclude as $item) {
+                    $query->where('jns_perawatan_radiologi.nm_perawatan', 'NOT LIKE', "%$item%");
+                }
+            })
             ->get();
 
         foreach ($dataPengunjung as $pasienRadio) {
@@ -302,8 +307,14 @@ class RadiologiController extends Controller
         $dataNoOrder = $dataPengunjung->pluck('noorder')->unique();
 
         $dataLog = ResponseRadiologiSatuSehat::whereIn('no_order', $dataNoOrder)
-            ->get();
-        // ->keyBy('noRawat');
+            ->get()
+            ->keyBy('no_order');
+
+        foreach ($dataPengunjung as $list) {
+            $list->dataResponse = $dataLog[$list->noorder] ?? null;
+        }
+
+        // dd($dataPengunjung, $dataLog, 'data log');
 
         $dataError = LogErrorSatuSehat::where('subject', 'like', '%Radiologi%')
             ->where(function ($query) use ($pasien_tanggal) {
@@ -333,6 +344,7 @@ class RadiologiController extends Controller
         }
 
         $idRS = env('IDRS');
+        $exclude = ['USG', 'Print', 'Re-Expertise', 'Expertise', 'Konsultasi'];
 
         $dataPengunjung = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
             ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
@@ -362,6 +374,11 @@ class RadiologiController extends Controller
                 'radiologi_ascension.ascension'
             )
             ->whereBetween('permintaan_radiologi.tgl_permintaan', [$tanggal_awal, $tanggal_akhir])
+            ->where(function ($query) use ($exclude) {
+                foreach ($exclude as $item) {
+                    $query->where('jns_perawatan_radiologi.nm_perawatan', 'NOT LIKE', "%$item%");
+                }
+            })
             ->groupBy('noorder')
             ->get();
 

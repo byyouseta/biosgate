@@ -63,9 +63,9 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($dataPengunjung as $summary)
-                                        @php
+                                        {{-- @php
                                             $dataRonsen = $dataLog->where('no_order', $summary->noorder)->first();
-                                        @endphp
+                                        @endphp --}}
                                         <tr>
                                             <td>{{ $summary->no_rawat }}</td>
                                             <td>{{ $summary->nm_pasien }}</td>
@@ -74,22 +74,12 @@
                                             <td>{{ $summary->status }}</td>
                                             <td>{{ $summary->ascension }}</td>
                                             <td>{{ $summary->noorder }}</td>
-                                            {{-- <td>
-                                                @if ($summary->status == 'ralan')
-                                                    {{ $dataRonsen->responseSatuSehat->encounter_id ?? '-' }}
-                                                @elseif($summary->status == 'ranap')
-                                                    {{ $dataRonsen->responseRanapSatuSehat->encounter_id ?? '-' }}
-                                                    @php
-                                                        dd($dataRonsen->responseRanapSatuSehat);
-                                                    @endphp
-                                                @endif
-                                            </td> --}}
-                                            <td>{{ $dataRonsen->encounter_id ?? '-' }}</td>
-                                            <td>{{ $dataRonsen->service_request_id ?? '-' }}</td>
-                                            <td>{{ $dataRonsen->imaging_study_id ?? '-' }}</td>
-                                            <td>{{ $dataRonsen->observation_id ?? '-' }}</td>
-                                            <td>{{ $dataRonsen->diagnostic_report_id ?? '-' }}</td>
-                                            <td>{{ $dataRonsen->updated_at ?? '-' }}</td>
+                                            <td>{{ $summary->dataResponse->encounter_id ?? '-' }}</td>
+                                            <td>{{ $summary->dataResponse->service_request_id ?? '-' }}</td>
+                                            <td>{{ $summary->dataResponse->imaging_study_id ?? '-' }}</td>
+                                            <td>{{ $summary->dataResponse->observation_id ?? '-' }}</td>
+                                            <td>{{ $summary->dataResponse->diagnostic_report_id ?? '-' }}</td>
+                                            <td>{{ $summary->dataResponse->updated_at ?? '-' }}</td>
                                         </tr>
                                     @endforeach
                                 </tbody>

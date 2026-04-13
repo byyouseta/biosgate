@@ -233,7 +233,7 @@
             if (elNoihs) elNoihs.innerHTML = noihs;
             if (elKetercapaian) {
                 if (permintaan > 0) {
-                    elKetercapaian.innerHTML = ((terkirim / permintaan) * 100).toFixed(2) + '%';
+                    elKetercapaian.innerHTML = ((terkirim + noihs) / permintaan * 100).toFixed(2) + '%';
                 } else {
                     elKetercapaian.innerHTML = '0.00%';
                 }
@@ -251,8 +251,8 @@
                 //     [6, 'desc']
                 // ],
                 "info": true,
-                "autoWidth": false,
-                "responsive": true,
+                "autoWidth": true,
+                "responsive": false,
                 "scrollY": false,
                 "scrollX": true,
             });

@@ -1045,17 +1045,19 @@
                                     <i class="right fas fa-angle-left"></i>
                                 </p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="/satusehat/kfa"
-                                        class="nav-link @if (@session('cucu') == 'API KFA') active @endif">
-                                        <i class="nav-icon fas fa-pills"></i>
-                                        <p>
-                                            API KFA
-                                        </p>
-                                    </a>
-                                </li>
-                            </ul>
+                            @can('satu-sehat-tools-mapingobat')
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/kfa"
+                                            class="nav-link @if (@session('cucu') == 'API KFA') active @endif">
+                                            <i class="nav-icon fas fa-pills"></i>
+                                            <p>
+                                                API KFA
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            @endcan
                             @can('satu-sehat-tools-mapingradiologi')
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">

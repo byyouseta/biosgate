@@ -289,8 +289,33 @@ class ObatSehatController extends Controller
                 //Waktu Request Obat
                 $waktuRequest = Carbon::parse($dataPemberianObat->tgl_perawatan . ' ' . $dataPemberianObat->jam);
                 $formatWaktuRequest = $waktuRequest->setTimezone('UTC')->toW3cString();
-                //Waktu Pemberian
-                $waktuPenyerahan = Carbon::parse($dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan);
+                // //Waktu Pemberian
+                // $waktuPenyerahan = Carbon::parse($dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan);
+                // $formatWaktuPenyerahan = $waktuPenyerahan->setTimezone('UTC')->toW3cString();
+                // if ($waktuPenyerahan < $waktuRequest) {
+                //     $formatWaktuPenyerahan = $waktuRequest->copy()->addMinutes(5)->toW3cString();
+                //     // dd($formatWaktuPenyerahan, 'waktu penyerahan diubah karena lebih awal dari waktu request');
+                // }
+                // Waktu Request
+                $waktuRequest = Carbon::parse($dataPemberianObat->tgl_perawatan . ' ' . $dataPemberianObat->jam);
+
+                // Waktu Penyerahan (safe)
+                if (!empty($dataPemberianObat->tgl_penyerahan) && !empty($dataPemberianObat->jam_penyerahan)) {
+
+                    $waktuPenyerahan = Carbon::parse(
+                        $dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan
+                    );
+
+                    if ($waktuPenyerahan < $waktuRequest) {
+                        $waktuPenyerahan = $waktuRequest->copy()->addMinutes(5);
+                    }
+                } else {
+
+                    // fallback kalau belum ada
+                    $waktuPenyerahan = $waktuRequest->copy()->addMinutes(5);
+                }
+
+                // format akhir
                 $formatWaktuPenyerahan = $waktuPenyerahan->setTimezone('UTC')->toW3cString();
 
                 $medicationRequest = [
@@ -388,7 +413,7 @@ class ObatSehatController extends Controller
                         $body = (string) $response->getBody();
                         $test = json_decode($body);
 
-                        dd($test, 'medicationRequest');
+                        dd($test, 'medicationRequest', $medicationRequest);
                         $errorCode = (array) $test;
                         if (!empty($errorCode['issue'][0])) {
                             $pesan = $errorCode['issue'][0]->details->text;
@@ -510,9 +535,31 @@ class ObatSehatController extends Controller
                     $waktuAwal = $dataPemberianObat->tgl_perawatan . ' ' . $dataPemberianObat->jam;
                     $waktu_mulai = new Carbon($waktuAwal);
                     $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
-                    $waktuSelesai = $dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan;
-                    $waktu_selesai = new Carbon($waktuSelesai);
-                    $formatWaktuSelesai = $waktu_selesai->setTimezone('UTC')->toW3cString();
+                    // $waktuSelesai = $dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan;
+                    // $waktu_selesai = new Carbon($waktuSelesai);
+                    // $formatWaktuSelesai = $waktu_selesai->setTimezone('UTC')->toW3cString();
+                    $waktuRequest = Carbon::parse($dataPemberianObat->tgl_perawatan . ' ' . $dataPemberianObat->jam);
+
+                    // Waktu Penyerahan (safe)
+                    if (!empty($dataPemberianObat->tgl_penyerahan) && !empty($dataPemberianObat->jam_penyerahan)) {
+
+                        $waktuPenyerahan = Carbon::parse(
+                            $dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan
+                        );
+
+                        if ($waktuPenyerahan < $waktuRequest) {
+                            $waktuPenyerahan = $waktuRequest->copy()->addMinutes(5);
+                        }
+                    } else {
+
+                        // fallback kalau belum ada
+                        $waktuPenyerahan = $waktuRequest->copy()->addMinutes(5);
+                    }
+
+                    // format akhir
+                    $formatWaktuSelesai = $waktuPenyerahan->setTimezone('UTC')->toW3cString();
+
+
                     //Cek Obat yang diberikan
                     $obatPasien = SatuSehatController::obatDiberikan($dataPemberianObat->no_rawat, $dataPemberianObat->kode_brng);
 
@@ -1176,9 +1223,15 @@ class ObatSehatController extends Controller
             }
         }
 
-        $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $tanggal)
-            ->orWhereDate('updated_at', $tanggal)
-            ->get();
+        if ($tanggal->isToday()) {
+            $dataLog = ResponseMedicationSatuSehat::whereDate('created_at', $tanggal)
+                ->orWhereDate('updated_at', $tanggal)
+                ->get();
+        } else {
+            $dataLog = ResponseMedicationSatuSehat::whereDate('tgl_registrasi', $tanggal)
+                ->orWhereDate('updated_at', Carbon::now())
+                ->get();
+        }
 
         return view('satu_sehat.client_apotek', compact('dataLog'));
     }
@@ -1248,9 +1301,9 @@ class ObatSehatController extends Controller
         $idSehat = PasienSehat::where('nik', $dataPengunjung->ktp_pasien)->first();
         $idSehatPractition = PraktisiSehat::where('nik', $dataPengunjung->ktp_dokter)->first();
 
-        $dataPengunjung->dataEncounter = $dataEncounter->encounter_id;
-        $dataPengunjung->idSehat = $idSehat->satu_sehat_id;
-        $dataPengunjung->idSehatPractition = $idSehatPractition->satu_sehat_id;
+        $dataPengunjung->dataEncounter = $dataEncounter->encounter_id ?? null;
+        $dataPengunjung->idSehat = $idSehat->satu_sehat_id ?? null;
+        $dataPengunjung->idSehatPractition = $idSehatPractition->satu_sehat_id ?? null;
 
 
         $timestamp_resep = Carbon::parse($dataPengunjung->tgl_perawatan . ' ' . $dataPengunjung->jam)->format('YmdHis');
@@ -1497,8 +1550,29 @@ class ObatSehatController extends Controller
                 //Waktu Request Obat
                 $waktuRequest = Carbon::parse($dataPemberianObat->tgl_perawatan . ' ' . $dataPemberianObat->jam);
                 $formatWaktuRequest = $waktuRequest->setTimezone('UTC')->toW3cString();
-                //Waktu Pemberian
-                $waktuPenyerahan = Carbon::parse($dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan);
+                // //Waktu Pemberian
+                // $waktuPenyerahan = Carbon::parse($dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan);
+                // $formatWaktuPenyerahan = $waktuPenyerahan->setTimezone('UTC')->toW3cString();
+                // Waktu Request
+                $waktuRequest = Carbon::parse($dataPemberianObat->tgl_perawatan . ' ' . $dataPemberianObat->jam);
+
+                // Waktu Penyerahan (safe)
+                if (!empty($dataPemberianObat->tgl_penyerahan) && !empty($dataPemberianObat->jam_penyerahan)) {
+
+                    $waktuPenyerahan = Carbon::parse(
+                        $dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan
+                    );
+
+                    if ($waktuPenyerahan < $waktuRequest) {
+                        $waktuPenyerahan = $waktuRequest->copy()->addMinutes(5);
+                    }
+                } else {
+
+                    // fallback kalau belum ada
+                    $waktuPenyerahan = $waktuRequest->copy()->addMinutes(5);
+                }
+
+                // format akhir
                 $formatWaktuPenyerahan = $waktuPenyerahan->setTimezone('UTC')->toW3cString();
 
                 $medicationRequest = [
@@ -1596,7 +1670,7 @@ class ObatSehatController extends Controller
                         $body = (string) $response->getBody();
                         $test = json_decode($body);
 
-                        dd($test, 'medicationRequest');
+                        dd($test, 'medicationRequest', $medicationRequest);
                         $errorCode = (array) $test;
                         if (!empty($errorCode['issue'][0])) {
                             $pesan = $errorCode['issue'][0]->details->text;
@@ -1736,9 +1810,31 @@ class ObatSehatController extends Controller
                     $waktuAwal = $dataPemberianObat->tgl_perawatan . ' ' . $dataPemberianObat->jam;
                     $waktu_mulai = new Carbon($waktuAwal);
                     $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
-                    $waktuSelesai = $dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan;
-                    $waktu_selesai = new Carbon($waktuSelesai);
-                    $formatWaktuSelesai = $waktu_selesai->setTimezone('UTC')->toW3cString();
+                    // $waktuSelesai = $dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan;
+                    // $waktu_selesai = new Carbon($waktuSelesai);
+                    // $formatWaktuSelesai = $waktu_selesai->setTimezone('UTC')->toW3cString();
+                    // Waktu Request
+                    $waktuRequest = Carbon::parse($dataPemberianObat->tgl_perawatan . ' ' . $dataPemberianObat->jam);
+
+                    // Waktu Penyerahan (safe)
+                    if (!empty($dataPemberianObat->tgl_penyerahan) && !empty($dataPemberianObat->jam_penyerahan)) {
+
+                        $waktuPenyerahan = Carbon::parse(
+                            $dataPemberianObat->tgl_penyerahan . ' ' . $dataPemberianObat->jam_penyerahan
+                        );
+
+                        if ($waktuPenyerahan < $waktuRequest) {
+                            $waktuPenyerahan = $waktuRequest->copy()->addMinutes(5);
+                        }
+                    } else {
+
+                        // fallback kalau belum ada
+                        $waktuPenyerahan = $waktuRequest->copy()->addMinutes(5);
+                    }
+
+                    // format akhir
+                    $formatWaktuSelesai = $waktuPenyerahan->setTimezone('UTC')->toW3cString();
+
                     //Cek Obat yang diberikan
                     $obatPasien = SatuSehatController::obatDiberikan($dataPemberianObat->no_rawat, $dataPemberianObat->kode_brng);
 
