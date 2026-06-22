@@ -560,6 +560,15 @@
                     <ul class="nav nav-treeview">
                         {{-- @can('user-list') --}}
                         <li class="nav-item">
+                            <a href="/survei/dashboard"
+                                class="nav-link @if (@session('anak') == 'Dashboard') active @endif">
+                                <i class="nav-icon fas fa-chart-line"></i>
+                                <p>
+                                    Dashboard Survei
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="/survei/datapengaduan"
                                 class="nav-link @if (@session('anak') == 'Data Pengaduan') active @endif">
                                 <i class="nav-icon fas fa-exclamation-triangle"></i>
@@ -764,7 +773,7 @@
                                             </p>
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    {{-- <li class="nav-item">
                                         <a href="/satusehat/bundle"
                                             class="nav-link @if (@session('cucu') == 'API Bundle') active @endif">
                                             <i class="nav-icon fas fa-list-alt"></i>
@@ -772,7 +781,7 @@
                                                 API Bundle
                                             </p>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     <li class="nav-item">
                                         <a href="/satusehat/encounter"
                                             class="nav-link @if (@session('cucu') == 'Send Encounter') active @endif">
@@ -800,7 +809,7 @@
                                             </p>
                                         </a>
                                     </li>
-                                    <li class="nav-item">
+                                    {{-- <li class="nav-item">
                                         <a href="/satusehat/medication"
                                             class="nav-link @if (@session('cucu') == 'API Medication') active @endif">
                                             <i class="nav-icon fas fa-list-alt"></i>
@@ -808,7 +817,7 @@
                                                 API Medication
                                             </p>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     {{-- <li class="nav-item">
                                         <a href="/satusehat/lab"
                                             class="nav-link @if (@session('cucu') == 'API Lab') active @endif">
@@ -818,7 +827,7 @@
                                             </p>
                                         </a>
                                     </li> --}}
-                                    <li class="nav-item">
+                                    {{-- <li class="nav-item">
                                         <a href="/satusehat/labbundle"
                                             class="nav-link @if (@session('cucu') == 'API Lab/MCU/CL') active @endif">
                                             <i class="nav-icon fas fa-list-alt"></i>
@@ -826,7 +835,7 @@
                                                 API Lab/MCU/CL
                                             </p>
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     {{-- <li class="nav-item">
                                         <a href="/satusehat/radiologi"
                                             class="nav-link @if (@session('cucu') == 'API Radiologi') active @endif">
@@ -1037,6 +1046,39 @@
                                 </ul>
                             </li>
                         @endcan
+                        {{-- @can('satu-sehat-obat-list') --}}
+                        <li class="nav-item @if (@session('anak') == 'Vaksin') menu-is-opening menu-open @endif">
+                            <a href="#" class="nav-link @if (@session('anak') == 'Vaksin') active @endif">
+                                <i class="nav-icon  fas fa-syringe"></i>
+                                <p>
+                                    Vaksin
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/satusehat/vaksin/summary"
+                                        class="nav-link @if (@session('cucu') == 'Summary Vaksin') active @endif">
+                                        <i class="nav-icon fas fa-list-alt"></i>
+                                        <p>
+                                            Summary Vaksin
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/satusehat/vaksin/send"
+                                        class="nav-link @if (@session('cucu') == 'Send Vaksin') active @endif">
+                                        <i class="nav-icon fas fa-list-alt"></i>
+                                        <p>
+                                            Send Vaksin
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        {{-- @endcan --}}
                         <li class="nav-item @if (@session('anak') == 'Tool Satu Sehat') menu-is-opening menu-open @endif">
                             <a href="#" class="nav-link @if (@session('anak') == 'Tool Satu Sehat') active @endif">
                                 <i class="nav-icon fas fa-wrench"></i>
@@ -1108,6 +1150,19 @@
                                     </li>
                                 </ul>
                             @endcan
+                            {{-- @can('satu-sehat-tools-mapingobat') --}}
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/satusehat/mapingvaksin"
+                                        class="nav-link @if (@session('cucu') == 'Maping Vaksin') active @endif">
+                                        <i class="nav-icon fas fa-syringe"></i>
+                                        <p>
+                                            Maping Vaksin
+                                        </p>
+                                    </a>
+                                </li>
+                            </ul>
+                            {{-- @endcan --}}
                             @can('satu-sehat-tools-nakessehat')
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">

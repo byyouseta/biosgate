@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Jobs\KirimPesanJob;
 use App\Jobs\KirimPesanMJob;
+use App\MappingLidNumber;
 use App\Setting;
 use App\TemplatePesan;
 use Carbon\Carbon;
@@ -163,8 +164,12 @@ class BookingPendaftaranController extends Controller
 
         $dataPasien =  explode(',', $request->pasien_ids);
 
-        foreach ($dataPasien as $kirimPesan) {
-            KirimPesanJob::dispatch($kirimPesan, $request->tgl_periksa, $idTemplate);
+        $delayBase = 10;
+
+        foreach ($dataPasien as $index => $kirimPesan) {
+            $random = rand(0, 5);
+            KirimPesanJob::dispatch($kirimPesan, $request->tgl_periksa, $idTemplate)
+                ->delay(now()->addSeconds(($index * $delayBase) + $random));
         }
 
         Session::flash('sukses', 'Pengiriman pesan sedang berlangsung');
@@ -183,9 +188,12 @@ class BookingPendaftaranController extends Controller
 
         $dataPasien =  explode(',', $request->pasien_ids);
 
-        foreach ($dataPasien as $kirimPesan) {
+        $delayBase = 10;
+
+        foreach ($dataPasien as $index => $kirimPesan) {
+            $random = rand(0, 5);
             //Job KirimPesanMJob untuk mengirim pesan secara asynchronous
-            KirimPesanMJob::dispatch($kirimPesan, $request->tgl_periksa, $idTemplate);
+            KirimPesanMJob::dispatch($kirimPesan, $request->tgl_periksa, $idTemplate)->delay(now()->addSeconds(($index * $delayBase) + $random));
             //Jika ingin langsung kirim tanpa antrian, bisa panggil method statisnya langsung
             // BookingPendaftaranController::kirimPesanM($kirimPesan, $request->tgl_periksa, $idTemplate);
         }
@@ -250,6 +258,14 @@ class BookingPendaftaranController extends Controller
 
         if (substr($telp, 0, 1) === '0') {
             $telp = '62' . substr($telp, 1);
+
+            $cekMapping = MappingLidNumber::where('phone', $telp)->first();
+            if (!$cekMapping) {
+                WaController::getLidNumber($telp);
+            } elseif (Carbon::parse($cekMapping->last_checked_at)->addDays(7)->isPast()) {
+                // Jika sudah lebih dari 7 hari sejak terakhir cek, update lid
+                WaController::getLidNumber($telp);
+            }
         }
 
         $setting = Setting::where('nama', 'pesan')->first();
@@ -342,6 +358,14 @@ class BookingPendaftaranController extends Controller
 
         if (substr($telp, 0, 1) === '0') {
             $telp = '62' . substr($telp, 1);
+
+            $cekMapping = MappingLidNumber::where('phone', $telp)->first();
+            if (!$cekMapping) {
+                WaController::getLidNumber($telp);
+            } elseif (Carbon::parse($cekMapping->last_checked_at)->addDays(7)->isPast()) {
+                // Jika sudah lebih dari 7 hari sejak terakhir cek, update lid
+                WaController::getLidNumber($telp);
+            }
         }
 
         $setting = Setting::where('nama', 'pesan')->first();

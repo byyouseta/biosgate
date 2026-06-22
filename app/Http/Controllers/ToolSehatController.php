@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\AlasanImunisasi;
+use App\ImmunizationFhir;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -406,9 +408,7 @@ class ToolSehatController extends Controller
 
         $dataResponse = json_decode($response->getBody());
 
-        // dd($dataResponse);
-
-        if ($dataResponse && $dataResponse->search_code) {
+        if ($dataResponse && $dataResponse->result != null) {
             $dataKfa = (object)$dataResponse->result;
 
             $medicationForm = $dataKfa->dosage_form ?? null;
@@ -493,6 +493,127 @@ class ToolSehatController extends Controller
             if (!$simpanMapping) {
                 return back()->with('error', 'Gagal insert');
             }
+        }
+    }
+
+    public function mapingVaksin(Request $request)
+    {
+        session()->put('ibu', 'Satu Sehat');
+        session()->put('anak', 'Tool Satu Sehat');
+        session()->put('cucu', 'Maping Vaksin');
+
+        $data = DB::connection('mysqlkhanza')->table('jns_perawatan')
+            ->join('penjab', 'jns_perawatan.kd_pj', '=', 'penjab.kd_pj')
+            ->join('poliklinik', 'jns_perawatan.kd_poli', '=', 'poliklinik.kd_poli')
+            ->select(
+                'penjab.png_jawab',
+                'poliklinik.nm_poli',
+                'jns_perawatan.*'
+            )
+            ->where('nm_perawatan', 'like', '%vaksin%')
+            ->get();
+
+        $masterAlasan = AlasanImunisasi::all();
+        $masterBarang = DB::connection('mysqlkhanza')->table('databarang')
+            ->leftJoin('fhir_farmasi', 'fhir_farmasi.kode_brng', '=', 'databarang.kode_brng')
+            ->leftJoin('fhir_master_kfa', 'fhir_master_kfa.kd_kfa', '=', 'fhir_farmasi.id_ihs')
+            ->select(
+                'databarang.*',
+                'fhir_master_kfa.kd_kfa',
+                'fhir_master_kfa.display'
+            )
+            ->whereIn('kode_golongan', ['G08', 'G10'])
+            ->get();
+
+        $mapKodeTindakan = $data->pluck('kd_jenis_prw')->toArray();
+        $dataKfa = ImmunizationFhir::whereIn('kd_jenis_prw', $mapKodeTindakan)
+            ->get()
+            ->keyBy('kd_jenis_prw');
+
+        foreach ($data as $item) {
+            $item->kode_barang =  $dataKfa[$item->kd_jenis_prw]->kode_barang ?? null;
+            if (!empty($item->kode_barang)) {
+                $item->nama_barang =  $masterBarang->where('kode_brng', $item->kode_barang)->first()->nama_brng ?? null;
+            } else {
+                $item->nama_barang = null;
+            }
+            $item->kfa =  $dataKfa[$item->kd_jenis_prw]->kode_kfa ?? null;
+            $item->alasan = $dataKfa[$item->kd_jenis_prw]->alasanImunisasi->display ?? null;
+        }
+
+        return view('satu_sehat.map_vaksin', compact('data', 'masterAlasan', 'masterBarang'));
+    }
+
+    public function mapingVaksinEdit($id)
+    {
+        $data = DB::connection('mysqlkhanza')->table('jns_perawatan')
+            ->join('penjab', 'jns_perawatan.kd_pj', '=', 'penjab.kd_pj')
+            ->join('poliklinik', 'jns_perawatan.kd_poli', '=', 'poliklinik.kd_poli')
+            ->select(
+                'penjab.png_jawab',
+                'poliklinik.nm_poli',
+                'jns_perawatan.*'
+            )
+            ->where('jns_perawatan.kd_jenis_prw', Crypt::decrypt($id))
+            ->first();
+
+        return response()->json($data);
+    }
+
+    public function mapingVaksinUpdate(Request $request)
+    {
+        $this->validate($request, [
+            'kd_jenis_prw' => 'required',
+            'kode_brng' => 'required',
+            'kd_alasan' => 'required',
+        ]);
+        $ambilKfa = DB::connection('mysqlkhanza')->table('fhir_farmasi')
+            ->where('kode_brng', $request->kode_brng)
+            ->first();
+        if (!$ambilKfa) {
+            return back()->with('error', 'Data Mapping KFA tidak ditemukan');
+        }
+        // dd($ambilKfa);
+        //Ceking data
+        $access_token = SatuSehatController::getTokenSehat();
+        $client = new \GuzzleHttp\Client(['base_uri' => env('URL_APIKFA')]);
+        try {
+            $response = $client->request('GET', "/kfa-v2/products?identifier=kfa&code=" . $ambilKfa->id_ihs, [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ]
+            ]);
+        } catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+                dd($test);
+            }
+
+            $message = "Gagal melakukan pencarian " . $ambilKfa->id_ihs;
+            return back()->with('error', $message);
+        }
+
+        $dataResponse = json_decode($response->getBody());
+
+        if ($dataResponse && $dataResponse->result != null) {
+            $simpanMapping = ImmunizationFhir::updateOrCreate(
+                ['kd_jenis_prw' => $request->kd_jenis_prw],
+                [
+                    'kode_barang' => $request->get('kode_brng'),
+                    'kode_kfa' => $ambilKfa->id_ihs,
+                    'display_kfa' => $dataResponse->result->name,
+                    'alasan_imunisasi_id' => $request->kd_alasan,
+                ]
+            );
+
+            if ($simpanMapping) {
+                return back()->with('sukses', 'Mapping berhasil diperbarui');
+            } else {
+                return back()->with('error', 'Gagal menyimpan mapping');
+            }
+        } else {
+            return back()->with('error', 'Data KFA tidak ditemukan pada KFA browser. Update mapping Obat dan KFA!');
         }
     }
 }

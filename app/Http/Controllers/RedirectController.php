@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\BalasPesan;
+use App\Jobs\KirimPesanCustom;
+use App\MappingLidNumber;
 use App\Setting;
 use App\WebhookMessage;
 use Carbon\Carbon;
@@ -30,8 +33,7 @@ class RedirectController extends Controller
         }
     }
 
-    //Untuk API dari WA
-
+    //Untuk API dari WA Gateway / Webhook
     public function handle(Request $request)
     {
         $payload = $request->all();
@@ -95,10 +97,77 @@ class RedirectController extends Controller
             ]
         );
 
+        // Cek apakah pesan dari nomor yang diinginkan jika ya, balas otomatis
+        $from = $message['from'] ?? '';
+        if (!str_contains($from, '@c.us')) {
+            activity('webhook')->log('Received message: ' . $from . ' - ' . ($message['body'] ?? ''));
+            $cekLid = MappingLidNumber::where('wid', $from)->first();
+            if ($cekLid) {
+                $nomor = $cekLid->phone;
 
+                goto NomorDariLid; // langsung ke proses auto reply
+            }
+            goto hasil; // tidak kirim karena mapping juga tidak ada
+
+        }
+
+        $pecah = explode('@', $message['from']);
+        $nomor = $pecah[0] ?? '';
+
+        NomorDariLid:
+        $pecah2 = explode('@', $message['to']);
+        $nomor2 = $pecah2[0] ?? '';
+
+        if ($nomor != env('NO_PESAN') && $nomor2 == env('NO_PESAN') && env('AUTO_BALAS') == true) {
+            $this->autoReply($nomor, $message['body']);
+        }
+
+        hasil:
         return response()->json(['status' => 'stored']);
     }
 
+    //Untuk balasan otomatis, dengan log aktivitas jika gagal kirim
+    public function autoReply($phone, $message)
+    {
+        $cekReplay = BalasPesan::where('no_hp', $phone)->first();
+
+        if (!$cekReplay) {
+
+            $kirim = WaController::kirimAutoBalas($phone, $message);
+
+            if (!$kirim || !isset($kirim->original['success']) || !$kirim->original['success']) {
+                activity('auto_reply')->log('Gagal kirim ke ' . $phone);
+                return;
+            }
+
+            BalasPesan::create([
+                'no_hp' => $phone,
+                'last_replied_at' => now(),
+                'reply_count' => 1,
+                'last_message' => $message
+            ]);
+        } else {
+            // Cek jika sudah pernah dibalas sebelumnya, dan jika terakhir dibalas kurang dari 60 menit yang lalu, maka tidak perlu balas lagi
+            if (now()->diffInMinutes($cekReplay->last_replied_at) < 60) {
+                return;
+            }
+
+            $kirim = WaController::kirimAutoBalas($phone, $message);
+
+            if (!$kirim || !isset($kirim->original['success']) || !$kirim->original['success']) {
+                activity('auto_reply')->log('Gagal kirim ke ' . $phone);
+                return;
+            }
+
+            $cekReplay->update([
+                'last_replied_at' => now(),
+                'reply_count' => $cekReplay->reply_count + 1,
+                'last_message' => $message
+            ]);
+        }
+    }
+
+    //untuk mengirim OTP, dengan format pesan yang sudah ditentukan, dan log error jika gagal kirim
     public function sendOtp(Request $request)
     {
         $request->validate([
@@ -162,5 +231,31 @@ class RedirectController extends Controller
             return response()->json(['status' => 'failed', 'error' => 'Gagal mengirim pesan'], 500);
         }
         // }
+    }
+
+    //Untuk kirim pesan dengan format bebas, dengan log error jika gagal kirim
+    public function sendPesan(Request $request)
+    {
+        $request->validate([
+            'phone' => 'required',
+            'message' => 'required|string',
+        ]);
+
+        $request = new Request([
+            'penerima' => $request->phone,
+            'pesan' => $request->message,
+        ]);
+
+        $response = app(\App\Http\Controllers\WaController::class)->kirimJson($request);
+
+        // kalau mau ambil hasilnya
+        $data = $response->getData(true);
+
+        if ($data && isset($data['success']) && $data['success'] == true) {
+            return response()->json(['status' => 'success', 'data' => $data]);
+        } else {
+            $errorMessage = $data['message'] ?? 'Gagal mengirim pesan';
+            return response()->json(['status' => 'failed', 'error' => $errorMessage], 500);
+        }
     }
 }

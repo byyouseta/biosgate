@@ -234,36 +234,36 @@ class ObatSehatController extends Controller
                     $test = json_decode($body);
                     $errorCode = (array) $test;
 
-                    dd($test, 'kirim medication');
+                    // dd($test, 'kirim medication');
 
                     if (!empty($errorCode['issue'][0])) {
                         $pesan = $errorCode['issue'][0]->details->text;
 
                         $message = "Medication 1 error $pesan";
 
-                        dd($message, 'medication1');
+                        // dd($message, 'medication1', 'masuk ke sini');
 
                         $cek = LogErrorSatuSehat::where('subject', 'Obat Medication1')
-                            ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                            ->where('keterangan', 'like', '%' . $dataPemberianObat->nama_brng . '%')
                             ->whereDate('created_at', Carbon::now())
                             ->get();
                         if ($cek->count() < 1) {
                             $error = new LogErrorSatuSehat();
                             $error->subject = 'Obat Medication1';
-                            $error->keterangan = $dataPengunjung->no_rawat . ' error kirim ' . $dataPemberianObat->nama_brng . ' pesan ' . $pesan;
+                            $error->keterangan = 'Error kirim ' . $dataPemberianObat->nama_brng . ' pesan ' . $pesan;
                             $error->save();
                         }
                     } else {
-                        dd($errorCode['fault']->faultstring, 'medication1');
+                        // dd($errorCode['fault']->faultstring, 'medication1', 'masuk sini');
 
                         $cek = LogErrorSatuSehat::where('subject', 'Obat Medication1')
-                            ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
+                            ->where('keterangan', 'like', '%' . $dataPemberianObat->nama_brng . '%')
                             ->whereDate('created_at', Carbon::now())
                             ->get();
                         if ($cek->count() < 1) {
                             $error = new LogErrorSatuSehat();
                             $error->subject = 'Obat Medication1';
-                            $error->keterangan = $dataPengunjung->no_rawat . ' error kirim ' . $dataPemberianObat->nama_brng . ' pesan ' . $errorCode['fault']->faultstring;
+                            $error->keterangan = 'Error kirim ' . $dataPemberianObat->nama_brng . ' pesan ' . $errorCode['fault']->faultstring;
                             $error->save();
                         }
                     }
@@ -317,6 +317,15 @@ class ObatSehatController extends Controller
 
                 // format akhir
                 $formatWaktuPenyerahan = $waktuPenyerahan->setTimezone('UTC')->toW3cString();
+
+                if (
+                    empty($dataPemberianObat->expire) ||
+                    $dataPemberianObat->expire == '0000-00-00'
+                ) {
+                    $expired = Carbon::now()->addMonths(3)->format('Y-m-d');
+                } else {
+                    $expired = Carbon::parse($dataPemberianObat->expire)->format('Y-m-d');
+                }
 
                 $medicationRequest = [
                     "resourceType" => "MedicationRequest",
@@ -413,15 +422,20 @@ class ObatSehatController extends Controller
                         $body = (string) $response->getBody();
                         $test = json_decode($body);
 
-                        dd($test, 'medicationRequest', $medicationRequest);
+                        // dd($test, 'medicationRequest', $medicationRequest);
                         $errorCode = (array) $test;
                         if (!empty($errorCode['issue'][0])) {
                             $pesan = $errorCode['issue'][0]->details->text;
-
-                            $message = "Medication Request error $pesan";
                         } else {
-                            $message = $errorCode['fault']->faultstring;
+                            $pesan = $errorCode['fault']->faultstring;
                         }
+
+                        $simpan = new LogErrorSatuSehat();
+                        $simpan->subject = 'Obat MedicationRequest';
+                        $simpan->keterangan = 'Error kirim ' . $dataPemberianObat->nama_brng . ' pesan ' . $pesan;
+                        $simpan->save();
+
+                        return;
                     }
                 }
 
@@ -470,7 +484,7 @@ class ObatSehatController extends Controller
 
                         "batch" => [
                             "lotNumber" => "-",
-                            "expirationDate" => "$dataPemberianObat->expire"
+                            "expirationDate" => "$expired"
                         ],
                         "extension" => [ //harus bos
                             [
@@ -1490,14 +1504,14 @@ class ObatSehatController extends Controller
                     $test = json_decode($body);
                     $errorCode = (array) $test;
 
-                    dd($test, 'kirim medication');
+                    // dd($test, 'kirim medication');
 
                     if (!empty($errorCode['issue'][0])) {
                         $pesan = $errorCode['issue'][0]->details->text;
 
                         $message = "Medication 1 error $pesan";
 
-                        dd($message, 'medication1');
+                        dd($message, 'medication1', 'masuk kok kesini');
 
                         $cek = LogErrorSatuSehat::where('subject', 'Obat Medication1')
                             ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
@@ -1510,7 +1524,7 @@ class ObatSehatController extends Controller
                             $error->save();
                         }
                     } else {
-                        dd($errorCode['fault']->faultstring, 'medication1');
+                        dd($errorCode['fault']->faultstring, 'medication1', ' masuk nya sini');
 
                         $cek = LogErrorSatuSehat::where('subject', 'Obat Medication1')
                             ->where('keterangan', 'like', '%' . $dataPengunjung->no_rawat . '%')
@@ -1574,6 +1588,15 @@ class ObatSehatController extends Controller
 
                 // format akhir
                 $formatWaktuPenyerahan = $waktuPenyerahan->setTimezone('UTC')->toW3cString();
+
+                if (
+                    empty($dataPemberianObat->expire) ||
+                    $dataPemberianObat->expire == '0000-00-00'
+                ) {
+                    $expired = Carbon::now()->addMonths(3)->format('Y-m-d');
+                } else {
+                    $expired = Carbon::parse($dataPemberianObat->expire)->format('Y-m-d');
+                }
 
                 $medicationRequest = [
                     "resourceType" => "MedicationRequest",
@@ -1735,7 +1758,7 @@ class ObatSehatController extends Controller
 
                         "batch" => [
                             "lotNumber" => "-",
-                            "expirationDate" => "$dataPemberianObat->expire"
+                            "expirationDate" => "$expired"
                         ],
                         "extension" => [ //harus bos
                             [
@@ -1771,7 +1794,7 @@ class ObatSehatController extends Controller
                             $test = json_decode($body);
                             $errorCode = (array) $test;
 
-                            dd($test, 'medication2');
+                            dd($test, 'medication2', 'disini');
                             if (!empty($errorCode['issue'][0])) {
                                 $pesan = $errorCode['issue'][0]->details->text;
 

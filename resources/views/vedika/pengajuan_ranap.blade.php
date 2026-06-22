@@ -31,8 +31,12 @@
                                     <label>Data Pasien Ranap</label>
                                 </div>
                                 <div class="col-sm-3">
-                                    <div class="float-right">
+                                    <div class="float-right ml-2">
                                         @if (!empty($dataPengajuan))
+                                            <a href="{{ route('vedika.indikasiranap', ['periode' => Crypt::encrypt(Request::get('periode'))]) }}"
+                                                class="btn btn-success btn-sm">
+                                                <i class="far fa-file-excel"></i> Indikasi
+                                            </a>
                                             <button class="btn btn-primary btn-sm" data-toggle="modal"
                                                 data-target="#modal-berkas-klaim">
                                                 <i class="fas fa-file-download"></i> Download

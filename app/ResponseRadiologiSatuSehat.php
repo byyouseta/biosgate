@@ -7,6 +7,18 @@ use Illuminate\Support\Facades\DB;
 
 class ResponseRadiologiSatuSehat extends Model
 {
+    public $fillable = [
+        'noRawat',
+        'tgl_registrasi',
+        'no_order',
+        'accession_no',
+        'encounter_id',
+        'service_request_id',
+        'imaging_study_id',
+        'observation_id',
+        'diagnostic_report_id'
+    ];
+
     public static function getDataPasien($noRawat)
     {
         $data = DB::connection('mysqlkhanza')->table('reg_periksa')

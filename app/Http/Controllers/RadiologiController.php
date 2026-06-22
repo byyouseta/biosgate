@@ -115,13 +115,24 @@ class RadiologiController extends Controller
 
                 if (empty($dataSehat)) {
                     //Simpan Encounter
-                    $simpan = new ResponseRadiologiSatuSehat();
-                    $simpan->noRawat = $pasienRadio->no_rawat;
-                    $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
-                    $simpan->no_order = $pasienRadio->noorder;
-                    $simpan->accession_no = $pasienRadio->ascension;
-                    $simpan->encounter_id = $idEncounter;
-                    $simpan->save();
+                    // $simpan = new ResponseRadiologiSatuSehat();
+                    // $simpan->noRawat = $pasienRadio->no_rawat;
+                    // $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
+                    // $simpan->no_order = $pasienRadio->noorder;
+                    // $simpan->accession_no = $pasienRadio->ascension;
+                    // $simpan->encounter_id = $idEncounter;
+                    // $simpan->save();
+                    ResponseRadiologiSatuSehat::updateOrCreate(
+                        [
+                            'accession_no' => $pasienRadio->ascension
+                        ],
+                        [
+                            'noRawat' => $pasienRadio->no_rawat,
+                            'no_order' => $pasienRadio->noorder,
+                            'tgl_registrasi' => $pasienRadio->tgl_registrasi,
+                            'encounter_id' => $idEncounter
+                        ]
+                    );
                 }
             } else {
                 $idEncounter = null;
@@ -131,6 +142,7 @@ class RadiologiController extends Controller
                 if (!empty($pasienRadio->ktp_dokter)) {
                     $idPractition = SatuSehatController::practitioner($pasienRadio->ktp_dokter);
                 }
+
 
                 $waktuRequest = $pasienRadio->tgl_permintaan . ' ' . $pasienRadio->jam_permintaan;
                 $waktu_request = new Carbon($waktuRequest);
@@ -254,20 +266,56 @@ class RadiologiController extends Controller
                             }
 
                             $dataResponse = json_decode($response->getBody()->getContents());
-                            if ($dataResponse && $dataResponse->entry[0]->resource->id) {
-                                $simpan = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
-                                    ->where('no_order', $pasienRadio->noorder)
-                                    ->first();
-                                if (!$simpan) {
-                                    $simpan = new ResponseRadiologiSatuSehat();
-                                    $simpan->noRawat = $pasienRadio->no_rawat;
-                                    $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
-                                    $simpan->no_order = $pasienRadio->noorder;
-                                    $simpan->accession_no = $pasienRadio->ascension;
-                                    $simpan->encounter_id = $idEncounter;
+                            // if ($dataResponse && $dataResponse->entry[0]->resource->id) {
+                            //     $simpan = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
+                            //         ->where('no_order', $pasienRadio->noorder)
+                            //         ->first();
+                            //     if (!$simpan) {
+                            //         $simpan = new ResponseRadiologiSatuSehat();
+                            //         $simpan->noRawat = $pasienRadio->no_rawat;
+                            //         $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
+                            //         $simpan->no_order = $pasienRadio->noorder;
+                            //         $simpan->accession_no = $pasienRadio->ascension;
+                            //         $simpan->encounter_id = $idEncounter;
+                            //     }
+                            //     $simpan->service_request_id = $dataResponse->entry[0]->resource->id;
+                            //     $simpan->save();
+                            // }
+                            if ($dataResponse && !empty($dataResponse->entry)) {
+                                $serviceRequestId = null;
+
+                                foreach ($dataResponse->entry ?? [] as $entry) {
+
+                                    $identifiers = $entry->resource->identifier ?? [];
+
+                                    foreach ($identifiers as $identifier) {
+
+                                        if (
+                                            isset($identifier->system) &&
+                                            str_contains($identifier->system, '/acsn/') &&
+                                            $identifier->value == $pasienRadio->ascension
+                                        ) {
+                                            $serviceRequestId = $entry->resource->id;
+                                            break 2;
+                                        }
+                                    }
                                 }
-                                $simpan->service_request_id = $dataResponse->entry[0]->resource->id;
-                                $simpan->save();
+
+                                if ($serviceRequestId) {
+
+                                    ResponseRadiologiSatuSehat::updateOrCreate(
+                                        [
+                                            'noRawat' => $pasienRadio->no_rawat,
+                                            'no_order' => $pasienRadio->noorder
+                                        ],
+                                        [
+                                            'tgl_registrasi' => $pasienRadio->tgl_registrasi,
+                                            'accession_no' => $pasienRadio->ascension,
+                                            'encounter_id' => $idEncounter,
+                                            'service_request_id' => $serviceRequestId
+                                        ]
+                                    );
+                                }
                             }
                         }
                     } else {
@@ -284,6 +332,10 @@ class RadiologiController extends Controller
 
                 $dataResponse = json_decode($response->getBody());
 
+                if ($pasienRadio->no_rawat == '2026/04/29/000028') {
+                    dd('masuk pasien', $pasienRadio, $dataResponse, $dataService, 'response service request radiologi');
+                }
+
                 if ($dataResponse && $dataResponse->id) {
                     $simpan = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
                         ->where('no_order', $pasienRadio->noorder)
@@ -298,6 +350,52 @@ class RadiologiController extends Controller
                     }
                     $simpan->service_request_id = $dataResponse->id;
                     $simpan->save();
+                } elseif ($dataResponse && $dataResponse->issue[0]->code == 'duplicate') {
+                    //Jika Duplicate
+                    try {
+                        $response = $client->request('GET', 'fhir-r4/v1/ServiceRequest?encounter=' . $idEncounter, [
+                            'headers' => [
+                                'Authorization' => "Bearer {$access_token}"
+                            ]
+                        ]);
+                    } catch (ClientException $e) {
+                        if ($e->hasResponse()) {
+                            $response = $e->getResponse();
+                        }
+                        $test = json_decode($response->getBody(true));
+                        $message = $test->issue[0]->details->text;
+
+                        dd($message, $test->issue[0], $idEncounter, 'error service request radiologi on duplicate');
+                    }
+
+                    $dataResponse = json_decode($response->getBody()->getContents());
+                    if ($dataResponse && $dataResponse->entry[0]->resource->id) {
+                        // $simpan = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
+                        //     ->where('no_order', $pasienRadio->noorder)
+                        //     ->first();
+                        // if (!$simpan) {
+                        //     $simpan = new ResponseRadiologiSatuSehat();
+                        //     $simpan->noRawat = $pasienRadio->no_rawat;
+                        //     $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
+                        //     $simpan->no_order = $pasienRadio->noorder;
+                        //     $simpan->accession_no = $pasienRadio->ascension;
+                        //     $simpan->encounter_id = $idEncounter;
+                        // }
+                        // $simpan->service_request_id = $dataResponse->entry[0]->resource->id;
+                        // $simpan->save();
+                        ResponseRadiologiSatuSehat::updateOrCreate(
+                            [
+                                'noRawat' => $pasienRadio->no_rawat,
+                                'no_order' => $pasienRadio->noorder
+                            ],
+                            [
+                                'tgl_registrasi' => $pasienRadio->tgl_registrasi,
+                                'accession_no' => $pasienRadio->ascension,
+                                'encounter_id' => $idEncounter,
+                                'service_request_id' => $dataResponse->entry[0]->resource->id
+                            ]
+                        );
+                    }
                 }
             }
 
@@ -506,6 +604,9 @@ class RadiologiController extends Controller
     {
         $idRS = env('IDRS');
         $dataLog = ResponseRadiologiSatuSehat::where('accession_no', $dataOrder->ascension)->first();
+        if (empty($dataLog->service_request_id) || empty($dataLog->imaging_study_id)) {
+            return null;
+        }
         $idPasien = SatuSehatController::patientSehat($dataOrder->ktp_pasien);
         if (!empty($dataOrder->ktp_dokter)) {
             $idPractition = SatuSehatController::practitioner($dataOrder->ktp_dokter);

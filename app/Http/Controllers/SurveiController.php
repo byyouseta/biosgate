@@ -228,7 +228,14 @@ class SurveiController extends Controller
             'g-recaptcha-response' => 'required|recaptchav3:kepuasan,0.5'
         ]);
 
-        // dd($request);
+        $exists = Kepuasan::where('no_hp', $request->no_hp)
+            ->whereDate('created_at', now()->toDateString())
+            ->exists();
+
+        if ($exists) {
+            return back()->with('error', 'Anda sudah mengisi hari ini');
+        }
+
         $simpan = new Kepuasan();
         $simpan->umur  = $request->umur;
         $simpan->no_hp = $request->no_hp;

@@ -46,6 +46,7 @@ Route::post('/survei/datapengaduan/{id}/status', 'DataSurveiController@statusPen
 Route::get('/survei/datakepuasan', 'DataSurveiController@kepuasan')->name('datasurvei.kepuasan');
 Route::get('/survei/datakepuasan/{id}/exportExcel', 'DataSurveiController@exportKepuasan')->name('datasurvei.kepuasan_export');
 Route::get('/survei/datakepuasan/{id}/detail', 'DataSurveiController@detailKepuasan')->name('datasurvei.detailKepuasan');
+Route::get('/survei/dashboard', 'DataSurveiController@dashboard')->name('datasurvei.dashboard');
 
 //BIOS V.2
 Route::get('/home', 'HomeController@index')->name('home');
@@ -271,6 +272,7 @@ Route::get('/vedika/pengajuan/rajal', 'KlaimController@daftarRajal')->name('vedi
 Route::get('/vedika/pengajuan/kronis', 'KlaimController@daftarRajalKronis')->name('vedika.daftarRajalKronis');
 Route::get('/vedika/pengajuan/ranap', 'KlaimController@daftarRanap')->name('vedika.daftarRanap');
 Route::get('/vedika/pengajuan/ulang', 'KlaimController@daftarUlang')->name('vedika.daftarUlang');
+Route::get('/vedika/pengajuan/{periode}/indikasiranap', 'KlaimController@indikasiRanap')->name('vedika.indikasiranap');
 
 Route::get('/vedika/pengajuan/{periode}/gabungberkasall', 'VedikaController@gabungBerkasAll')->name('vedika.gabungberkasall');
 Route::get('/vedika/pengajuan/{periode}/makezipranap', 'VedikaController@generateZipRanap')->name('vedika.makezipranap');
@@ -416,6 +418,9 @@ Route::get('/satusehat/medication/{id}/detail', 'ObatSehatController@medicationD
 Route::post('/satusehat/medication/repeatsend', 'ObatSehatController@kirimUlang')->name('satuSehat.repeatSendMedication');
 Route::post('/satusehat/medication/savekfa', 'ObatSehatController@saveKfa')->name('satuSehat.saveKfa');
 
+Route::get('/satusehat/vaksin/summary', 'ImmunizationController@index')->name('satuSehat.summaryImmunization');
+Route::get('/satusehat/vaksin/{id}/send', 'ImmunizationController@sendImmunization')->name('satuSehat.sendImmunization');
+
 Route::get('/satusehat/igd', 'IgdSehatController@index')->name('satuSehatIgd.index');
 Route::get('/satusehat/igd/kirimencounter', 'IgdSehatController@sendEncounter')->name('satuSehatIgd.sendEncounter');
 Route::get('/satusehat/igd/encounterupdate', 'IgdSehatController@closeEncounter')->name('satuSehatIgd.closeEncounter');
@@ -432,6 +437,9 @@ Route::get('/satusehat/nakessehat/sync', 'ToolSehatController@pegawaiSyncProses'
 Route::get('/satusehat/mapingradiologi', 'ToolSehatController@mapingRadio')->name('satuSehat.mapingRadio');
 Route::get('/satusehat/mapingradiologi/{id}/edit', 'ToolSehatController@mapingRadioEdit')->name('satuSehat.mapingRadioEdit');
 Route::put('/satusehat/mapingradiologi', 'ToolSehatController@mapingRadioUpdate')->name('satuSehat.mapingRadioUpdate');
+Route::get('/satusehat/mapingvaksin', 'ToolSehatController@mapingVaksin')->name('satuSehat.mapingVaksin');
+Route::get('/satusehat/mapingvaksin/{id}/edit', 'ToolSehatController@mapingVaksinEdit')->name('satuSehat.mapingVaksinEdit');
+Route::put('/satusehat/mapingvaksin', 'ToolSehatController@mapingVaksinUpdate')->name('satuSehat.mapingVaksinUpdate');
 
 Route::get('/satusehat/mapinglab', 'ToolSehatController@mapingLab')->name('satuSehat.mapingLab');
 Route::get('/satusehat/mapinglab/{id}/edit', 'ToolSehatController@mapingLabEdit')->name('satuSehat.mapingLabEdit');

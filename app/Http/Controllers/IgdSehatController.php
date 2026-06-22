@@ -267,17 +267,47 @@ class IgdSehatController extends Controller
 
                         $test = json_decode($response->getBody());
 
-                        dd($test, 'encounter');
+                        if ($test->issue[0]->code == 'duplicate') {
+                            try {
+                                $response = $client->request('GET', "fhir-r4/v1/Encounter?identifier=http://sys-ids.kemkes.go.id/encounter/$idRs|$dataPengunjung->no_rawat", [
+                                    'headers' => [
+                                        'Authorization' => "Bearer {$access_token}"
+                                    ]
+                                ]);
+                            } catch (ClientException $e) {
+                                if ($e->hasResponse()) {
+                                    $response = $e->getResponse();
+
+                                    $test = json_decode($response->getBody());
+
+                                    dd($test, 'get encounter SALAH');
+                                    //Simpan hasil get encounter untuk update data selanjutnya
+                                    $encounterData = $test;
+                                }
+                            }
+
+                            $responseData = json_decode($response->getBody());
+
+                            if (!empty($responseData->entry[0]->resource->id)) {
+                                $encounterId = $responseData->entry[0]->resource->id;
+                                $cekSimpan = ResponseIgdSatuSehat::where('noRawat', $dataPengunjung->no_rawat)->count();
+                                if ($cekSimpan == 0) {
+                                    $simpan = new ResponseIgdSatuSehat();
+                                    $simpan->noRawat = $dataPengunjung->no_rawat;
+                                    $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                                    $simpan->encounter_id = $encounterId;
+                                    $simpan->save();
+                                }
+                            }
+                        } else {
+                            $log = new LogErrorSatuSehat();
+                            $log->subject = 'IGD Encounter';
+                            $log->keterangan = "pasien IGD no rawat $dataPengunjung->no_rawat, pesan error : " . $test->message ?? "pasien IGD no rawat $dataPengunjung->no_rawat Unknown error";
+                            $log->save();
+                        }
                     }
 
-                    $log = new LogErrorSatuSehat();
-                    $log->subject = 'IGD Encounter';
-                    $log->keterangan = "pasien IGD no rawat $dataPengunjung->no_rawat, pesan error : " . $test->message ?? "pasien IGD no rawat $dataPengunjung->no_rawat Unknown error";
-                    $log->save();
-
-                    $message = "Gagal kirim encounter IGD pasien " . $dataPengunjung->no_rawat;
-
-                    Session::flash('error', $message);
+                    // Session::flash('error', $message);
 
                     goto KirimPasienLain;
                 }
@@ -1300,7 +1330,37 @@ class IgdSehatController extends Controller
                         if ($e->hasResponse()) {
                             $response = $e->getResponse();
                             $test = json_decode($response->getBody());
-                            dd($test, 'sistol');
+                            // dd($test, 'sistol');
+                            if ($test->issue[0]->code == 'duplicate') {
+                                try {
+                                    $responseObservation = $client->request('GET', 'fhir-r4/v1/Observation?encounter=' . $encounter, [
+                                        'headers' => [
+                                            'Authorization' => "Bearer {$access_token}"
+                                        ]
+                                    ]);
+                                } catch (ClientException $e) {
+                                    if ($e->hasResponse()) {
+                                        $response = $e->getResponse();
+
+                                        // dd($response);
+                                        $test = json_decode($response->getBody());
+                                        dd($test, 'fetch duplicate sistol');
+                                    }
+                                }
+                                $dataResponseObservation = json_decode($responseObservation->getBody());
+
+                                foreach ($dataResponseObservation->entry as $observation) {
+                                    foreach ($observation->resource->code->coding as $coding) {
+                                        if ($coding->code == '8480-6') {
+                                            $update = ResponseIgdSatuSehat::where('noRawat', $noRawat)->first();
+                                            $update->asesmen_sistol = $observation->resource->id;
+                                            $update->save();
+                                        }
+                                    }
+                                }
+                            }
+
+                            goto KirimDataSistol;
                         }
 
                         $message = "Gagal kirim vital sign Sistole pasien IGD " . $noRawat;
@@ -1315,14 +1375,14 @@ class IgdSehatController extends Controller
 
                     $dataResponse = json_decode($response->getBody());
 
-                    // dd($data);
-
                     if (!empty($dataResponse->id)) {
                         $update = ResponseIgdSatuSehat::where('noRawat', $noRawat)->first();
                         $update->asesmen_sistol = $dataResponse->id;
                         $update->save();
                     };
                 }
+
+                KirimDataSistol:
 
                 if (!empty($tekanan[1])) {
                     $dataDiastol = [
@@ -1912,7 +1972,6 @@ class IgdSehatController extends Controller
 
                     // SatuSehatController::getTokenSehat();
                     $access_token = SatuSehatController::getTokenSehat();
-                    // dd($access_token);
                     $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                     try {
                         $response = $client->request('PUT', "fhir-r4/v1/Encounter/$encounter", [
@@ -1922,19 +1981,20 @@ class IgdSehatController extends Controller
                             'json' => $updateEncounter
                         ]);
                     } catch (ClientException $e) {
-                        // echo $e->getRequest();
-                        // echo $e->getResponse();
                         if ($e->hasResponse()) {
                             $response = $e->getResponse();
 
                             // dd($response);
                             $test = json_decode($response->getBody());
-                            dd($test, 'status update encounter Meninggalkan IGD ', $updateEncounter);
+                            // dd($test, 'status update encounter Meninggalkan IGD ', $updateEncounter);
                         }
 
                         $message = "Gagal update encounter pasien IGD " . $noRawat;
 
-                        Session::flash('error', $message);
+                        LogErrorSatuSehat::create([
+                            'subject' => 'Update Encounter Meninggalkan IGD',
+                            'keterangan' => "Update encounter pasien no rawat : $noRawat (" . $message . ")"
+                        ]);
                     }
                 }
             }

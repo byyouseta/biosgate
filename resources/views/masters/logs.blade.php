@@ -28,43 +28,44 @@
                             <h3 class="card-title"><strong>{{ session('anak') }}</strong></h3>
                             <form action="/logs" method="GET">
                                 <div class="d-flex float-right">
-                                    <input type="text" class="form-control datetimepicker-input mr-2 ml-2"
-                                        id="tanggal" data-target="#tanggal" data-toggle="datetimepicker"
-                                        name="tanggal" autocomplete="off" value="{{ $tanggal }}"
-                                        style="max-width: 130px">
-                                    <button type="submit" class="btn btn-info btn-block btn-sm"
-                                        style="max-width: 120px"><i class="fas fa-search"></i> Tampilkan</button>
+                                    <input type="text" class="form-control datetimepicker-input mr-2 ml-2" id="tanggal"
+                                        data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
+                                        autocomplete="off" value="{{ $tanggal }}" style="max-width: 130px">
+                                    <button type="submit" class="btn btn-info btn-block btn-sm" style="max-width: 120px"><i
+                                            class="fas fa-search"></i> Tampilkan</button>
                                 </div>
                             </form>
                         </div>
                         <!-- /.card-header -->
                         <div class="card-body">
-                            <table class="table-bordered table-sm table-hover" style="width: 100%;" id="example">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 10%;">Log Name</th>
-                                        <th style="width: 10%;">Description</th>
-                                        <th style="width: 10%;">Causer</th>
-                                        <th style="width: 10%;">Created At</th>
-                                        <th style="width: 60%;">Details</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @forelse($logs as $log)
+                            <div class="table-responsive">
+                                <table class="table-bordered table-sm table-hover" style="width: 100%;" id="example">
+                                    <thead>
                                         <tr>
-                                            <td>{{ $log->log_name }}</td>
-                                            <td><strong>{{ $log->description }}</strong></td>
-                                            <td>{{ $log->causer->name ?? 'System' }}</td>
-                                            <td>{{ $log->created_at }}</td>
-                                            <td>{{ $log->properties ? json_encode($log->properties) : '-' }}</td>
+                                            <th style="width: 10%;">Log Name</th>
+                                            <th style="width: 10%;">Description</th>
+                                            <th style="width: 10%;">Causer</th>
+                                            <th style="width: 10%;">Created At</th>
+                                            <th style="width: 60%;">Details</th>
                                         </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="5" class="text-center">No logs found</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($logs as $log)
+                                            <tr>
+                                                <td>{{ $log->log_name }}</td>
+                                                <td><strong>{{ $log->description }}</strong></td>
+                                                <td>{{ $log->causer->name ?? 'System' }}</td>
+                                                <td>{{ $log->created_at }}</td>
+                                                <td>{{ $log->properties ? json_encode($log->properties) : '-' }}</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5" class="text-center">No logs found</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                         <!-- /.card-body -->
                         {{-- <div class="card-footer">
@@ -78,8 +79,6 @@
         </div>
         <!-- /.container-fluid -->
     </section>
-
-
 @endsection
 @section('plugin')
     {{-- <!-- jQuery -->
@@ -102,9 +101,9 @@
     <!-- Tempusdominus Bootstrap 4 -->
     <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
     <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
-     <!-- Tempusdominus|Datetime Bootstrap 4 -->
-     <link rel="stylesheet"
-     href="{{ asset('template/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
+    <!-- Tempusdominus|Datetime Bootstrap 4 -->
+    <link rel="stylesheet"
+        href="{{ asset('template/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css') }}">
     <script>
         $(function() {
             $('#example2').DataTable({
@@ -121,7 +120,9 @@
                 "lengthChange": true,
                 "searching": true,
                 "ordering": true,
-                "order": [[3, "desc"]],
+                "order": [
+                    [3, "desc"]
+                ],
                 "info": true,
                 "autoWidth": false,
                 "responsive": false,

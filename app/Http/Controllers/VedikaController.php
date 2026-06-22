@@ -502,7 +502,6 @@ class VedikaController extends Controller
                 $tambahanHasilRadiologi = [];
                 foreach ($tambahanRadiologi as $listTambahan) {
                     $dataTambahan = VedikaController::radioRajal($listTambahan->no_rawat_tambahan);
-                    // dd($dataTambahan);
                     if (!empty($dataTambahan[0]) && !empty($dataTambahan[1]) && !empty($dataTambahan[2])) {
                         // Menambah data ke array masing-masing
                         array_push($tambahanDataRadiologi, $dataTambahan[0][0]);
@@ -891,6 +890,8 @@ class VedikaController extends Controller
         }
         $tambahanDataSoap = collect($tambahanDataSoap);
         $dataSesiRehab = VedikaController::getSesiRehap($pasien->no_rawat);
+        $dataPengajuanPending = DataPengajuanUlang::where('no_rawat', $pasien->no_rawat)
+            ->get();
 
         $pdf = Pdf::loadView('vedika.detailRajal_pdf', [
             'pasien' => $pasien,
@@ -929,6 +930,7 @@ class VedikaController extends Controller
             'dataTreadmill' => $dataTreadmill,
             'dataSesiRehab' => $dataSesiRehab,
             'tambahanDataSoap' => $tambahanDataSoap,
+            'dataPengajuanPending' => $dataPengajuanPending,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
         ]);
@@ -1100,6 +1102,8 @@ class VedikaController extends Controller
             }
         }
         $tambahanDataSoap = collect($tambahanDataSoap);
+        $dataPengajuanPending = DataPengajuanUlang::where('no_rawat', $pasien->no_rawat)
+            ->get();
 
         $pdf = Pdf::loadView('vedika.detailRajal_pdf', [
             'pasien' => $pasien,
@@ -1138,6 +1142,7 @@ class VedikaController extends Controller
             'dataTreadmill' => $dataTreadmill,
             'dataSesiRehab' => $dataSesiRehab,
             'tambahanDataSoap' => $tambahanDataSoap,
+            'dataPengajuanPending' => $dataPengajuanPending,
             // 'pathBerkas' => $pathBerkas
             'soap' => $soap
         ]);
@@ -3748,7 +3753,8 @@ class VedikaController extends Controller
     {
         $data = DB::connection('mysqlkhanza')->table('operasi')
             // ->join('pemeriksaan_ralan', 'pemeriksaan_ralan.no_rawat', '=', 'operasi.no_rawat')
-            ->join('laporan_operasi', 'laporan_operasi.no_rawat', '=', 'operasi.no_rawat')
+            // ->join('detail_booking_operasi', 'detail_booking_operasi.no_rawat', '=', 'operasi.no_rawat')
+            // ->join('laporan_operasi', 'laporan_operasi.no_rawat', '=', 'operasi.no_rawat')
             ->select(
                 'operasi.no_rawat',
                 'operasi.tgl_operasi',
@@ -3775,7 +3781,7 @@ class VedikaController extends Controller
                 'operasi.dokter_umum',
                 'operasi.kode_paket',
                 'operasi.biayaoperator1',
-                'operasi.status'
+                'operasi.status',
                 // 'laporan_operasi.diagnosa_preop',
                 // 'laporan_operasi.diagnosa_postop',
                 // 'laporan_operasi.jaringan_dieksekusi',
@@ -3784,7 +3790,7 @@ class VedikaController extends Controller
                 // 'laporan_operasi.laporan_operasi'
             )
             ->where('operasi.no_rawat', '=', $id)
-            ->groupBy('operasi.kode_paket')
+            // ->groupBy('operasi.kode_paket')
             ->get();
 
         foreach ($data as $listData) {
@@ -3853,9 +3859,6 @@ class VedikaController extends Controller
             ->orderBy('pemeriksaan_ranap.tgl_perawatan', 'ASC') // Mengurutkan berdasarkan tanggal
             ->orderBy('pemeriksaan_ranap.jam_rawat', 'DESC')   // Mengurutkan berdasarkan jam terakhir
             ->first();
-
-
-        // dd($data, $tglMasuk, $dataPemeriksaan);
 
         return array($data, $dataPemeriksaan);
     }

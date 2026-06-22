@@ -3286,7 +3286,7 @@
         @endif
         {{-- Data Operasi Multi Tab --}}
         {{-- Data SOAP --}}
-        @if (!empty($soap) && $pasien->nm_poli == 'REHABILITASI MEDIK')
+        @if (!empty($soap) && ($pasien->nm_poli == 'REHABILITASI MEDIK' ))
             <div class="card">
                 <div class="card-header">SOAP Pasien</div>
                 <div class="card-body">

@@ -65,6 +65,7 @@ class Kernel extends HttpKernel
         'permission' => \Spatie\Permission\Middlewares\PermissionMiddleware::class,
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
         'verify.payroll' => \App\Http\Middleware\VerifyAppBToken::class,
+        'api.token' => \App\Http\Middleware\ApiTokenMiddleware::class,
     ];
 
     /**

@@ -1510,14 +1510,22 @@
                                                 <table class="table table-bordered">
                                                     <tbody class="border border-dark">
                                                         <tr>
-                                                            <textarea class="form-control" readonly
+                                                            {{-- <textarea class="form-control" readonly
                                                                 style="
                                                                 min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
                                                                 resize: none;
                                                                 overflow-y:hidden;
                                                                 border:1px solid black;
                                                                 background-color: white;
-                                                            ">{{ $itemHasilRad->hasil }}</textarea>
+                                                            ">{{ $itemHasilRad->hasil }}</textarea> --}}
+                                                            <td style="
+                                                                border:1px solid black;
+                                                                padding:10px;
+                                                                white-space: pre-line;
+                                                                vertical-align: top;
+                                                            ">
+                                                                {{ $itemHasilRad->hasil }}
+                                                            </td>
                                                         </tr>
                                                     </tbody>
                                                 </table>
@@ -1696,7 +1704,7 @@
                                             <table class="table table-bordered">
                                                 <tbody class="border border-dark">
                                                     <tr>
-                                                        <textarea class="form-control" readonly
+                                                        {{-- <textarea class="form-control" readonly
                                                             style="
                                                                 min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
                                                                 resize: none;
@@ -1705,7 +1713,15 @@
                                                                 background-color: white;
                                                             ">
                                                             {{ $dataHasil->jam == $order->jam_hasil ? $dataHasil->hasil : '' }}
-                                                        </textarea>
+                                                        </textarea> --}}
+                                                        <td style="
+                                                            border:1px solid black;
+                                                            padding:10px;
+                                                            white-space: pre-line;
+                                                            vertical-align: top;
+                                                        ">
+                                                            {{ $dataHasil->jam == $order->jam_hasil ? $dataHasil->hasil : '' }}
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
@@ -1886,14 +1902,22 @@
                                         <table class="table table-bordered">
                                             <tbody class="border border-dark">
                                                 <tr>
-                                                    <textarea class="form-control" readonly
+                                                    {{-- <textarea class="form-control" readonly
                                                         style="
                                         min-height: {{ !empty($tinggi) ? $tinggi : '50' }}px;
                                         resize: none;
                                         overflow-y:hidden;
                                         border:1px solid black;
                                         background-color: white;
-                                    ">{{ !empty($tambahanHasilRadiologi[$urutan]->hasil) ? $tambahanHasilRadiologi[$urutan]->hasil : '' }}</textarea>
+                                    ">{{ !empty($tambahanHasilRadiologi[$urutan]->hasil) ? $tambahanHasilRadiologi[$urutan]->hasil : '' }}</textarea> --}}
+                                                    <td style="
+                                                        border:1px solid black;
+                                                        padding:10px;
+                                                        white-space: pre-line;
+                                                        vertical-align: top;
+                                                    ">
+                                                        {{ !empty($tambahanHasilRadiologi[$urutan]->hasil) ? $tambahanHasilRadiologi[$urutan]->hasil : '' }}
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>
@@ -5133,10 +5157,10 @@
                                 <li class="nav-item">
                                     <a class="nav-link {{ $index == 0 ? 'active' : '' }}"
                                         id="custom-tabs-four-home-tab" data-toggle="pill"
-                                        href="#custom-tabs-lap-{{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('YmdHis') }}"
+                                        href="#custom-tabs-lap-{{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('YmdHis')}}-{{ $listOperasi->kode_paket }}"
                                         role="tab" aria-controls="custom-tabs-four-home" aria-selected="true">
                                         Data
-                                        Operasi Tanggal {{ $listOperasi->tgl_operasi }}</a>
+                                        Operasi Tanggal {{ $listOperasi->tgl_operasi }} -{{ $listOperasi->kode_paket }}</a>
                                 </li>
                             @endforeach
                         </ul>
@@ -5145,9 +5169,9 @@
                         <div class="tab-content" id="custom-tabs-four-tabContent">
                             @foreach ($dataOperasi2 as $index => $listOperasi)
                                 <div class="tab-pane fade show {{ $index == 0 ? 'active' : '' }}"
-                                    id="custom-tabs-lap-{{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('YmdHis') }}"
+                                    id="custom-tabs-lap-{{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('YmdHis')}}-{{ $listOperasi->kode_paket }}"
                                     role="tabpanel"
-                                    aria-labelledby="#custom-tabs-lap-{{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('YmdHis') }}">
+                                    aria-labelledby="#custom-tabs-lap-{{ \Carbon\Carbon::parse($listOperasi->tgl_operasi)->format('YmdHis') }}-{{ $listOperasi->kode_paket }}">
                                     <table class="table table-borderless mb-3">
                                         <tr>
                                             <td class="align-top" style="width:60%" rowspan="4"><img
@@ -7801,7 +7825,7 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($historyRadiologi as $dataHistory)
-                                        @if ($dataHistory->no_rawat != $pasien->no_rawat)
+                                        @if ($dataHistory->no_rawat != $pasien->no_rawat || $pasien->status_lanjut == 'Ranap')
                                             <tr>
                                                 <td>{{ $dataHistory->no_rawat }}</td>
                                                 <td>{{ $dataHistory->noorder }}</td>

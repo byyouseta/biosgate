@@ -3,16 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\LogKirimPesan;
+use App\MappingLidNumber;
 use App\Setting;
 use App\TemplatePesan;
 use App\WebhookMessage;
 use Carbon\Carbon;
 use GuzzleHttp\Exception\BadResponseException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
+
 
 class WaController extends Controller
 {
@@ -320,6 +323,14 @@ class WaController extends Controller
 
         if (substr($telp, 0, 1) === '0') {
             $telp = '62' . substr($telp, 1);
+
+            $cekMapping = MappingLidNumber::where('phone', $telp)->first();
+            if (!$cekMapping) {
+                WaController::getLidNumber($telp);
+            } elseif (Carbon::parse($cekMapping->last_checked_at)->addDays(7)->isPast()) {
+                // Jika sudah lebih dari 7 hari sejak terakhir cek, update lid
+                WaController::getLidNumber($telp);
+            }
         }
 
         if ($sessionApp == true) {
@@ -332,10 +343,6 @@ class WaController extends Controller
                         'x-api-key' => null,
                     ],
                     'json' => [
-                        // "chatId" => "$request->penerima",
-                        // "message" => [
-                        //     "text" => "$request->pesan"
-                        // ]
                         "chatId" => "$telp@c.us",
                         "contentType" => "string",
                         "content" => "$request->pesan"
@@ -366,6 +373,214 @@ class WaController extends Controller
             Session::flash('error', $message);
 
             return redirect()->back();
+        }
+    }
+
+    public static function getLidNumber($phone)
+    {
+        $setting = Setting::where('nama', 'pesan')->first();
+
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => $setting->base_url]);
+            $response = $client->request('POST', "/client/getNumberId/$setting->key", [
+                'headers' => [
+                    'x-api-key' => null,
+                ],
+                'json' => [
+                    "number" => "$phone@c.us"
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            $errorResponse = json_decode($e->getResponse()->getBody(), true);
+            return response()->json(['success' => false, 'message' => $errorResponse['message'] ?? 'Gagal ambil lid.'], 500);
+        }
+
+        $data = json_decode($response->getBody());
+
+        if ($data && $data->success == true) {
+            $lid = $data->result->_serialized;
+
+            // Simpan mapping nomor telepon dengan lid
+            $mapping = MappingLidNumber::updateOrCreate(
+                ['phone' => $phone],
+                ['wid' => $lid, 'last_checked_at' => Carbon::now()]
+            );
+
+            return response()->json(['success' => true, 'wid' => $lid]);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Gagal ambil lid.'], 500);
+        }
+    }
+
+    public static function kirimAutoBalas($phone, $message)
+    {
+        $getTemplate = TemplatePesan::where('nama', 'balas otomatis')->first();
+
+        if (!$getTemplate) {
+            return response()->json(['success' => false, 'message' => 'Template tidak ditemukan.'], 404);
+        }
+
+        //Dinonaktifkan jika nanti mau buat template khusus untuk balas otomatis dengan data dinamis pasien
+        // $dataPasien = [
+        //     'nama_pasien' => $getData->nm_pasien,
+        //     'no_rm' => $getData->no_rkm_medis,
+        //     'tgl_kunjungan' => Carbon::parse($getData->tanggal_periksa)->locale('id')->translatedFormat('l, d F Y'),
+        //     'nama_poli' => $getData->nm_poli,
+        //     'nama_dokter' => $getData->nm_dokter,
+        // ];
+
+        // $finalMessage = BookingPendaftaranController::generateMessageFromTemplate($template->pesan, $dataPasien)->pesan;
+
+        $finalMessage = $getTemplate->pesan;
+
+        $status = WaController::cekStatus();
+
+        if ($status !== 'online') {
+            return response()->json(['success' => false, 'message' => 'Server tidak bisa dijangkau!'], 500);
+        }
+
+        $sessionApp = WaController::cekSession();
+
+        if (!$sessionApp) {
+            return response()->json(['success' => false, 'message' => 'Session ID belum tersetting.'], 500);
+        }
+
+        $telp = $phone;
+        // $telp = '085647290127';
+
+        if (substr($telp, 0, 1) === '0') {
+            $telp = '62' . substr($telp, 1);
+        }
+
+        $setting = Setting::where('nama', 'pesan')->first();
+
+        try {
+            $client = new \GuzzleHttp\Client(['base_uri' => $setting->base_url]);
+            $response = $client->request('POST', "/client/sendMessage/$setting->key", [
+                'headers' => [
+                    'x-api-key' => null,
+                ],
+                'json' => [
+                    "chatId" => "$telp@c.us",
+                    "contentType" => "string",
+                    "content" => "$finalMessage"
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            $errorResponse = json_decode($e->getResponse()->getBody(), true);
+            return response()->json(['success' => false, 'message' => $errorResponse['message'] ?? 'Gagal mengirim pesan.'], 500);
+        }
+
+        $data = json_decode($response->getBody());
+
+        if ($data && $data->success == true) {
+            return response()->json(['success' => true, 'message' => 'Pesan berhasil dikirim.']);
+        } else {
+            return response()->json(['success' => false, 'message' => 'Pesan gagal dikirim.']);
+        }
+    }
+
+    public static function kirimJson(Request $request): JsonResponse
+    {
+        // 🔹 Validasi manual (biar JSON, bukan redirect)
+        $validator = \Validator::make($request->all(), [
+            'penerima' => 'required|regex:/^[0-9+]+$/', // Hanya angka dan tanda +
+        ], [
+            'penerima.required' => 'Nomor penerima wajib diisi'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors'  => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            // 🔹 Cek status server WA
+            $status = self::cekStatus();
+
+            if ($status !== 'online') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Server tidak bisa dijangkau'
+                ], 500);
+            }
+
+            // 🔹 Ambil session
+            $sessionApp = self::cekSession();
+
+            if (!$sessionApp) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Session WA tidak ditemukan'
+                ], 500);
+            }
+
+            // 🔹 Ambil data
+            $telp = $request->input('penerima');
+            $pesan    = $request->input('pesan');
+
+            $telp = preg_replace('/[^0-9]/', '', $telp);
+
+            if (str_starts_with($telp, '0')) {
+                $telp = '62' . substr($telp, 1);
+
+                $cekMapping = MappingLidNumber::where('phone', $telp)->first();
+                if (!$cekMapping) {
+                    WaController::getLidNumber($telp);
+                } elseif ($cekMapping->last_checked_at && Carbon::parse($cekMapping->last_checked_at)->addDays(7)->isPast()) {
+                    // Jika sudah lebih dari 7 hari sejak terakhir cek, update lid
+                    WaController::getLidNumber($telp);
+                }
+            }
+
+            // 🔹 Contoh kirim (sesuaikan dengan function kamu)
+            $setting = Setting::where('nama', 'pesan')->first();
+            $client = new \GuzzleHttp\Client(['base_uri' => $setting->base_url, 'timeout' => 10]);
+            $response = $client->request('POST', "/client/sendMessage/$setting->key", [
+                'headers' => [
+                    'x-api-key' => null,
+                ],
+                'json' => [
+                    "chatId" => "$telp@c.us",
+                    "contentType" => "string",
+                    "content" => "$pesan"
+                ]
+            ]);
+
+            if ($response->getStatusCode() !== 200) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal koneksi ke server WA'
+                ], 500);
+            }
+
+            $kirim = json_decode($response->getBody()->getContents());
+
+            if (!$kirim || ($kirim->success ?? false) == false) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $kirim->message ?? 'Gagal mengirim pesan'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pesan berhasil dikirim',
+                'data'    => $kirim
+            ]);
+        } catch (\Throwable $e) {
+            activity('wa-json')->withProperties([
+                'request' => $request->all()
+            ])->log('Error kirimJson: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem',
+                'error'   => $e->getMessage()
+            ], 500);
         }
     }
 

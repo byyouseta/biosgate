@@ -4352,10 +4352,10 @@
                         "\n" .
                         \Carbon\Carbon::parse($dataSesiRehab[0]->tanggal)->format('d-m-Y');
                     $qrcode_dokter = base64_encode(
-                        QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter)
+                        QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter),
                     );
                     $qrcode_petugas = base64_encode(
-                        QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_petugas)
+                        QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_petugas),
                     );
                 @endphp
 
@@ -4417,7 +4417,8 @@
                             </tr>
                             <tr>
                                 <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
-                                <td style="border-bottom: 0px solid black;">: {{ $dataSesiRehab[0]->nm_pasien }}</td>
+                                <td style="border-bottom: 0px solid black;">: {{ $dataSesiRehab[0]->nm_pasien }}
+                                </td>
                             </tr>
                             <tr>
                                 <td style="width: 20%; padding-left: 25px;">Tanggal Lahir</td>
@@ -4479,11 +4480,13 @@
                             </tr>
                             <tr>
                                 <td style="padding-left: 50px;">{{ $dataSesiRehab[0]->kd_dokter }}</td>
-                                <td style="padding-left: 150px;" colspan="2">{{ $dataSesiRehab[0]->kd_petugas }}</td>
+                                <td style="padding-left: 150px;" colspan="2">
+                                    {{ $dataSesiRehab[0]->kd_petugas }}</td>
                             </tr>
                             <tr>
                                 <td style="padding-left: 50px;">{{ $dataSesiRehab[0]->nm_dokter }}</td>
-                                <td style="padding-left: 150px;" colspan="2">{{ $dataSesiRehab[0]->nm_petugas }}</td>
+                                <td style="padding-left: 150px;" colspan="2">
+                                    {{ $dataSesiRehab[0]->nm_petugas }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -4493,11 +4496,11 @@
     @endif
 
     {{-- Data Rehab lainnya --}}
-    @if(!empty($dataSesiRehab[1]) || !empty($dataSesiRehab[2]) || !empty($dataSesiRehab[3]))
+    @if (!empty($dataSesiRehab[1]) || !empty($dataSesiRehab[2]) || !empty($dataSesiRehab[3]))
         @for ($i = 1; $i <= 3; $i++)
             @if (data_get($dataSesiRehab, $i) !== null)
                 @php
-                    if(empty($qr_dokter)){
+                    if (empty($qr_dokter)) {
                         $qr_dokter =
                             'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
                                                 elektronik oleh' .
@@ -4511,7 +4514,7 @@
 
                         $qrcode_dokter = base64_encode(
                             QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter),
-                    );
+                        );
                     }
                     $qr_petugas =
                         'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
@@ -4523,7 +4526,6 @@
                         $dataSesiRehab[$i]->kd_petugas .
                         "\n" .
                         \Carbon\Carbon::parse($dataSesiRehab[$i]->tanggal)->format('d-m-Y');
-
 
                     $qrcode_petugas = base64_encode(
                         QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_petugas),
@@ -4557,12 +4559,14 @@
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Pasien</td>
-                                    <td style="border-bottom: 0px solid black;">: {{ $dataSesiRehab[$i]->nm_pasien }}</td>
+                                    <td style="border-bottom: 0px solid black;">:
+                                        {{ $dataSesiRehab[$i]->nm_pasien }}</td>
                                 </tr>
                                 <tr>
                                     <td style="width: 20%; padding-left: 25px;">Tanggal Lahir</td>
                                     <td style="width: 80%; ">:
-                                        {{ \Carbon\Carbon::parse($dataSesiRehab[$i]->tgl_lahir)->format('d-m-Y') }}</td>
+                                        {{ \Carbon\Carbon::parse($dataSesiRehab[$i]->tgl_lahir)->format('d-m-Y') }}
+                                    </td>
                                 </tr>
                                 <tr>
                                     <td style="padding-left: 25px; border-bottom: 2px solid black;">Alamat</td>
@@ -4618,12 +4622,16 @@
                                             src="data:image/png;base64, {!! $qrcode_petugas !!}"></td>
                                 </tr>
                                 <tr>
-                                    <td style="padding-left: 50px;">{{ $dataSesiRehab[0]->kd_dokter ?? $dataSesiRehab[4]->kd_dokter }}</td>
-                                    <td style="padding-left: 150px;" colspan="2">{{ $dataSesiRehab[$i]->kd_petugas }}</td>
+                                    <td style="padding-left: 50px;">
+                                        {{ $dataSesiRehab[0]->kd_dokter ?? $dataSesiRehab[4]->kd_dokter }}</td>
+                                    <td style="padding-left: 150px;" colspan="2">
+                                        {{ $dataSesiRehab[$i]->kd_petugas }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding-left: 50px;">{{ $dataSesiRehab[0]->nm_dokter ?? $dataSesiRehab[4]->nm_dokter }}</td>
-                                    <td style="padding-left: 150px;" colspan="2">{{ $dataSesiRehab[$i]->nm_petugas }}</td>
+                                    <td style="padding-left: 50px;">
+                                        {{ $dataSesiRehab[0]->nm_dokter ?? $dataSesiRehab[4]->nm_dokter }}</td>
+                                    <td style="padding-left: 150px;" colspan="2">
+                                        {{ $dataSesiRehab[$i]->nm_petugas }}</td>
                                 </tr>
                             </tbody>
                         </table>

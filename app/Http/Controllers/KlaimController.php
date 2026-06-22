@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\DataPengajuanKlaim;
 use App\DataPengajuanKronis;
 use App\DataPengajuanUlang;
+use App\Exports\IndikasiRanapExport;
 use App\PeriodeKlaim;
 use App\PeriodePengajuanUlang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Maatwebsite\Excel\Facades\Excel;
 
 class KlaimController extends Controller
 {
@@ -490,5 +492,121 @@ class KlaimController extends Controller
         Session::flash('sukses', 'Data Berhasil dihapus!');
 
         return redirect()->back();
+    }
+
+    public function indikasiRanap($id)
+    {
+        $id = Crypt::decrypt($id);
+        $periode = PeriodeKlaim::find($id);
+
+        $formatPeriode = date('F Y', strtotime($periode->periode));
+
+        $data = DataPengajuanKlaim::where('periode_klaim_id', $id)
+            ->where('jenis_rawat', 'Rawat Inap')->get();
+        //ambil data no_rawat dari data pengajuan klaim berdasarkan periode
+        $noRawatList = $data->pluck('no_rawat')->unique();
+
+        $sub = DB::connection('mysqlkhanza')
+            ->table('kamar_inap')
+            ->select(
+                'no_rawat',
+                DB::raw('MAX(CONCAT(tgl_keluar, " ", jam_keluar)) as terakhir')
+            )
+            ->groupBy('no_rawat');
+
+        $dataMasuk = DB::connection('mysqlkhanza')
+            ->table('kamar_inap')
+            ->joinSub($sub, 'ki_terakhir', function ($join) {
+                $join->on('kamar_inap.no_rawat', '=', 'ki_terakhir.no_rawat')
+                    ->whereRaw('CONCAT(kamar_inap.tgl_keluar, " ", kamar_inap.jam_keluar) = ki_terakhir.terakhir');
+            })
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'kamar_inap.no_rawat')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.tgl_registrasi',
+                'kamar_inap.no_rawat',
+                'kamar_inap.tgl_masuk',
+                'kamar_inap.tgl_keluar',
+                'kamar_inap.jam_keluar'
+            )
+            ->whereIn('kamar_inap.no_rawat', $noRawatList)
+            ->get();
+
+        $dataSpri = DB::connection('mysqlkhanza')->table('permintaan_ranap')
+            ->join('permintaan_ranap_detail', 'permintaan_ranap_detail.no_rawat', '=', 'permintaan_ranap.no_rawat')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'permintaan_ranap_detail.kd_dokter')
+            ->join('kamar', 'kamar.kd_kamar', '=', 'permintaan_ranap.kd_kamar')
+            ->leftJoin('bangsal', 'bangsal.kd_bangsal', '=', 'kamar.kd_bangsal')
+            ->select(
+                'permintaan_ranap.no_rawat',
+                'permintaan_ranap.tanggal',
+                'permintaan_ranap.kd_kamar',
+                'permintaan_ranap.diagnosa',
+                'permintaan_ranap.catatan',
+                'permintaan_ranap_detail.tindakan',
+                'permintaan_ranap_detail.perkiraan_hasil',
+                'permintaan_ranap_detail.perkiraan_biaya',
+                'permintaan_ranap_detail.jam',
+                'permintaan_ranap_detail.kd_dokter',
+                'dokter.nm_dokter',
+                'bangsal.nm_bangsal'
+            )
+            ->whereIn('permintaan_ranap.no_rawat', $noRawatList)
+            ->get();
+
+        $dataIgd = DB::connection('mysqlkhanza')->table('penilaian_medis_igd')
+            ->whereIn('penilaian_medis_igd.no_rawat', $noRawatList)
+            ->get();
+
+
+        foreach ($data as $item) {
+            $masuk = $dataMasuk->where('no_rawat', $item->no_rawat)->first();
+            $spri = $dataSpri->where('no_rawat', $item->no_rawat)->first();
+            $igd = $dataIgd->where('no_rawat', $item->no_rawat)->first();
+            if ($masuk) {
+                $item->no_rm = $masuk->no_rkm_medis;
+                $item->tgl_masuk = $masuk->tgl_registrasi;
+                $item->tgl_keluar = $masuk->tgl_keluar;
+                $item->jam_keluar = $masuk->jam_keluar;
+            } else {
+                $item->no_rm = null;
+                $item->tgl_masuk = null;
+                $item->tgl_keluar = null;
+                $item->jam_keluar = null;
+            }
+            if ($spri) {
+                $item->dpjp = $spri->nm_dokter;
+                $item->indikasi = $spri->catatan;
+            } else {
+                $item->dpjp = null;
+                $item->indikasi = null;
+            }
+            if ($igd) {
+                $item->keluhan = $igd->keluhan_utama;
+                $item->kesadaran = $igd->kesadaran;
+                $item->suhu = $igd->suhu;
+                $item->nadi = $igd->nadi;
+                $item->respirasi = $igd->rr;
+                $item->tensi = $igd->td;
+                $item->spo = $igd->spo;
+                $item->bb = $igd->bb;
+                $item->tb = $igd->tb;
+            } else {
+                $item->kesadaran = null;
+                $item->suhu = null;
+                $item->nadi = null;
+                $item->respirasi = null;
+                $item->tensi = null;
+                $item->spo = null;
+                $item->bb = null;
+                $item->tb = null;
+            }
+        }
+
+        // return view('vedika.export_indikasiranap', compact('data'));
+        return Excel::download(
+            new IndikasiRanapExport($data),
+            'indikasi_ranap ' . $formatPeriode . '.xlsx'
+        );
     }
 }

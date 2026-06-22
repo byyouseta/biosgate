@@ -542,7 +542,7 @@ class LabSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                                "effectiveDateTime" => $formatWaktuHasil,
                                                                 "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
@@ -606,7 +606,7 @@ class LabSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                                "effectiveDateTime" => "$formatWaktuHasil",
                                                                 "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
@@ -667,7 +667,7 @@ class LabSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                                "effectiveDateTime" => "$formatWaktuHasil",
                                                                 "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
@@ -736,7 +736,7 @@ class LabSehatController extends Controller
                                                                 "encounter" => [
                                                                     "reference" => "Encounter/$idCounter->encounter_id"
                                                                 ],
-                                                                "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                                "effectiveDateTime" => "$formatWaktuHasil",
                                                                 "issued" => $formatWaktuHasil,
                                                                 "performer" => [
                                                                     [
@@ -793,7 +793,7 @@ class LabSehatController extends Controller
                                                             "encounter" => [
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
-                                                            "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                            "effectiveDateTime" => "$formatWaktuHasil",
                                                             "issued" => $formatWaktuHasil,
                                                             "performer" => [
                                                                 [
@@ -887,7 +887,7 @@ class LabSehatController extends Controller
                                                             "encounter" => [
                                                                 "reference" => "Encounter/$idCounter->encounter_id"
                                                             ],
-                                                            "effectiveDateTime" => "$DetailLab->tgl_periksa",
+                                                            "effectiveDateTime" => "$formatWaktuHasil",
                                                             "issued" => $formatWaktuHasil,
                                                             "performer" => [
                                                                 [
@@ -4180,7 +4180,7 @@ class LabSehatController extends Controller
                                                 $body = (string) $response->getBody();
                                                 $test = json_decode($body);
 
-                                                dd($test, 'kirim observation lab error');
+                                                dd($test, 'kirim observation lab error', $Observation);
                                             }
 
                                             $message = "Error Kirim Observation Lab id service " . $idServiceRequest;

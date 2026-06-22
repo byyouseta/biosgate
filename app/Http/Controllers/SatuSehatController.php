@@ -351,7 +351,8 @@ class SatuSehatController extends Controller
             $pasien_tanggal = Carbon::parse($request->get('tanggal'))->format('Y-m-d');
             $yesterday = Carbon::parse($request->get('tanggal'))->subDay()->format('Y-m-d');
 
-            $dataEncounter = ResponseSatuSehat::whereBetween('tgl_registrasi', [$yesterday, $pasien_tanggal])
+            // $dataEncounter = ResponseSatuSehat::whereBetween('tgl_registrasi', [$yesterday, $pasien_tanggal])
+            $dataEncounter = ResponseSatuSehat::where('tgl_registrasi', $pasien_tanggal)
                 ->whereNotNull('encounter_id')
                 ->where(function ($query) {
                     $query->whereNull('temperature_id')
@@ -360,7 +361,7 @@ class SatuSehatController extends Controller
                         ->orWhereNull('condition_id');
                 })
                 ->orderBy('tgl_registrasi', 'ASC')
-                ->limit(50)
+                ->limit(100)
                 ->get();
 
             foreach ($dataEncounter as $dataTerkirim) {
@@ -385,6 +386,7 @@ class SatuSehatController extends Controller
                             }
 
                             if ($dataTerkirim->condition_id == null && $dataTerkirim->encounter_id != 'duplicate') {
+                                // dd('masuk kirim condition', $dataTerkirim->noRawat, $dataTerkirim->encounter_id);
                                 SatuSehatController::sendCondition($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
                             }
                             if ($dataTerkirim->procedure_id == null && $dataTerkirim->encounter_id != 'duplicate' && $dataTerkirim->condition_id != null) {
@@ -3325,16 +3327,12 @@ class SatuSehatController extends Controller
                 $idLokasi = SatuSehatController::getIdPoli($dataPengunjung->kd_poli);
 
                 if ((!empty($idPasien)) && (!empty($idDokter))) {
-                    //Waktu
-                    //Waktu
                     $waktuAwal = $dataPengunjung->tgl_registrasi . ' ' . $dataPengunjung->jam_reg;
                     $waktu_mulai = new Carbon($waktuAwal);
                     $waktuKeperawatan = SatuSehatController::getWaktuKeperawatan($dataPengunjung->no_rawat);
 
                     //Definisi Vital
                     $vital = SatuSehatController::getVital($dataPengunjung->no_rawat);
-                    // dd($vital);
-                    // $formatWaktuMulai = Carbon::parse($waktuAwal)->format('Y-m-d') . 'T' . Carbon::parse($waktuAwal)->format('H:i:s+07:00');
                     $formatWaktuMulai = $waktu_mulai->setTimezone('UTC')->toW3cString();
                     if ((!empty($waktuKeperawatan->tanggal))) {
                         $waktuInprogress = Carbon::parse($waktuKeperawatan->tanggal);
@@ -3344,9 +3342,7 @@ class SatuSehatController extends Controller
                     } else {
                         WaktuProses2:
                         $waktuInprogress = Carbon::parse($waktuAwal)->addMinute(10);
-                        // dd($dataPengunjung->no_rawat, $waktu_mulai, $waktuInprogress);
                     }
-                    // $formatWaktuProgress = Carbon::parse($waktuInprogress)->format('Y-m-d') . 'T' . Carbon::parse($waktuInprogress)->format('H:i:s+07:00');
                     $formatWaktuProgress = $waktuInprogress->setTimezone('UTC')->toW3cString();
                     if ((!empty($vital->tgl_perawatan))) {
                         $waktuSelesai = Carbon::parse($vital->tgl_perawatan . ' ' . $vital->jam_rawat);
@@ -3356,9 +3352,7 @@ class SatuSehatController extends Controller
                     } else {
                         WaktuSelesai2:
                         $waktuSelesai = Carbon::parse($waktuAwal)->addMinute(30);
-                        // dd($dataPengunjung->no_rawat, $waktu_mulai, $waktuInprogress, $waktuSelesai);
                     }
-                    // $formatWaktuSelesai = Carbon::parse($waktuSelesai)->format('Y-m-d') . 'T' . Carbon::parse($waktuSelesai)->format('H:i:s+07:00');
                     $formatWaktuSelesai = $waktuSelesai->setTimezone('UTC')->toW3cString();
 
                     $dataEncounter = [
@@ -3423,13 +3417,10 @@ class SatuSehatController extends Controller
                         ]
                     ];
 
-                    // dd($dataEncounter);
-
                     //Send data
                     // SatuSehatController::getTokenSehat();
                     $access_token = SatuSehatController::getTokenSehat();
-                    // dd($access_token);
-                    $client = new \GuzzleHttp\Client(['base_uri' => session('base_url')]);
+                    $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                     try {
                         $response = $client->request('POST', 'fhir-r4/v1/Encounter', [
                             'headers' => [
@@ -3438,21 +3429,19 @@ class SatuSehatController extends Controller
                             'json' => $dataEncounter
                         ]);
                     } catch (BadResponseException $e) {
-                        // echo $e->getRequest();
-                        // echo $e->getResponse();
                         if ($e->hasResponse()) {
                             $response = $e->getResponse();
 
-                            // dd($response);
                             $body = (string) $response->getBody();
                             $test = json_decode($body);
                             // dd($test->issue[0]->code, 'error2');
                             if (!empty($test->issue[0]->code == 'duplicate')) {
-                                $simpan = new ResponseSatuSehat();
-                                $simpan->noRawat = $dataPengunjung->no_rawat;
-                                $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
-                                $simpan->encounter_id = 'duplicate encounter';
-                                $simpan->save();
+                                // $simpan = new ResponseSatuSehat();
+                                // $simpan->noRawat = $dataPengunjung->no_rawat;
+                                // $simpan->tgl_registrasi = $dataPengunjung->tgl_registrasi;
+                                // $simpan->encounter_id = 'duplicate encounter';
+                                // $simpan->save();
+
                             }
                         }
 
@@ -3463,11 +3452,8 @@ class SatuSehatController extends Controller
                         return redirect()->back()->withInput();
                     }
 
-                    // dd($response);
-
                     $data = json_decode($response->getBody());
 
-                    // dd($data, $dataEncounter);
                     if ($data->id) {
                         $simpan = new ResponseSatuSehat();
                         $simpan->noRawat = $dataPengunjung->no_rawat;
@@ -9719,17 +9705,43 @@ class SatuSehatController extends Controller
                             $body = (string) $response->getBody();
                             $test = json_decode($body);
 
-                            // dd($test);
-                            if ($test && $test->issue[0]) {
-                                $message = $test->issue[0]->details->text;
+                            if ($test && $test->issue[0]->code == 'duplicate') {
+                                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
+                                try {
+                                    $response = $client->request('GET', 'fhir-r4/v1/Observation/encounter=' . $encounter, [
+                                        'headers' => [
+                                            'Authorization' => "Bearer {$access_token}"
+                                        ]
+                                    ]);
+
+                                    $responseData = json_decode($response->getBody());
+                                    if (!empty($responseData->entry)) {
+                                        foreach ($responseData->entry as $entry) {
+                                            if ($entry->resource->code->coding[0]->code == '8867-4') {
+                                                // Temukan resource Observation dengan code 8867-4
+                                                $heartObservationId = $entry->resource->id;
+
+                                                // Lakukan update pada resource Observation tersebut
+                                                if (!empty($heartObservationId)) {
+                                                    $update = ResponseSatuSehat::where('noRawat', $no_rawat)->first();
+                                                    $update->heart_id = $heartObservationId;
+                                                    $update->save();
+                                                };
+                                            }
+                                        }
+                                    }
+
+                                    goto KirimRespiratory;
+                                } catch (ClientException $e) {
+                                }
                             } else {
                                 $message = 'error other';
-                            }
 
-                            LogErrorSatuSehat::create([
-                                'subject' => 'Update Vital Sign',
-                                'keterangan' => "Pengiriman data heartRate pasien no rawat : $no_rawat (" . $message . ")"
-                            ]);
+                                LogErrorSatuSehat::create([
+                                    'subject' => 'Update Vital Sign',
+                                    'keterangan' => "Pengiriman data heartRate pasien no rawat : $no_rawat (" . $message . ")"
+                                ]);
+                            }
 
                             goto KirimRespiratory;
                         }
@@ -9954,26 +9966,27 @@ class SatuSehatController extends Controller
 
                             goto KirimTemperature;
                         }
-                    } catch (RequestException $e) {
-
-                        $body = null;
-                        if ($e->hasResponse()) {
-                            $body = (string) $e->getResponse()->getBody();
-                        }
-
-                        Log::error('HTTP Error SatuSehat', [
-                            'response' => $body
-                        ]);
-
-                        goto KirimTemperature;
-                    } catch (Throwable $e) {
-
-                        Log::error('API Error', [
-                            'message' => $e->getMessage()
-                        ]);
-
-                        goto KirimTemperature;
                     }
+                    // catch (RequestException $e) {
+
+                    //     $body = null;
+                    //     if ($e->hasResponse()) {
+                    //         $body = (string) $e->getResponse()->getBody();
+                    //     }
+
+                    //     Log::error('HTTP Error SatuSehat', [
+                    //         'response' => $body
+                    //     ]);
+
+                    //     goto KirimTemperature;
+                    // } catch (Throwable $e) {
+
+                    //     Log::error('API Error', [
+                    //         'message' => $e->getMessage()
+                    //     ]);
+
+                    //     goto KirimTemperature;
+                    // }
 
                     $dataResponse = json_decode($response->getBody());
 
@@ -10054,18 +10067,52 @@ class SatuSehatController extends Controller
                             $response = $e->getResponse();
                             $body = (string) $response->getBody();
                             $test = json_decode($body);
-                            if ($test && $test->issue[0]) {
-                                $message = $test->issue[0]->details->text;
+
+                            if ($test && $test->issue[0]->code == 'duplicate') {
+                                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
+                                try {
+                                    $response = $client->request('GET', 'fhir-r4/v1/Observation?encounter=' . $encounter, [
+                                        'headers' => [
+                                            'Authorization' => "Bearer {$access_token}"
+                                        ]
+                                    ]);
+
+                                    $responseData = json_decode($response->getBody());
+
+                                    if (!empty($responseData->entry)) {
+                                        foreach ($responseData->entry as $entry) {
+                                            if ($entry->resource->code->coding[0]->code == '8462-4') {
+                                                // Temukan resource Observation dengan code 8867-4
+                                                $diastolObservationId = $entry->resource->id;
+
+                                                // Lakukan update pada resource Observation tersebut
+                                                if (!empty($diastolObservationId)) {
+                                                    $update = ResponseSatuSehat::where('noRawat', $no_rawat)->first();
+                                                    $update->diastol_id = $diastolObservationId;
+                                                    $update->save();
+                                                };
+                                            }
+                                        }
+                                    }
+
+                                    goto KirimTemperature;
+                                } catch (ClientException $e) {
+                                    dd($e->getMessage(), 'gagal ambil data duplicate diastole');
+                                }
                             } else {
-                                $message = 'error other';
+                                if ($test && $test->issue[0]) {
+                                    $message = $test->issue[0]->details->text;
+                                } else {
+                                    $message = 'error other';
+                                }
+
+                                LogErrorSatuSehat::create([
+                                    'subject' => 'Update Vital Sign',
+                                    'keterangan' => "Pengiriman data Diastole pasien no rawat : $no_rawat (" . $message . ")"
+                                ]);
+
+                                goto KirimTemperature;
                             }
-
-                            LogErrorSatuSehat::create([
-                                'subject' => 'Update Vital Sign',
-                                'keterangan' => "Pengiriman data Diastole pasien no rawat : $no_rawat (" . $message . ")"
-                            ]);
-
-                            goto KirimTemperature;
                         }
                     }
 
@@ -10456,6 +10503,8 @@ class SatuSehatController extends Controller
 
                                 return;
                             }
+
+                            $pesan = $test->issue[0]->details->text;
                         } else {
                             $pesan = 'pola baru error';
                         }
@@ -10474,15 +10523,19 @@ class SatuSehatController extends Controller
                         $body = (string) $e->getResponse()->getBody();
                     }
 
-                    Log::error('HTTP Error SatuSehat', [
-                        'response' => $body
+                    dd($body);
+
+                    LogErrorSatuSehat::create([
+                        'subject' => 'Diagnosis Primer',
+                        'keterangan' => $data->no_rawat . ' error kirim "' . $body . '"'
                     ]);
 
                     return;
                 } catch (Throwable $e) {
 
-                    Log::error('API Error', [
-                        'message' => $e->getMessage()
+                    LogErrorSatuSehat::create([
+                        'subject' => 'Diagnosis Primer',
+                        'keterangan' => $data->no_rawat . ' error kirim "' . $e->getMessage() . '"'
                     ]);
 
                     return;
@@ -10495,6 +10548,8 @@ class SatuSehatController extends Controller
                         ->first();
                     $update->condition_id = $bodyResponse->id;
                     $update->save();
+
+                    // dd('Sukses kirim diagnosa primer dengan id Condition : ' . $bodyResponse->id);
                 }
             }
 
@@ -10599,6 +10654,10 @@ class SatuSehatController extends Controller
 
                                 return;
                             }
+
+                            if ($test && $test->issue[0]) {
+                                $pesan = $test->issue[0]->details->text;
+                            }
                         } else {
                             $pesan = 'pola baru error';
                         }
@@ -10617,15 +10676,17 @@ class SatuSehatController extends Controller
                         $body = (string) $e->getResponse()->getBody();
                     }
 
-                    Log::error('HTTP Error SatuSehat', [
-                        'response' => $body
+                    LogErrorSatuSehat::create([
+                        'subject' => 'Diagnosis Sekunder',
+                        'keterangan' => $data->no_rawat . ' error kirim "' . $body . '"'
                     ]);
 
                     return;
                 } catch (Throwable $e) {
 
-                    Log::error('API Error', [
-                        'message' => $e->getMessage()
+                    LogErrorSatuSehat::create([
+                        'subject' => 'Diagnosis Sekunder',
+                        'keterangan' => $data->no_rawat . ' error kirim "' . $e->getMessage() . '"'
                     ]);
 
                     return;
@@ -10638,6 +10699,8 @@ class SatuSehatController extends Controller
                         ->first();
                     $update->condition2_id = $bodyResponse->id;
                     $update->save();
+
+                    // dd('Sukses kirim diagnosa sekunder dengan id Condition : ' . $bodyResponse->id);
                 }
             }
         }
@@ -10859,13 +10922,14 @@ class SatuSehatController extends Controller
             } catch (RequestException $e) {
                 if ($e->hasResponse()) {
                     $body = (string) $e->getResponse()->getBody();
+
+                    dd($body, 'RequestException');
+
+                    LogErrorSatuSehat::create([
+                        'subject' => 'Procedure Duplicate',
+                        'keterangan' => $body && $body->issue[0]->details ? $body->issue[0]->details->text : "Pengiriman data Procedure pasien no rawat : $no_rawat (" . $message . ")"
+                    ]);
                 }
-
-                dd($body);
-
-                Log::error('HTTP Error SatuSehat', [
-                    'response' => $body
-                ]);
 
                 return;
             } catch (Throwable $e) {
