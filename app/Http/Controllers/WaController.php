@@ -321,6 +321,7 @@ class WaController extends Controller
 
         $telp = $request->penerima;
 
+
         if (substr($telp, 0, 1) === '0') {
             $telp = '62' . substr($telp, 1);
 

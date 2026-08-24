@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Env;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
@@ -37,12 +39,16 @@ class LabSehatController extends Controller
             $tanggal_akhir = new Carbon($request->get('tanggal_akhir'));
         }
 
+        $excludePoli = ['LAB'];
+
         $dataPermintaanLab = DB::connection('mysqlkhanza')->table('permintaan_lab')
             ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_lab.no_rawat')
             ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->leftJoin('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
             ->join('permintaan_pemeriksaan_lab', 'permintaan_pemeriksaan_lab.noorder', '=', 'permintaan_lab.noorder')
             ->leftJoin('jns_perawatan_lab', 'jns_perawatan_lab.kd_jenis_prw', '=', 'permintaan_pemeriksaan_lab.kd_jenis_prw')
+            // relasi dengan no rawat dan jam hasil untuk mendapatkan data pemeriksaan lab yang sudah selesai
+            // ->join('periksa_lab', 'periksa_lab.no_rawat', '=', 'permintaan_lab.no_rawat' )
             ->select(
                 'permintaan_lab.no_rawat',
                 'permintaan_lab.noorder',
@@ -52,9 +58,12 @@ class LabSehatController extends Controller
                 'pasien.no_ktp as ktp_pasien',
                 'jns_perawatan_lab.kd_jenis_prw',
                 'jns_perawatan_lab.nm_perawatan',
+                // 'jns_perawatan_lab.kd_jenis_prw',
+                // 'jns_perawatan_lab.nm_perawatan',
                 'poliklinik.nm_poli'
             )
             ->whereBetween('tgl_permintaan', [$tanggal_awal, $tanggal_akhir])
+            ->whereNotIn('reg_periksa.kd_poli', $excludePoli)
             ->get();
 
         $dataRawat = $dataPermintaanLab->pluck('no_rawat')->toArray();
@@ -214,7 +223,16 @@ class LabSehatController extends Controller
             //     ->where('permintaan_lab.jam_hasil', '!=', '00:00:00')
             //     ->first();
 
-            $idCounter = SatuSehatController::getEncounterId($pasienLab->no_rawat);
+            if ($pasienLab->status == 'ralan') {
+                $dataEncounter = SatuSehatController::getEncounterId($pasienLab->no_rawat);
+                if (empty($dataEncounter)) {
+                    $dataEncounter = ResponseIgdSatuSehat::where('noRawat', $pasienLab->no_rawat)->first();
+                }
+            } elseif ($pasienLab->status == 'ranap') {
+                $dataEncounter = ResponseRanapSatuSehat::where('noRawat', $pasienLab->no_rawat)->first();
+            } else {
+                $dataEncounter = null;
+            }
             $dokterPerujuk = SatuSehatController::practitioner($pasienLab->ktp_dokter);
             $idPasien = SatuSehatController::patientSehat($pasienLab->ktp_pasien);
 
@@ -314,8 +332,9 @@ class LabSehatController extends Controller
                                     $response = $e->getResponse();
                                     $body = (string) $response->getBody();
                                     $test = json_decode($body);
+                                    // dd($test, 'Service Request Lab', $ServiceRequest);
                                     //Jika Duplicate
-                                    if ($test && $test->issue[0]->code == 'duplicate') {
+                                    if ($test && !empty($test->issue[0]) && $test->issue[0]->code == 'duplicate') {
                                         try {
                                             $response = $client->request('GET', 'fhir-r4/v1/ServiceRequest?encounter=' . $idCounter->encounter_id, [
                                                 'headers' => [
@@ -327,9 +346,10 @@ class LabSehatController extends Controller
                                                 $response = $e->getResponse();
                                             }
                                             $test = json_decode($response->getBody(true));
+                                            // dd($test, 'ombyokan send lab');
                                             $message = $test->issue[0]->details->text;
 
-                                            dd($message, $test->issue[0], $idCounter->encounter_id, 'error service request Lab on duplicate');
+                                            // dd($message, $test->issue[0], $idCounter->encounter_id, 'error service request Lab on duplicate');
                                         }
 
                                         $dataResponse = json_decode($response->getBody()->getContents());
@@ -352,6 +372,15 @@ class LabSehatController extends Controller
                                         }
 
                                         goto kirimDataSpesimen;
+                                    } elseif ($test && $test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                        $message = "Error Kirim Service Request Lab $PeriksaLab->kd_jenis_prw $PeriksaLab->no_rawat, Quota Limit";
+
+                                        LogErrorSatuSehat::create([
+                                            'subject' => 'Kirim Service Request Lab',
+                                            'keterangan' => $message
+                                        ]);
+
+                                        return redirect()->back()->with('error', $message);
                                     }
                                 }
 
@@ -815,7 +844,7 @@ class LabSehatController extends Controller
                                                                 "value" => floatval($DetailLab->nilai),
                                                                 "unit" => "$dataHasil->satuan",
                                                                 "system" => "http://unitsofmeasure.org",
-                                                                "code" => "$dataHasil->satuan"
+                                                                "code" => "$dataHasil->unit_of_measure"
                                                             ],
                                                             "referenceRange" => [
                                                                 [
@@ -1278,7 +1307,7 @@ class LabSehatController extends Controller
                                                                 "value" => floatval($DetailLab->nilai),
                                                                 "unit" => "$dataHasil->satuan",
                                                                 "system" => "http://unitsofmeasure.org",
-                                                                "code" => "$dataHasil->satuan"
+                                                                "code" => "$dataHasil->unit_of_measure"
                                                             ],
                                                             "referenceRange" => [
                                                                 [
@@ -2372,7 +2401,7 @@ class LabSehatController extends Controller
                                                                 "value" => floatval($DetailLab->nilai),
                                                                 "unit" => "$dataHasil->satuan",
                                                                 "system" => "http://unitsofmeasure.org",
-                                                                "code" => "$dataHasil->satuan"
+                                                                "code" => "$dataHasil->unit_of_measure"
                                                             ],
                                                             "referenceRange" => [
                                                                 [
@@ -2830,7 +2859,7 @@ class LabSehatController extends Controller
                                                                 "value" => floatval($DetailLab->nilai),
                                                                 "unit" => "$dataHasil->satuan",
                                                                 "system" => "http://unitsofmeasure.org",
-                                                                "code" => "$dataHasil->satuan"
+                                                                "code" => "$dataHasil->unit_of_measure"
                                                             ],
                                                             "referenceRange" => [
                                                                 [
@@ -3220,7 +3249,15 @@ class LabSehatController extends Controller
 
                     if ((!empty($petugasLab)) && (!empty($mappingLoinc))) {
                         //Kirim Service Request
-                        $kirimServiceRequest = LabSehatController::kirimServiceRequestLab($permintaan, $periksa, $idCounter, $idPasien, $dokterPerujuk, $mappingLoinc, $petugasLab);
+                        LabSehatController::kirimServiceRequestLab(
+                            $permintaan,
+                            $periksa,
+                            $idCounter,
+                            $idPasien,
+                            $dokterPerujuk,
+                            $mappingLoinc,
+                            $petugasLab
+                        );
                     }
                 }
             }
@@ -3270,6 +3307,8 @@ class LabSehatController extends Controller
                 ->keyBy('noRawat');
         }
 
+        // dd($dataLog);
+
         foreach ($dataPermintaanLab as $list) {
             // $list->idSehat = $idSehatMap[$list->ktp_pasien] ?? null;
             $list->dataResponse = $dataLog[$list->noorder . '-' . $list->kd_jenis_prw] ?? null;
@@ -3290,9 +3329,151 @@ class LabSehatController extends Controller
         return view('satu_sehat.client_rujuklab', compact('dataLog', 'dataPermintaanLab', 'formAction'));
     }
 
+    public function kirimSingleServiceRequest($id)
+    {
+        $pecah = explode('-', Crypt::decrypt($id));
+        $noRawat = $pecah[0];
+        $noOrder = $pecah[1];
+        $kdJenisPrw = $pecah[2];
+        $dataPermintaan = DB::connection('mysqlkhanza')->table('permintaan_lab')
+            ->join('permintaan_pemeriksaan_lab', 'permintaan_pemeriksaan_lab.noorder', '=', 'permintaan_lab.noorder')
+            ->leftJoin('jns_perawatan_lab', 'jns_perawatan_lab.kd_jenis_prw', '=', 'permintaan_pemeriksaan_lab.kd_jenis_prw')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'permintaan_lab.no_rawat')
+            ->leftJoin('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('pegawai', 'pegawai.nik', '=', 'permintaan_lab.dokter_perujuk')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.kd_dokter',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.stts',
+                'reg_periksa.kd_poli',
+                'reg_periksa.kd_pj',
+                'permintaan_lab.noorder',
+                'permintaan_lab.no_rawat',
+                'permintaan_lab.tgl_permintaan',
+                'permintaan_lab.jam_permintaan',
+                'permintaan_lab.tgl_sampel',
+                'permintaan_lab.jam_sampel',
+                'permintaan_lab.tgl_hasil',
+                'permintaan_lab.jam_hasil',
+                'permintaan_lab.dokter_perujuk',
+                'permintaan_lab.status',
+                'jns_perawatan_lab.kd_jenis_prw',
+                'jns_perawatan_lab.nm_perawatan',
+                'pasien.nm_pasien',
+                'pasien.no_ktp as ktp_pasien',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pegawai.no_ktp as ktp_dokter',
+                'pegawai.nama as nama_dokter',
+                'poliklinik.nm_poli',
+                'poliklinik.kd_poli'
+            )
+            ->where('permintaan_lab.jam_hasil', '!=', '00:00:00')
+            ->where('permintaan_lab.no_rawat', $noRawat)
+            ->where('permintaan_lab.noorder', $noOrder)
+            ->where('permintaan_pemeriksaan_lab.kd_jenis_prw', $kdJenisPrw)
+            ->get();
+
+        if ($dataPermintaan->isEmpty()) {
+            return redirect()->back()->with('error', 'Data permintaan lab tidak ditemukan.');
+        }
+
+
+        foreach ($dataPermintaan as $permintaan) {
+            if ($permintaan->status == 'ralan') {
+                $isIgd = stripos($permintaan->nm_poli, 'igd') !== false;
+
+                if ($isIgd) {
+                    $idCounter = ResponseIgdSatuSehat::where('noRawat', $permintaan->no_rawat)->first();
+                } else {
+                    $idCounter = SatuSehatController::getEncounterId($permintaan->no_rawat);
+                }
+            } elseif ($permintaan->status == 'ranap') {
+                $idCounter = ResponseRanapSatuSehat::where('noRawat', $permintaan->no_rawat)->first();
+            }
+            $dokterPerujuk = SatuSehatController::practitioner($permintaan->ktp_dokter);
+            $idPasien = SatuSehatController::patientSehat($permintaan->ktp_pasien);
+
+            if (empty($idCounter)) {
+                return redirect()->back()->with('error', 'Encounter ID tidak ditemukan untuk no rawat: ' . $permintaan->no_rawat);
+            } elseif (empty($dokterPerujuk)) {
+                return redirect()->back()->with('error', 'Dokter perujuk tidak ditemukan untuk no rawat: ' . $permintaan->no_rawat);
+            } elseif (empty($idPasien)) {
+                return redirect()->back()->with('error', 'Pasien tidak ditemukan untuk no rawat: ' . $permintaan->no_rawat);
+            }
+
+
+            if ((!empty($idCounter)) && (!empty($dokterPerujuk)) && (!empty($idPasien))) {
+                $periksaLab = DB::connection('mysqlkhanza')->table('periksa_lab')
+                    ->join('jns_perawatan_lab', 'jns_perawatan_lab.kd_jenis_prw', '=', 'periksa_lab.kd_jenis_prw')
+                    ->leftJoin('pegawai', 'pegawai.nik', '=', 'periksa_lab.nip')
+                    ->select(
+                        'periksa_lab.no_rawat',
+                        'periksa_lab.kd_jenis_prw',
+                        'periksa_lab.tgl_periksa',
+                        'periksa_lab.jam',
+                        'periksa_lab.nip as petugas',
+                        'periksa_lab.dokter_perujuk',
+                        'pegawai.no_ktp as ktp_petugas_lab',
+                        'pegawai.nama as nama_petugas_lab',
+                        'jns_perawatan_lab.nm_perawatan'
+                    )
+                    ->where('periksa_lab.no_rawat', $noRawat)
+                    ->where('periksa_lab.kd_jenis_prw', $kdJenisPrw)
+                    ->where('periksa_lab.tgl_periksa', $permintaan->tgl_permintaan) // Filter berdasarkan tanggal permintaan
+                    ->get();
+
+                if ($periksaLab->isEmpty()) {
+                    return redirect()->back()->with('error', 'Tidak ditemukan Hasil periksa untuk pasien: ' . $noRawat . ' Kode Periksa: ' . $kdJenisPrw);
+                }
+
+                // dd($periksaLab, 'cek periksa lab sebelum kirim service request');
+
+                foreach ($periksaLab as $periksa) {
+
+                    $mappingLoinc = SatuSehatController::getLoinc($periksa->kd_jenis_prw);
+                    if ($periksa->ktp_petugas_lab == null || $periksa->ktp_petugas_lab == '-' || $periksa->ktp_petugas_lab == '') {
+                        $petugasLab = null;
+                    } else {
+                        $petugasLab = SatuSehatController::practitioner($periksa->ktp_petugas_lab);
+                    }
+
+
+
+                    if (empty($mappingLoinc)) {
+                        return redirect()->back()->with('error', 'Mapping LOINC tidak ditemukan untuk kode tindakan: ' . $periksa->kd_jenis_prw);
+                    } elseif (empty($petugasLab)) {
+                        return redirect()->back()->with('error', 'Petugas laboratorium tidak ditemukan atas nama: ' . $periksa->nama_petugas_lab);
+                    }
+
+                    if ((!empty($petugasLab)) && (!empty($mappingLoinc))) {
+                        //Kirim Service Request
+                        LabSehatController::kirimServiceRequestLab(
+                            $permintaan,
+                            $periksa,
+                            $idCounter,
+                            $idPasien,
+                            $dokterPerujuk,
+                            $mappingLoinc,
+                            $petugasLab
+                        );
+
+                        return redirect()->back()->with('sukses', 'Service Request berhasil dikirim untuk no rawat: ' . $permintaan->no_rawat . ', no order: ' . $permintaan->noorder . ', kode tindakan: ' . $periksa->kd_jenis_prw);
+                    }
+                }
+            }
+        }
+    }
+
     public function kirimServiceRequestLab($permintaan, $periksaLab, $idCounter, $idPasien, $dokterPerujuk, $mappingLoinc, $petugasLab)
     {
         $idRS = Env('IDRS');
+        // dd($idRS);
         $waktuPerawatan = $periksaLab->tgl_periksa . ' ' . $periksaLab->jam;
         $waktu_perawatan = new Carbon($waktuPerawatan);
         $formatWaktuPerawatan = $waktu_perawatan->setTimezone('UTC')->toW3cString();
@@ -3301,7 +3482,7 @@ class LabSehatController extends Controller
             "resourceType" => "ServiceRequest",
             "identifier" => [
                 [
-                    "system" => "http://sys-ids.kemkes.go.id/servicerequest/$idRS",
+                    "system" => "http://sys-ids.kemkes.go.id/servicerequest/" . $idRS,
                     "value" => "$permintaan->noorder-$periksaLab->kd_jenis_prw"
                 ]
             ],
@@ -3360,7 +3541,7 @@ class LabSehatController extends Controller
                 $body = (string) $response->getBody();
                 $test = json_decode($body);
                 //Jika Duplicate
-                if ($test && $test->issue[0]->code == 'duplicate') {
+                if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                     try {
                         $response = $client->request('GET', 'fhir-r4/v1/ServiceRequest?encounter=' . $idCounter->encounter_id, [
                             'headers' => [
@@ -3372,7 +3553,14 @@ class LabSehatController extends Controller
                             $response = $e->getResponse();
                         }
                         $test = json_decode($response->getBody(true));
+                        if ($test && !empty($test->fault)) {
+                            if ($test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                // Handle quota violation
+                                return redirect()->back()->with('error', 'Quota pengiriman browser telah terlampaui. Silakan coba lagi nanti.');
+                            }
+                        }
                         $message = $test->issue[0]->details->text;
+                        dd($test, 'kirim service request, masuk sini');
 
                         dd($message, $test->issue[0], $idCounter->encounter_id, 'error service request Lab new on duplicate');
                     }
@@ -3394,6 +3582,24 @@ class LabSehatController extends Controller
                             $simpan->save();
                         }
                     }
+                } else {
+                    if ($test && !empty($test->fault)) {
+                        if ($test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                            // Handle quota violation
+                            return redirect()->back()->with('error', 'Quota pengiriman browser telah terlampaui. Silakan coba lagi nanti.');
+                        }
+                    } elseif ($test && !empty($test->issue) && $test->issue[0]) {
+                        $message = $test->issue[0]->details->text;
+                    } else {
+                        $message = "Error Kirim Service Request kode tindakan $periksaLab->kd_jenis_prw, no order $permintaan->noorder, no rawat $periksaLab->no_rawat";
+                    }
+
+                    LogErrorSatuSehat::create([
+                        'subject' => 'Kirim Service Request Lab',
+                        'keterangan' => $message
+                    ]);
+
+                    return;
                 }
             }
 
@@ -3450,7 +3656,9 @@ class LabSehatController extends Controller
             ->whereNotNull('serviceRequest_id')
             ->get();
 
+
         foreach ($dataSisir as $data) {
+
             if (empty($data->specimen_id)) {
                 //Kirim spesimen dan Observation
                 LabSehatController::sendSpecimen($data);
@@ -3516,7 +3724,6 @@ class LabSehatController extends Controller
                 $list->dataEncounter = $dataEncounterRanap[$list->no_rawat] ?? null;
             }
         }
-
         $formAction = route('satuSehat.closingServiceRequest');
 
         return view('satu_sehat.client_rujuklab', compact('dataLog', 'dataPermintaanLab', 'formAction'));
@@ -3671,7 +3878,7 @@ class LabSehatController extends Controller
                             $body = (string) $response->getBody();
                             $test = json_decode($body);
 
-                            if ($test && $test->issue[0]->code == 'duplicate') {
+                            if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                                 try {
                                     $response = $client->request('GET', 'fhir-r4/v1/Specimen?request=' . $idServiceRequest, [
                                         'headers' => [
@@ -3683,6 +3890,7 @@ class LabSehatController extends Controller
                                         $response = $e->getResponse();
                                     }
                                     $test = json_decode($response->getBody(true));
+                                    dd($test, 'di send spesimen');
                                     $message = $test->issue[0]->details->text;
 
                                     dd($message, $test->issue[0], $idServiceRequest, 'error specimen Lab on duplicate');
@@ -4069,7 +4277,7 @@ class LabSehatController extends Controller
                                                     "value" => floatval($DetailLab->nilai),
                                                     "unit" => "$dataHasil->satuan",
                                                     "system" => "http://unitsofmeasure.org",
-                                                    "code" => "$dataHasil->satuan"
+                                                    "code" => "$dataHasil->unit_of_measure"
                                                 ],
                                                 "referenceRange" => [
                                                     [
@@ -4163,6 +4371,9 @@ class LabSehatController extends Controller
                                             ];
                                         }
 
+                                        if (empty($Observation)) {
+                                            dd('observation kosong', $dataHasil, $DetailLab);
+                                        }
                                         //Kirim/Create Observation
                                         $access_token = SatuSehatController::getTokenSehat();
                                         $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
@@ -4529,7 +4740,7 @@ class LabSehatController extends Controller
                                                     "value" => floatval($DetailLab->nilai),
                                                     "unit" => "$dataHasil->satuan",
                                                     "system" => "http://unitsofmeasure.org",
-                                                    "code" => "$dataHasil->satuan"
+                                                    "code" => "$dataHasil->unit_of_measure"
                                                 ],
                                                 "referenceRange" => [
                                                     [
@@ -4621,8 +4832,66 @@ class LabSehatController extends Controller
                                                 ],
                                                 "valueString" => "Hasil: $DetailLab->nilai, Keterangan: $DetailLab->keterangan, Nilai Rujukan: $DetailLab->nilai_rujukan"
                                             ];
+                                        } else {
+                                            $Observation = [
+                                                "resourceType" => "Observation",
+                                                "identifier" => [
+                                                    [
+                                                        "system" => "http://sys-ids.kemkes.go.id/observation/$idRS",
+                                                        "value" => "$permintaan->noorder-$DetailLab->kd_jenis_prw"
+                                                    ]
+                                                ],
+                                                "status" => "final",
+                                                "category" => [
+                                                    [
+                                                        "coding" => [
+                                                            [
+                                                                "system" => "http://terminology.hl7.org/CodeSystem/observation-category",
+                                                                "code" => "laboratory",
+                                                                "display" => "Laboratory"
+                                                            ]
+                                                        ]
+                                                    ]
+                                                ],
+                                                "code" => [
+                                                    "coding" => [
+                                                        [
+                                                            "system" => "$dataHasil->code_system",
+                                                            "code" => "$dataHasil->code",
+                                                            "display" => "$dataHasil->display"
+                                                        ]
+                                                    ]
+                                                ],
+                                                "subject" => [
+                                                    "reference" => "Patient/$idPasien"
+                                                ],
+                                                "encounter" => [
+                                                    "reference" => "Encounter/$idCounter->encounter_id"
+                                                ],
+                                                "effectiveDateTime" => "$formatWaktuHasil",
+                                                "issued" => $formatWaktuHasil,
+                                                "performer" => [
+                                                    [
+                                                        "reference" => "Practitioner/$petugasLab"
+                                                    ],
+                                                    [
+                                                        "reference" => "Organization/$idRS"
+                                                    ]
+                                                ],
+                                                "specimen" => [
+                                                    "reference" => "Specimen/$responseSpecimen->id"
+                                                ],
+                                                "basedOn" => [
+                                                    [
+                                                        "reference" => "ServiceRequest/$idServiceRequest"
+                                                    ]
+                                                ],
+                                            ];
                                         }
 
+                                        if (empty($Observation)) {
+                                            dd('observation kosong', $dataHasil, $DetailLab);
+                                        }
                                         //Kirim/Create Observation
                                         $access_token = SatuSehatController::getTokenSehat();
                                         $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
@@ -4639,7 +4908,13 @@ class LabSehatController extends Controller
                                                 $body = (string) $response->getBody();
                                                 $test = json_decode($body);
 
-                                                dd($test, 'Kirim Observation Lab Error');
+                                                if ($test && !empty($test->fault)) {
+                                                    if ($test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                                        $message = "Gagal kirim data observation " . $detailLab->no_rawat . " karena limit quota";
+                                                        Session::flash('error', $message);
+                                                        return redirect()->back();
+                                                    }
+                                                }
                                             }
 
                                             $message = "Error Kirim Observation Lab id service " . $idServiceRequest;
@@ -4664,7 +4939,13 @@ class LabSehatController extends Controller
                             }
                         }
                     } else {
-                        dd($responseSpecimen, 'Gagal buat specimen Lab');
+                        if ($test && !empty($test->fault)) {
+                            if ($test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                $message = "Gagal buat specimen " . $permintaan->noorder . " karena limit quota";
+                                Session::flash('error', $message);
+                                return redirect()->back();
+                            }
+                        }
                     }
                 }
             }
@@ -4848,7 +5129,11 @@ class LabSehatController extends Controller
 
                             $body = (string) $response->getBody();
                             $test = json_decode($body);
-                            dd($test, "Error kirim diagnostic report 3");
+                            if ($test && !empty($test->fault)) {
+                                if ($test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                    return response()->json(['message' => 'Rate limit exceeded. Please try again later.'], 429);
+                                }
+                            }
                         }
 
                         $message = "Error Kirim Report lab id service request " . $idServiceRequest;

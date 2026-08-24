@@ -132,11 +132,13 @@
                                                         tatalaksana sesuai pertimbangan dokter yang diperlukan atau
                                                         disarankan pada perawatan saya. Hal ini mencakup seluruh pemeriksaan
                                                         dan
-                                                        prosedur diagnostik rutin, termasuk X-ray, pemberian dan/atau
-                                                        tindakan medis serta penyuntikan (intramuskular, intravena, cateter,
-                                                        nasogastrictube ( NGT ), nasal kanul, partus normal dan prosedur
-                                                        invasif lainnya) produk farmasi dan obat-obatan, pemasangan alat
-                                                        kesehatan (kecuali yang membutuhkan persetujuan khusus/tertulis),
+                                                        prosedur diagnostik rutin, termasuk <i>X-ray, pemberian dan/atau
+                                                            tindakan medis serta penyuntikan (intramuskular, intravena,
+                                                            cateter,
+                                                            nasogastrictube ( NGT ), nasal kanul, partus normal dan prosedur
+                                                            invasif lainnya) produk farmasi dan obat-obatan, pemasangan alat
+                                                            kesehatan (kecuali yang membutuhkan persetujuan
+                                                            khusus/tertulis)</i>,
                                                         dan pengambilan darah untuk pemeriksaan laboratorium atau
                                                         pemeriksaan patologi yang dibutuhkan untuk pengobatan dan tindakan
                                                         yang aman. </td>
@@ -254,12 +256,10 @@
                                                 <tr>
                                                     <td style="width:5%" class='text-center'></td>
                                                     <td>Untuk menjaga privasi dan kerahasian penyakit saya selama dalam
-                                                        perawatan serta memberikan persetujuan tindakan medis
-                                                        Dalam keadaan tertentu seperti di ruang isolasi dan isolasi dengan
-                                                        penyakit menular tertentu, maka :
+                                                        perawatan serta memberikan persetujuan tindakan medis.
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                {{-- <tr>
                                                     <td style="width:5%" class='text-center'></td>
                                                     <td>a. Selama perawatan, keluarga tidak diizinkan untuk menunggu,
                                                         kecuali dalam keadaan khusus sesuai indikasi medis dan keperawatan
@@ -289,7 +289,7 @@
                                                     <td style="width:5%" class='text-center'></td>
                                                     <td>f. Komunikasi dan edukasi kepada keluarga menggunakan video call,
                                                         Whatsap saat ini yang berlaku di RSUP Surakarta</td>
-                                                </tr>
+                                                </tr> --}}
                                                 <tr>
                                                     <th style="width:5%" class='text-center'>5.</th>
                                                     <th>RAHASIA INFORMASI KESEHATAN. </th>
@@ -307,7 +307,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td style="width:5%" class='text-center'></td>
-                                                    <td>a. Saya setuju untuk membuka rahasia informasi kesehatan terkait
+                                                    <td>Saya setuju untuk membuka rahasia informasi kesehatan terkait
                                                         dengan kondisi kesehatan, asuhan dan pengobatan yang saya terima
                                                         kepada: </td>
                                                 </tr>
@@ -330,7 +330,7 @@
                                                     <td style="width:5%" class='text-center'></td>
                                                     <td>- Kepentingan hukum.</td>
                                                 </tr>
-                                                <tr>
+                                                {{-- <tr>
                                                     <td style="width:5%" class='text-center'></td>
                                                     <td>b. Saya mengetahui dan menyetujui bahwa berdasarkan Peraturan
                                                         Menteri Kesehatan Nomor 24 Tahun 2022 tentang Rekam Medis,
@@ -344,7 +344,7 @@
                                                         Pelayanan Kesehatan lainnya melalui SATU SEHAT untuk
                                                         kepentingan pelayanan kesehatan dan/atau rujukan.
                                                     </td>
-                                                </tr>
+                                                </tr> --}}
                                                 <tr>
                                                     <th style="width:5%" class='text-center'>7.</th>
                                                     <th>BARANG PRIBADI. </th>
@@ -448,13 +448,13 @@
                                                 <tr>
                                                     <td width='20%' class='align-middle pl-5'>Tanggal Lahir/Umur</td>
                                                     <td>
-                                                        <div class="input-group date"
-                                                            data-target-input="nearest">
+                                                        <div class="input-group date" data-target-input="nearest">
                                                             <input type="text"
                                                                 class="form-control datetimepicker-input"
                                                                 value={{ $berkas->tglLahirPj }} id="tanggalLahirPj"
                                                                 data-target="#tanggalLahirPj" data-toggle="datetimepicker"
-                                                                name="tanggalLahirPj" autocomplete="off" onchange="hitungUsia()"/>
+                                                                name="tanggalLahirPj" autocomplete="off"
+                                                                onchange="hitungUsia()" />
                                                             <div class="input-group-append" data-target="#tanggalLahirPj"
                                                                 data-toggle="datetimepicker">
                                                                 <div class="input-group-text"><i
@@ -465,9 +465,9 @@
                                                     </td>
                                                     <td width='20%'>
                                                         <div class="input-group">
-                                                            <input type="number" class="form-control" name="umurPj" id="usia"
-                                                                value={{ $berkas->umurPj }} placeholder="Umur PJ"
-                                                                step="1" required readonly>
+                                                            <input type="number" class="form-control" name="umurPj"
+                                                                id="usia" value={{ $berkas->umurPj }}
+                                                                placeholder="Umur PJ" step="1" required readonly>
                                                             <div class="input-group-prepend">
                                                                 <span class="input-group-text">Tahun</span>
                                                             </div>
@@ -520,7 +520,7 @@
                                                 </tr>
                                                 <tr>
                                                     <td></td>
-                                                    <td> <select name='dpjp' class="form-control" required>
+                                                    <td> <select name='dpjp' class="form-control">
                                                             <option value="">Pilih</option>
                                                             @foreach ($dokter as $listDokter)
                                                                 <option value="{{ $listDokter->nm_dokter }}"
@@ -586,15 +586,32 @@
                                 <!-- /.card -->
                             </div>
                             <div class="card-footer">
-                                {{-- <a href="/vedika" class="btn btn-default">Kembali</a> --}}
-                                <button type="submit" class="btn btn-primary">Simpan</button>
-                                <a href="/berkasrm/generalconsent/{{ Crypt::encrypt($berkas->noRawat) }}/delete"
-                                    class="btn btn-danger delete-confirm"><i class="fas fa-times-circle"></i>
-                                    Hapus</a>
+                                @if ($data->status_lanjut == 'Ralan')
+                                    <a href="{{ route('berkasrm.rajal') }}" class="btn btn-default">Kembali</a>
+                                @else
+                                    <a href="{{ route('berkasrm.ranap') }}" class="btn btn-default">Kembali</a>
+                                @endif
+                                @if (empty($berkas))
+                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                @else
+                                    {{-- <button type="submit" class="btn btn-primary">Update</button> --}}
+                                    <a href="/berkasrm/generalconsent/{{ Crypt::encrypt($berkas->noRawat) }}/delete"
+                                        class="btn btn-danger delete-confirm"><i class="fas fa-times-circle"></i>
+                                        Hapus</a>
+                                @endif
                                 <div class="float-right">
                                     <a href="/berkasrm/generalconsent/{{ Crypt::encrypt($berkas->noRawat) }}/print"
                                         class="btn btn-secondary" target="_blank"><i class="far fa-file-pdf"></i>
                                         Print</a>
+                                    @if (empty($fileSftp))
+                                        <a href="/berkasrm/generalconsent/{{ Crypt::encrypt($berkas->noRawat) }}/send"
+                                            class="btn btn-info"><i class="fas fa-share-square"></i>
+                                            Kirim Berkas</a>
+                                    @else
+                                        <a href="/berkasrm/generalconsent/{{ Crypt::encrypt($berkas->noRawat) }}/view"
+                                            class="btn btn-info" target="_blank"><i class="fas fa-file-download"></i>
+                                            Ambil Berkas</a>
+                                    @endif
                                 </div>
                             </div>
                         </div>

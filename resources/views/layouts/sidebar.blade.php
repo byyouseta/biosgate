@@ -1046,39 +1046,39 @@
                                 </ul>
                             </li>
                         @endcan
-                        {{-- @can('satu-sehat-obat-list') --}}
-                        <li class="nav-item @if (@session('anak') == 'Vaksin') menu-is-opening menu-open @endif">
-                            <a href="#" class="nav-link @if (@session('anak') == 'Vaksin') active @endif">
-                                <i class="nav-icon  fas fa-syringe"></i>
-                                <p>
-                                    Vaksin
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="/satusehat/vaksin/summary"
-                                        class="nav-link @if (@session('cucu') == 'Summary Vaksin') active @endif">
-                                        <i class="nav-icon fas fa-list-alt"></i>
-                                        <p>
-                                            Summary Vaksin
-                                        </p>
-                                    </a>
-                                </li>
-                            </ul>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="/satusehat/vaksin/send"
-                                        class="nav-link @if (@session('cucu') == 'Send Vaksin') active @endif">
-                                        <i class="nav-icon fas fa-list-alt"></i>
-                                        <p>
-                                            Send Vaksin
-                                        </p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        {{-- @endcan --}}
+                        @can('satu-sehat-vaksin-list')
+                            <li class="nav-item @if (@session('anak') == 'Vaksin') menu-is-opening menu-open @endif">
+                                <a href="#" class="nav-link @if (@session('anak') == 'Vaksin') active @endif">
+                                    <i class="nav-icon  fas fa-syringe"></i>
+                                    <p>
+                                        Vaksin
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/vaksin/summary"
+                                            class="nav-link @if (@session('cucu') == 'Summary Vaksin') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Summary Vaksin
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="/satusehat/vaksin/send"
+                                            class="nav-link @if (@session('cucu') == 'Send Vaksin') active @endif">
+                                            <i class="nav-icon fas fa-list-alt"></i>
+                                            <p>
+                                                Send Vaksin
+                                            </p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
                         <li class="nav-item @if (@session('anak') == 'Tool Satu Sehat') menu-is-opening menu-open @endif">
                             <a href="#" class="nav-link @if (@session('anak') == 'Tool Satu Sehat') active @endif">
                                 <i class="nav-icon fas fa-wrench"></i>

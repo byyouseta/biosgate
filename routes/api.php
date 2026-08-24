@@ -30,4 +30,5 @@ Route::middleware(['api.token', 'throttle:60,1'])->prefix('bridging')
         Route::get('/polyclinics', 'Api\PolyclinicController@index')->name('api.polyclinics');
         Route::get('/polyclinics/{kd_poli}/doctors', 'Api\PolyclinicController@doctors')->name('api.polyclinics.doctors');
         Route::get('/polyclinics/{kd_poli}/schedules', 'Api\PolyclinicController@schedules')->name('api.polyclinics.schedules');
+        Route::get('/rooms', 'Api\KamarController@index')->name('api.kamars');
     });

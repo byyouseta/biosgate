@@ -213,6 +213,35 @@ class KlaimController extends Controller
         return view('vedika.obat_kronis', compact('dataPengajuan', 'dataPeriode'));
     }
 
+    public function getPasien(Request $request)
+    {
+        $pasien = DataPengajuanKlaim::where('no_rawat', $request->no_rawat)
+            ->orWhere('no_sep', $request->no_sep)
+            ->first();
+
+        if (!$pasien) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Data tidak ditemukan'
+            ]);
+        }
+
+        return response()->json([
+            'status' => true,
+            'data' => [
+                'no_rawat' => $pasien->no_rawat,
+                'no_sep' => $pasien->no_sep,
+                'no_bpjs' => $pasien->no_kartu,
+                'nama_pasien' => $pasien->nama_pasien,
+                'tgl_lahir' => $pasien->tgl_lahir,
+                'jk' => $pasien->jk,
+                'tgl_registrasi' => $pasien->tgl_registrasi,
+                'nm_poli' => $pasien->nama_poli,
+                'jenis_rawat' => $pasien->jenis_rawat
+            ]
+        ]);
+    }
+
     public function pengajuan(Request $request)
     {
 

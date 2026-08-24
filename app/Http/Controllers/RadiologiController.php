@@ -39,6 +39,7 @@ class RadiologiController extends Controller
 
         $idRS = env('IDRS');
         $exclude = ['USG', 'Print', 'Re-Expertise', 'Expertise', 'Konsultasi'];
+        $poliExclude = ['RDO'];
 
         $dataPengunjung = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
             ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
@@ -53,6 +54,7 @@ class RadiologiController extends Controller
                 'reg_periksa.tgl_registrasi',
                 'reg_periksa.jam_reg',
                 'reg_periksa.status_lanjut',
+                'reg_periksa.kd_poli',
                 'pasien.nm_pasien',
                 'pasien.no_ktp as ktp_pasien',
                 'pegawai.no_ktp as ktp_dokter',
@@ -73,12 +75,14 @@ class RadiologiController extends Controller
                     $query->where('jns_perawatan_radiologi.nm_perawatan', 'NOT LIKE', "%$item%");
                 }
             })
+            ->whereNotIn('reg_periksa.kd_poli', $poliExclude)
             ->get();
 
         foreach ($dataPengunjung as $pasienRadio) {
-            $dataSehat = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
-                ->where('no_order', $pasienRadio->noorder)
-                ->first();
+            $dataSehat = ResponseRadiologiSatuSehat::firstWhere(
+                'accession_no',
+                $pasienRadio->ascension
+            );
             $mapping = RadiologiController::getMapping($pasienRadio->noorder);
 
             if ($dataSehat && !empty($mapping)) {
@@ -114,14 +118,6 @@ class RadiologiController extends Controller
                 $idEncounter = $dataEncounter->encounter_id;
 
                 if (empty($dataSehat)) {
-                    //Simpan Encounter
-                    // $simpan = new ResponseRadiologiSatuSehat();
-                    // $simpan->noRawat = $pasienRadio->no_rawat;
-                    // $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
-                    // $simpan->no_order = $pasienRadio->noorder;
-                    // $simpan->accession_no = $pasienRadio->ascension;
-                    // $simpan->encounter_id = $idEncounter;
-                    // $simpan->save();
                     ResponseRadiologiSatuSehat::updateOrCreate(
                         [
                             'accession_no' => $pasienRadio->ascension
@@ -141,8 +137,14 @@ class RadiologiController extends Controller
             if (!empty($idEncounter) && (!empty($checkPacs)) && (!empty($mapping)) && (!empty($idPasien)) && (!empty($dataSehat)) && (empty($dataSehat->service_request_id))) {
                 if (!empty($pasienRadio->ktp_dokter)) {
                     $idPractition = SatuSehatController::practitioner($pasienRadio->ktp_dokter);
-                }
+                } else {
+                    LogErrorSatuSehat::created([
+                        'subject' => 'Kirim Service Request Radiologi',
+                        'keterangan' => "Pengiriman data radiologi dokter tidak memiliki no ktp, dokter : $pasienRadio->nama_dokter"
+                    ]);
 
+                    goto KirimPasienLain;
+                }
 
                 $waktuRequest = $pasienRadio->tgl_permintaan . ' ' . $pasienRadio->jam_permintaan;
                 $waktu_request = new Carbon($waktuRequest);
@@ -242,13 +244,13 @@ class RadiologiController extends Controller
                         'json' => $dataService
                     ]);
                 } catch (ClientException $e) {
+                    $message = "Gagal kirim Service Request pasien " . $pasienRadio->no_rawat;
                     if ($e->hasResponse()) {
                         $response = $e->getResponse();
 
                         $test = json_decode($response->getBody(true));
-                        $message = $test->issue[0]->details->text;
 
-                        if ($test && $test->issue[0]->code == 'duplicate') {
+                        if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                             try {
                                 $response = $client->request('GET', 'fhir-r4/v1/ServiceRequest?encounter=' . $idEncounter, [
                                     'headers' => [
@@ -266,21 +268,7 @@ class RadiologiController extends Controller
                             }
 
                             $dataResponse = json_decode($response->getBody()->getContents());
-                            // if ($dataResponse && $dataResponse->entry[0]->resource->id) {
-                            //     $simpan = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
-                            //         ->where('no_order', $pasienRadio->noorder)
-                            //         ->first();
-                            //     if (!$simpan) {
-                            //         $simpan = new ResponseRadiologiSatuSehat();
-                            //         $simpan->noRawat = $pasienRadio->no_rawat;
-                            //         $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
-                            //         $simpan->no_order = $pasienRadio->noorder;
-                            //         $simpan->accession_no = $pasienRadio->ascension;
-                            //         $simpan->encounter_id = $idEncounter;
-                            //     }
-                            //     $simpan->service_request_id = $dataResponse->entry[0]->resource->id;
-                            //     $simpan->save();
-                            // }
+
                             if ($dataResponse && !empty($dataResponse->entry)) {
                                 $serviceRequestId = null;
 
@@ -305,17 +293,22 @@ class RadiologiController extends Controller
 
                                     ResponseRadiologiSatuSehat::updateOrCreate(
                                         [
-                                            'noRawat' => $pasienRadio->no_rawat,
-                                            'no_order' => $pasienRadio->noorder
+                                            'accession_no' => $pasienRadio->ascension
                                         ],
                                         [
+                                            'noRawat' => $pasienRadio->no_rawat,
+                                            'no_order' => $pasienRadio->noorder,
                                             'tgl_registrasi' => $pasienRadio->tgl_registrasi,
-                                            'accession_no' => $pasienRadio->ascension,
                                             'encounter_id' => $idEncounter,
                                             'service_request_id' => $serviceRequestId
                                         ]
                                     );
                                 }
+                            }
+                        } elseif ($test && !empty($test->fault)) {
+                            if (!empty($test->fault->detail->errorcode && $test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation')) {
+                                Session::flash('error', 'Gagal kirim Service Request pasien ' . $pasienRadio->no_rawat . ', karena Rate Limit Satu Sehat');
+                                return redirect()->back();
                             }
                         }
                     } else {
@@ -324,17 +317,13 @@ class RadiologiController extends Controller
 
                     LogErrorSatuSehat::create([
                         'subject' => 'Kirim Service Request Radiologi',
-                        'keterangan' => "Pengiriman data Service Request Radiologi pasien no rawat : $pasienRadio->no_rawat, pesan : (" . $message . ")"
+                        'keterangan' => "Pengiriman data Service Request Radiologi pasien no rawat : $pasienRadio->no_rawat, pesan : (" . $message ? $message : "" . ")"
                     ]);
 
                     goto KirimPasienLain;
                 }
 
                 $dataResponse = json_decode($response->getBody());
-
-                if ($pasienRadio->no_rawat == '2026/04/29/000028') {
-                    dd('masuk pasien', $pasienRadio, $dataResponse, $dataService, 'response service request radiologi');
-                }
 
                 if ($dataResponse && $dataResponse->id) {
                     $simpan = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
@@ -370,27 +359,14 @@ class RadiologiController extends Controller
 
                     $dataResponse = json_decode($response->getBody()->getContents());
                     if ($dataResponse && $dataResponse->entry[0]->resource->id) {
-                        // $simpan = ResponseRadiologiSatuSehat::where('noRawat', $pasienRadio->no_rawat)
-                        //     ->where('no_order', $pasienRadio->noorder)
-                        //     ->first();
-                        // if (!$simpan) {
-                        //     $simpan = new ResponseRadiologiSatuSehat();
-                        //     $simpan->noRawat = $pasienRadio->no_rawat;
-                        //     $simpan->tgl_registrasi = $pasienRadio->tgl_registrasi;
-                        //     $simpan->no_order = $pasienRadio->noorder;
-                        //     $simpan->accession_no = $pasienRadio->ascension;
-                        //     $simpan->encounter_id = $idEncounter;
-                        // }
-                        // $simpan->service_request_id = $dataResponse->entry[0]->resource->id;
-                        // $simpan->save();
                         ResponseRadiologiSatuSehat::updateOrCreate(
                             [
-                                'noRawat' => $pasienRadio->no_rawat,
-                                'no_order' => $pasienRadio->noorder
+                                'accession_no' => $pasienRadio->ascension
                             ],
                             [
+                                'noRawat' => $pasienRadio->no_rawat,
+                                'no_order' => $pasienRadio->noorder,
                                 'tgl_registrasi' => $pasienRadio->tgl_registrasi,
-                                'accession_no' => $pasienRadio->ascension,
                                 'encounter_id' => $idEncounter,
                                 'service_request_id' => $dataResponse->entry[0]->resource->id
                             ]
@@ -402,17 +378,17 @@ class RadiologiController extends Controller
             KirimPasienLain:
         }
 
-        $dataNoOrder = $dataPengunjung->pluck('noorder')->unique();
+        $dataNoOrder = $dataPengunjung->pluck('ascension')->unique();
 
-        $dataLog = ResponseRadiologiSatuSehat::whereIn('no_order', $dataNoOrder)
+        $dataLog = ResponseRadiologiSatuSehat::whereIn('accession_no', $dataNoOrder)
             ->get()
-            ->keyBy('no_order');
+            ->keyBy('accession_no');
 
         foreach ($dataPengunjung as $list) {
-            $list->dataResponse = $dataLog[$list->noorder] ?? null;
+            $list->dataResponse = $dataLog[$list->ascension] ?? null;
         }
 
-        // dd($dataPengunjung, $dataLog, 'data log');
+        // dd($dataLog, $dataNoOrder, 'data log');
 
         $dataError = LogErrorSatuSehat::where('subject', 'like', '%Radiologi%')
             ->where(function ($query) use ($pasien_tanggal) {
@@ -443,6 +419,7 @@ class RadiologiController extends Controller
 
         $idRS = env('IDRS');
         $exclude = ['USG', 'Print', 'Re-Expertise', 'Expertise', 'Konsultasi'];
+        $poliExclude = ['RDO'];
 
         $dataPengunjung = DB::connection('mysqlkhanza')->table('permintaan_radiologi')
             ->join('pegawai', 'pegawai.nik', '=', 'permintaan_radiologi.dokter_perujuk')
@@ -457,6 +434,7 @@ class RadiologiController extends Controller
                 'reg_periksa.tgl_registrasi',
                 'reg_periksa.jam_reg',
                 'reg_periksa.status_lanjut',
+                'reg_periksa.kd_poli',
                 'pasien.nm_pasien',
                 'pasien.no_ktp as ktp_pasien',
                 'pegawai.no_ktp as ktp_dokter',
@@ -477,20 +455,21 @@ class RadiologiController extends Controller
                     $query->where('jns_perawatan_radiologi.nm_perawatan', 'NOT LIKE', "%$item%");
                 }
             })
-            ->groupBy('noorder')
+            ->whereNotIn('reg_periksa.kd_poli', $poliExclude)
+            ->groupBy('ascension')
             ->get();
 
-        $dataNoOrder = $dataPengunjung->pluck('noorder')->unique();
-        $dataLog = ResponseRadiologiSatuSehat::whereIn('no_order', $dataNoOrder)
+        $dataNoOrder = $dataPengunjung->pluck('ascension')->unique();
+        $dataLog = ResponseRadiologiSatuSehat::whereIn('accession_no', $dataNoOrder)
             ->get()
-            ->keyBy('no_order');
+            ->keyBy('accession_no');
 
         $ktpList = $dataPengunjung->pluck('ktp_pasien')->unique();
         $idSehatMap = \App\PasienSehat::whereIn('nik', $ktpList)->pluck('satu_sehat_id', 'nik');
 
         foreach ($dataPengunjung as $list) {
             $list->idSehat = $idSehatMap[$list->ktp_pasien] ?? null;
-            $list->dataResponse = $dataLog[$list->noorder] ?? null;
+            $list->dataResponse = $dataLog[$list->ascension] ?? null;
         }
 
         return view('satu_sehat.summary_radiologi', compact('dataLog', 'dataPengunjung'));
@@ -697,6 +676,10 @@ class RadiologiController extends Controller
                 $response = $e->getResponse();
 
                 $test = json_decode($response->getBody());
+                if ($test && !empty($test->fault) && $test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                    Session::flash('error', 'Gagal kirim Observation pasien ' . $dataOrder->no_rawat . ', karena Rate Limit Satu Sehat');
+                    return redirect()->back();
+                }
                 dd($test, $dataObservation, 'sendObservation');
             }
 

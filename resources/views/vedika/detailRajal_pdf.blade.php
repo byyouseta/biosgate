@@ -3339,6 +3339,130 @@
             </table>
         </div>
     @endif
+    @if ($dataUsgGuiding)
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
+        <div class="watermark">
+            {{ $watermark }}
+        </div>
+        <div>
+            <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP">
+            <table style="width: 100%; margin-bottom:0px; margin-top:10px; border: 0px solid black">
+                <thead>
+                    <tr>
+                        <th style="text-align: center; border: 1px solid black; border-bottom:0px solid black; font-size: 16px; padding-bottom: 20px; background-color: lightgray;"
+                            colspan="4">
+                            <b>HASIL PEMERIKSAAN ULTRASONOGRAFI (USG) GUIDING</b>
+                        </th>
+                    </tr>
+                    <tr>
+                        <td style="width: 20%; padding-left: 25px; border-left: 1px solid black;">No. Rekam Medis</td>
+                        <td style="width:1%">:</td>
+                        <td style="width: 79%; border-right: 1px solid black;" colspan='2'>
+                            {{ $pasien->no_rkm_medis }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black; border-left: 1px solid black;">
+                            Nama Pasien</td>
+                        <td>:</td>
+                        <td style="border-right: 1px solid black;" colspan="2">
+                            {{ $pasien->nm_pasien }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black; border-left: 1px solid black;">
+                            Alamat</td>
+                        <td>:</td>
+                        <td style="border-right: 1px solid black;" colspan="2">
+                            {{ $pasien->alamat }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black; border-left: 1px solid black;">
+                            Diagnosa</td>
+                        <td>:</td>
+                        <td style="border-right: 1px solid black;" colspan="2">
+                            {{ $dataUsgGuiding->diagnosa }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black; border-left: 1px solid black;">
+                            Tanggal</td>
+                        <td>:</td>
+                        <td style="border-right: 1px solid black;" colspan="2">
+                            {{ \Carbon\Carbon::parse($dataUsgGuiding->tanggal)->format('d-m-Y') }}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 25px; border-bottom: 0px solid black; border-left: 1px solid black;">
+                            DPJP</td>
+                        <td>:</td>
+                        <td style="border-right: 1px solid black;" colspan="2">
+                            {{ $dataUsgGuiding->nm_dokter }}</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="padding-left: 40px; vertical-align: top; border-left: 1px solid black;">Otot</td>
+                        <td style="vertical-align: top;">:</td>
+                        <td colspan="2" style="border-right: 1px solid black;"> {!! nl2br(e($dataUsgGuiding->otot)) !!}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 40px; vertical-align: top; border-left: 1px solid black;">Saraf</td>
+                        <td style="vertical-align: top;">:</td>
+                        <td colspan="2" style="border-right: 1px solid black;"> {!! nl2br(e($dataUsgGuiding->saraf)) !!}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 40px; vertical-align: top; border-left: 1px solid black;">Lain-lain
+                        </td>
+                        <td style="vertical-align: top;">:</td>
+                        <td colspan="2" style="border-right: 1px solid black;"> {!! nl2br(e($dataUsgGuiding->lain_lain)) !!}</td>
+                    </tr>
+                    <tr>
+                        <td style="padding-left: 40px; vertical-align: top; border-left: 1px solid black;">Kesimpulan
+                        </td>
+                        <td style="vertical-align: top;">:</td>
+                        <td colspan="2" style="border-right: 1px solid black;"> {!! nl2br(e($dataUsgGuiding->kesimpulan)) !!}</td>
+                    </tr>
+                </tbody>
+            </table>
+            @php
+
+                $qr_dokter =
+                    'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                        elektronik oleh' .
+                    "\n" .
+                    $dataUsgGuiding->nm_dokter .
+                    "\n" .
+                    'ID ' .
+                    $dataUsgGuiding->kd_dokter .
+                    "\n" .
+                    \Carbon\Carbon::parse($dataUsgGuiding->tanggal)->format('d-m-Y');
+                $qrcode_dokter = base64_encode(
+                    QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter),
+                );
+            @endphp
+
+            <table style="width: 100%; ">
+                <tr>
+                    <td style="width: 70%; border-left: 1px solid black;padding-top:30px;"></td>
+                    <td style="width: 30%; border-right: 1px solid black;padding-top:30px;">Tanggal Pemeriksaan </td>
+                </tr>
+                <tr>
+                    <td style="width: 70%; border-left: 1px solid black;"></td>
+                    <td style="width: 30%; border-right: 1px solid black;">Surakarta,
+                        {{ \Carbon\Carbon::parse($dataUsgGuiding->tanggal)->format('d-m-Y') }}</td>
+                </tr>
+                <tr>
+                    <td style="width: 70%; border-left: 1px solid black;"></td>
+                    <td style="width: 30%; border-right: 1px solid black;"><img
+                            src="data:image/png;base64, {!! $qrcode_dokter !!}"></td>
+                </tr>
+                <tr>
+                    <td style="width: 70%; border-left: 1px solid black; border-bottom: 1px solid black;"></td>
+                    <td style="width: 30%; border-right: 1px solid black; border-bottom: 1px solid black;">
+                        {{ $dataUsgGuiding->nm_dokter }}</td>
+                </tr>
+            </table>
+        </div>
+    @endif
     @if ($dataSpiro)
         <div style="float: none;">
             <div style="page-break-after: always;"></div>

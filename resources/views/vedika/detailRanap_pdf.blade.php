@@ -4374,6 +4374,154 @@
             </table>
         </div>
     @endif
+    {{-- Data Kelahiran --}}
+    @if ($dataKelahiran)
+        <div style="float: none;">
+            <div style="page-break-after: always;"></div>
+        </div>
+        <div class="watermark">
+            {{ $watermark }}
+        </div>
+        <img src="{{ asset('image/kop.png') }}" alt="KOP RSUP">
+        <div class="row justify-content-center">
+            <table style="width: 100%; margin-bottom:50px; margin-top:10px;"
+                            class="table table-borderless table-sm">
+                            <thead>
+                                <tr>
+                                    <td style="text-align: center; border-bottom: 0px solid black; border-top: 3px solid black; padding-bottom: 30px;"
+                                        colspan="4">
+                                        <b style="font-size: 16pt;">SURAT KETERANGAN KELAHIRAN</b><br>
+                                        NOMOR : {{ $dataKelahiran->no_surat }}
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="width: 30%; padding-left: 25px;">Hari / Tanggal</td>
+                                    <td style="width: 30%; ">: {{ \Carbon\Carbon::parse($dataKelahiran->tgl_lahir)->locale('id')->translatedFormat('l, d F Y') }}</td>
+                                    <td style="padding-left: 100px; " colspan="2">Jam Lahir : {{ \Carbon\Carbon::parse($dataKelahiran->jam_lahir)->format('H:i:s') }} WIB</td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td style="width: 30%; padding-left: 25px; vertical-align: top;">Tempat Lahir</td>
+                                    <td colspan='3'>: <b>Rumah Sakit Umum Pusat Surakarta</b><br><div style="margin-left: 10px;">Jalan Prof. Dr. R.Soeharso Nomor 28 Surakarta</div></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Penolong Persalinan</td>
+                                    <td style="border-bottom: 0px solid black;">: {{ $dataKelahiran->nm_dokter }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Nama Anak Baru Lahir</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->nm_anak }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Jenis Kelamin</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->jk == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Tunggal atau Kembar</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->tunggal_kembar }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Tunggal atau Kembar</td>
+                                    <td style="border-bottom: 0px solid black;">: {{ $dataKelahiran->tunggal_kembar }}</td>
+                                    <td style="padding-left: 100px; " colspan="2">BB : {{ $dataKelahiran->bb }} gr <br>PB : {{ $dataKelahiran->pb }} cm</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Bangsa</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->bangsa }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">Nama Ibu</td>
+                                    <td style="width: 30%; ">: {{ $dataKelahiran->nm_ibu }}</td>
+                                    <td style="padding-left: 100px; " colspan="2">Tgl.Lahir : {{ \Carbon\Carbon::parse($dataKelahiran->tgl_lahir_ibu)->format('d-m-Y') }}</td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td style="width: 20%; padding-left: 25px;">Nama Ayah</td>
+                                    <td style="width: 30%; ">: {{ $dataKelahiran->nm_ayah }}</td>
+                                    <td style="padding-left: 100px; " colspan="2">Tgl.Lahir : {{ \Carbon\Carbon::parse($dataKelahiran->tgl_lahir_ayah)->format('d-m-Y') }}</td>
+                                    
+                                </tr>
+                                <tr>
+                                    <td style="border-top: 0px solid black;  padding-left: 25px;" colspan="4">Alamat Ibu / Ayah</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kampung</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->alamat_orang_tua }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kelurahan</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->kelurahan }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kecamatan</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->kecamatan }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kabupaten / Kota</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->kabupaten }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Cara Lahir</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->cara_lahir }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Kondisi Lahir</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->kondisi_lahir }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">Anak ke</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->anak_ke }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">No KTP Orang Tua</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->nik_orang_tua }}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding-left: 25px; border-bottom: 0px solid black;">No KK Orang Tua</td>
+                                    <td style="border-bottom: 0px solid black;" colspan="3">: {{ $dataKelahiran->no_kk_orang_tua }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+
+                        @php
+                            $qr_dokter =
+                                'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara
+                                elektronik oleh' .
+                                "\n" .
+                                $dataKelahiran->nm_dokter .
+                                "\n" .
+                                'ID ' .
+                                $dataKelahiran->kd_dokter .
+                                "\n" .
+                                \Carbon\Carbon::parse($dataKelahiran->tgl_surat)->format('d-m-Y');
+                            $qrcode_dokter = base64_encode(
+                                QrCode::format('png')->size(100)->errorCorrection('H')->generate($qr_dokter),
+                            );
+                        @endphp
+
+                        <table style="width: 100%; margin-bottom:50px; margin-top:10px; border: 0px solid black"
+                            class="table table-borderless table-sm">
+                            <tbody>
+                                <tr>
+                                    <td colspan="2" style="width: 70%;"></td>
+                                    <td style="text-align: center; width: 30%;">Surakarta,
+                                        {{ \Carbon\Carbon::parse($dataKelahiran->tgl_surat)->format('d-m-Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td style="text-align: center;"> <img src="data:image/png;base64, {!! $qrcode_dokter !!}"></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"></td>
+                                    <td style="text-align: center;">{{ $dataKelahiran->nm_dokter }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+        </div>
+    @endif
     {{-- Data Operasi --}}
     @if ($dataOperasi2)
         @foreach ($dataOperasi2 as $index => $listOperasi)

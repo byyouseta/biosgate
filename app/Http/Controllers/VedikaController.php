@@ -349,6 +349,7 @@ class VedikaController extends Controller
             $dataUsg = VedikaController::getUsg($pasien->no_rawat);
             // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
             $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
+            $dataUsgGuiding = VedikaController::getUsgGuiding($pasien->no_rawat);
 
             $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
             $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
@@ -407,6 +408,7 @@ class VedikaController extends Controller
                 'soap',
                 'dataUsg',
                 'dataUsgGynecologi',
+                'dataUsgGuiding',
                 'dataSpiro',
                 'dataTindakanMata',
                 'dataLaporanRajal',
@@ -588,7 +590,8 @@ class VedikaController extends Controller
             $dataTransfusi = VedikaController::getTransfusi($pasien->no_rawat);
             $dataObserFibri = VedikaController::getObservasiFibrinolitic($pasien->no_rawat);
             $dataChecklistFibri = VedikaController::getCheckFibrinolitic($pasien->no_rawat);
-            // dd($dataChecklistFibri);
+            $dataKelahiran = VedikaController::getKeteranganKelahiran($pasien->no_rawat);
+            // dd($dataKelahiran);
 
             //Resume Ranap
             $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
@@ -639,6 +642,7 @@ class VedikaController extends Controller
                 'dataObserFibri',
                 'dataChecklistFibri',
                 'dataDehidrasi',
+                'dataKelahiran',
                 'dataBerkas',
                 'dataSep',
                 'dataKlaim',
@@ -872,6 +876,7 @@ class VedikaController extends Controller
         $dataUsg = VedikaController::getUsg($pasien->no_rawat);
         // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
+        $dataUsgGuiding = VedikaController::getUsgGuiding($pasien->no_rawat);
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
         $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
         $dataLaporanRajal = VedikaController::getLaporanTindakanRajal($pasien->no_rawat);
@@ -924,6 +929,7 @@ class VedikaController extends Controller
             'dataRalan' => $dataRalan,
             'dataUsg' => $dataUsg,
             'dataUsgGynecologi' => $dataUsgGynecologi,
+            'dataUsgGuiding' => $dataUsgGuiding,
             'dataSpiro' => $dataSpiro,
             'dataTindakanMata' => $dataTindakanMata,
             'dataLaporanRajal' => $dataLaporanRajal,
@@ -1084,6 +1090,7 @@ class VedikaController extends Controller
         $dataUsg = VedikaController::getUsg($pasien->no_rawat);
         // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
+        $dataUsgGuiding = VedikaController::getUsgGuiding($pasien->no_rawat);
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
         $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
         $dataLaporanRajal = VedikaController::getLaporanTindakanRajal($pasien->no_rawat);
@@ -1136,6 +1143,7 @@ class VedikaController extends Controller
             'dataRalan' => $dataRalan,
             'dataUsg' => $dataUsg,
             'dataUsgGynecologi' => $dataUsgGynecologi,
+            'dataUsgGuiding' => $dataUsgGuiding,
             'dataSpiro' => $dataSpiro,
             'dataTindakanMata' => $dataTindakanMata,
             'dataLaporanRajal' => $dataLaporanRajal,
@@ -1444,6 +1452,7 @@ class VedikaController extends Controller
         $dataTransfusi = VedikaController::getTransfusi($pasien->no_rawat);
         $dataObserFibri = VedikaController::getObservasiFibrinolitic($pasien->no_rawat);
         $dataChecklistFibri = VedikaController::getCheckFibrinolitic($pasien->no_rawat);
+        $dataKelahiran = VedikaController::getKeteranganKelahiran($pasien->no_rawat);
         //Resume Ranap
         $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
         if ($resumeRanap) {
@@ -1482,6 +1491,7 @@ class VedikaController extends Controller
             'dataTransfusi' => $dataTransfusi,
             'dataObserFibri' => $dataObserFibri,
             'dataChecklistFibri' => $dataChecklistFibri,
+            'dataKelahiran' => $dataKelahiran,
             'dataTriase' => $dataTriase,
             'dataDehidrasi' => $dataDehidrasi,
             'primer' => $primer,
@@ -1658,6 +1668,7 @@ class VedikaController extends Controller
         $dataTransfusi = VedikaController::getTransfusi($pasien->no_rawat);
         $dataObserFibri = VedikaController::getObservasiFibrinolitic($pasien->no_rawat);
         $dataChecklistFibri = VedikaController::getCheckFibrinolitic($pasien->no_rawat);
+        $dataKelahiran = VedikaController::getKeteranganKelahiran($pasien->no_rawat);
         //Resume Ranap
         $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
         if ($resumeRanap) {
@@ -1671,7 +1682,6 @@ class VedikaController extends Controller
             $resumeRanap3 = null;
             $resumeRanap4 = null;
         }
-
 
         $pdf = Pdf::loadView('vedika.detailRanap_pdf', [
             'pasien' => $pasien,
@@ -1697,6 +1707,7 @@ class VedikaController extends Controller
             'dataTransfusi' => $dataTransfusi,
             'dataObserFibri' => $dataObserFibri,
             'dataChecklistFibri' => $dataChecklistFibri,
+            'dataKelahiran' => $dataKelahiran,
             'dataTriase' => $dataTriase,
             'primer' => $primer,
             'sekunder' => $sekunder,
@@ -2244,6 +2255,7 @@ class VedikaController extends Controller
         $dataTransfusi = VedikaController::getTransfusi($pasien->no_rawat);
         $dataObserFibri = VedikaController::getObservasiFibrinolitic($pasien->no_rawat);
         $dataChecklistFibri = VedikaController::getCheckFibrinolitic($pasien->no_rawat);
+        $dataKelahiran = VedikaController::getKeteranganKelahiran($pasien->no_rawat);
         //Resume Ranap
         $resumeRanap = VedikaController::getResumeRanap($pasien->no_rawat);
         if ($resumeRanap) {
@@ -2289,6 +2301,7 @@ class VedikaController extends Controller
             'dataTransfusi' => $dataTransfusi,
             'dataObserFibri' => $dataObserFibri,
             'dataChecklistFibri' => $dataChecklistFibri,
+            'dataKelahiran' => $dataKelahiran,
             'dataOperasi1' => $dataOperasi1,
             'dataOperasi2' => $dataOperasi2,
             'resumeRanap1' => $resumeRanap1,
@@ -2542,6 +2555,7 @@ class VedikaController extends Controller
         $dataUsg = VedikaController::getUsg($pasien->no_rawat);
         // $dataUsgRanap = VedikaController::getUsgRanap($pasien->no_rawat);
         $dataUsgGynecologi = VedikaController::getUsgGynecologi($pasien->no_rawat);
+        $dataUsgGuiding = VedikaController::getUsgGuiding($pasien->no_rawat);
         $dataSpiro = VedikaController::getSpiro($pasien->no_rawat);
         $dataTindakanMata = VedikaController::getLaporanTindakanMata($pasien->no_rawat);
         $dataTreadmill = VedikaController::getTreatmill($pasien->no_rawat);
@@ -2562,6 +2576,7 @@ class VedikaController extends Controller
             'dataUsg' => $dataUsg,
             // 'dataUsgRanap' => $dataUsgRanap,
             'dataUsgGynecologi' => $dataUsgGynecologi,
+            'dataUsgGuiding' => $dataUsgGuiding,
             'dataSpiro' => $dataSpiro,
             'dataTriase' => $dataTriase,
             'primer' => $primer,
@@ -4021,51 +4036,18 @@ class VedikaController extends Controller
     {
         $cek = DB::connection('mysqlkhanza')->table('permintaan_lab')
             ->join('dokter', 'dokter.kd_dokter', '=', 'permintaan_lab.dokter_perujuk')
-            // ->leftJoin('periksa_lab', function ($join) {
-            //     $join->on('periksa_lab.no_rawat', '=', 'permintaan_lab.no_rawat')
-            //         ->on('periksa_lab.tgl_periksa', '=', 'permintaan_lab.tgl_hasil')
-            //         ->on('periksa_lab.jam', '=', 'permintaan_lab.jam_hasil');
-            // })
             ->select(
                 'permintaan_lab.noorder',
                 'permintaan_lab.no_rawat',
                 'permintaan_lab.tgl_permintaan',
                 'permintaan_lab.jam_permintaan',
                 'permintaan_lab.tgl_hasil',
-                // 'periksa_lab.tgl_periksa as tgl_hasil',
                 'permintaan_lab.jam_hasil',
-                // 'periksa_lab.jam as jam_hasil',
                 'permintaan_lab.status',
                 'dokter.nm_dokter'
             )
             ->where('permintaan_lab.no_rawat', '=', $id)
             ->get();
-
-        // foreach ($cek as $dataCek) {
-        //     if ($dataCek->jam_hasil == null) {
-        //         $getJamHasil = DB::connection('mysqlkhanza')->table('permintaan_pemeriksaan_lab')
-        //             ->join('permintaan_lab', 'permintaan_lab.noorder', '=', 'permintaan_pemeriksaan_lab.noorder')
-        //             ->leftJoin('periksa_lab', function ($join) {
-        //                 $join->on('periksa_lab.no_rawat', '=', 'permintaan_lab.no_rawat')
-        //                     ->on('periksa_lab.kd_jenis_prw', '=', 'permintaan_pemeriksaan_lab.kd_jenis_prw');
-        //                 // ->on('periksa_lab.jam', '=', 'permintaan_lab.jam_hasil');
-        //             })
-        //             ->select(
-        //                 'permintaan_pemeriksaan_lab.noorder',
-        //                 'permintaan_lab.no_rawat',
-        //                 'periksa_lab.tgl_periksa as tgl_hasil',
-        //                 'periksa_lab.jam as jam_hasil',
-        //             )
-        //             ->where('permintaan_lab.no_rawat', '=', $dataCek->no_rawat)
-        //             ->where('permintaan_pemeriksaan_lab.noorder', '=', $dataCek->noorder)
-        //             ->first();
-
-        //         if ($getJamHasil) {
-        //             $dataCek->tgl_hasil = $getJamHasil->tgl_hasil;
-        //             $dataCek->jam_hasil = $getJamHasil->jam_hasil;
-        //         }
-        //     }
-        // }
 
         if ($cek->count() > 0) {
             $hasil_periksa = DB::connection('mysqlkhanza')->table('detail_periksa_lab')
@@ -4106,7 +4088,6 @@ class VedikaController extends Controller
             $kesan = null;
         }
 
-        // dd($cek, $hasil_periksa);
         return array($cek, $hasil_periksa, $kesan);
     }
 
@@ -5344,6 +5325,29 @@ class VedikaController extends Controller
         }
     }
 
+    public function getUsgGuiding($no_rawat)
+    {
+        $data =  DB::connection('mysqlkhanza')->table('hasil_pemeriksaan_usg_guiding')
+            ->join('pegawai', 'pegawai.nik', '=', 'hasil_pemeriksaan_usg_guiding.kd_dokter')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'hasil_pemeriksaan_usg_guiding.no_rawat')
+            ->leftJoin('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->select(
+                'hasil_pemeriksaan_usg_guiding.*',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pegawai.nama as nm_dokter'
+            )
+            ->where('hasil_pemeriksaan_usg_guiding.no_rawat', '=', $no_rawat)
+            ->orderBy('hasil_pemeriksaan_usg_guiding.tanggal', 'DESC')
+            ->first();
+
+        if ($data) {
+            return $data;
+        } else {
+            return null;
+        }
+    }
+
     public function getSpiro($no_rawat)
     {
         $data =  DB::connection('mysqlkhanza')->table('reg_periksa')
@@ -5657,6 +5661,31 @@ class VedikaController extends Controller
 
         if ($data || $dataFisio || $dataOkupasi || $dataWicara) {
             return array($data, $dataFisio, $dataOkupasi, $dataWicara, $dataDefaultDokter);
+        } else {
+            return null;
+        }
+    }
+
+    public function getKeteranganKelahiran($no_rawat)
+    {
+        $data =  DB::connection('mysqlkhanza')->table('surat_keterangan_kelahiran')
+            ->join('dokter', 'dokter.kd_dokter', '=', 'surat_keterangan_kelahiran.kd_dokter')
+            ->join('reg_periksa', 'reg_periksa.no_rawat', '=', 'surat_keterangan_kelahiran.no_rawat')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->select(
+                'surat_keterangan_kelahiran.*',
+                'pasien.no_rkm_medis',
+                'pasien.nm_pasien',
+                'pasien.alamat',
+                'pasien.jk',
+                'pasien.tgl_lahir',
+                'dokter.nm_dokter'
+            )
+            ->where('surat_keterangan_kelahiran.no_rawat', '=', $no_rawat)
+            ->first();
+
+        if ($data) {
+            return $data;
         } else {
             return null;
         }
@@ -6005,23 +6034,13 @@ class VedikaController extends Controller
         $path = Setting::where('nama', 'webappz_berkasrawat')
             ->first();
         $tujuan_upload = $path->base_url . "pages/upload";
-
-        // dd($nama_file);
-        // $file->move($tujuan_upload, $nama_file);
-
-        // Storage::disk('sftp')->putFileAs($file, new File('pages/upload/'), $nama_file);
-        // Storage::put($nama_file, $file);
         $pindah = $request->file('file')->storeAs(
             'pages/upload',
             $nama_file,
             'sftp'
         );
 
-        // Storage::disk('sftp')->setVisibility('pages/upload' . $nama_file, 'public');
-
-
         $data['lokasi_file'] = 'pages/upload/' . $nama_file;
-        // dd($data, $pindah);
 
         DB::connection('mysqlkhanza')->table('berkas_digital_perawatan')->insert($data);
 

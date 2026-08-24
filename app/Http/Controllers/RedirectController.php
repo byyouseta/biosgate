@@ -241,21 +241,54 @@ class RedirectController extends Controller
             'message' => 'required|string',
         ]);
 
-        $request = new Request([
-            'penerima' => $request->phone,
-            'pesan' => $request->message,
-        ]);
+        //Metode Kirim Lama
+        // $response = app(\App\Http\Controllers\WaController::class)->kirimApi($request);
 
-        $response = app(\App\Http\Controllers\WaController::class)->kirimJson($request);
+        // // kalau mau ambil hasilnya
+        // $data = $response->getData(true);
 
-        // kalau mau ambil hasilnya
-        $data = $response->getData(true);
+        // if ($data && isset($data['success']) && $data['success'] == true) {
+        //     return response()->json(['status' => 'success', 'data' => $data]);
+        // } else {
+        //     $errorMessage = $data['message'] ?? 'Gagal mengirim pesan';
+        //     return response()->json(['status' => 'failed', 'error' => $errorMessage], 500);
+        // }
 
-        if ($data && isset($data['success']) && $data['success'] == true) {
-            return response()->json(['status' => 'success', 'data' => $data]);
+        $telp = $request->phone;
+        $pesan = $request->message;
+
+        if (substr($telp, 0, 1) === '0') {
+            $telp = '62' . substr($telp, 1);
+        }
+
+        $client = new \GuzzleHttp\Client((['base_uri' => env('SERVER_API_WA')]));
+        try {
+            $response = $client->request('POST', "/client/sendMessage/" . env('SESSION_WA'), [
+                'headers' => [
+                    'x-api-key' => null,
+                ],
+                'json' => [
+                    "chatId" => "$telp@c.us",
+                    "contentType" => "string",
+                    "content" => "$pesan"
+                ]
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $test = json_decode($response->getBody());
+                // dd($test, 'error pengiriman pesan');
+
+                return response()->json(['status' => 'failed', 'error' => $test->body()], 500);
+            }
+        }
+
+        $data = json_decode($response->getBody());
+
+        if ($data && $data->success == true) {
+            return response()->json(['status' => 'success']);
         } else {
-            $errorMessage = $data['message'] ?? 'Gagal mengirim pesan';
-            return response()->json(['status' => 'failed', 'error' => $errorMessage], 500);
+            return response()->json(['status' => 'failed', 'error' => 'Gagal mengirim pesan'], 500);
         }
     }
 }

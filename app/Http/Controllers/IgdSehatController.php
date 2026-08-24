@@ -267,7 +267,7 @@ class IgdSehatController extends Controller
 
                         $test = json_decode($response->getBody());
 
-                        if ($test->issue[0]->code == 'duplicate') {
+                        if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                             try {
                                 $response = $client->request('GET', "fhir-r4/v1/Encounter?identifier=http://sys-ids.kemkes.go.id/encounter/$idRs|$dataPengunjung->no_rawat", [
                                     'headers' => [
@@ -551,7 +551,7 @@ class IgdSehatController extends Controller
                 if ($e->hasResponse()) {
                     $response = $e->getResponse();
                     $test = json_decode($response->getBody());
-                    if ($test->issue[0]->code == 'duplicate') {
+                    if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                         $update = ResponseIgdSatuSehat::where('noRawat', $noRawat)->first();
                         $update->triase_transportasi = 'duplicate';
                         $update->save();
@@ -848,7 +848,7 @@ class IgdSehatController extends Controller
 
                         // dd($response);
                         $test = json_decode($response->getBody());
-                        if ($test->issue[0]->code == 'duplicate') {
+                        if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                             try {
                                 $responseObservation = $client->request('GET', 'fhir-r4/v1/Observation?encounter=' . $encounter, [
                                     'headers' => [
@@ -943,7 +943,12 @@ class IgdSehatController extends Controller
                             $response = $e->getResponse();
 
                             $test = json_decode($response->getBody());
-                            dd($test, 'skala nyeri');
+                            if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
+                                // Handle duplicate case
+                                dd($test, 'duplicate skala nyeri');
+                            } else {
+                                dd($test, 'skala nyeri');
+                            }
                         }
 
                         $message = "Gagal kirim observasi transportasi pasien IGD " . $noRawat;
@@ -1014,7 +1019,12 @@ class IgdSehatController extends Controller
                             if ($e->hasResponse()) {
                                 $response = $e->getResponse();
                                 $test = json_decode($response->getBody());
-                                dd($test, 'status nyeri', $dataNyeri);
+                                if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
+                                    // Handle duplicate case
+                                    dd($test, 'duplicate lokasi nyeri');
+                                } else {
+                                    dd($test, 'lokasi nyeri', $dataLokasiNyeri);
+                                }
                             }
 
                             $message = "Gagal kirim asesment lokasi nyeri pasien IGD " . $noRawat;
@@ -1133,7 +1143,7 @@ class IgdSehatController extends Controller
                             $response = $e->getResponse();
 
                             $test = json_decode($response->getBody());
-                            if ($test && $test->issue[0]->code == 'duplicate') {
+                            if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                                 try {
                                     $checkObservation = $client->request('GET', 'fhir-r4/v1/Observation?encounter=' . $encounter, [
                                         'headers' => [
@@ -1238,6 +1248,50 @@ class IgdSehatController extends Controller
                         if ($e->hasResponse()) {
                             $response = $e->getResponse();
                             $test = json_decode($response->getBody());
+
+                            if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
+                                try {
+                                    $responseObservation = $client->request('GET', 'fhir-r4/v1/Observation?encounter=' . $encounter, [
+                                        'headers' => [
+                                            'Authorization' => "Bearer {$access_token}"
+                                        ]
+                                    ]);
+                                } catch (ClientException $e) {
+                                    if ($e->hasResponse()) {
+                                        $response = $e->getResponse();
+
+                                        // dd($response);
+                                        $test = json_decode($response->getBody());
+                                        dd($test, 'fetch duplicate pernafasan');
+                                    }
+                                }
+                                $dataResponseObservation = json_decode($responseObservation->getBody());
+
+                                foreach ($dataResponseObservation->entry as $observation) {
+                                    foreach ($observation->resource->code->coding as $coding) {
+                                        if ($coding->code == '9279-1') {
+                                            $update = ResponseIgdSatuSehat::where('noRawat', $noRawat)->first();
+                                            $update->asesmen_pernapasan = $observation->resource->id;
+                                            $update->save();
+                                        }
+                                    }
+                                }
+
+                                goto KirimDataSistol;
+                            } else {
+                                if ($test && !empty($test->fault)) {
+                                    if ($test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                        $message = "Gagal kirim vital sign Pernafasan pasien IGD " . $noRawat . " karena limit quota";
+                                        LogErrorSatuSehat::create([
+                                            'subject' => 'Kirim vital sign Pernafasan IGD',
+                                            'keterangan' => "Pengiriman data vital sign Pernafasan pasien no rawat : $noRawat (" . $message . ")"
+
+                                        ]);
+                                        Session::flash('error', $message);
+                                        return redirect()->back();
+                                    }
+                                }
+                            }
                             dd($test, 'pernafasan');
                         }
 
@@ -1259,6 +1313,8 @@ class IgdSehatController extends Controller
                         $update->save();
                     };
                 }
+
+                KirimDataSistol:
 
                 if (!empty($tekanan[0])) {
                     $dataSistole = [
@@ -1331,7 +1387,7 @@ class IgdSehatController extends Controller
                             $response = $e->getResponse();
                             $test = json_decode($response->getBody());
                             // dd($test, 'sistol');
-                            if ($test->issue[0]->code == 'duplicate') {
+                            if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                                 try {
                                     $responseObservation = $client->request('GET', 'fhir-r4/v1/Observation?encounter=' . $encounter, [
                                         'headers' => [
@@ -1360,7 +1416,7 @@ class IgdSehatController extends Controller
                                 }
                             }
 
-                            goto KirimDataSistol;
+                            goto KirimDataDiastol;
                         }
 
                         $message = "Gagal kirim vital sign Sistole pasien IGD " . $noRawat;
@@ -1382,7 +1438,7 @@ class IgdSehatController extends Controller
                     };
                 }
 
-                KirimDataSistol:
+                KirimDataDiastol:
 
                 if (!empty($tekanan[1])) {
                     $dataDiastol = [
@@ -1817,6 +1873,12 @@ class IgdSehatController extends Controller
 
                             // dd($response);
                             $test = json_decode($response->getBody());
+
+                            if ($test && !empty($test->fault) && $test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                $message = "Gagal kirim kondisi Meninggalkan pasien IGD " . $noRawat . " karena limit quota";
+                                Session::flash('error', $message);
+                                return redirect()->back();
+                            }
                             dd($test, 'status Meninggalkan', $dataKondisiMeninggalkan);
                         }
 
@@ -2405,7 +2467,7 @@ class IgdSehatController extends Controller
                             if ($e->hasResponse()) {
                                 $response = $e->getResponse();
                                 $test = json_decode($response->getBody());
-                                if ($test->issue[0]->code == 'duplicate') {
+                                if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                                     try {
                                         $responseProsedure = $client->request('GET', 'fhir-r4/v1/Procedure?encounter=' . $encounter, [
                                             'headers' => [

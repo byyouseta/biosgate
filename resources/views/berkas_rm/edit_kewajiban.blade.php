@@ -33,7 +33,7 @@
                     <div class="card ">
                         <div class="card-header">
                             <div class="card-title">FORM HAK DAN KEWAJIBAN PASIEN DAN KELUARGANYA </div>
-                            <div class="float-right">RM PP 02 Rev. 1</div>
+                            <div class="float-right">RM PP 02 Rev. 2</div>
                         </div>
                         <div class="card-body">
                             <div class="row">
@@ -117,9 +117,9 @@
                                             <tbody>
                                                 <tr>
                                                     <td class="text-center">1</td>
-                                                    <td>Memperoleh informasi mengenai tata tertib dan peraturan yang berlaku
-                                                        di
-                                                        rumah sakit</td>
+                                                    <td>
+                                                        Mendapatkan informasi mengenai kesehatan dirinya.
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -131,7 +131,10 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center">2</td>
-                                                    <td>Memperoleh informasi tentang hak dan kewajiban pasien</td>
+                                                    <td>
+                                                        Mendapatkan penjelasan yang memadai mengenai pelayanan kesehatan
+                                                        yang diterimanya.
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -143,7 +146,10 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center">3</td>
-                                                    <td>Memperoleh pelayanan yang manusiawi, adil, dan jujur</td>
+                                                    <td>
+                                                        Mendapatkan pelayanan kesehatan sesuai dengan kebutuhan medis,
+                                                        standar profesi, dan pelayanan yang bermutu.
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -155,9 +161,11 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center">4</td>
-                                                    <td>Memperoleh pelayanan medis yang bermutu sesuai dengan standart
-                                                        profesi
-                                                        dan standar prosedur operasional</td>
+                                                    <td>
+                                                        Menolak atau menyetujui tindakan medis, kecuali untuk tindakan medis
+                                                        yang diperlukan dalam rangka pencegahan penyakit menular dan
+                                                        penanggulangan KLB atau Wabah.
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -169,9 +177,10 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center">5</td>
-                                                    <td>Memperoleh layanan yang efektif dan efisien sehingga pasien
-                                                        terhindar
-                                                        dari kerugian fisik dan materi</td>
+                                                    <td>
+                                                        Mendapatkan akses terhadap informasi yang terdapat di dalam rekam
+                                                        medis.
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -183,7 +192,9 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center">6</td>
-                                                    <td>Mengajukan pengaduan atas kealitas pelayanan yang didapatkan</td>
+                                                    <td>
+                                                        Meminta pendapat Tenaga Medis atau Tenaga Kesehatan lain
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -195,8 +206,10 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center">7</td>
-                                                    <td>Memilih dokter dan kelas perawatan sesuai dengan keinginannya dan
-                                                        peraturan yang berlaku di rumah sakit</td>
+                                                    <td>
+                                                        Mendapatkan hak lain sesuai dengan ketentuan peraturan
+                                                        perundangan-undangan.
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -206,7 +219,7 @@
                                                         </div>
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                {{-- <tr>
                                                     <td class="text-center">8</td>
                                                     <td>Meminta konsultasi tentang penyakit yang dideritanya kepada dokter
                                                         lain
@@ -362,7 +375,7 @@
                                                             <label for="checkHak18" class="custom-control-label"></label>
                                                         </div>
                                                     </td>
-                                                </tr>
+                                                </tr> --}}
                                             </tbody>
                                         </table>
                                     </div>
@@ -387,8 +400,10 @@
                                             <tbody>
                                                 <tr>
                                                     <td class="text-center">1</td>
-                                                    <td>Setiap Pasien dan Keluarga berkewajiban untuk mentaati peraturan dan
-                                                        tata tertib RSUP Surakarta</td>
+                                                    <td>
+                                                        Memberikan informasi yang lengkap dan jujur tentang masalah
+                                                        kesehatannya
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -400,8 +415,9 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center">2</td>
-                                                    <td>Memperlakukan staf rumah sakit, pasien lainnya dan pengunjung dengan
-                                                        sopan dan hormat</td>
+                                                    <td>
+                                                        Mematuhi nasihat dan petunjuk Tenaga Medis dan Tenaga Kesehatan
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -413,9 +429,9 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center">3</td>
-                                                    <td>Bertanggung jawab atas keamanan barang-barang berharga selama di
-                                                        rumah
-                                                        sakit</td>
+                                                    <td>
+                                                        Mematuhi ketentuan yang berlaku pada Fasilitas Pelayanan Kesehatan
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -427,7 +443,9 @@
                                                 </tr>
                                                 <tr>
                                                     <td class="text-center">4</td>
-                                                    <td>Menyelesaikan tanggung jawab keuangan</td>
+                                                    <td>
+                                                        Memberikan imbalan jasa atas pelayanan yang diterima
+                                                    </td>
                                                     <td class="text-center">
                                                         <div class="custom-control custom-checkbox">
                                                             <input class="custom-control-input" type="checkbox"
@@ -437,7 +455,7 @@
                                                         </div>
                                                     </td>
                                                 </tr>
-                                                <tr>
+                                                {{-- <tr>
                                                     <td class="text-center">5</td>
                                                     <td>Memberikan informasi yang diperlukan untuk pengobatan dengan benar,
                                                         jelas dan jujur tentang masalah kesehatannya</td>
@@ -488,7 +506,7 @@
                                                             <label for="checkWajib8" class="custom-control-label"></label>
                                                         </div>
                                                     </td>
-                                                </tr>
+                                                </tr> --}}
                                             </tbody>
                                         </table>
                                     </div>
@@ -542,15 +560,31 @@
                                 <!-- /.card -->
                             </div>
                             <div class="card-footer">
-                                {{-- <a href="/vedika" class="btn btn-default">Kembali</a> --}}
-                                <button type="submit" class="btn btn-primary">Simpan</button>
-                                <a href="/berkasrm/hakkewajiban/{{ Crypt::encrypt($berkas->noRawat) }}/delete"
-                                    class="btn btn-danger delete-confirm"><i class="fas fa-times-circle"></i>
-                                    Hapus</a>
+                                @if ($data->status_lanjut == 'Ralan')
+                                    <a href="{{ route('berkasrm.rajal') }}" class="btn btn-default">Kembali</a>
+                                @else
+                                    <a href="{{ route('berkasrm.ranap') }}" class="btn btn-default">Kembali</a>
+                                @endif
+                                @if (empty($berkas))
+                                    <button type="submit" class="btn btn-primary">Simpan</button>
+                                @else
+                                    <a href="/berkasrm/hakkewajiban/{{ Crypt::encrypt($berkas->noRawat) }}/delete"
+                                        class="btn btn-danger delete-confirm"><i class="fas fa-times-circle"></i>
+                                        Hapus</a>
+                                @endif
                                 <div class="float-right">
                                     <a href="/berkasrm/hakkewajiban/{{ Crypt::encrypt($berkas->noRawat) }}/print"
                                         class="btn btn-secondary" target="_blank"><i class="far fa-file-pdf"></i>
                                         Print</a>
+                                    @if (empty($fileSftp))
+                                        <a href="/berkasrm/hakkewajiban/{{ Crypt::encrypt($berkas->noRawat) }}/send"
+                                            class="btn btn-info"><i class="fas fa-share-square"></i>
+                                            Kirim Berkas</a>
+                                    @else
+                                        <a href="/berkasrm/hakkewajiban/{{ Crypt::encrypt($berkas->noRawat) }}/view"
+                                            class="btn btn-info" target="_blank"><i class="fas fa-file-download"></i>
+                                            Ambil Berkas</a>
+                                    @endif
                                 </div>
                             </div>
                         </div>

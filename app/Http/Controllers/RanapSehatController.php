@@ -309,7 +309,13 @@ class RanapSehatController extends Controller
 
                         $test = json_decode($response->getBody());
 
-                        dd($test);
+                        if ($test && !empty($test->fault)) {
+                            if ($test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                $message = "Gagal kirim encounter Ranap pasien " . $dataPengunjung->no_rawat . " karena limit quota";
+                                Session::flash('error', $message);
+                                return redirect()->back();
+                            }
+                        }
                     }
 
                     $message = "Gagal kirim encounter Ranap pasien " . $dataPengunjung->no_rawat;
@@ -1659,7 +1665,9 @@ class RanapSehatController extends Controller
 
                         $test = json_decode($response->getBody());
                         // dd($tes);
-
+                        if ($test && !empty($test->fault) && $test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                            Session::flash('error', 'Gagal kirim kondisi Meninggalkan pasien Ranap ' . $noRawat . '. Terjadi limit request ke server Satu Sehat. Silakan coba lagi nanti.');
+                        }
                         dd($test, 'status Meninggalkan', $dataKondisiMeninggalkan);
                     }
 
@@ -1928,7 +1936,7 @@ class RanapSehatController extends Controller
                         // dd($response);
                         $test = json_decode($response->getBody(), true);
                         // dd($test, $test['issue'], 'kirim Care Plan Pulang', $data_json);
-                        if ($test && $test['issue'] && $test['issue'][0]['code'] == 'duplicate') {
+                        if ($test && !empty($test['issue']) && $test['issue'][0]['code'] == 'duplicate') {
                             //jika duplicate tetap simpan log
                             $check = CarePlanRanap::where('encounter_id', $encounter)
                                 ->where('request_payload', json_encode($data_json))
@@ -2059,7 +2067,7 @@ class RanapSehatController extends Controller
                             if ($e->hasResponse()) {
                                 $response = $e->getResponse();
                                 $test = json_decode($response->getBody());
-                                if ($test->issue[0]->code == 'duplicate') {
+                                if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                                     try {
                                         $responseProsedure = $client->request('GET', 'fhir-r4/v1/Procedure?encounter=' . $encounter, [
                                             'headers' => [
@@ -2087,7 +2095,11 @@ class RanapSehatController extends Controller
                                     }
 
                                     goto KirimNextProcedure;
+                                } else if ($test && !empty($test->fault) && $test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                    Session::flash('error', 'Gagal kirim tindakan pasien Ranap ' . $noRawat . '. Terjadi limit request ke server Satu Sehat. Silakan coba lagi nanti.');
+                                    goto KirimNextProcedure;
                                 } else {
+                                    dd($test, 'error kirim procedure Ranap', $json);
                                     $message = $test->issue[0]->details->text;
 
                                     LogErrorSatuSehat::create([

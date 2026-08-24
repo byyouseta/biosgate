@@ -150,7 +150,15 @@
                                             <td>{{ $summary->kd_jenis_prw }}</td>
                                             <td>{{ $summary->nm_perawatan }}</td>
                                             <td>{{ $summary->dataEncounter->encounter_id ?? '-' }}</td>
-                                            <td>{{ $summary->dataResponse->serviceRequest_id ?? '-' }}
+                                            <td class="text-center">
+                                                @if (!empty($summary->dataResponse->serviceRequest_id))
+                                                    {{ $summary->dataResponse->serviceRequest_id }}
+                                                @else
+                                                    <a
+                                                        href="{{ route('satuSehat.kirimSingleServiceRequest', Crypt::encrypt($summary->no_rawat . '-' . $summary->noorder . '-' . $summary->kd_jenis_prw)) }}"><span
+                                                            class="badge badge-primary">Kirim
+                                                            Request</span></a>
+                                                @endif
                                             </td>
                                             <td>{{ $summary->dataResponse->specimen_id ?? '-' }}
                                                 @if (optional($summary->dataResponse)->specimen_id)

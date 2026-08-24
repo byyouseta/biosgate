@@ -520,15 +520,20 @@ class ObatSehatController extends Controller
                             $test = json_decode($body);
                             $errorCode = (array) $test;
 
-                            dd($test, 'medication2');
+                            // dd($test, 'medication2');
                             if (!empty($errorCode['issue'][0])) {
                                 $pesan = $errorCode['issue'][0]->details->text;
 
                                 $message = "Medication2 error $pesan";
 
                                 // Session::flash('error', $message);
-                            } else {
-                                // Session::flash('error', $errorCode['fault']->faultstring);
+                            } elseif (!empty($errorCode['fault']->faultstring)) {
+                                if ($errorCode['fault']->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                    $message = "Medication2 error: Rate limit exceeded. Please try again later.";
+                                } else {
+                                    $message = "Medication2 error: " . $errorCode['fault']->faultstring;
+                                }
+                                return redirect()->back()->with('error', $message);
                             }
                         }
                     }
@@ -694,10 +699,21 @@ class ObatSehatController extends Controller
 
                         $data = json_decode($response->getBody());
 
-                        //Update data di table respone medication request
-                        $update = ResponseMedicationSatuSehat::where('medication1', $idMedication1)->first();
-                        $update->medicationDispence = $data->id;
-                        $update->save();
+                        if (!empty($data->id) && $data->resourceType == "MedicationDispense") {
+                            //Update data di table respone medication request
+                            $update = ResponseMedicationSatuSehat::where('medication1', $idMedication1)->first();
+                            $update->medicationDispence = $data->id;
+                            $update->save();
+                        } else {
+                            if ($data && !empty($data->fault && !empty($data->fault->detail->errorcode) && $data->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation')) {
+                                Session::flash('error', 'Medication Dispense error: Rate limit exceeded. Please try again later.');
+                                return redirect()->back()->with('error', 'Medication Dispense error: Rate limit exceeded. Please try again later.');
+
+                                // Session::flash('error', $message);
+                            } else {
+                                dd($data, 'medication dispance', $medicationDispense);
+                            }
+                        }
                     }
                 }
             }
@@ -1957,7 +1973,7 @@ class ObatSehatController extends Controller
                                 $test = json_decode($body);
                                 $errorCode = (array) $test;
 
-                                dd($test, 'medication dispance', $medicationDispense);
+                                dd($test, 'medication dispance 2', $medicationDispense);
                                 if (!empty($errorCode['issue'][0])) {
                                     $pesan = $errorCode['issue'][0]->details->text;
 

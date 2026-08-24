@@ -90,7 +90,7 @@ class ImmunizationController extends Controller
             $list->ihs = $dataIhs[$list->ktp_pasien]->satu_sehat_id ?? null;
         }
 
-        // dd($kunjungan, $dataEncounter);
+        // dd($kunjungan, $responseImunitation);
 
         return view('satu_sehat.summary_vaksin', compact('kunjungan'));
     }

@@ -187,6 +187,8 @@ Route::post('/berkasrm/hakkewajiban/store', 'BerkasRmController@hakkewajibanStor
 Route::post('/berkasrm/hakkewajiban/edit', 'BerkasRmController@hakkewajibanEdit')->name('berkasrm.hakkewajibanEdit');
 Route::get('/berkasrm/hakkewajiban/{id}/delete', 'BerkasRmController@delete')->name('berkasrm.hakKewajibanDelete');
 Route::get('/berkasrm/hakkewajiban/{id}/print', 'BerkasRmController@hakKewajibanPdf')->name('berkasrm.hakKewajibanPdf');
+Route::get('/berkasrm/hakkewajiban/{id}/send', 'BerkasRmController@hakKewajibanSend')->name('berkasrm.hakKewajibanSend');
+Route::get('/berkasrm/hakkewajiban/{id}/view', 'BerkasRmController@viewHakKewajiban')->name('berkasrm.hakKewajibanView');
 
 //MCU
 Route::get('/berkasrm/{id}/penilaianralan', 'PenilaianMcuController@index')->name('berkasrm.penilaianralan');
@@ -203,6 +205,16 @@ Route::post('/berkasrm/generalconsent/store', 'BerkasRmController@generalStore')
 Route::post('/berkasrm/generalconsent/edit', 'BerkasRmController@generalEdit')->name('berkasrm.generalEdit');
 Route::get('/berkasrm/generalconsent/{id}/delete', 'BerkasRmController@generalDelete')->name('berkasrm.generalDelete');
 Route::get('/berkasrm/generalconsent/{id}/print', 'BerkasRmController@generalPdf')->name('berkasrm.generalPdf');
+Route::get('/berkasrm/generalconsent/{id}/send', 'BerkasRmController@generalSend')->name('berkasrm.generalSend');
+Route::get('/berkasrm/generalconsent/{id}/view', 'BerkasRmController@viewGeneral')->name('berkasrm.generalView');
+
+Route::get('/berkasrm/berkas/{id}/persetujuanri', 'BerkasRmController@persetujuanRI')->name('berkasrm.persetujuanRI');
+Route::post('/berkasrm/persetujuanri/store', 'BerkasRmController@persetujuanRIStore')->name('berkasrm.persetujuanRI.Store');
+Route::put('/berkasrm/persetujuanri/{id}/update', 'BerkasRmController@persetujuanRIUpdate')->name('berkasrm.persetujuanRI.Update');
+Route::get('/berkasrm/persetujuanri/{id}/delete', 'BerkasRmController@persetujuanRIDelete')->name('berkasrm.persetujuanRI.Delete');
+Route::get('/berkasrm/persetujuanri/{id}/print', 'BerkasRmController@persetujuanRIPdf')->name('berkasrm.persetujuanRI.Pdf');
+Route::get('/berkasrm/persetujuanri/{id}/send', 'BerkasRmController@persetujuanRISend')->name('berkasrm.persetujuanRI.Send');
+
 Route::get('/berkasrm/booking', 'BookingPendaftaranController@index')->name('berkasrm.bookingIndex');
 Route::get('/berkasrm/booking/{id}/pasien', 'BookingPendaftaranController@getPasien')->name('berkasrm.bookingGetPasien');
 Route::post('/berkasrm/booking/kirimpesan', 'BookingPendaftaranController@kirimPesanPasien')->name('berkasrm.bookingKirimPesan');
@@ -273,6 +285,8 @@ Route::get('/vedika/pengajuan/kronis', 'KlaimController@daftarRajalKronis')->nam
 Route::get('/vedika/pengajuan/ranap', 'KlaimController@daftarRanap')->name('vedika.daftarRanap');
 Route::get('/vedika/pengajuan/ulang', 'KlaimController@daftarUlang')->name('vedika.daftarUlang');
 Route::get('/vedika/pengajuan/{periode}/indikasiranap', 'KlaimController@indikasiRanap')->name('vedika.indikasiranap');
+
+Route::post('/vedika/get-pasien', 'KlaimController@getPasien')->name('vedika.getPasien');
 
 Route::get('/vedika/pengajuan/{periode}/gabungberkasall', 'VedikaController@gabungBerkasAll')->name('vedika.gabungberkasall');
 Route::get('/vedika/pengajuan/{periode}/makezipranap', 'VedikaController@generateZipRanap')->name('vedika.makezipranap');
@@ -402,6 +416,7 @@ Route::get('/satusehat/composition', 'SatuSehatController@sendComposition')->nam
 Route::get('/satusehat/lab', 'LabSehatController@sendLab')->name('satuSehat.sendLab');
 Route::get('/satusehat/labbundle', 'LabSehatController@bundleLab')->name('satuSehat.bundleLab');
 Route::get('/satusehat/lab/summary', 'LabSehatController@index')->name('satuSehat.summaryLab');
+Route::get('/satusehat/lab/{id}/sendservice', 'LabSehatController@kirimSingleServiceRequest')->name('satuSehat.kirimSingleServiceRequest');
 Route::get('/satusehat/lab/servicerequest', 'LabSehatController@kirimServiceRequest')->name('satuSehat.kirimServiceRequest');
 Route::get('/satusehat/lab/closingservicerequest', 'LabSehatController@closingLab')->name('satuSehat.closingServiceRequest');
 

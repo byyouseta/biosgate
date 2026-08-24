@@ -109,11 +109,11 @@
         <table style="border: 0px solid black; width:100%;">
             <thead>
                 <tr style="width:100%">
-                    <td style="width:3%; border:0px solid black;"><img src="{{ public_path('image/logorsup.jpg') }}"
-                            alt="Logo RSUP" width="20">
+                    <td style="width:10%; border:0px solid black;"><img
+                            src="{{ public_path('image/Logo_Baru_RSUP.png') }}" alt="Logo RSUP" width="100">
                     </td>
-                    <th style="border:0px solid black; text-align:left"> RSUP SURAKARTA </th>
-                    <td style="text-align:right; border:0px solid black; ">RM PP 01 Rev.1</td>
+                    {{-- <th style="border:0px solid black; text-align:left"> RSUP SURAKARTA </th> --}}
+                    <td style="text-align:right; border:0px solid black; ">RM PP 01 Rev.2</td>
                 </tr>
             </thead>
         </table>
@@ -189,11 +189,11 @@
                         tatalaksana sesuai pertimbangan dokter yang diperlukan atau
                         disarankan pada perawatan saya. Hal ini mencakup seluruh pemeriksaan
                         dan
-                        prosedur diagnostik rutin, termasuk X-ray, pemberian dan/atau
-                        tindakan medis serta penyuntikan (intramuskular, intravena, cateter,
-                        nasogastrictube ( NGT ), nasal kanul, partus normal dan prosedur
-                        invasif lainnya) produk farmasi dan obat-obatan, pemasangan alat
-                        kesehatan (kecuali yang membutuhkan persetujuan khusus/tertulis),
+                        prosedur diagnostik rutin, termasuk <i>X-ray, pemberian dan/atau
+                            tindakan medis serta penyuntikan (intramuskular, intravena, cateter,
+                            nasogastrictube ( NGT ), nasal kanul, partus normal dan prosedur
+                            invasif lainnya) produk farmasi dan obat-obatan, pemasangan alat
+                            kesehatan (kecuali yang membutuhkan persetujuan khusus/tertulis)</i>,
                         dan pengambilan darah untuk pemeriksaan laboratorium atau
                         pemeriksaan patologi yang dibutuhkan untuk pengobatan dan tindakan
                         yang aman. </td>
@@ -291,13 +291,10 @@
                 <tr>
                     <td style="width:5%; border-left:1px solid black; " class='text-center'></td>
                     <td style="border-right:1px solid black;">Untuk menjaga privasi dan kerahasian penyakit saya selama
-                        dalam
-                        perawatan serta memberikan persetujuan tindakan medis
-                        Dalam keadaan tertentu seperti di ruang isolasi dan isolasi dengan
-                        penyakit menular tertentu, maka :
+                        dalam perawatan serta memberikan persetujuan tindakan medis.
                     </td>
                 </tr>
-                <tr>
+                {{-- <tr>
                     <td style="width:5%; border-left:1px solid black; " class='text-center'></td>
                     <td style="border-right:1px solid black;">a. Selama perawatan, keluarga tidak diizinkan untuk
                         menunggu,
@@ -342,15 +339,14 @@
                         </div>
                     </td>
 
-                </tr>
+                </tr> --}}
                 {{-- <div style="float: none;">
                     <div style="page-break-after: always;"></div>
                 </div> --}}
                 <tr>
-                    <th style="width:5%; border-left:1px solid black; border-top: 1px solid black;"
-                        class='text-center'>
+                    <th style="width:5%; border-left:1px solid black; border-top: 0px solid black;" class='text-center'>
                         5.</th>
-                    <th style="border-right:1px solid black; border-top: 1px solid black;">RAHASIA INFORMASI KESEHATAN.
+                    <th style="border-right:1px solid black; border-top: 0px solid black;">RAHASIA INFORMASI KESEHATAN.
                     </th>
                 </tr>
                 <tr>
@@ -492,7 +488,7 @@
                         proses hukum tersebut.
                     </td>
                 </tr>
-                <tr>
+                {{-- <tr>
                     <td style="width:5%; border-left:1px solid black; border-right:1px solid black; border-bottom:1px solid black; "
                         class='text-center' colspan="2">
                         <div style="float: none;">
@@ -500,10 +496,10 @@
                         </div>
                     </td>
 
-                </tr>
+                </tr> --}}
                 <tr>
                     <td colspan='2'
-                        style='padding-left:5px; border-top:1px solid black; border-left:1px solid black; border-right:1px solid black'>
+                        style='padding-left:5px; border-top:0px solid black; border-left:1px solid black; border-right:1px solid black'>
                         SAYA TELAH MEMBACA / DIBACAKAN / dan SEPENUHNYA SETUJU dengan setiap pernyataan yang terdapat
                         pada formulir ini dan menanda tangani tanpa paksaan dan dengan kesadaran penuh.
                     </td>
@@ -518,10 +514,20 @@
                     @php
                         $penetapan = \Carbon\Carbon::parse($berkas->updated_at)->locale('id');
 
-                        $qr_informan = 'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' . "\n" . $berkas->user->name . "\n" . 'ID ' . $berkas->user_id . "\n" . \Carbon\Carbon::parse($berkas->updated_at)->format('d-m-Y');
-                        $qrcode_informan = base64_encode(QrCode::format('svg')->size(100)->errorCorrection('H')->generate($qr_informan));
+                        $qr_informan =
+                            'Dikeluarkan di RSUP SURAKARTA, Kabupaten/Kota Surakarta Ditandatangani secara elektronik oleh' .
+                            "\n" .
+                            $berkas->user->name .
+                            "\n" .
+                            'ID ' .
+                            $berkas->user_id .
+                            "\n" .
+                            \Carbon\Carbon::parse($berkas->updated_at)->format('d-m-Y');
+                        $qrcode_informan = base64_encode(
+                            QrCode::format('svg')->size(100)->errorCorrection('H')->generate($qr_informan),
+                        );
                     @endphp
-                    <td style="border-right: 1px solid black; text-align:center; ">Surakarta,
+                    <td style="border-right: 1px solid black; text-align:center; padding-top:20px;">Surakarta,
                         {{ $penetapan->format('j F Y') }} Jam {{ $penetapan->format('H:i') }} WIB
                     </td>
                 </tr>
@@ -571,10 +577,10 @@
         <table style="border: 0px solid black; width:100%;">
             <thead>
                 <tr style="width:100%">
-                    <td style="width:3%; border:0px solid black;"><img src="{{ public_path('image/logorsup.jpg') }}"
-                            alt="Logo RSUP" width="20">
+                    <td style="width:10%; border:0px solid black;"><img
+                            src="{{ public_path('image/Logo_Baru_RSUP.png') }}" alt="Logo RSUP" width="100">
                     </td>
-                    <th style="border:0px solid black;"> RSUP SURAKARTA </th>
+                    {{-- <th style="border:0px solid black;"> RSUP SURAKARTA </th> --}}
                     <td style="text-align:right; border:0px solid black; ">RM PP 01 Rev.1</td>
                 </tr>
             </thead>

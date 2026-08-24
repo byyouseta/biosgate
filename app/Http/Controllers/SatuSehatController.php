@@ -9705,7 +9705,7 @@ class SatuSehatController extends Controller
                             $body = (string) $response->getBody();
                             $test = json_decode($body);
 
-                            if ($test && $test->issue[0]->code == 'duplicate') {
+                            if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                                 $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                                 try {
                                     $response = $client->request('GET', 'fhir-r4/v1/Observation/encounter=' . $encounter, [
@@ -9735,6 +9735,7 @@ class SatuSehatController extends Controller
                                 } catch (ClientException $e) {
                                 }
                             } else {
+                                dd($test);
                                 $message = 'error other';
 
                                 LogErrorSatuSehat::create([
@@ -10067,8 +10068,9 @@ class SatuSehatController extends Controller
                             $response = $e->getResponse();
                             $body = (string) $response->getBody();
                             $test = json_decode($body);
+                            // dd($test, 'gagal kirim diastole');
 
-                            if ($test && $test->issue[0]->code == 'duplicate') {
+                            if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                                 $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
                                 try {
                                     $response = $client->request('GET', 'fhir-r4/v1/Observation?encounter=' . $encounter, [
@@ -10099,8 +10101,16 @@ class SatuSehatController extends Controller
                                 } catch (ClientException $e) {
                                     dd($e->getMessage(), 'gagal ambil data duplicate diastole');
                                 }
+                            } elseif ($test && $test->fault) {
+                                if (!empty($test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation')) {
+                                    return response()->json([
+                                        'status' => 'error',
+                                        'message' => 'Koneksi ke Satu Sehat dibatasi. Silakan coba lagi nanti.'
+                                    ], 429);
+                                }
                             } else {
-                                if ($test && $test->issue[0]) {
+                                dd($test, 'gagal kirim diastole');
+                                if ($test && !empty($test->issue) && $test->issue[0]) {
                                     $message = $test->issue[0]->details->text;
                                 } else {
                                     $message = 'error other';
@@ -10377,14 +10387,17 @@ class SatuSehatController extends Controller
             ->join('pemeriksaan_ralan', 'pemeriksaan_ralan.no_rawat', '=', 'reg_periksa.no_rawat')
             ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
             ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
             ->select(
+                'reg_periksa.*',
                 'pasien.nm_pasien',
                 'pasien.no_ktp as ktp_pasien',
                 'pasien.tgl_lahir',
                 'pasien.jk',
                 'pegawai.no_ktp as ktp_dokter',
                 'pegawai.nama as nama_dokter',
-                'pemeriksaan_ralan.*'
+                'pemeriksaan_ralan.*',
+                'poliklinik.nm_poli'
             )
             ->where('pemeriksaan_ralan.no_rawat', $no_rawat)
             ->first();
@@ -10393,10 +10406,14 @@ class SatuSehatController extends Controller
         $diagnosaSekunder = SatuSehatController::getDiagnosisSekunderRalan($no_rawat);
 
         if ($data && $encounter != null && $encounter != 'duplicate') {
+            $idRS = env('IDRS');
             $idPasien = SatuSehatController::patientSehat($data->ktp_pasien);
             $idPractition = SatuSehatController::practitioner($data->ktp_dokter);
+            $idLokasi = SatuSehatController::getIdPoli($data->kd_poli);
             $waktuPerawatan = new Carbon("$data->tgl_perawatan $data->jam_rawat");
             $formatWaktuPerawatan = $waktuPerawatan->setTimezone('UTC')->toW3cString();
+            $waktuRegis = new Carbon("$data->tgl_registrasi $data->jam_reg");
+            $formatWaktuRegis = $waktuRegis->setTimezone('UTC')->toW3cString();
 
             if ($diagnosaPrimer != null) {
                 $diagnosis1 = [
@@ -10548,8 +10565,6 @@ class SatuSehatController extends Controller
                         ->first();
                     $update->condition_id = $bodyResponse->id;
                     $update->save();
-
-                    // dd('Sukses kirim diagnosa primer dengan id Condition : ' . $bodyResponse->id);
                 }
             }
 
@@ -10701,6 +10716,124 @@ class SatuSehatController extends Controller
                     $update->save();
 
                     // dd('Sukses kirim diagnosa sekunder dengan id Condition : ' . $bodyResponse->id);
+                }
+            }
+
+            //Closing Encounter
+            $cekPengirimanDiagnosa = ResponseSatuSehat::where('noRawat', $no_rawat)->first();
+
+            if ($cekPengirimanDiagnosa && !empty($cekPengirimanDiagnosa->condition_id)) {
+                $tutupJson = [
+                    "resourceType" => "Encounter",
+                    "id" => "$cekPengirimanDiagnosa->encounter_id",
+                    "identifier" => [
+                        [
+                            "system" => "http://sys-ids.kemkes.go.id/encounter/$idRS",
+                            "value" => "$no_rawat"
+                        ]
+                    ],
+                    "status" => "finished",
+                    "class" => [
+                        "system" => "http://terminology.hl7.org/CodeSystem/v3-ActCode",
+                        "code" => "AMB",
+                        "display" => "ambulatory"
+                    ],
+                    "subject" => [
+                        "reference" => "Patient/$idPasien",
+                        "display" => "$data->nm_pasien"
+                    ],
+                    "participant" => [
+                        [
+                            "type" => [
+                                [
+                                    "coding" => [
+                                        [
+                                            "system" => "http://terminology.hl7.org/CodeSystem/v3-ParticipationType",
+                                            "code" => "ATND",
+                                            "display" => "attender"
+                                        ]
+                                    ]
+                                ]
+                            ],
+                            "individual" => [
+                                "reference" => "Practitioner/$idPractition",
+                                "display" => "$data->nama_dokter"
+                            ]
+                        ]
+                    ],
+                    "period" => [
+                        "start" => "$formatWaktuRegis",
+                        "end" => "$formatWaktuPerawatan"
+                    ],
+                    "location" => [
+                        [
+                            "location" => [
+                                "reference" => "Location/$idLokasi",
+                                "display" => "$data->nm_poli"
+                            ]
+                        ]
+                    ],
+                    "diagnosis" => [
+                        [
+                            "condition" => [
+                                "reference" => "Condition/$cekPengirimanDiagnosa->condition_id"
+                                // "display": "Tuberculosis of lung, confirmed by sputum microscopy with or without culture"
+                            ]
+                        ]
+
+                    ],
+                    "statusHistory" => [
+                        [
+                            "status" => "arrived",
+                            "period" => [
+                                "start" => "$formatWaktuRegis",
+                                "end" => "$formatWaktuRegis"
+                            ]
+                        ],
+                        [
+                            "status" => "in-progress",
+                            "period" => [
+                                "start" => "$formatWaktuRegis",
+                                "end" => "$formatWaktuPerawatan"
+                            ]
+                        ],
+                        [
+                            "status" => "finished",
+                            "period" => [
+                                "start" => "$formatWaktuPerawatan",
+                                "end" => "$formatWaktuPerawatan"
+                            ]
+                        ]
+                    ],
+                    "serviceProvider" => [
+                        "reference" => "Organization/$idRS"
+                    ]
+                ];
+
+                $access_token = SatuSehatController::getTokenSehat();
+                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
+                try {
+                    $response = $client->request('PUT', "fhir-r4/v1/Encounter/$encounter", [
+                        'headers' => [
+                            'Authorization' => "Bearer {$access_token}"
+                        ],
+                        'json' => $tutupJson
+                    ]);
+                } catch (BadResponseException $e) {
+                    if ($e->hasResponse()) {
+                        $response = $e->getResponse();
+                        $body = (string) $response->getBody();
+                        $test = json_decode($body);
+
+                        dd('error update closing encounter', $test);
+
+                        $error = new LogErrorSatuSehat();
+                        $error->subject = 'Closing Encounter';
+                        $error->keterangan = $data->no_rawat . ' error kirim "' . $pesan . '"';
+                        $error->save();
+                    }
+
+                    return;
                 }
             }
         }

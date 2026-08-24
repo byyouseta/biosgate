@@ -34,7 +34,7 @@
                                                 autocomplete="off" value="{{ $tanggal }}">
                                             <span class="input-group-append">
                                                 <button type="submit" class="btn btn-info btn-flat btn-sm"><i
-                                                        class="fas fa-search"></i> Tampilkan</button>
+                                                        class="fas fa-search"></i> GO!</button>
                                             </span>
                                         </div>
                                     </form>

@@ -157,6 +157,7 @@
                                                 @php
                                                     if (!empty($summary->imunisasi)) {
                                                         $imunisasi = $summary->imunisasi
+                                                            ->where('noRawat', $summary->no_rawat)
                                                             ->where('kd_jenis_prw', $summary->kd_jenis_prw)
                                                             ->first();
                                                     } else {

@@ -23,25 +23,62 @@
                 @endphp
                 <div class="col-12">
                     <div class="card">
-                        <div class="card-header">
+                        {{-- <div class="card-header">
                             <div class="form-group row">
-                                <div class="col-sm-10 mt-2">
-                                    <label>Pasien Rajal/IGD</label>
+                                <div class="col-sm-9 mt-2">
+                                    <label>{{ Request::get('anak') == 'Rawat Jalan/Igd' ? 'Pasien Rajal/IGD' : 'Pasien Rawat Inap' }}</label>
                                 </div>
-                                <div class="col-sm-2">
-                                    <form action="/berkasrm/rajal" method="GET">
-                                        <div class="input-group input-group" data-target-input="nearest">
+                                <div class="col-sm-3">
+                                    <form
+                                        action="{{ Request::get('anak') == 'Rawat Jalan/Igd' ? '/berkasrm/rajal' : '/berkasrm/ranap' }}"
+                                        method="GET">
+
+                                        <div class="input-group">
                                             <input type="text" class="form-control datetimepicker-input" id="tanggal"
                                                 data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
-                                                autocomplete="off" value="{{ $tanggal }}">
+                                                autocomplete="off" value="{{ $tanggal }}" style="min-width: 120px;">
 
                                             <span class="input-group-append">
-                                                <button type="submit" class="btn btn-info btn-flat btn-sm"><i
-                                                        class="fas fa-search"></i> Tampilkan</button>
+                                                <button type="submit" class="btn btn-info btn-flat btn-sm">
+                                                    <i class="fas fa-search"></i> Tampilkan
+                                                </button>
                                             </span>
                                         </div>
+
                                     </form>
                                 </div>
+                            </div>
+                        </div> --}}
+                        <div class="card-header">
+                            <div class="row align-items-center">
+
+                                <div class="col mt-2">
+                                    <label class="mb-0">
+                                        {{ Session::get('anak') == 'Rawat Jalan/IGD' ? 'Pasien Rajal/IGD' : 'Pasien Rawat Inap' }}
+                                    </label>
+                                </div>
+
+                                <div class="col-auto">
+                                    <form
+                                        action="{{ Session::get('anak') == 'Rawat Jalan/IGD' ? '/berkasrm/rajal' : '/berkasrm/ranap' }}"
+                                        method="GET">
+
+                                        <div class="input-group">
+                                            <input type="text" class="form-control datetimepicker-input" id="tanggal"
+                                                data-target="#tanggal" data-toggle="datetimepicker" name="tanggal"
+                                                autocomplete="off" value="{{ $tanggal }}"
+                                                style="width: 120px; flex: 0 0 120px;">
+
+                                            <div class="input-group-append">
+                                                <button type="submit" class="btn btn-info btn-flat btn-sm">
+                                                    <i class="fas fa-search"></i> Tampilkan
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                    </form>
+                                </div>
+
                             </div>
                         </div>
                         <div class="card-body">
@@ -72,21 +109,22 @@
                                                         </button>
                                                         <div class="dropdown-menu" role="menu">
                                                             <a class="dropdown-item"
-                                                                href="/berkasrm/berkas/{{ Crypt::encrypt($dataPasien->no_rawat) }}/kewajiban"
-                                                                target="_blank">Berkas
+                                                                href="/berkasrm/berkas/{{ Crypt::encrypt($dataPasien->no_rawat) }}/kewajiban">Berkas
                                                                 Hak/Kewajiban </a>
                                                             @if (App\HakKewajibanPasien::cekHakKewajiban(Crypt::encrypt($dataPasien->no_rawat)) == true)
                                                                 <a class="dropdown-item delete-confirm"
-                                                                    href="/berkasrm/berkas/{{ Crypt::encrypt($dataPasien->no_rawat) }}/kewajiban/delete">
+                                                                    href="{{ route('berkasrm.hakKewajibanDelete', Crypt::encrypt($dataPasien->no_rawat)) }}">
                                                                     <i class="fas fa-times-circle text-danger"></i>
                                                                     Berkas Hak/
                                                                     Kewajiban
                                                                 </a>
                                                             @endif
                                                             <a class="dropdown-item"
-                                                                href="/berkasrm/berkas/{{ Crypt::encrypt($dataPasien->no_rawat) }}/generalconsent"
-                                                                target="_blank">Berkas
+                                                                href="/berkasrm/berkas/{{ Crypt::encrypt($dataPasien->no_rawat) }}/generalconsent">Berkas
                                                                 General Consent </a>
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('berkasrm.persetujuanRI', Crypt::encrypt($dataPasien->no_rawat)) }}">Berkas
+                                                                Persetujuan Rawat Inap </a>
                                                             <div class="dropdown-divider"></div>
                                                             <a class="dropdown-item"
                                                                 href="{{ route('berkasrm.penilaianralan', Crypt::encrypt($dataPasien->no_rawat)) }}"
