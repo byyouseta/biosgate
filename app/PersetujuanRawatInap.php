@@ -25,6 +25,7 @@ class PersetujuanRawatInap extends Model
         'cara_bayar_lainnya',
         'kelas_rawat',
         'pindah_kelas_rawat',
+        'status_persetujuan',
         'no_rawat',
         'petugas_id',
         'tanda_tangan'

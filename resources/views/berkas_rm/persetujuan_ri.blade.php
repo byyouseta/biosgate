@@ -61,8 +61,8 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="nik">NIK</label>
-                                        <input type="text" class="form-control" name="nik" id="nik"
-                                            value="{{ $data->ktp_pasien }}" readonly>
+                                        <input type="text" maxlength="16" class="form-control" name="nik"
+                                            id="nik" value="{{ $data->ktp_pasien }}" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="nama_pasien">Nama Pasien</label>
@@ -126,16 +126,17 @@
                                                 </tr>
                                                 <tr>
                                                     <td style="width:15%; vertical-align: middle;">Nama</td>
-                                                    <td><input type="text" name="nama_pj" required
+                                                    <td><input type="text" name="nama_pj" required id="nama_pj"
                                                             value="{{ old('nama_pj', $berkas ? $berkas->nama_pj : '') }}"
-                                                            class="form-control"></td>
+                                                            class="form-control" placeholder="Nama Penanggung Jawab"></td>
 
                                                 </tr>
                                                 <tr>
                                                     <td style="width:15%; vertical-align: middle;">Tempat Lahir</td>
                                                     <td><input type="text" name="tempat_lahir_pj" required
                                                             value="{{ old('tempat_lahir_pj', $berkas ? $berkas->tempat_lahir_pj : '') }}"
-                                                            class="form-control">
+                                                            class="form-control"
+                                                            placeholder="Tempat Lahir Penanggung Jawab">
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -146,7 +147,8 @@
                                                                 class="form-control datetimepicker-input" id="tglLahirPj"
                                                                 data-target="#tgl_lahir_pj" data-toggle="datetimepicker"
                                                                 name="tgl_lahir_pj" autocomplete="off" required
-                                                                value="{{ old('tgl_lahir_pj', $berkas ? $berkas->tanggal_lahir_pj : '') }}" />
+                                                                value="{{ old('tgl_lahir_pj', $berkas ? $berkas->tanggal_lahir_pj : '') }}"
+                                                                placeholder="Tanggal Lahir Penanggung Jawab" />
                                                             <div class="input-group-append" data-target="#tgl_lahir_pj"
                                                                 data-toggle="datetimepicker">
                                                                 <div class="input-group-text"><i
@@ -160,6 +162,8 @@
                                                     <td>
                                                         <select name="jk_pj" id="" class="form-control w-25"
                                                             name="jk" required>
+                                                            <option value="" disabled selected>Pilih Jenis Kelamin
+                                                            </option>
                                                             <option value="L"
                                                                 {{ old('jk_pj', $berkas ? $berkas->jenis_kelamin_pj : '') == 'L' ? 'selected' : '' }}>
                                                                 Laki-laki
@@ -174,28 +178,32 @@
                                                 <tr>
                                                     <td style="width:15%; vertical-align: middle;">Alamat</td>
                                                     <td><input type="text" name="alamat_pj" id=""
-                                                            class="form-control" required
+                                                            placeholder="Alamat Penanggung Jawab" class="form-control"
+                                                            required
                                                             value="{{ old('alamat_pj', $berkas ? $berkas->alamat_pj : '') }}">
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style="width:15%; vertical-align: middle;">Pekerjaan</td>
                                                     <td><input type="text" name="pekerjaan_pj" id=""
-                                                            class="form-control" required
+                                                            placeholder="Pekerjaan Penanggung Jawab" class="form-control"
+                                                            required
                                                             value="{{ old('pekerjaan_pj', $berkas ? $berkas->pekerjaan_pj : '') }}">
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style="width:15%; vertical-align: middle;">No KTP</td>
-                                                    <td><input type="text" name="no_ktp_pj" id=""
-                                                            class="form-control" required
+                                                    <td><input type="text" name="no_ktp_pj" maxlength="16"
+                                                            placeholder="No KTP Penanggung Jawab"
+                                                            class="form-control w-25" required
                                                             value="{{ old('no_ktp_pj', $berkas ? $berkas->no_ktp_pj : '') }}">
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style="width:15%; vertical-align: middle;">No Telepon</td>
                                                     <td><input type="text" name="no_telp_pj" id=""
-                                                            class="form-control" required
+                                                            placeholder="No Telepon Penanggung Jawab" maxlength="15"
+                                                            class="form-control w-25" required
                                                             value="{{ old('no_telp_pj', $berkas ? $berkas->no_telepon_pj : '') }}">
                                                     </td>
                                                 </tr>
@@ -234,7 +242,7 @@
                                                     <td><input type="text" name="nama_pasien" id=""
                                                             class="form-control"
                                                             value="{{ $berkas ? $berkas->nama_pasien : $data->nm_pasien }}"
-                                                            required>
+                                                            placeholder="Nama Pasien" required>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -243,15 +251,13 @@
                                                     <td><input type="text" name="tempat_lahir_pasien" id=""
                                                             class="form-control"
                                                             value="{{ $berkas ? $berkas->tempat_lahir_pasien : $data->nm_kab ?? 'N/A' }}"
-                                                            required>
+                                                            placeholder="Tempat Lahir Pasien" required>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td style="width:15%; vertical-align: middle;">Tanggal Lahir Pasien
                                                     </td>
                                                     <td>
-                                                        {{-- <input type="text" name="tgl_lahir_pasien" id="tglLahirPasien"
-                                                            class="form-control w-25" value="{{ $data->tgl_lahir }}"> --}}
                                                         <div class="input-group date w-25" data-target-input="nearest">
                                                             <input type="text"
                                                                 class="form-control datetimepicker-input"
@@ -259,7 +265,7 @@
                                                                 data-toggle="datetimepicker" name="tgl_lahir_pasien"
                                                                 autocomplete="off"
                                                                 value="{{ $berkas ? $berkas->tanggal_lahir_pasien : $data->tgl_lahir }}"
-                                                                required>
+                                                                placeholder="Tanggal Lahir Pasien" required>
                                                             <div class="input-group-append"
                                                                 data-target="#tgl_lahir_pasien"
                                                                 data-toggle="datetimepicker">
@@ -288,6 +294,7 @@
                                                     <td style="width:15%; vertical-align: middle;">Alamat Pasien</td>
                                                     <td><input type="text" name="alamat_pasien" required
                                                             id="" class="form-control"
+                                                            placeholder="Alamat Pasien"
                                                             value="{{ $berkas ? $berkas->alamat_pasien : $data->alamat }} {{ $berkas ? $berkas->kelurahan : $data->nm_kel }} {{ $berkas ? $berkas->kecamatan : $data->nm_kec }} {{ $berkas ? $berkas->kabupaten : $data->nm_kab }} {{ $berkas ? $berkas->propinsi : $data->nm_prop }}">
                                                     </td>
                                                 </tr>
@@ -295,6 +302,7 @@
                                                     <td style="width:15%; vertical-align: middle;">Nomor Rekam Medis</td>
                                                     <td><input type="text" name="nomor_rekam_medis" required
                                                             id="" class="form-control"
+                                                            placeholder="Nomor Rekam Medis"
                                                             value="{{ $berkas ? $berkas->no_rm : $data->no_rkm_medis }}">
                                                         <input type="hidden" name="no_rawat"
                                                             value="{{ $berkas ? $berkas->no_rawat : $data->no_rawat }}">
@@ -302,9 +310,18 @@
                                                 </tr>
                                                 <tr>
                                                     <td style="width:15%; vertical-align: middle;">Cara Bayar</td>
-                                                    <td><input type="text" name="cara_bayar" required id=""
-                                                            class="form-control"
-                                                            value="{{ $berkas ? $berkas->cara_bayar : $data->cara_bayar }}">
+                                                    <td>
+                                                        <select name="cara_bayar" class="form-control select2 w-25"
+                                                            style="width: 25%;" required>
+                                                            <option value="" disabled selected>Pilih Cara Bayar
+                                                            </option>
+                                                            @foreach ($cara_bayar as $cb)
+                                                                <option value="{{ $cb->nama_perusahaan }}"
+                                                                    {{ $berkas ? ($berkas->cara_bayar == $cb->nama_perusahaan ? 'selected' : '') : ($data->kd_pj == $cb->kd_pj ? 'selected' : '') }}>
+                                                                    {{ $cb->png_jawab }}
+                                                                </option>
+                                                            @endforeach
+                                                        </select>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -363,8 +380,31 @@
                                             </tr>
                                             <tr>
                                                 <td style="width:5%; text-align: center;">1. </td>
-                                                <td>Setuju / Menolak * dilakukan pelayanan rawat inap
-                                                    di RSUP Surakarta kepada pasien tersebut diatas.</td>
+                                                {{-- <td>Setuju / Menolak * dilakukan pelayanan rawat inap
+                                                    di RSUP Surakarta kepada pasien tersebut diatas.</td> --}}
+                                                <td>
+                                                    <div class="form-check form-check-inline">
+                                                        <input type="radio" class="form-check-input"
+                                                            name="persetujuan_rawat_inap" id="setuju" value="Setuju"
+                                                            {{ old('persetujuan_rawat_inap', $berkas->status_persetujuan ?? '') == 'Setuju' ? 'checked' : '' }}
+                                                            required>
+                                                        <label class="form-check-label" for="setuju">
+                                                            Setuju
+                                                        </label>
+                                                    </div>
+
+                                                    <div class="form-check form-check-inline">
+                                                        <input type="radio" class="form-check-input"
+                                                            name="persetujuan_rawat_inap" id="menolak" value="Menolak"
+                                                            {{ old('persetujuan_rawat_inap', $berkas->status_persetujuan ?? '') == 'Menolak' ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="menolak">
+                                                            Menolak
+                                                        </label>
+                                                    </div>
+
+                                                    dilakukan pelayanan rawat inap di RSUP Surakarta kepada pasien tersebut
+                                                    diatas.
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <td style="width:5%; text-align: center;">2. </td>
@@ -463,6 +503,11 @@
                                                     <label for="informan">Pemberi Informasi</label>
                                                     <input type="text" class="form-control" name="informan"
                                                         id="informan" value="{{ Auth::user()->name }}" readonly>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="tgl">Penanggung Jawab</label>
+                                                    <input type="text" class="form-control" id="nama_pj_hal2"
+                                                        readonly>
                                                 </div>
                                             </div>
                                             <div class="col-6">
@@ -567,6 +612,16 @@
             $src.on('input', function() {
                 $dst.val($src.val());
             });
+        });
+        //membuat function untuk menampilkan nama penanggung jawab di halaman 2 terload ketika ada perubahan maupun default value di halaman 1
+        $(function() {
+            var $src = $('#nama_pj'),
+                $dst = $('#nama_pj_hal2');
+            $src.on('input', function() {
+                $dst.val($src.val());
+            });
+            //set default value
+            $dst.val($src.val());
         });
     </script>
 @endsection

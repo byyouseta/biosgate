@@ -35,6 +35,7 @@ class CreatePersetujuanRawatInapsTable extends Migration
             $table->string('cara_bayar_lainnya', 100)->nullable();
             $table->string('kelas_rawat', 50)->nullable();
             $table->string('pindah_kelas_rawat', 50)->nullable();
+            $table->enum('status_persetujuan', ['Setuju', 'Menolak'])->default('Setuju');
             $table->unsignedBigInteger('petugas_id');
             $table->text('tanda_tangan')->nullable();
             $table->timestamps();

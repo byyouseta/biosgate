@@ -168,7 +168,7 @@
                                                         nilai dan agama yang dianut oleh pasien, selama memperoleh
                                                         pelayanan kesehatan diantaranya:</td>
                                                 </tr>
-                                                <tr>
+                                                {{-- <tr>
                                                     <td style="width:5%" class="text-center"></td>
                                                     <td>
                                                         <div class="input-group mb-3">
@@ -215,6 +215,101 @@
                                                                 placeholder="Silahkan isi keyakinan dan nilai-nilai yang diyakini">
                                                         </div>
                                                     </td>
+                                                </tr> --}}
+                                                {{-- A --}}
+                                                <tr>
+                                                    <td style="width:5%" class="text-center"></td>
+                                                    <td>
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text">a.</span>
+                                                            </div>
+
+                                                            <input type="text" class="form-control" name="keyakinan1"
+                                                                placeholder="Silahkan isi keyakinan dan nilai-nilai yang diyakini">
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                {{-- B --}}
+                                                <tr id="rowKeyakinan2" style="display: none;">
+                                                    <td style="width:5%" class="text-center"></td>
+                                                    <td>
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text">b.</span>
+                                                            </div>
+
+                                                            <input type="text" class="form-control" name="keyakinan2"
+                                                                placeholder="Silahkan isi keyakinan dan nilai-nilai yang diyakini">
+
+                                                            <div class="input-group-append">
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-hapus-keyakinan"
+                                                                    data-row="rowKeyakinan2" data-input="keyakinan2">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                {{-- C --}}
+                                                <tr id="rowKeyakinan3" style="display: none;">
+                                                    <td style="width:5%" class="text-center"></td>
+                                                    <td>
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text">c.</span>
+                                                            </div>
+
+                                                            <input type="text" class="form-control" name="keyakinan3"
+                                                                placeholder="Silahkan isi keyakinan dan nilai-nilai yang diyakini">
+
+                                                            <div class="input-group-append">
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-hapus-keyakinan"
+                                                                    data-row="rowKeyakinan3" data-input="keyakinan3">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                {{-- D --}}
+                                                <tr id="rowKeyakinan4" style="display: none;">
+                                                    <td style="width:5%" class="text-center"></td>
+                                                    <td>
+                                                        <div class="input-group mb-3">
+                                                            <div class="input-group-prepend">
+                                                                <span class="input-group-text">d.</span>
+                                                            </div>
+
+                                                            <input type="text" class="form-control" name="keyakinan4"
+                                                                placeholder="Silahkan isi keyakinan dan nilai-nilai yang diyakini">
+
+                                                            <div class="input-group-append">
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-hapus-keyakinan"
+                                                                    data-row="rowKeyakinan4" data-input="keyakinan4">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+
+                                                {{-- Tombol tambah --}}
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                        <button type="button" id="btnTambahKeyakinan"
+                                                            class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-plus"></i>
+                                                            Tambah
+                                                        </button>
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <th style="width:5%" class="text-center">4.</th>
@@ -224,6 +319,8 @@
                                                     <td style="width:5%" class="text-center"></td>
                                                     <td>Saya memberi kuasa kepada RSUP Surakarta dan atau :</td>
                                                 </tr>
+
+                                                {{-- A --}}
                                                 <tr>
                                                     <td style="width:5%" class="text-center"></td>
                                                     <td>
@@ -231,33 +328,68 @@
                                                             <div class="input-group-prepend">
                                                                 <span class="input-group-text">a.</span>
                                                             </div>
+
                                                             <input type="text" class="form-control" name="privasi1"
                                                                 placeholder="Silahkan isi privasi yang diinginkan">
                                                         </div>
                                                     </td>
                                                 </tr>
-                                                <tr>
+
+                                                {{-- B --}}
+                                                <tr id="rowPrivasi2" style="display: none;">
                                                     <td style="width:5%" class="text-center"></td>
                                                     <td>
                                                         <div class="input-group mb-3">
                                                             <div class="input-group-prepend">
                                                                 <span class="input-group-text">b.</span>
                                                             </div>
+
                                                             <input type="text" class="form-control" name="privasi2"
                                                                 placeholder="Silahkan isi privasi yang diinginkan">
+
+                                                            <div class="input-group-append">
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-hapus-privasi"
+                                                                    data-row="rowPrivasi2" data-input="privasi2">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                     </td>
                                                 </tr>
-                                                <tr>
-                                                    <td style="width:5%" class='text-center'></td>
+
+                                                {{-- C --}}
+                                                <tr id="rowPrivasi3" style="display: none;">
+                                                    <td style="width:5%" class="text-center"></td>
                                                     <td>
                                                         <div class="input-group mb-3">
                                                             <div class="input-group-prepend">
                                                                 <span class="input-group-text">c.</span>
                                                             </div>
+
                                                             <input type="text" class="form-control" name="privasi3"
                                                                 placeholder="Silahkan isi privasi yang diinginkan">
+
+                                                            <div class="input-group-append">
+                                                                <button type="button"
+                                                                    class="btn btn-danger btn-hapus-privasi"
+                                                                    data-row="rowPrivasi3" data-input="privasi3">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
                                                         </div>
+                                                    </td>
+                                                </tr>
+
+                                                {{-- Tombol tambah --}}
+                                                <tr>
+                                                    <td></td>
+                                                    <td>
+                                                        <button type="button" id="btnTambahPrivasi"
+                                                            class="btn btn-primary btn-sm">
+                                                            <i class="fas fa-plus"></i>
+                                                            Tambah
+                                                        </button>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -266,37 +398,6 @@
                                                         perawatan serta memberikan persetujuan tindakan medis.
                                                     </td>
                                                 </tr>
-                                                {{-- <tr>
-                                                    <td style="width:5%" class='text-center'></td>
-                                                    <td>a. Selama perawatan, keluarga tidak diizinkan untuk menunggu,
-                                                        kecuali dalam keadaan khusus sesuai indikasi medis dan keperawatan
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:5%" class='text-center'></td>
-                                                    <td>b. Selama menunggu tidak boleh keluar masuk dan sering berganti
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:5%" class='text-center'></td>
-                                                    <td>c. Rumah Sakit Umum Pusat Surakarta tidak bertanggung jawab terhadap
-                                                        risiko yang ditimbulkan selama menunggu</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:5%" class='text-center'></td>
-                                                    <td>d. Pengawasan dan kebutuhan pasien selama diruang perawatan
-                                                        diberikan oleh petugas kesehatan</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:5%" class='text-center'></td>
-                                                    <td>e. Pengawasan pasien diruang perawatan dapat menggunakan kemajuan
-                                                        teknologi saat ini, misalnya CCTV</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:5%" class='text-center'></td>
-                                                    <td>f. Komunikasi dan edukasi kepada keluarga menggunakan video call,
-                                                        Whatsap saat ini yang berlaku di RSUP Surakarta</td>
-                                                </tr> --}}
                                                 <tr>
                                                     <th style="width:5%" class='text-center'>5.</th>
                                                     <th>RAHASIA INFORMASI KESEHATAN. </th>
@@ -337,21 +438,6 @@
                                                     <td style="width:5%" class='text-center'></td>
                                                     <td>- Kepentingan hukum.</td>
                                                 </tr>
-                                                {{-- <tr>
-                                                    <td style="width:5%" class='text-center'></td>
-                                                    <td>b. Saya mengetahui dan menyetujui bahwa berdasarkan Peraturan
-                                                        Menteri Kesehatan Nomor 24 Tahun 2022 tentang Rekam Medis,
-                                                        fasilitas pelayanan kesehatan wajib membuka akses dan mengirim data
-                                                        rekam medis kepada Kementerian Kesehatan melalui
-                                                        Platform SATU SEHAT.</td>
-                                                </tr>
-                                                <tr>
-                                                    <td style="width:5%" class='text-center'></td>
-                                                    <td>c. Menyetujui untuk menerima dan membuka data Pasien dari Fasilitas
-                                                        Pelayanan Kesehatan lainnya melalui SATU SEHAT untuk
-                                                        kepentingan pelayanan kesehatan dan/atau rujukan.
-                                                    </td>
-                                                </tr> --}}
                                                 <tr>
                                                     <th style="width:5%" class='text-center'>7.</th>
                                                     <th>BARANG PRIBADI. </th>
@@ -673,5 +759,84 @@
                 document.getElementById('usia').value = age;
             }
         }
+
+        $(document).ready(function() {
+
+            $('#btnTambahKeyakinan').click(function() {
+
+                if ($('#rowKeyakinan2').is(':hidden')) {
+                    $('#rowKeyakinan2').show();
+                } else if ($('#rowKeyakinan3').is(':hidden')) {
+                    $('#rowKeyakinan3').show();
+                } else if ($('#rowKeyakinan4').is(':hidden')) {
+                    $('#rowKeyakinan4').show();
+                }
+
+                // Kalau semuanya sudah muncul
+                if (
+                    $('#rowKeyakinan2').is(':visible') &&
+                    $('#rowKeyakinan3').is(':visible') &&
+                    $('#rowKeyakinan4').is(':visible')
+                ) {
+                    $('#btnTambahKeyakinan').hide();
+                }
+            });
+
+
+            $('.btn-hapus-keyakinan').click(function() {
+
+                let row = $(this).data('row');
+                let input = $(this).data('input');
+
+                // Kosongkan nilai input
+                $('input[name="' + input + '"]').val('');
+
+                // Sembunyikan baris
+                $('#' + row).hide();
+
+                // Tampilkan kembali tombol tambah
+                $('#btnTambahKeyakinan').show();
+            });
+
+        });
+
+        $(document).ready(function() {
+
+            // Tambah privasi
+            $('#btnTambahPrivasi').click(function() {
+
+                if ($('#rowPrivasi2').is(':hidden')) {
+                    $('#rowPrivasi2').show();
+                } else if ($('#rowPrivasi3').is(':hidden')) {
+                    $('#rowPrivasi3').show();
+                }
+
+                // Jika semua sudah tampil, sembunyikan tombol tambah
+                if (
+                    $('#rowPrivasi2').is(':visible') &&
+                    $('#rowPrivasi3').is(':visible')
+                ) {
+                    $('#btnTambahPrivasi').hide();
+                }
+            });
+
+
+            // Hapus privasi
+            $('.btn-hapus-privasi').click(function() {
+
+                let row = $(this).data('row');
+                let input = $(this).data('input');
+
+                // Kosongkan input
+                $('input[name="' + input + '"]').val('');
+
+                // Sembunyikan baris
+                $('#' + row).hide();
+
+                // Tampilkan kembali tombol tambah
+                $('#btnTambahPrivasi').show();
+            });
+
+        });
     </script>
 @endsection

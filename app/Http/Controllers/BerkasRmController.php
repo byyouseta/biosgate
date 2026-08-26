@@ -1002,7 +1002,10 @@ class BerkasRmController extends Controller
             ->where('no_rawat', $id)
             ->first();
 
-        return view('berkas_rm.persetujuan_ri', compact('data', 'berkas', 'fileSftp'));
+        $cara_bayar = DB::connection('mysqlkhanza')->table('penjab')
+            ->get();
+
+        return view('berkas_rm.persetujuan_ri', compact('data', 'berkas', 'fileSftp', 'cara_bayar'));
     }
 
     public function persetujuanRIStore(Request $request)
@@ -1040,7 +1043,7 @@ class BerkasRmController extends Controller
             $simpan->cara_bayar = $request->cara_bayar;
             $simpan->kelas_rawat = $request->hak_kelas_rawat;
             $simpan->pindah_kelas_rawat = $request->pindah_kelas_rawat;
-
+            $simpan->status_persetujuan = $request->persetujuan_rawat_inap;
             $simpan->tanda_tangan = $request->signed;
             $simpan->petugas_id = Auth::user()->id;
             $simpan->save();
@@ -1083,7 +1086,7 @@ class BerkasRmController extends Controller
             $cek->cara_bayar = $request->cara_bayar;
             $cek->kelas_rawat = $request->hak_kelas_rawat;
             $cek->pindah_kelas_rawat = $request->pindah_kelas_rawat;
-
+            $cek->status_persetujuan = $request->persetujuan_rawat_inap;
             $cek->tanda_tangan = $request->signed;
             $cek->petugas_id = Auth::user()->id;
             $cek->save();

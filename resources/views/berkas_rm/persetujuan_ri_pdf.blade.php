@@ -212,7 +212,7 @@
                 </tr>
                 <tr>
                     <td style="width:5%; text-align: center; vertical-align: top;">1. </td>
-                    <td>Setuju / Menolak * dilakukan pelayanan rawat inap
+                    <td><b>{{ $berkas ? $berkas->status_persetujuan : '' }}</b> dilakukan pelayanan rawat inap
                         di RSUP Surakarta kepada pasien tersebut diatas.</td>
                 </tr>
                 <tr>
