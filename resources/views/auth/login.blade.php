@@ -1,17 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    body {
-        background: url('{{ asset('image/bg-login.jpg') }}') no-repeat center center fixed;
-        background-size: cover;
-    }
+    <style>
+        body {
+            background: url('{{ asset('image/bg-login.jpg') }}') no-repeat center center fixed;
+            background-size: cover;
+        }
 
-    .card {
-        background-color: rgba(255, 255, 255, 0.9); /* Biar form-nya tetap jelas */
-        border-radius: 10px;
-    }
-</style>
+        .card {
+            background-color: rgba(255, 255, 255, 0.9);
+            /* Biar form-nya tetap jelas */
+            border-radius: 10px;
+        }
+    </style>
 
     <div class="container">
         <div class="row justify-content-center">

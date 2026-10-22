@@ -205,7 +205,8 @@
                                                 @else
                                                     @php ++$tidakterkirim; @endphp
                                                     <a href="{{ route('satuSehat.checkRajalDetail', Crypt::encrypt($summary->no_rawat)) }}"
-                                                        class="badge badge-info badge-sm" target="_blank">
+                                                        class="badge badge-info badge-sm" target="detailTab"
+                                                        onclick="window.open(this.href, 'detailTab'); return false;">
                                                         Check
                                                     </a>
                                                 @endif
@@ -213,15 +214,18 @@
                                             <td>
                                                 @if ($summary->dataEncounter && $summary->dataEncounter->condition_id)
                                                     <a href="{{ route('satuSehat.checkRajalDetail', Crypt::encrypt($summary->no_rawat)) }}"
-                                                        class='badge badge-success badge-sm' target="_blank"><i
-                                                            class="fas fa-check-circle"></i> Ada</a>
+                                                        class='badge badge-success badge-sm' target="detailTab"
+                                                        onclick="window.open(this.href, 'detailTab'); return false;">
+                                                        <i class="fas fa-check-circle"></i> Ada
+                                                    </a>
                                                     @php
                                                         ++$diagnosisAda;
                                                     @endphp
                                                 @else
                                                     <a href="{{ route('satuSehat.checkRajalDetail', Crypt::encrypt($summary->no_rawat)) }}"
-                                                        class='badge badge-danger badge-sm' target="_blank"><i
-                                                            class="fas fa-times-circle"></i> Tiada
+                                                        class='badge badge-danger badge-sm' target="detailTab"
+                                                        onclick="window.open(this.href, 'detailTab'); return false;">
+                                                        <i class="fas fa-times-circle"></i> Tiada
                                                     </a>
                                                     @php
                                                         ++$diagnosisTiada;

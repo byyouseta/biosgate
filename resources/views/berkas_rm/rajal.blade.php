@@ -133,6 +133,10 @@
                                                             <a class="dropdown-item"
                                                                 href="{{ route('berkasrm.soapie', Crypt::encrypt($dataPasien->no_rawat)) }}"
                                                                 target="_blank">SOAPIE</a>
+                                                            <div class="dropdown-divider"></div>
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('berkasrm.ssrme', Crypt::encrypt($dataPasien->no_rawat)) }}"
+                                                                target="_blank">SSRME</a>
                                                         </div>
                                                     </div>
                                                 </td>

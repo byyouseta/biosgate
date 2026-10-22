@@ -26,9 +26,8 @@
                                             class="btn btn-primary btn-sm"><i class="far fa-paper-plane"></i> Kirim
                                             Encounter</a>
                                     @elseif(empty($dataKiriman->encounter_id) &&
-                                            $dataPasien->kd_poli != 'MCU' &&
-                                            $dataPasien->kd_poli != 'LAB' &&
-                                            $dataPasien->kd_poli != 'PAK')
+                                            $cekDiagnosa->count() > 0 &&
+                                            !in_array($dataPasien->kd_poli, ['MCU', 'LAB', 'PAK']))
                                         <a href="{{ route('satuSehat.checkRajalSend', Crypt::encrypt($dataPasien->no_rawat)) }}"
                                             class="btn btn-primary btn-sm"><i class="far fa-paper-plane"></i> Kirim
                                             Ulang</a>
@@ -110,7 +109,7 @@
                                     <th width='20%'>Penjamin</th>
                                     <td>: {!! $dataPasien ? $dataPasien->nama_perusahaan : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                 </tr>
-                                @if (empty($idSatu))
+                                {{-- @if (empty($idSatu))
                                     @php
                                         if ($dataPasien->no_peserta != '-' || $dataPasien->no_peserta != null) {
                                             $dataPeserta = \App\Http\Controllers\SepController::peserta(
@@ -126,7 +125,7 @@
                                         <th width='20%'>KTP dari Vklaim</th>
                                         <td>: {!! $dataPeserta ? $dataPeserta->nik : '<i class="fas fa-times-circle" style="color: red;"></i>' !!}</td>
                                     </tr>
-                                @endif
+                                @endif --}}
                             </table>
                         </div>
                         <div class="card-body">
@@ -385,41 +384,30 @@
     <script src="{{ asset('template/plugins/datatables-responsive/js/responsive.bootstrap4.min.js') }}"></script>
     <script src="{{ asset('template/plugins/datatables-buttons/js/dataTables.buttons.min.js') }}"></script>
     <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.bootstrap4.min.js') }}"></script>
-    <script src="{{ asset('template/plugins/jszip/jszip.min.js') }}"></script>
+    {{-- <script src="{{ asset('template/plugins/jszip/jszip.min.js') }}"></script>
     <script src="{{ asset('template/plugins/pdfmake/pdfmake.min.js') }}"></script>
-    <script src="{{ asset('template/plugins/pdfmake/vfs_fonts.js') }}"></script>
-    <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/pdfmake/vfs_fonts.js') }}"></script> --}}
+    {{-- <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.html5.min.js') }}"></script>
     <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.print.min.js') }}"></script>
-    <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script>
+    <script src="{{ asset('template/plugins/datatables-buttons/js/buttons.colVis.min.js') }}"></script> --}}
     <!-- Tempusdominus Bootstrap 4 -->
     <script src="{{ asset('template/plugins/moment/moment.min.js') }}"></script>
     <script src="{{ asset('template/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js') }}"></script>
     <script>
         $(function() {
-            // $('#example2').DataTable({
+            // $('#example,#example2,#example3,#example4,#example5').DataTable({
             //     "paging": true,
             //     "lengthChange": false,
             //     "searching": true,
-            //     "ordering": true,
+            //     "order": [
+            //         [2, 'desc']
+            //     ],
             //     "info": false,
             //     "autoWidth": false,
             //     "responsive": false,
             //     "scrollY": true,
             //     "scrollX": true,
             // });
-            $('#example,#example2,#example3,#example4,#example5').DataTable({
-                "paging": true,
-                "lengthChange": false,
-                "searching": true,
-                "order": [
-                    [2, 'desc']
-                ],
-                "info": false,
-                "autoWidth": false,
-                "responsive": false,
-                "scrollY": true,
-                "scrollX": true,
-            });
         });
         //Date picker
         $('#tanggal').datetimepicker({

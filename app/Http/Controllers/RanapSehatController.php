@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use App\CarePlanRanap;
 use App\LogErrorSatuSehat;
 use App\ResponseIgdSatuSehat;
+use App\ResponseLabSatuSehat;
+use App\ResponseMedicationSatuSehat;
+use App\ResponseRadiologiSatuSehat;
 use App\ResponseRanapSatuSehat;
+use App\ResumeMedisSatuSehat;
 use App\TindakanRanapSatuSehat;
 use Carbon\Carbon;
+use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\ClientException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -67,6 +72,8 @@ class RanapSehatController extends Controller
 
         $errorLog = LogErrorSatuSehat::whereDate('created_at', Carbon::now())
             ->orWhereDate('updated_at', Carbon::now())
+            ->orderBy('updated_at', 'DESC')
+            ->limit(100)
             ->get();
 
         foreach ($dataPasien as $list) {
@@ -285,13 +292,18 @@ class RanapSehatController extends Controller
 
                 ];
 
-                if (!empty($idRequest)) {
-                    $dataEncounter['basedOn'] = [
-                        [
-                            'reference' => "ServiceRequest/{$idRequest}"
-                        ]
-                    ];
+                if (strpos(strtoupper($dataPengunjung->nm_poli), 'IGD') !== false) {
+                    if (!empty($idRequest)) {
+                        $dataEncounter['basedOn'] = [
+                            [
+                                'reference' => "ServiceRequest/{$idRequest}"
+                            ]
+                        ];
+                    } else {
+                        goto KirimPasienLain;
+                    }
                 }
+
 
                 //Send data
                 $access_token = SatuSehatController::getTokenSehat();
@@ -339,9 +351,11 @@ class RanapSehatController extends Controller
             KirimPasienLain:
         }
 
+        $action = 'satuSehatRanap.sendEncounter';
+
         $dataLog = ResponseRanapSatuSehat::whereDate('tgl_registrasi', $pasien_tanggal)->get();
 
-        return view('satu_sehat.client_ranap', compact('dataLog'));
+        return view('satu_sehat.client_ranap', compact('dataLog', 'action'));
     }
 
     public function closeEncounter(Request $request)
@@ -352,16 +366,47 @@ class RanapSehatController extends Controller
         set_time_limit(0);
 
         if (empty($request->get('tanggal'))) {
-            $pasien_tanggal = Carbon::now()->format('Y-m-d');
-            $kemarin = Carbon::yesterday()->format('Y-m-d');
+            // $pasien_tanggal = Carbon::now()->format('Y-m-d');
+            // $kemarin = Carbon::yesterday()->format('Y-m-d');
+            $dataEncounter = ResponseRanapSatuSehat::whereNull('kondisi_stabil')
+                ->get();
         } else {
             $tanggal = new Carbon($request->get('tanggal'));
             $pasien_tanggal = Carbon::parse($tanggal)->format('Y-m-d');
             $kemarin = Carbon::parse($tanggal)->subDay()->format('Y-m-d');
+
+            $dataEncounter = ResponseRanapSatuSehat::whereBetween('tgl_registrasi', [$kemarin, $pasien_tanggal])
+                ->get();
         }
 
-        $dataEncounter = ResponseRanapSatuSehat::where('kondisi_stabil', null)
-            ->get();
+        // $dataEncounter = ResponseRanapSatuSehat::where('kondisi_stabil', null)
+        //     ->get();
+
+        // Ambil daftar no_rawat dari Encounter yang akan diproses
+        $noRawatList = $dataEncounter
+            ->pluck('noRawat')
+            ->filter()
+            ->unique()
+            ->values();
+
+        // Ambil kode penjamin dari database Khanza
+        $penjaminByRawat = DB::connection('mysqlkhanza')
+            ->table('reg_periksa')
+            ->whereIn('no_rawat', $noRawatList)
+            ->pluck('kd_pj', 'no_rawat');
+
+        // Urutkan BPJS terlebih dahulu, lalu penjamin lainnya
+        $dataEncounter = $dataEncounter
+            ->sortBy(function ($item) use ($penjaminByRawat) {
+                $kdPj = strtoupper(trim(
+                    (string) $penjaminByRawat->get($item->noRawat, '')
+                ));
+
+                return $kdPj === 'BPJ' ? 0 : 1;
+            })
+            ->values();
+
+        // dd($dataEncounter);
 
         foreach ($dataEncounter as $dataTerkirim) {
             $cekPulang = DB::connection('mysqlkhanza')->table('reg_periksa')
@@ -388,23 +433,33 @@ class RanapSehatController extends Controller
                 if ($dataTerkirim->kondisi_stabil == null) {
                     RanapSehatController::sendUpdateKepulangan($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
                 }
-                // if ($dataTerkirim->kondisi_stabil != null) {
-                //     $update = ResponseIgdSatuSehat::where('noRawat', $dataTerkirim->noRawat)->first();
-                //     $update->cara_keluar = 'IGD Pulang';
-                //     $update->save();
-                // };
                 if (CarePlanRanap::where('encounter_id', $dataTerkirim->encounter_id)->count() < 1) {
                     RanapSehatController::sendCarePlanPulang($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
                 }
+
+                if ($dataTerkirim->resumeMedisSatuSehat == null && $dataTerkirim->encounter_id != 'duplicate' && $dataTerkirim->kondisi_stabil != null) {
+                    // dd('masuk', $dataTerkirim);
+                    RanapSehatController::sendResumeMedisRanap($dataTerkirim->noRawat, $dataTerkirim->encounter_id);
+                }
+                // dd($dataTerkirim, 'data terkirim', $cekPulang, 'cek pulang');
             }
         }
-        // $data = IgdSehatController::sendTransportasiKedatangan();
-        $dataLog = ResponseRanapSatuSehat::whereDate('updated_at', Carbon::now())
-            ->orderBy('updated_at', 'DESC')
-            ->limit(30)
-            ->get();
 
-        return view('satu_sehat.client_ranap', compact('dataLog'));
+        $action = 'satuSehatRanap.closeEncounter';
+        if (empty($request->get('tanggal'))) {
+            $dataLog = ResponseRanapSatuSehat::whereDate('updated_at', Carbon::now())
+                ->orderBy('updated_at', 'DESC')
+                ->limit(100)
+                ->get();
+        } else {
+            $dataLog = ResponseRanapSatuSehat::whereDate('tgl_registrasi', $request->get('tanggal'))
+                ->orderBy('updated_at', 'DESC')
+                ->get();
+        }
+        // $dataLog = null;
+        // dd($dataLog);
+
+        return view('satu_sehat.client_ranap', compact('dataLog', 'action'));
     }
 
 
@@ -987,7 +1042,6 @@ class RanapSehatController extends Controller
             })
             ->orderBy('diagnosa_pasien.prioritas', 'ASC')
             ->first();
-
 
         if (!empty($data)) {
             // dd($data);
@@ -2136,6 +2190,487 @@ class RanapSehatController extends Controller
                         'keterangan' => $message . ' - ' . $noRawat
                     ]);
                 }
+            }
+        }
+    }
+
+    public static function sendResumeMedisRanap($no_rawat, $encounter)
+    {
+        $resume = ResponseRanapSatuSehat::where('noRawat', $no_rawat)->first();
+        $idRS = ENV('IDRS');
+
+        if ($resume != null) {
+            $dataPasien = DB::connection('mysqlkhanza')->table('reg_periksa')
+                ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+                ->leftjoin('pemeriksaan_ranap', 'pemeriksaan_ranap.no_rawat', '=', 'reg_periksa.no_rawat')
+                ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+                ->select(
+                    'reg_periksa.no_rawat',
+                    'reg_periksa.tgl_registrasi',
+                    'reg_periksa.jam_reg',
+                    'pasien.nm_pasien',
+                    'pasien.no_ktp as ktp_pasien',
+                    'pegawai.no_ktp as ktp_dokter',
+                    'pegawai.nama as nama_dokter',
+                    'pemeriksaan_ranap.tgl_perawatan',
+                    'pemeriksaan_ranap.jam_rawat'
+                )
+                ->where('reg_periksa.no_rawat', $no_rawat)
+                ->first();
+
+
+            $idPasien = SatuSehatController::patientSehat($dataPasien->ktp_pasien);
+            $idPractition = SatuSehatController::practitioner($dataPasien->ktp_dokter);
+            $waktuRegistrasi = Carbon::createFromFormat(
+                'Y-m-d H:i:s',
+                "{$dataPasien->tgl_registrasi} {$dataPasien->jam_reg}",
+                'Asia/Jakarta'
+            )->setTimezone('UTC');
+
+            $waktuPerawatan = Carbon::createFromFormat(
+                'Y-m-d H:i:s',
+                "{$dataPasien->tgl_perawatan} {$dataPasien->jam_rawat}",
+                'Asia/Jakarta'
+            )->setTimezone('UTC');
+
+            // 🔒 validasi waktu
+            if ($waktuPerawatan->lessThanOrEqualTo($waktuRegistrasi)) {
+                $waktuPerawatan = $waktuRegistrasi->copy()->addMinutes(30);
+            }
+
+            // format untuk kirim ke API
+            $formatWaktuMulai     = $waktuRegistrasi->toW3cString();
+            $formatWaktuPerawatan = $waktuPerawatan->toW3cString();
+            $formatDay            = $waktuPerawatan->format('Y-m-d');
+
+
+            $jsonResumeMedis = [
+                "resourceType" => "Composition",
+                "identifier" => [
+                    "system" => "http://sys-ids.kemkes.go.id/composition/$idRS",
+                    "value" => "$no_rawat"
+                ],
+                "status" => "final",
+                "category" => [
+                    [
+                        "coding" => [
+                            [
+                                "system" => "http://loinc.org",
+                                "code" => "LP173421-1",
+                                "display" => "Report"
+                            ]
+                        ]
+                    ]
+                ],
+                "type" => [
+                    "coding" => [
+                        [
+                            "system" => "http://loinc.org",
+                            "code" => "88645-7",
+                            "display" => "Outpatient hospital Discharge summary"
+                        ]
+                    ]
+                ],
+                "subject" => [
+                    "reference" => "Patient/$idPasien"
+                ],
+                "date" => "$formatWaktuPerawatan",
+                "title" => "Resume Medis Pasien Rawat Inap $dataPasien->nm_pasien pada tanggal $formatDay",
+                "author" => [
+                    [
+                        "reference" => "Practitioner/$idPractition"
+                    ]
+                ],
+                "custodian" => [
+                    "reference" => "Organization/$idRS"
+                ],
+                "encounter" => [
+                    "reference" => "Encounter/$encounter"
+                ]
+            ];
+
+            $entryVital = [];
+
+            if (!empty($resume->asesmen_nadi)) {
+                $entryVital[] = [
+                    "reference" => "Observation/$resume->asesmen_nadi"
+                ];
+            }
+
+            if (!empty($resume->asesmen_pernapasan)) {
+                $entryVital[] = [
+                    "reference" => "Observation/$resume->asesmen_pernapasan"
+                ];
+            }
+
+            if (!empty($resume->asesmen_sistol)) {
+                $entryVital[] = [
+                    "reference" => "Observation/$resume->asesmen_sistol"
+                ];
+            }
+
+            if (!empty($resume->asesmen_diastol)) {
+                $entryVital[] = [
+                    "reference" => "Observation/$resume->asesmen_diastol"
+                ];
+            }
+
+            if (!empty($resume->asesmen_suhu)) {
+                $entryVital[] = [
+                    "reference" => "Observation/$resume->asesmen_suhu"
+                ];
+            }
+
+            $sessionVital =  [
+                "title" => "Pemeriksaan Fisik",
+                "code" => [
+                    "coding" => [
+                        [
+                            "system" => "http://terminology.kemkes.go.id",
+                            "code" => "TK000007",
+                            "display" => "Pemeriksaan Fisik"
+                        ]
+                    ]
+                ],
+                "section" => [
+                    [
+                        "title" => "Tanda Vital",
+                        "code" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://loinc.org",
+                                    "code" => "8716-3",
+                                    "display" => "Vital signs"
+                                ]
+                            ]
+                        ],
+                        "entry" => $entryVital
+                    ]
+                ]
+            ];
+
+            if (count($entryVital) > 0) {
+                $jsonResumeMedis['section'][] = $sessionVital;
+            }
+
+            $pemeriksaanPenunjang = [
+                "title" => "Pemeriksaan Penunjang",
+                "code" => [
+                    "coding" => [
+                        [
+                            "system" => "http://terminology.kemkes.go.id",
+                            "code" => "TK000009",
+                            "display" => "Hasil Pemeriksaan Penunjang"
+                        ]
+                    ]
+                ]
+            ];
+
+            $dataLab = ResponseLabSatuSehat::where('noRawat', $no_rawat)->get();
+            $entryLab = [];
+
+            foreach ($dataLab as $lab) {
+                if (!empty($lab->serviceRequest_id)) {
+                    $entryLab[] = [
+                        "reference" => "ServiceRequest/$lab->serviceRequest_id"
+                    ];
+                }
+                if (!empty($lab->spesimen_id)) {
+                    $entryLab[] = [
+                        "reference" => "Specimen/$lab->spesimen_id"
+                    ];
+                }
+                if (!empty($lab->responseObservation)) {
+                    foreach ($lab->responseObservation as $observation) {
+                        $entryLab[] = [
+                            "reference" => "Observation/$observation->observation_id"
+                        ];
+                    }
+                }
+                if (!empty($lab->report_id)) {
+                    $entryLab[] = [
+                        "reference" => "DiagnosticReport/$lab->report_id"
+                    ];
+                }
+            }
+
+            if (count($entryLab) > 0) {
+                $jsonLab = [
+                    "title" => "Hasil Pemeriksaan Laboratorium",
+                    "code" => [
+                        "coding" => [
+                            [
+                                "system" => "http://loinc.org",
+                                "code" => "11502-2",
+                                "display" => "Laboratory report"
+                            ]
+                        ]
+                    ],
+                    "entry" => $entryLab
+                ];
+                $pemeriksaanPenunjang['section'][] = $jsonLab;
+            }
+
+            $dataRad = ResponseRadiologiSatuSehat::where('noRawat', $no_rawat)->get();
+            $entryRad = [];
+
+            foreach ($dataRad as $rad) {
+                if (!empty($rad->serviceRequest_id)) {
+                    $entryRad[] = [
+                        "reference" => "ServiceRequest/$rad->serviceRequest_id"
+                    ];
+                }
+                if (!empty($rad->imagingStudy_id)) {
+                    $entryRad[] = [
+                        "reference" => "ImagingStudy/$rad->imagingStudy_id"
+                    ];
+                }
+                if (!empty($rad->observation_id)) {
+                    $entryRad[] = [
+                        "reference" => "Observation/$rad->observation_id"
+                    ];
+                }
+                if (!empty($rad->report_id)) {
+                    $entryRad[] = [
+                        "reference" => "DiagnosticReport/$rad->report_id"
+                    ];
+                }
+            }
+
+            if (count($entryRad) > 0) {
+                $jsonRad = [
+                    "title" => "Hasil Pemeriksaan Radiologi",
+                    "code" => [
+                        "coding" => [
+                            [
+                                "system" => "http://loinc.org",
+                                "code" => "11502-2",
+                                "display" => "Radiology report"
+                            ]
+                        ]
+                    ],
+                    "entry" => $entryRad
+                ];
+                $pemeriksaanPenunjang['section'][] = $jsonRad;
+            }
+
+            if (count($entryLab) > 0 || count($entryRad) > 0) {
+                $jsonResumeMedis['section'][] = $pemeriksaanPenunjang;
+            }
+
+            $entryDiagnosa = [];
+            if (!empty($resume->diagnosis_primer)) {
+                $entryDiagnosa[] = [
+                    "reference" => "Condition/$resume->diagnosis_primer"
+                ];
+            }
+
+            if (!empty($resume->diagnosis_sekunder)) {
+                $entryDiagnosa[] = [
+                    "reference" => "Condition/$resume->diagnosis_sekunder"
+                ];
+            }
+
+            $jsonDiagnosa = [
+                "title" => "Diagnosis",
+                "code" => [
+                    "coding" => [
+                        [
+                            "system" => "http://terminology.kemkes.go.id",
+                            "code" => "TK000004",
+                            "display" => "Diagnosis"
+                        ]
+                    ]
+                ],
+                "section" => [
+                    [
+                        "title" => "Diagnosis Akhir",
+                        "code" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://loinc.org",
+                                    "code" => "78375-3",
+                                    "display" => "Discharge diagnosis Narrative"
+                                ]
+                            ]
+                        ],
+                        "entry" => $entryDiagnosa
+                    ]
+                ]
+            ];
+
+            if (!empty($resume->diagnosis_primer) || !empty($resume->diagnosis_sekunder)) {
+                $jsonResumeMedis['section'][] = $jsonDiagnosa;
+            }
+
+            // if (!empty($resume->procedure_id)) {
+            //     $jsonProsedur = [
+            //         "title" => "Tindakan/Prosedur Medis",
+            //         "code" => [
+            //             "coding" => [
+            //                 [
+            //                     "system" => "http://terminology.kemkes.go.id",
+            //                     "code" => "TK000005",
+            //                     "display" => "Tindakan/Prosedur Medis"
+            //                 ]
+            //             ]
+            //         ],
+            //         "entry" => [
+            //             [
+            //                 "reference" => "Procedure/$resume->procedure_id"
+            //             ]
+            //         ]
+            //     ];
+
+            //     $jsonResumeMedis['section'][] = $jsonProsedur;
+            // }
+
+            $dataObat = ResponseMedicationSatuSehat::where('noRawat', $no_rawat)->get();
+            $entryObat = [];
+            foreach ($dataObat as $obat) {
+                if (!empty($obat->medicationRequest)) {
+                    $entryObat[] = [
+                        "reference" => "MedicationRequest/$obat->medicationRequest"
+                    ];
+                }
+                if (!empty($obat->medicationDispence)) {
+                    $entryObat[] = [
+                        "reference" => "MedicationDispense/$obat->medicationDispence"
+                    ];
+                }
+            }
+
+            $jsonFarmasi = [
+                "title" => "Farmasi",
+                "code" => [
+                    "coding" => [
+                        [
+                            "system" => "http://terminology.kemkes.go.id",
+                            "code" => "TK000013",
+                            "display" => "Obat"
+                        ]
+                    ]
+                ],
+                "section" => [
+                    [
+                        "title" => "Obat Saat Kunjungan",
+                        "code" => [
+                            "coding" => [
+                                [
+                                    "system" => "http://loinc.org",
+                                    "code" => "42346-7",
+                                    "display" => "Medications on admission (narrative)"
+                                ]
+                            ]
+                        ],
+                        "entry" => $entryObat
+                    ]
+                ]
+            ];
+
+            if (count($entryObat) > 0) {
+                $jsonResumeMedis['section'][] = $jsonFarmasi;
+            }
+
+            $access_token = SatuSehatController::getTokenSehat();
+            $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
+            // dd($jsonResumeMedis, 'jsonResumeMedis');
+            try {
+                $response = $client->request('POST', 'fhir-r4/v1/Composition', [
+                    'headers' => [
+                        'Authorization' => "Bearer {$access_token}"
+                    ],
+                    'json' => $jsonResumeMedis
+                ]);
+            } catch (BadResponseException $e) {
+                if ($e->hasResponse()) {
+                    $response = $e->getResponse();
+                    $body = (string) $response->getBody();
+                    $test = json_decode($body);
+                    // dd($test, 'error kirim resume medis', $jsonResumeMedis);
+                    // $pesan = $test->issue[0]->details->text ?? 'error lain';
+                    if (!empty($test) && isset($test->issue) && is_array($test->issue)) {
+                        foreach ($test->issue as $issue) {
+                            if ($issue->code == 'duplicate') {
+                                $client = new \GuzzleHttp\Client(['base_uri' => cache()->get('base_url')]);
+                                try {
+                                    $response = $client->request('GET', 'fhir-r4/v1/Composition?encounter=' . $encounter, [
+                                        'headers' => [
+                                            'Authorization' => "Bearer {$access_token}"
+                                        ]
+                                    ]);
+                                } catch (BadResponseException $e) {
+                                    if ($e->hasResponse()) {
+                                        $response = $e->getResponse();
+                                        $body = (string) $response->getBody();
+                                        $test = json_decode($body);
+                                        // dd($test, 'error ambil resume medis duplicate');
+                                        if ($test && !empty($test->issue) && $test->issue[0]) {
+                                            $message = $test->issue[0]->details->text;
+                                        } else if ($test && !empty($test->fault) && $test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                                            Session::flash('error', 'Gagal kirim tindakan pasien Ranap ' . $dataPasien->no_rawat . '. Terjadi limit request ke server Satu Sehat. Silakan coba lagi nanti.');
+                                            return redirect()->back();
+                                        } else {
+                                            $message = 'error other';
+                                        }
+
+                                        LogErrorSatuSehat::create([
+                                            'subject' => 'Resume Medis Duplicate',
+                                            'keterangan' => "Pengiriman data Resume Medis pasien no rawat : $no_rawat (" . $message . ")"
+                                        ]);
+
+                                        return;
+                                    }
+                                }
+
+                                $bodyResponse = json_decode($response->getBody());
+
+                                if ($bodyResponse && !empty($bodyResponse->entry) && is_array($bodyResponse->entry) && count($bodyResponse->entry) > 0) {
+                                    foreach ($bodyResponse->entry as $entry) {
+                                        if (isset($entry->resource) && isset($entry->resource->id)) {
+                                            // dd($entry, 'entry duplicate', $entry->resource->id);
+
+                                            $simpan = ResumeMedisSatuSehat::updateOrCreate([
+                                                'encounter_id' => $encounter,
+                                            ], [
+                                                'no_rawat' => $no_rawat,
+                                                'jenis_rawat' => 'ranap',
+                                                'composition_id' => $entry->resource->id
+                                            ]);
+                                        }
+                                    }
+                                    // dd($test, 'error kirim resume medis duplicate', $jsonResumeMedis);
+                                    return;
+                                }
+                            } else {
+                                dd($test, 'error kirim resume medis', $jsonResumeMedis);
+                            }
+                        }
+                    } else {
+                        $pesan = 'pola baru error';
+                    }
+                    // dd($test, 'error kirim resume medis', $jsonResumeMedis);
+
+                    $error = new LogErrorSatuSehat();
+                    $error->subject = 'Resume Medis';
+                    $error->keterangan = $dataPasien->no_rawat . ' error kirim';
+                    $error->save();
+                }
+            }
+
+            if (!empty($response)) {
+                $bodyResponse = json_decode($response->getBody());
+                // dd($bodyResponse, 'bodyResponse');
+                if ($bodyResponse && !empty($bodyResponse->id)) {
+                    $simpan = new ResumeMedisSatuSehat();
+                    $simpan->no_rawat = $no_rawat;
+                    $simpan->jenis_rawat = 'ranap';
+                    $simpan->encounter_id = $encounter;
+                    $simpan->composition_id = $bodyResponse->id;
+                    $simpan->save();
+                }
+
+                return;
             }
         }
     }

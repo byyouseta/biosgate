@@ -456,13 +456,21 @@ class Vedika extends Model
 
     public static function cekEklaim($noSep)
     {
-        $cek = DB::connection('mysqlkhanza')->table('inacbg_klaim_baru2')
+        $cek = DB::connection('mysqlkhanza')->table('inacbg_status_final_klaim')
             ->select(
-                'inacbg_klaim_baru2.no_rawat',
-                'inacbg_klaim_baru2.no_sep'
+                'inacbg_status_final_klaim.status',
+                'inacbg_status_final_klaim.no_sep'
             )
-            ->where('inacbg_klaim_baru2.no_sep', $noSep)
+            ->where('inacbg_status_final_klaim.no_sep', $noSep)
+            ->where('inacbg_status_final_klaim.status', 'final')
             ->first();
+        // $cek = DB::connection('mysqlkhanza')->table('inacbg_klaim_baru2')
+        //     ->select(
+        //         'inacbg_klaim_baru2.no_rawat',
+        //         'inacbg_klaim_baru2.no_sep'
+        //     )
+        //     ->where('inacbg_klaim_baru2.no_sep', $noSep)
+        //     ->first();
         // $cek = DB::connection('mysqlkhanza')->table('bridging_sep')
         //     ->select(
         //         'bridging_sep.no_rawat',

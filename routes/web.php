@@ -189,6 +189,7 @@ Route::get('/berkasrm/hakkewajiban/{id}/delete', 'BerkasRmController@delete')->n
 Route::get('/berkasrm/hakkewajiban/{id}/print', 'BerkasRmController@hakKewajibanPdf')->name('berkasrm.hakKewajibanPdf');
 Route::get('/berkasrm/hakkewajiban/{id}/send', 'BerkasRmController@hakKewajibanSend')->name('berkasrm.hakKewajibanSend');
 Route::get('/berkasrm/hakkewajiban/{id}/view', 'BerkasRmController@viewHakKewajiban')->name('berkasrm.hakKewajibanView');
+Route::get('/berkasrm/{id}/ssrme', 'BerkasRmController@ssrme')->name('berkasrm.ssrme');
 
 //MCU
 Route::get('/berkasrm/{id}/penilaianralan', 'PenilaianMcuController@index')->name('berkasrm.penilaianralan');
@@ -443,6 +444,11 @@ Route::get('/satusehat/igd/encounterupdate', 'IgdSehatController@closeEncounter'
 Route::get('/satusehat/ranap', 'RanapSehatController@index')->name('satuSehatRanap.index');
 Route::get('/satusehat/ranap/kirimencounter', 'RanapSehatController@sendEncounter')->name('satuSehatRanap.sendEncounter');
 Route::get('/satusehat/ranap/encounterupdate', 'RanapSehatController@closeEncounter')->name('satuSehatRanap.closeEncounter');
+
+Route::get('/satusehat/charge', 'ChargeItemController@index')->name('satuSehatCharge.index');
+Route::post('/satusehat/charge/sync/{no_rawat}', 'ChargeItemController@sync')->name('satuSehatCharge.sync');
+Route::post('/satusehat/charge/sync-all', 'ChargeItemController@syncAll')->name('satuSehatCharge.sync-all');
+Route::post('/satusehat/charge/send/{data}', 'ChargeItemController@send')->name('satuSehatCharge.send');
 
 Route::get('/satusehat/kfa', 'KfaController@cari')->name('satuSehat.kfa');
 Route::get('/satusehat/nakessehat', 'ToolSehatController@pegawaiSync')->name('satuSehat.pegawaiSync');

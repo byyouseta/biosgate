@@ -673,13 +673,41 @@ class RadiologiController extends Controller
             ]);
         } catch (ClientException $e) {
             if ($e->hasResponse()) {
-                $response = $e->getResponse();
+                $responseError = $e->getResponse();
 
-                $test = json_decode($response->getBody());
+                $test = json_decode($responseError->getBody());
                 if ($test && !empty($test->fault) && $test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
                     Session::flash('error', 'Gagal kirim Observation pasien ' . $dataOrder->no_rawat . ', karena Rate Limit Satu Sehat');
                     return redirect()->back();
                 }
+                //jika duplicate
+                elseif ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
+                    try {
+                        $getResponse = $client->request('GET', 'fhir-r4/v1/Observation?encounter=' . $dataLog->encounter_id, [
+                            'headers' => [
+                                'Authorization' => "Bearer {$access_token}"
+                            ]
+                        ]);
+                    } catch (ClientException $e) {
+                        if ($e->hasResponse()) {
+                            $responseErrorDuplicate = $e->getResponse();
+                        }
+                        $test = json_decode($responseErrorDuplicate->getBody());
+                        if (!empty($test->issue)) {
+                            $message = $test->issue[0]->details->text;
+                            dd($message, $test->issue[0], $dataLog->encounter_id, 'error observation radiologi on duplicate');
+                        }
+                    }
+                    $dataResponse = json_decode($getResponse->getBody()->getContents());
+                    if ($dataResponse && $dataResponse->entry[0]->resource->id) {
+                        $update = ResponseRadiologiSatuSehat::where('accession_no', $dataOrder->ascension)->first();
+                        $update->observation_id = $dataResponse->entry[0]->resource->id;
+                        $update->save();
+
+                        return redirect()->back()->with('success', 'Observation pasien ' . $dataOrder->no_rawat . ' berhasil dikirim (duplicate)');
+                    }
+                }
+
                 dd($test, $dataObservation, 'sendObservation');
             }
 
@@ -790,12 +818,11 @@ class RadiologiController extends Controller
             ]);
         } catch (ClientException $e) {
             if ($e->hasResponse()) {
-                $response = $e->getResponse();
+                $error = $e->getResponse();
 
-                $test = json_decode($response->getBody());
-                // dd($test, $dataReport, 'sendObservation');
+                $test = json_decode($error->getBody());
                 //Jika Duplicate
-                if ($test && $test->issue[0]->code == 'duplicate') {
+                if ($test && !empty($test->issue) && $test->issue[0]->code == 'duplicate') {
                     try {
                         $response = $client->request('GET', 'fhir-r4/v1/DiagnosticReport?encounter=' . $dataLog->encounter_id, [
                             'headers' => [
@@ -804,9 +831,9 @@ class RadiologiController extends Controller
                         ]);
                     } catch (ClientException $e) {
                         if ($e->hasResponse()) {
-                            $response = $e->getResponse();
+                            $error = $e->getResponse();
                         }
-                        $test = json_decode($response->getBody(true));
+                        $test = json_decode($error->getBody());
                         $message = $test->issue[0]->details->text;
 
                         dd($message, $test->issue[0], $dataLog->encounter_id, 'error diagnostic report radiologi on duplicate');
@@ -820,6 +847,14 @@ class RadiologiController extends Controller
                             $update->save();
                         }
                     }
+                } elseif ($test && !empty($test->fault) && $test->fault->detail->errorcode == 'policies.ratelimit.QuotaViolation') {
+                    Session::flash('error', 'Gagal kirim Diagnostic Report pasien ' . $dataOrder->no_rawat . ', karena Rate Limit Satu Sehat');
+                    return redirect()->back();
+                } else {
+                    LogErrorSatuSehat::create([
+                        'subject' => 'Kirim Diagnostic Report Radiologi',
+                        'keterangan' => "Pengiriman data Diagnostic Report Radiologi pasien no rawat : $dataOrder->no_rawat gagal, pesan : (" . $test->issue[0]->details->text ? $test->issue[0]->details->text : "" . ")"
+                    ]);
                 }
             }
 
@@ -828,14 +863,18 @@ class RadiologiController extends Controller
             Session::flash('error', $message);
         }
 
-        $dataResponse = json_decode($response->getBody());
-
-        if (!empty($dataResponse->id)) {
-            $update = ResponseRadiologiSatuSehat::where('accession_no', $dataOrder->ascension)->first();
-            $update->diagnostic_report_id = $dataResponse->id;
-            $update->save();
-        } else {
+        if (empty($response)) {
             return null;
+        } else {
+            $dataResponse = json_decode($response->getBody());
+
+            if (!empty($dataResponse->id)) {
+                $update = ResponseRadiologiSatuSehat::where('accession_no', $dataOrder->ascension)->first();
+                $update->diagnostic_report_id = $dataResponse->id;
+                $update->save();
+            } else {
+                return null;
+            }
         }
     }
 

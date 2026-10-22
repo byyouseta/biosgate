@@ -10,4 +10,9 @@ class ResponseIgdSatuSehat extends Model
     {
         return $this->hasMany('App\TindakanIgdSatuSehat');
     }
+
+    public function resumeMedisSatuSehat()
+    {
+        return $this->hasOne('App\ResumeMedisIgdSatuSehat', 'noRawat', 'noRawat');
+    }
 }

@@ -281,6 +281,17 @@ class LabSehatController extends Controller
                                 "status" => "active",
                                 "intent" => "original-order",
                                 "priority" => "routine",
+                                "category" => [
+                                    [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://snomed.info/sct",
+                                                "code" => "108252007",
+                                                "display" => "Laboratory procedure"
+                                            ]
+                                        ]
+                                    ]
+                                ],
                                 "code" => [
                                     "coding" => [
                                         [
@@ -1901,6 +1912,17 @@ class LabSehatController extends Controller
                                 "status" => "active",
                                 "intent" => "original-order",
                                 "priority" => "routine",
+                                "category" => [
+                                    [
+                                        "coding" => [
+                                            [
+                                                "system" => "http://snomed.info/sct",
+                                                "code" => "108252007",
+                                                "display" => "Laboratory procedure"
+                                            ]
+                                        ]
+                                    ]
+                                ],
                                 "code" => [
                                     "coding" => [
                                         [
@@ -3379,9 +3401,13 @@ class LabSehatController extends Controller
             ->where('permintaan_pemeriksaan_lab.kd_jenis_prw', $kdJenisPrw)
             ->get();
 
+
+
         if ($dataPermintaan->isEmpty()) {
             return redirect()->back()->with('error', 'Data permintaan lab tidak ditemukan.');
         }
+
+
 
 
         foreach ($dataPermintaan as $permintaan) {
@@ -3425,8 +3451,11 @@ class LabSehatController extends Controller
                     )
                     ->where('periksa_lab.no_rawat', $noRawat)
                     ->where('periksa_lab.kd_jenis_prw', $kdJenisPrw)
-                    ->where('periksa_lab.tgl_periksa', $permintaan->tgl_permintaan) // Filter berdasarkan tanggal permintaan
+                    ->where('periksa_lab.tgl_periksa', $permintaan->tgl_hasil)
+                    ->where('periksa_lab.jam', $permintaan->jam_hasil)
                     ->get();
+
+
 
                 if ($periksaLab->isEmpty()) {
                     return redirect()->back()->with('error', 'Tidak ditemukan Hasil periksa untuk pasien: ' . $noRawat . ' Kode Periksa: ' . $kdJenisPrw);
@@ -3443,7 +3472,7 @@ class LabSehatController extends Controller
                         $petugasLab = SatuSehatController::practitioner($periksa->ktp_petugas_lab);
                     }
 
-
+                    // dd($dataPermintaan, $periksaLab, $mappingLoinc, $petugasLab, 'cek data permintaan lab sebelum kirim service request');
 
                     if (empty($mappingLoinc)) {
                         return redirect()->back()->with('error', 'Mapping LOINC tidak ditemukan untuk kode tindakan: ' . $periksa->kd_jenis_prw);
@@ -3489,6 +3518,17 @@ class LabSehatController extends Controller
             "status" => "active",
             "intent" => "original-order",
             "priority" => "routine",
+            "category" => [
+                [
+                    "coding" => [
+                        [
+                            "system" => "http://snomed.info/sct",
+                            "code" => "108252007",
+                            "display" => "Laboratory procedure"
+                        ]
+                    ]
+                ]
+            ],
             "code" => [
                 "coding" => [
                     [
@@ -3711,17 +3751,34 @@ class LabSehatController extends Controller
         }
 
         foreach ($dataPermintaanLab as $list) {
-            // $list->idSehat = $idSehatMap[$list->ktp_pasien] ?? null;
-            $list->dataResponse = $dataLog[$list->noorder . '-' . $list->kd_jenis_prw] ?? null;
+            // $list->dataResponse = $dataLog[$list->noorder . '-' . $list->kd_jenis_prw] ?? null;
+            // if ($list->status == 'ralan') {
+            //     $isIgd = stripos($list->nm_poli, 'igd') !== false;
+            //     if ($isIgd) {
+            //         $list->dataEncounter = $dataEncounterIgd[$list->no_rawat] ?? null;
+            //     } else {
+            //         $list->dataEncounter = $dataEncounterRajal[$list->no_rawat] ?? null;
+            //     }
+            // } elseif ($list->status == 'ranap') {
+            //     $list->dataEncounter = $dataEncounterRanap[$list->no_rawat] ?? null;
+            // }
+
+            $key = $list->noorder . '-' . $list->kd_jenis_prw;
+            $list->dataResponse = $dataLog->get($key);
+
             if ($list->status == 'ralan') {
+
                 $isIgd = stripos($list->nm_poli, 'igd') !== false;
+
                 if ($isIgd) {
-                    $list->dataEncounter = $dataEncounterIgd[$list->no_rawat] ?? null;
+                    $list->dataEncounter = !empty($dataEncounterIgd->get($list->no_rawat)) ? $dataEncounterIgd->get($list->no_rawat) : null;
                 } else {
-                    $list->dataEncounter = $dataEncounterRajal[$list->no_rawat] ?? null;
+                    $list->dataEncounter = !empty($dataEncounterRajal->get($list->no_rawat)) ? $dataEncounterRajal->get($list->no_rawat) : null;
                 }
             } elseif ($list->status == 'ranap') {
-                $list->dataEncounter = $dataEncounterRanap[$list->no_rawat] ?? null;
+                $list->dataEncounter = !empty($dataEncounterRanap->get($list->no_rawat)) ? $dataEncounterRanap->get($list->no_rawat) : null;
+            } else {
+                $list->dataEncounter = null;
             }
         }
         $formAction = route('satuSehat.closingServiceRequest');

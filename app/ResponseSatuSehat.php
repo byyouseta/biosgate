@@ -44,4 +44,14 @@ class ResponseSatuSehat extends Model
     {
         return $this->hasMany('App\ResponseRadiologiSatuSehat', 'noRawat', 'noRawat');
     }
+
+    public function responseMedicationSatuSehat()
+    {
+        return $this->hasOne('App\ResponseMedicationSatuSehat', 'noRawat', 'noRawat');
+    }
+
+    public function resumeMedisSatuSehat()
+    {
+        return $this->hasOne('App\ResumeMedisSatuSehat', 'noRawat', 'no_rawat');
+    }
 }

@@ -7,6 +7,7 @@ use App\GeneralConsent;
 use App\HakKewajibanPasien;
 use App\PersetujuanRawatInap;
 use Barryvdh\DomPDF\Facade\Pdf;
+use GuzzleHttp\Exception\BadResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -1313,5 +1314,93 @@ class BerkasRmController extends Controller
         }
 
         return redirect()->back();
+    }
+
+    public function ssrme($id)
+    {
+
+        $id = Crypt::decrypt($id);
+
+        $data = DB::connection('mysqlkhanza')->table('reg_periksa')
+            ->join('pasien', 'pasien.no_rkm_medis', '=', 'reg_periksa.no_rkm_medis')
+            ->join('pegawai', 'pegawai.nik', '=', 'reg_periksa.kd_dokter')
+            ->join('poliklinik', 'poliklinik.kd_poli', '=', 'reg_periksa.kd_poli')
+            ->select(
+                'reg_periksa.no_rkm_medis',
+                'reg_periksa.no_rawat',
+                'reg_periksa.tgl_registrasi',
+                'reg_periksa.jam_reg',
+                'reg_periksa.kd_dokter',
+                'reg_periksa.status_lanjut',
+                'reg_periksa.stts',
+                'reg_periksa.kd_poli',
+                'reg_periksa.kd_pj',
+                'pasien.nm_pasien',
+                'pasien.no_ktp as ktp_pasien',
+                'pasien.tgl_lahir',
+                'pasien.jk',
+                'pasien.alamat',
+                'pegawai.no_ktp as ktp_dokter',
+                'pegawai.nama as nama_dokter',
+                'poliklinik.nm_poli'
+            )
+            ->where('reg_periksa.no_rawat', $id)
+            ->first();
+
+        $idRS = env('IDRS');
+        $idPasien = SatuSehatController::patientSehat($data->ktp_pasien);
+        if ($idPasien == null) {
+            Session::flash('error', 'Pasien belum terdaftar di Satu Sehat.');
+            return redirect()->back();
+        }
+        $idDokter = SatuSehatController::practitioner($data->ktp_dokter);
+        if ($idDokter == null) {
+            Session::flash('error', 'Dokter belum terdaftar di Satu Sehat.');
+            return redirect()->back();
+        }
+
+        dd($idRS, $idPasien, $idDokter);
+
+        $dataJson = [
+            "patient_id" => "$idPasien",
+            "patient_name" => "$data->nm_pasien",
+            "practitioner_id" => "$idDokter",
+            "practitioner_name" => "$data->nama_dokter",
+            "organization_id" => "$idRS",
+            "organization_name" => "RSUP Surakarta"
+        ];
+
+
+        //Kirim request ke Satu Sehat
+        $access_token = SatuSehatController::getTokenSehat();
+        $client = new \GuzzleHttp\Client(['base_uri' => 'https://api-satusehat.kemkes.go.id/ssrme/v2/']);
+        try {
+            $response = $client->request('POST', 'ntl/chl', [
+                'headers' => [
+                    'Authorization' => "Bearer {$access_token}"
+                ],
+                'json' => $dataJson
+            ]);
+        } catch (BadResponseException $e) {
+            if ($e->hasResponse()) {
+                $response = $e->getResponse();
+                $body = (string) $response->getBody();
+                $test = json_decode($body);
+
+                dd($test);
+            }
+        }
+        if ($response->getStatusCode() == 200) {
+            $body = (string) $response->getBody();
+            $test = json_decode($body);
+            dd($test);
+        } else {
+            dd('kosong');
+            Session::flash('error', 'Gagal mengirim data ke Satu Sehat. Status Code: ' . $response->getStatusCode());
+            return redirect()->back();
+        }
+        dd($response->getStatusCode(), $response->getBody()->getContents());
+
+        return view('berkas_rm.ssrme', compact('data'));
     }
 }

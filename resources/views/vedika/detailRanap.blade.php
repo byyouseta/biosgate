@@ -1133,6 +1133,15 @@
                                                         <td class="pt-0 pb-0">: {{ $pasien->nm_poli }}</td>
                                                     @endif
                                                 </tr>
+                                                @foreach ($hasilLab as $hasil)
+                                                    @if ($hasil->jam == $order->jam_hasil && $hasil->Pemeriksaan == 'BIAKAN AEROB LAIN-LAIN DAN UJI KEPEKAAN')
+                                                        <tr>
+                                                            <td class="pt-0 pb-0">Bahan</td>
+                                                            <td class="pt-0 pb-0">:
+                                                                Sputum</td>
+                                                        </tr>
+                                                    @endif
+                                                @endforeach
                                             </tbody>
                                         </table>
 

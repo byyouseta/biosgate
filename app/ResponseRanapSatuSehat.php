@@ -27,8 +27,18 @@ class ResponseRanapSatuSehat extends Model
         return $this->hasMany('App\ResponseRadiologiSatuSehat', 'noRawat', 'noRawat');
     }
 
+    public function responseLabSatuSehat()
+    {
+        return $this->hasMany('App\ResponseLabSatuSehat', 'noRawat', 'noRawat');
+    }
+
     public function tindakanRanapSatuSehat()
     {
         return $this->hasMany('App\TindakanRanapSatuSehat', 'response_ranap_satu_sehat_id', 'id');
+    }
+
+    public function resumeMedisSatuSehat()
+    {
+        return $this->hasOne('App\ResumeMedisSatuSehat', 'noRawat', 'no_rawat');
     }
 }

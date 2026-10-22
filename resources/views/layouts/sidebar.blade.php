@@ -1079,6 +1079,17 @@
                                 </ul>
                             </li>
                         @endcan
+                        {{-- @can('satu-sehat-tools-mapingcharge') --}}
+                        <li class="nav-item">
+                            <a href="/satusehat/charge"
+                                class="nav-link @if (@session('anak') == 'Charge Item Satu Sehat') active @endif">
+                                <i class="nav-icon far fa-money-bill-alt"></i>
+                                <p>
+                                    Charge Item
+                                </p>
+                            </a>
+                        </li>
+                        {{-- @endcan --}}
                         <li class="nav-item @if (@session('anak') == 'Tool Satu Sehat') menu-is-opening menu-open @endif">
                             <a href="#" class="nav-link @if (@session('anak') == 'Tool Satu Sehat') active @endif">
                                 <i class="nav-icon fas fa-wrench"></i>
